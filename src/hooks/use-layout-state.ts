@@ -3,19 +3,23 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
-import { UIElement } from '@/lib/layout-templates';
+import { UIElement, NegativeSpaceMetrics, applyLayoutSolver } from '@/lib/layout-templates';
 
 export function useLayoutState() {
   const [elements, setElements] = useState<UIElement[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [metrics, setMetrics] = useState<NegativeSpaceMetrics[]>([]);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const addElement = useCallback((element: UIElement) => {
     const newElement = { ...element, id: `${element.type}-${Date.now()}` };
-    setElements(prev => [...prev, newElement]);
+    setElements(prev => {
+      const next = [...prev, newElement];
+      return applyLayoutSolver(next, metrics);
+    });
     setSelectedIds([newElement.id]);
-  }, []);
+  }, [metrics]);
 
   const updateElement = useCallback((id: string, updates: Partial<UIElement>) => {
     setElements(prev => {
@@ -26,9 +30,10 @@ export function useLayoutState() {
           return el;
         });
       };
-      return updateRecursive(prev);
+      const next = updateRecursive(prev);
+      return applyLayoutSolver(next, metrics);
     });
-  }, []);
+  }, [metrics]);
 
   const removeElement = useCallback((id: string) => {
     setElements(prev => {
@@ -41,10 +46,11 @@ export function useLayoutState() {
           return true;
         });
       };
-      return filterRecursive(prev);
+      const next = filterRecursive(prev);
+      return applyLayoutSolver(next, metrics);
     });
     setSelectedIds(prev => prev.filter(sid => sid !== id));
-  }, []);
+  }, [metrics]);
 
   const selectElement = useCallback((id: string | null, multi = false) => {
     if (!id) {
@@ -58,8 +64,9 @@ export function useLayoutState() {
     }
   }, []);
 
-  const setLayout = useCallback((newElements: UIElement[]) => {
-    setElements(newElements);
+  const setLayout = useCallback((newElements: UIElement[], newMetrics: NegativeSpaceMetrics[] = []) => {
+    setMetrics(newMetrics);
+    setElements(applyLayoutSolver(newElements, newMetrics));
     setSelectedIds([]);
     setZoom(1);
     setPan({ x: 0, y: 0 });
@@ -79,6 +86,7 @@ export function useLayoutState() {
 
   return {
     elements,
+    metrics,
     selectedIds,
     selectedElement: selectedElements[0] || null,
     selectedElements,
