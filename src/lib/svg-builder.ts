@@ -2,8 +2,8 @@ import { UIElement } from './layout-templates';
 
 /**
  * Gerador de SVG Profissional para Adobe Illustrator / After Effects.
- * Otimizado com metadados e suporte a fontes bold para fidelidade absoluta.
- * Corrigido para lidar com herança de cor e stroke em exportação standalone.
+ * Otimizado com metadados e suporte a fontes bold.
+ * Garante que cores hexadecimais explícitas sejam usadas em todos os paths.
  */
 export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): string {
   const filters: string[] = [];
@@ -30,7 +30,7 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
   };
   collectFiltersSVG(elements);
 
-  const backgroundRect = `<rect id="Viewport_Background" width="100%" height="100%" fill="#000000" data-name="Background" />`;
+  const backgroundRect = `<rect id="Viewport_Background" width="100%" height="100%" fill="#0f0f0f" data-name="Background" />`;
   
   const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
 
@@ -54,7 +54,6 @@ function renderElement(el: UIElement): string {
   const layerName = el.name || el.id;
   const metadata = `id="${idSafe}" data-name="${layerName}" data-layer-type="${el.type}" data-category="${el.category}"`;
   
-  // Resolve Filters/Masks
   const filterUrl = el.shadow ? `url(#shadow-${idSafe})` : el.blur ? `url(#blur-${idSafe})` : '';
   const filterAttr = filterUrl ? `filter="${filterUrl}"` : '';
   const commonProps = `${metadata} opacity="${el.opacity}" ${filterAttr}`;
@@ -71,32 +70,26 @@ function renderElement(el: UIElement): string {
     case 'capsule': {
       const isPill = el.type === 'pill' || el.type === 'capsule';
       const radius = isPill ? el.height / 2 : (el.rx || 0);
-      const strokeProps = el.stroke && el.stroke !== 'none' ? `stroke="${el.stroke === 'currentColor' ? '#FFFFFF' : el.stroke}" stroke-width="${el.strokeWidth || 1}"` : '';
+      const strokeProps = el.stroke && el.stroke !== 'none' ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : '';
       return `<rect ${commonProps} x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${el.fill}" rx="${radius}" ry="${radius}" ${strokeProps} transform="rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})" />`;
     }
       
     case 'text': {
       const textAnchor = el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start';
       const fontWeight = el.fontWeight || '400';
-      const isBold = fontWeight === '700' || fontWeight === '800' || fontWeight === '600';
-      const finalWeight = isBold ? fontWeight : '400';
-
-      return `<text ${commonProps} x="${el.x}" y="${el.y}" fill="${el.fill === 'currentColor' ? '#FFFFFF' : el.fill}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${finalWeight}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
+      return `<text ${commonProps} x="${el.x}" y="${el.y}" fill="${el.fill}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${fontWeight}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
     }
       
     case 'circle': {
       const r = el.width / 2;
-      const strokeColor = el.stroke === 'currentColor' ? '#FFFFFF' : (el.stroke || 'none');
-      const cStrokeProps = strokeColor !== 'none' ? `stroke="${strokeColor}" stroke-width="${el.strokeWidth || 1}"` : '';
-      return `<circle ${commonProps} cx="${el.x + r}" cy="${el.y + r}" r="${r}" fill="${el.fill === 'currentColor' ? '#FFFFFF' : el.fill}" ${cStrokeProps} />`;
+      const cStrokeProps = el.stroke && el.stroke !== 'none' ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : '';
+      return `<circle ${commonProps} cx="${el.x + r}" cy="${el.y + r}" r="${r}" fill="${el.fill}" ${cStrokeProps} />`;
     }
     
     case 'path':
-      const pathStrokeColor = el.stroke === 'currentColor' ? '#FFFFFF' : (el.stroke || 'none');
-      const pStrokeProps = pathStrokeColor !== 'none' ? `stroke="${pathStrokeColor}" stroke-width="${el.strokeWidth || 1}"` : '';
+      const pStrokeProps = el.stroke && el.stroke !== 'none' ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : '';
       const linecapProp = el.strokeLinecap ? `stroke-linecap="${el.strokeLinecap}"` : 'stroke-linecap="round"';
-      const pathFill = el.fill === 'none' ? 'none' : (el.fill === 'currentColor' ? '#FFFFFF' : el.fill);
-      return `<path ${commonProps} d="${el.pathData || ''}" transform="translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})" fill="${pathFill}" ${pStrokeProps} ${linecapProp} />`;
+      return `<path ${commonProps} d="${el.pathData || ''}" transform="translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})" fill="${el.fill}" ${pStrokeProps} ${linecapProp} />`;
       
     default:
       return '';
