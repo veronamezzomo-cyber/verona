@@ -80,7 +80,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 }
 
 /**
- * Utilitário para criação de ícones com cores fixas (evita erro de exportação)
+ * Utilitário para ícones sistêmicos com cores explícitas (Evita erro de exportação)
  */
 function createSystemIcon(id: string, name: string, x: number, y: number, path: string, color: string = '#FFFFFF', size: number = 24): UIElement {
   return {
@@ -93,7 +93,7 @@ function createSystemIcon(id: string, name: string, x: number, y: number, path: 
 }
 
 /**
- * SECTOR 01: HEADER ENGINE
+ * SETOR 01: HEADER ENGINE (Navegação Superior)
  */
 function generateHeaderSector(bg: string, textMain: string, textMuted: string): UIElement {
   return {
@@ -101,7 +101,6 @@ function generateHeaderSector(bg: string, textMain: string, textMuted: string): 
     x: 0, y: 0, width: 1280, height: 56, fill: bg, opacity: 1, visible: true, locked: false,
     children: [
       createSystemIcon('Menu_Icon', 'Hamburger', 16, 16, 'M4 6h16M4 12h16M4 18h16', textMain),
-      // Logo YouTube com superscript BR
       {
         id: 'Logo_Group', name: 'YouTube_Logo', type: 'group', category: 'Icon',
         x: 56, y: 16, width: 120, height: 24, fill: 'none', opacity: 1, visible: true, locked: false,
@@ -112,7 +111,6 @@ function generateHeaderSector(bg: string, textMain: string, textMuted: string): 
           { id: 'Logo_BR', name: 'BR', type: 'text', category: 'Typography', x: 112, y: 6, width: 0, height: 0, fill: '#AAAAAA', text: 'BR', fontSize: 9, fontWeight: '400', visible: true, locked: false, opacity: 1 }
         ]
       },
-      // Search Sector
       {
         id: 'Search_Sector', name: 'Search_Area', type: 'group', category: 'Interactive',
         x: 350, y: 8, width: 700, height: 40, fill: 'none', opacity: 1, visible: true, locked: false,
@@ -126,7 +124,6 @@ function generateHeaderSector(bg: string, textMain: string, textMuted: string): 
           createSystemIcon('Mic_Icon', 'Mic', 583, 8, 'M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z M19 10v1a7 7 0 01-14 0v-1', textMain)
         ]
       },
-      // Right Actions
       {
         id: 'User_Sector', name: 'Right_Actions', type: 'group', category: 'Interactive',
         x: 1060, y: 12, width: 220, height: 32, fill: 'none', opacity: 1, visible: true, locked: false,
@@ -135,7 +132,6 @@ function generateHeaderSector(bg: string, textMain: string, textMuted: string): 
           createSystemIcon('Plus_Icon', 'Add', 10, 4, 'M12 5v14M5 12h14', textMain),
           { id: 'Create_Txt', name: 'Label', type: 'text', category: 'Typography', x: 42, y: 21, width: 0, height: 0, fill: textMain, text: 'Criar', fontSize: 14, fontWeight: '600', visible: true, locked: false },
           createSystemIcon('Bell_Icon', 'Notify', 120, 4, 'M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0', textMain),
-          { id: 'Bell_Dot', name: 'Badge', type: 'circle', category: 'Icon', x: 132, y: 0, width: 16, height: 16, fill: '#CC0000', opacity: 1, visible: true, locked: false },
           { id: 'Avatar', name: 'Photo', type: 'circle', category: 'Image', x: 170, y: -4, width: 40, height: 40, fill: '#443322', opacity: 1, visible: true, locked: false }
         ]
       }
@@ -144,7 +140,7 @@ function generateHeaderSector(bg: string, textMain: string, textMuted: string): 
 }
 
 /**
- * SECTOR 02: SIDEBAR ENGINE (Scan de Esquerda)
+ * SETOR 02: SIDEBAR ENGINE (Navegação Lateral)
  */
 function generateSidebarSector(bg: string, textMain: string, sidebarWidth: number, headerHeight: number): UIElement {
   const users = [
@@ -161,16 +157,12 @@ function generateSidebarSector(bg: string, textMain: string, sidebarWidth: numbe
     id: 'Sidebar_Sector', name: 'Sidebar_Container', type: 'group', category: 'Container',
     x: 0, y: headerHeight, width: sidebarWidth, height: 720 - headerHeight, fill: bg, opacity: 1, visible: true, locked: false,
     children: [
-      // Primary Nav
       { id: 'S_Home_BG', name: 'Active', type: 'rect', category: 'Interactive', x: 12, y: 12, width: 216, height: 40, fill: '#272727', rx: 10, ry: 10, opacity: 1, visible: true, locked: false },
       createSystemIcon('S_Home_Icon', 'H', 24, 20, 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', textMain),
       { id: 'S_Home_Txt', name: 'Label', type: 'text', category: 'Typography', x: 64, y: 38, width: 0, height: 0, fill: textMain, text: 'Início', fontSize: 14, fontWeight: '700', visible: true, locked: false },
       
-      // Inscrições Title
       { id: 'S_Insc_Title', name: 'Title', type: 'text', category: 'Typography', x: 24, y: 150, width: 0, height: 0, fill: textMain, text: 'Inscrições', fontSize: 16, fontWeight: '700', visible: true, locked: false },
-      createSystemIcon('S_Insc_Chev', 'C', 110, 134, 'M9 5l7 7-7 7', textMain),
-
-      // List Rendering (Scan Vertical)
+      
       ...users.flatMap((u, i) => [
         { id: `U${i}_Ava`, name: u.name, type: 'circle', category: 'Image', x: 24, y: 175 + (i * 40), width: 24, height: 24, fill: '#333344', opacity: 1, visible: true, locked: false },
         { id: `U${i}_Txt`, name: u.name, type: 'text', category: 'Typography', x: 60, y: 192 + (i * 40), width: 0, height: 0, fill: textMain, text: u.name, fontSize: 14, visible: true, locked: false },
@@ -181,14 +173,13 @@ function generateSidebarSector(bg: string, textMain: string, sidebarWidth: numbe
 }
 
 /**
- * SECTOR 03: CONTENT ENGINE (Scan de Direita/Central)
+ * SETOR 03: CONTENT ENGINE (Feed de Vídeos e Shorts)
  */
 function generateContentSector(bg: string, textMain: string, textMuted: string, sidebarWidth: number, headerHeight: number): UIElement {
   return {
     id: 'Content_Sector', name: 'Feed_Container', type: 'group', category: 'Container',
     x: sidebarWidth, y: headerHeight, width: 1280 - sidebarWidth, height: 720 - headerHeight, fill: bg, opacity: 1, visible: true, locked: false,
     children: [
-      // Category Toolbar
       {
         id: 'Chips_Group', name: 'Chips', type: 'group', category: 'Interactive',
         x: 24, y: 12, width: 1000, height: 32, fill: 'none', opacity: 1, visible: true, locked: false,
@@ -199,12 +190,10 @@ function generateContentSector(bg: string, textMain: string, textMuted: string, 
           { id: 'C2_Txt', name: 'Txt', type: 'text', category: 'Typography', x: 112, y: 21, width: 0, height: 0, fill: textMain, text: 'Podcasts', fontSize: 14, textAlign: 'center', visible: true, locked: false }
         ]
       },
-      // Video Grid (Top Row)
       {
         id: 'Video_Grid', name: 'Videos', type: 'group', category: 'Container',
         x: 24, y: 64, width: 1000, height: 260, fill: 'none', opacity: 1, visible: true, locked: false,
         children: [
-          // Video 1
           {
             id: 'V1_Group', name: 'V1', type: 'group', category: 'Container',
             x: 0, y: 0, width: 320, height: 260, fill: 'none', opacity: 1, visible: true, locked: false,
@@ -213,12 +202,9 @@ function generateContentSector(bg: string, textMain: string, textMuted: string, 
               { id: 'V1_Ti', name: 'Time', type: 'rect', category: 'Icon', x: 275, y: 155, width: 40, height: 20, fill: 'rgba(0,0,0,0.8)', rx: 4, ry: 4, opacity: 1, visible: true, locked: false },
               { id: 'V1_Tt', name: '27:17', type: 'text', category: 'Typography', x: 295, y: 169, width: 0, height: 0, fill: '#FFF', text: '27:17', fontSize: 11, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
               { id: 'V1_Tit', name: 'Title', type: 'text', category: 'Typography', x: 48, y: 208, width: 260, height: 0, fill: textMain, text: 'receba e speed juntos no cozinha', fontSize: 16, fontWeight: '700', visible: true, locked: false },
-              { id: 'V1_Met', name: 'Meta', type: 'text', category: 'Typography', x: 48, y: 232, width: 0, height: 0, fill: textMuted, text: 'orochidois • 377 mil visualizações', fontSize: 14, visible: true, locked: false },
-              { id: 'V1_Dub', name: 'Dub', type: 'rect', category: 'Icon', x: 48, y: 245, width: 140, height: 20, fill: '#222', rx: 4, ry: 4, opacity: 1, visible: true, locked: false },
-              { id: 'V1_Dt', name: 'DubTxt', type: 'text', category: 'Typography', x: 55, y: 259, width: 0, height: 0, fill: textMuted, text: 'Dublagem automática', fontSize: 11, visible: true, locked: false }
+              { id: 'V1_Met', name: 'Meta', type: 'text', category: 'Typography', x: 48, y: 232, width: 0, height: 0, fill: textMuted, text: 'orochidois • 377 mil visualizações', fontSize: 14, visible: true, locked: false }
             ]
           },
-          // Video 2 (LIVE)
           {
             id: 'V2_Group', name: 'V2', type: 'group', category: 'Container',
             x: 340, y: 0, width: 320, height: 260, fill: 'none', opacity: 1, visible: true, locked: false,
@@ -230,7 +216,6 @@ function generateContentSector(bg: string, textMain: string, textMuted: string, 
           }
         ]
       },
-      // Shorts Shelf
       {
         id: 'Shorts_Shelf', name: 'Shorts', type: 'group', category: 'Container',
         x: 24, y: 360, width: 1000, height: 320, fill: 'none', opacity: 1, visible: true, locked: false,
