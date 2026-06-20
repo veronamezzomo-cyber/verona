@@ -81,6 +81,7 @@ export interface VisualMap {
 export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceMetrics[]): UIElement[] {
   if (!elements) return [];
 
+  const VIEWPORT_WIDTH = 1280;
   const solvedElements = JSON.parse(JSON.stringify(elements)) as UIElement[];
   const elementMap = new Map<string, UIElement>();
 
@@ -88,23 +89,31 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
     els.forEach(el => {
       elementMap.set(el.id, el);
       
-      // FASE 3: RELATIVE CHILDREN POSITIONING
+      // AUTO-CENTERING LOGIC (Horizontal)
+      if (el.id === 'HeroBranding' || el.id === 'PromptPill' || el.id === 'BuildCard' || el.id === 'Footer') {
+        el.x = (VIEWPORT_WIDTH - el.width) / 2;
+      }
+
+      // DYNAMIC CHILDREN ANCHORING
       if (el.children && el.children.length > 0) {
         el.children.forEach(child => {
-          // Lógica de posicionamento relativo ao pai (Pill)
+          // Pill Anchoring (Right-aligned elements)
           if (child.id === 'pill-send-circle' || child.id === 'pill-send-arrow') {
-            child.x = el.width - 45; // Fixed right offset
+            child.x = el.width - 50; // Offset from right
           }
           if (child.id === 'pill-fast-text' || child.id === 'pill-fast-chevron') {
-            child.x = el.width - 110; // Positioning Fast selector relative to right
+            child.x = el.width - 110; 
           }
           
-          // Lógica de posicionamento relativo no Card
+          // Card Anchoring
           if (child.id === 'card-close') {
              child.x = el.width - 30;
           }
           if (child.id === 'term-bg' || child.id === 'term-tabs') {
-             child.x = el.width - 340; // Right align terminal block
+             child.x = el.width - 340; 
+          }
+          if (child.id === 'term-code') {
+             child.x = el.width - 320;
           }
 
           elementMap.set(child.id, child);
@@ -143,7 +152,6 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
   const darkBlack = '#000000';
 
   const elements: UIElement[] = [
-    // FASE 5: LAYER NAMING SEMÂNTICO & FASE 4: METADATA
     {
       id: 'Header',
       name: 'Header_Navigation',
@@ -171,7 +179,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'HeroBranding',
       name: 'Hero_Branding_Section',
       type: 'group',
-      x: 540, y: 220, width: 200, height: 50,
+      x: 0, y: 220, width: 200, height: 50,
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
@@ -189,9 +197,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'PromptPill',
       name: 'Main_Prompt_Input',
       type: 'group',
-      x: 290, y: 330, width: 700, height: 60,
+      x: 0, y: 330, width: 700, height: 60,
       fill: 'none', opacity: 1, visible: true, locked: false,
-      // FASE 1: SHADOW ENGINE
       shadow: '0 8 24 rgba(0,0,0,0.4)',
       children: [
         { id: 'pill-surface', name: 'Input_Background', type: 'pill', x: 0, y: 0, width: 700, height: 60, fill: surface, opacity: 1, stroke: border, strokeWidth: 1, visible: true, locked: false },
@@ -207,7 +214,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'BuildCard',
       name: 'Developer_Grok_Build_Card',
       type: 'group',
-      x: 340, y: 430, width: 600, height: 140,
+      x: 0, y: 430, width: 600, height: 140,
       fill: 'none', opacity: 1, visible: true, locked: false,
       shadow: '0 4 16 rgba(0,0,0,0.3)',
       children: [
@@ -227,8 +234,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'Footer',
       name: 'Legal_Compliance_Footer',
       type: 'text',
-      x: 640, y: 680,
-      width: 0, height: 0,
+      x: 0, y: 680,
+      width: 1280, height: 0,
       fill: textSecondary,
       text: 'Ao enviar mensagens para o Grok, você concorda com nossos termos e política de privacidade.',
       fontSize: 11,
