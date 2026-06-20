@@ -1,5 +1,5 @@
 /**
- * @fileOverview Visual Map System - Grok Edition (Sectorized Absolute Fidelity with Deep Color Validation).
+ * @fileOverview Visual Map System - Claude Edition (Sectorized Absolute Fidelity).
  */
 
 export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'pill' | 'capsule';
@@ -76,29 +76,19 @@ export interface VisualMap {
 
 /**
  * PIPELINE: Deep Color Validator
- * Garante que nenhum elemento exportado tenha cor vazia e que as cores sigam o padrão original.
+ * Garante que nenhum elemento exportado tenha cor vazia.
  */
 export function deepColorValidator(elements: UIElement[]): UIElement[] {
   return elements.map(el => {
     const validated = { ...el };
-    
-    // Fallback para preenchimento vazio
     if (!validated.fill || validated.fill === 'transparent' || validated.fill === '') {
       if (validated.type === 'text') validated.fill = '#FFFFFF';
       else if (validated.type === 'path' && !validated.stroke) validated.fill = '#FFFFFF';
-      else if (validated.type === 'rect' && validated.category === 'Background') validated.fill = '#000000';
+      else if (validated.type === 'rect' && validated.category === 'Background') validated.fill = '#1b1b1a';
     }
-
-    // Estabilização de ícones (sempre garantir stroke se fill for none)
-    if (validated.category === 'Icon' && validated.fill === 'none' && !validated.stroke) {
-      validated.stroke = '#FFFFFF';
-      validated.strokeWidth = validated.strokeWidth || 1.5;
-    }
-
     if (validated.children) {
       validated.children = deepColorValidator(validated.children);
     }
-    
     return validated;
   });
 }
@@ -108,158 +98,123 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
   return deepColorValidator(elements);
 }
 
-function createSystemIcon(id: string, name: string, x: number, y: number, path: string, color: string = '#FFFFFF', size: number = 24, strokeWidth: number = 1.5): UIElement {
+function createSystemIcon(id: string, name: string, x: number, y: number, path: string, color: string = '#FFFFFF', size: number = 20, strokeWidth: number = 1.5): UIElement {
   return {
     id, name, type: 'path', category: 'Icon',
     x, y, width: size, height: size,
     fill: 'none', stroke: color, strokeWidth: strokeWidth, strokeLinecap: 'round',
     pathData: path,
-    opacity: 1, visible: true, locked: false
+    opacity: 0.6, visible: true, locked: false
   };
 }
 
 /**
- * GLYPH: Grok Logo Construction
+ * SETOR 01: CLAUDE SIDEBAR
  */
-function createGrokLogo(idPrefix: string, x: number, y: number, scale: number = 1): UIElement {
-  const color = '#FFFFFF';
+function generateClaudeSidebar(): UIElement {
+  const textColor = '#d1d1d1';
   return {
-    id: `${idPrefix}_Group`, name: 'Grok_Logo', type: 'group', category: 'Icon',
-    x, y, width: 48 * scale, height: 48 * scale, fill: 'none', opacity: 1, visible: true, locked: false,
+    id: 'Sidebar_Sector', name: 'Sidebar', type: 'group', category: 'Container',
+    x: 0, y: 0, width: 260, height: 720, fill: 'none', opacity: 1, visible: true, locked: false,
     children: [
-      { id: `${idPrefix}_Slash`, name: 'Slash', type: 'path', category: 'Icon', x: 0, y: 0, width: 48, height: 48, fill: 'none', stroke: color, strokeWidth: 4 * scale, strokeLinecap: 'round', pathData: 'M10 38 L38 10', opacity: 1, visible: true, locked: false },
-      { id: `${idPrefix}_ArcTop`, name: 'Arc_Top', type: 'path', category: 'Icon', x: 0, y: 0, width: 48, height: 48, fill: color, pathData: 'M24 8 C30 8 36 12 38 18 L34 20 C32 16 28 14 24 14 Z', opacity: 1, visible: true, locked: false },
-      { id: `${idPrefix}_ArcBot`, name: 'Arc_Bottom', type: 'path', category: 'Icon', x: 0, y: 0, width: 48, height: 48, fill: color, pathData: 'M24 40 C18 40 12 36 10 30 L14 28 C16 32 20 34 24 34 Z', opacity: 1, visible: true, locked: false }
-    ]
-  };
-}
-
-/**
- * SETOR 01: HEADER
- */
-function generateHeaderSector(): UIElement {
-  return {
-    id: 'Header_Sector', name: 'Header', type: 'group', category: 'Container',
-    x: 0, y: 0, width: 1280, height: 80, fill: 'none', opacity: 1, visible: true, locked: false,
-    children: [
-      createGrokLogo('Logo_Top', 24, 24, 0.6),
+      { id: 'Sidebar_BG', name: 'BG', type: 'rect', category: 'Background', x: 0, y: 0, width: 260, height: 720, fill: '#1b1b1a', opacity: 1, visible: true, locked: false },
       
-      { id: 'Header_Actions', name: 'Nav_Right', type: 'group', category: 'Interactive', x: 920, y: 24, width: 340, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        // Gallery Icon (Imagine)
-        createSystemIcon('Imagine_Icon', 'Imagine', 0, 8, 'M3 3h18v18H3z M8.5 8.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z M21 15l-5-5L5 21', '#FFFFFF', 20),
-        { id: 'Imagine_Txt', name: 'Label', type: 'text', category: 'Typography', x: 28, y: 23, width: 0, height: 0, fill: '#FFFFFF', text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false },
-        
-        // Settings Icon (Gear)
-        createSystemIcon('Settings_Icon', 'Settings', 100, 8, 'M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z', '#FFFFFF', 20),
-        
-        // Buttons
-        { id: 'Login_Btn', name: 'Login', type: 'rect', category: 'Interactive', x: 140, y: 0, width: 70, height: 36, fill: 'none', stroke: '#333333', strokeWidth: 1, rx: 18, ry: 18, opacity: 1, visible: true, locked: false },
-        { id: 'Login_Txt', name: 'Label', type: 'text', category: 'Typography', x: 175, y: 23, width: 0, height: 0, fill: '#FFFFFF', text: 'Entrar', fontSize: 13, fontWeight: '600', textAlign: 'center', visible: true, locked: false },
-        
-        { id: 'Signup_Btn', name: 'Signup', type: 'rect', category: 'Interactive', x: 220, y: 0, width: 100, height: 36, fill: '#FFFFFF', rx: 18, ry: 18, opacity: 1, visible: true, locked: false },
-        { id: 'Signup_Txt', name: 'Label', type: 'text', category: 'Typography', x: 270, y: 23, width: 0, height: 0, fill: '#000000', text: 'Criar conta', fontSize: 13, fontWeight: '700', textAlign: 'center', visible: true, locked: false }
-      ]}
-    ]
-  };
-}
+      // Top Logo
+      { id: 'Claude_Logo', name: 'Brand', type: 'text', category: 'Typography', x: 24, y: 44, width: 0, height: 0, fill: '#FFFFFF', text: 'Claude', fontSize: 24, fontWeight: '600', fontFamily: 'serif', visible: true, locked: false },
+      createSystemIcon('Search_Top', 'Search', 180, 30, 'M11 19a8 8 0 100-16 8 8 0 000 16z M21 21l-4.35-4.35', '#FFFFFF', 18),
+      createSystemIcon('Sidebar_Toggle', 'Toggle', 215, 30, 'M3 12h18 M3 6h18 M3 18h18', '#FFFFFF', 18),
 
-/**
- * SETOR 02: HERO
- */
-function generateHeroSector(): UIElement {
-  return {
-    id: 'Hero_Sector', name: 'Hero', type: 'group', category: 'Container',
-    x: 520, y: 240, width: 240, height: 60, fill: 'none', opacity: 1, visible: true, locked: false,
-    children: [
-      createGrokLogo('Hero_Logo', 0, 0, 1.2),
-      { id: 'Hero_Title', name: 'Brand', type: 'text', category: 'Typography', x: 70, y: 48, width: 0, height: 0, fill: '#FFFFFF', text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
-    ]
-  };
-}
-
-/**
- * SETOR 03: PROMPT BAR
- */
-function generatePromptSector(): UIElement {
-  return {
-    id: 'Prompt_Sector', name: 'Search_Bar', type: 'group', category: 'Container',
-    x: 320, y: 360, width: 640, height: 60, fill: 'none', opacity: 1, visible: true, locked: false,
-    children: [
-      { id: 'Prompt_BG', name: 'BG', type: 'rect', category: 'Background', x: 0, y: 0, width: 640, height: 60, fill: '#121212', rx: 30, ry: 30, stroke: '#222222', strokeWidth: 1, opacity: 1, visible: true, locked: false },
-      createSystemIcon('Plus_Icon', 'Add', 24, 18, 'M12 6v12 M6 12h12', '#FFFFFF', 24),
-      { id: 'Prompt_Placeholder', name: 'Placeholder', type: 'text', category: 'Typography', x: 60, y: 36, width: 0, height: 0, fill: '#666666', text: 'O que você quer saber?', fontSize: 16, visible: true, locked: false },
-      
-      { id: 'Prompt_Right', name: 'Controls', type: 'group', category: 'Interactive', x: 500, y: 10, width: 130, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        { id: 'Fast_Txt', name: 'Label', type: 'text', category: 'Typography', x: 0, y: 26, width: 0, height: 0, fill: '#FFFFFF', text: 'Fast', fontSize: 14, fontWeight: '600', visible: true, locked: false },
-        // Chevron centralizado verticalmente (y: 18 para ícone de 16px em container de 40px)
-        createSystemIcon('Fast_Chevron', 'Down', 36, 15, 'M4 6l4 4 4-4', '#FFFFFF', 16, 2),
+      // Nav List
+      { id: 'Nav_List', name: 'Nav', type: 'group', category: 'Interactive', x: 20, y: 80, width: 220, height: 300, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+        createSystemIcon('Plus_Chat', 'New', 0, 10, 'M12 5v14M5 12h14', textColor, 16),
+        { id: 'Txt_New', name: 'Label', type: 'text', category: 'Typography', x: 30, y: 22, width: 0, height: 0, fill: textColor, text: 'New chat', fontSize: 14, fontWeight: '500', visible: true, locked: false },
         
-        { id: 'Send_Circle', name: 'Btn', type: 'circle', category: 'Interactive', x: 80, y: 0, width: 40, height: 40, fill: '#262626', opacity: 1, visible: true, locked: false },
-        // Ícone de envio alinhado ao centro do círculo
-        createSystemIcon('Send_Icon', 'Up', 88, 8, 'M12 19V5 M5 12l7-7 7 7', '#FFFFFF', 24, 2)
-      ]}
-    ]
-  };
-}
+        createSystemIcon('Chat_Icon', 'Chats', 0, 50, 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z', textColor, 16),
+        { id: 'Txt_Chats', name: 'Label', type: 'text', category: 'Typography', x: 30, y: 62, width: 0, height: 0, fill: textColor, text: 'Chats', fontSize: 14, visible: true, locked: false },
+        
+        createSystemIcon('Project_Icon', 'Projects', 0, 90, 'M3 7h18 M3 12h18 M3 17h18', textColor, 16),
+        { id: 'Txt_Projects', name: 'Label', type: 'text', category: 'Typography', x: 30, y: 102, width: 0, height: 0, fill: textColor, text: 'Projects', fontSize: 14, visible: true, locked: false },
+        
+        createSystemIcon('Artifact_Icon', 'Artifacts', 0, 130, 'M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5', textColor, 16),
+        { id: 'Txt_Artifacts', name: 'Label', type: 'text', category: 'Typography', x: 30, y: 142, width: 0, height: 0, fill: textColor, text: 'Artifacts', fontSize: 14, visible: true, locked: false },
+        
+        createSystemIcon('Code_Icon', 'Code', 0, 170, 'M16 18l6-6-6-6 M8 6l-6 6 6 6', '#555555', 16),
+        { id: 'Txt_Code', name: 'Label', type: 'text', category: 'Typography', x: 30, y: 182, width: 0, height: 0, fill: '#555555', text: 'Code', fontSize: 14, visible: true, locked: false },
+        { id: 'Upgrade_Badge', name: 'Badge', type: 'rect', category: 'Container', x: 140, y: 168, width: 60, height: 20, fill: '#3b82f633', rx: 10, ry: 10, opacity: 1, visible: true, locked: false },
+        { id: 'Upgrade_Txt', name: 'Label', type: 'text', category: 'Typography', x: 170, y: 182, width: 0, height: 0, fill: '#3b82f6', text: 'Upgrade', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
 
-/**
- * SETOR 04: GROK BUILD CARD
- */
-function generateBuildCardSector(): UIElement {
-  return {
-    id: 'Build_Sector', name: 'Promo_Card', type: 'group', category: 'Container',
-    x: 320, y: 460, width: 640, height: 160, fill: 'none', opacity: 1, visible: true, locked: false,
-    children: [
-      { id: 'Card_BG', name: 'BG', type: 'rect', category: 'Background', x: 0, y: 0, width: 640, height: 160, fill: '#0a0a0a', rx: 24, ry: 24, stroke: '#1a1a1a', strokeWidth: 1, opacity: 1, visible: true, locked: false },
-      
-      { id: 'Card_Title', name: 'Title', type: 'text', category: 'Typography', x: 24, y: 50, width: 0, height: 0, fill: '#FFFFFF', text: 'Grok Build', fontSize: 20, fontWeight: '700', visible: true, locked: false },
-      { id: 'Beta_Badge', name: 'Badge', type: 'rect', category: 'Container', x: 135, y: 32, width: 45, height: 22, fill: '#FF6B00', rx: 11, ry: 11, opacity: 0.15, visible: true, locked: false },
-      { id: 'Beta_Txt', name: 'Label', type: 'text', category: 'Typography', x: 157, y: 47, width: 0, height: 0, fill: '#FF6B00', text: 'Beta', fontSize: 11, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
-      { id: 'Card_Desc', name: 'Body', type: 'text', category: 'Typography', x: 24, y: 85, width: 0, height: 0, fill: '#888888', text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
-      { id: 'Card_Desc2', name: 'Body', type: 'text', category: 'Typography', x: 24, y: 105, width: 0, height: 0, fill: '#888888', text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
-      
-      { id: 'CLI_Tabs', name: 'Tabs', type: 'group', category: 'Interactive', x: 280, y: 44, width: 100, height: 20, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        { id: 'Tab_PS', name: 'Active', type: 'text', category: 'Typography', x: 0, y: 15, width: 0, height: 0, fill: '#FFFFFF', text: 'PowerShell', fontSize: 12, fontWeight: '600', visible: true, locked: false },
-        { id: 'Tab_WSL', name: 'Inactive', type: 'text', category: 'Typography', x: 75, y: 15, width: 0, height: 0, fill: '#555555', text: 'WSL', fontSize: 12, fontWeight: '500', visible: true, locked: false }
+        createSystemIcon('Custom_Icon', 'Customize', 0, 210, 'M12 15a3 3 0 100-6 3 3 0 000 6z', textColor, 16),
+        { id: 'Txt_Custom', name: 'Label', type: 'text', category: 'Typography', x: 30, y: 222, width: 0, height: 0, fill: textColor, text: 'Customize', fontSize: 14, visible: true, locked: false }
       ]},
-      { id: 'Terminal_BG', name: 'Terminal', type: 'rect', category: 'Container', x: 280, y: 75, width: 330, height: 45, fill: '#161616', rx: 12, ry: 12, stroke: '#222222', strokeWidth: 1, opacity: 1, visible: true, locked: false },
-      { id: 'CLI_Cmd', name: 'Command', type: 'text', category: 'Typography', x: 300, y: 103, width: 0, height: 0, fill: '#FFFFFF', text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
-      createSystemIcon('Copy_Icon', 'Copy', 580, 88, 'M8 4h8a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2V6a2 2 0 012-2z', '#555555', 18),
-      
-      createSystemIcon('Close_Icon', 'Close', 600, 16, 'M18 6L6 18 M6 6l12 12', '#444444', 16)
+
+      // Profile Bottom
+      { id: 'Profile_Group', name: 'User', type: 'group', category: 'Interactive', x: 20, y: 640, width: 220, height: 60, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+        { id: 'Avatar_BG', name: 'Avatar', type: 'circle', category: 'Interactive', x: 0, y: 0, width: 40, height: 40, fill: '#FFFFFF', opacity: 0.1, visible: true, locked: false },
+        { id: 'Avatar_L', name: 'Initial', type: 'text', category: 'Typography', x: 20, y: 26, width: 0, height: 0, fill: '#FFFFFF', text: 'L', fontSize: 16, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
+        { id: 'User_Name', name: 'Name', type: 'text', category: 'Typography', x: 50, y: 15, width: 0, height: 0, fill: '#FFFFFF', text: 'Leonardo', fontSize: 14, fontWeight: '600', visible: true, locked: false },
+        { id: 'User_Plan', name: 'Plan', type: 'text', category: 'Typography', x: 50, y: 32, width: 0, height: 0, fill: '#666666', text: 'Free plan', fontSize: 11, visible: true, locked: false },
+        createSystemIcon('Download_Icon', 'Download', 160, 10, 'M12 15V3m0 12l-4-4m4 4l4-4M5 20h14', '#FFFFFF', 18),
+        createSystemIcon('Chevron_Profile', 'More', 195, 10, 'M7 10l5 5 5-5', '#FFFFFF', 16)
+      ]}
     ]
   };
 }
 
 /**
- * SETOR 05: FOOTER
+ * SETOR 02: CLAUDE MAIN CONTENT
  */
-function generateFooterSector(): UIElement {
-  return {
-    id: 'Footer_Sector', name: 'Legal_Text', type: 'text', category: 'Typography',
-    x: 640, y: 700, width: 1280, height: 20, fill: '#444444',
-    text: 'Ao enviar mensagens para o Grok, você concorda com nossos termos e política de privacidade.',
-    fontSize: 11, textAlign: 'center', visible: true, locked: false, opacity: 1
-  };
+function generateClaudeMain(): UIElement[] {
+  return [
+    // Top Right Controls
+    { id: 'Top_Actions', name: 'Top_Nav', type: 'group', category: 'Interactive', x: 550, y: 20, width: 700, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+      { id: 'Free_Pill', name: 'Plan', type: 'rect', category: 'Container', x: 0, y: 0, width: 130, height: 32, fill: '#262624', rx: 16, ry: 16, stroke: '#333331', strokeWidth: 1, opacity: 1, visible: true, locked: false },
+      { id: 'Free_Txt', name: 'Label', type: 'text', category: 'Typography', x: 65, y: 20, width: 0, height: 0, fill: '#FFFFFF', text: 'Free plan · Upgrade', fontSize: 12, textAlign: 'center', visible: true, locked: false },
+      createSystemIcon('Help_Icon', 'Help', 680, 5, 'M9 11a3 3 0 116 0c0 1-1 2-2 3s-1 1.5-1 2.5 M12 20h0', '#FFFFFF', 20)
+    ]},
+
+    // Center Greeting
+    { id: 'Greeting_Group', name: 'Hero', type: 'group', category: 'Container', x: 420, y: 260, width: 440, height: 80, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+      createSystemIcon('Sun_Icon', 'Sun', 0, 0, 'M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42', '#ff8c42', 32, 2.5),
+      { id: 'Hero_Title', name: 'Greeting', type: 'text', category: 'Typography', x: 50, y: 32, width: 0, height: 0, fill: '#d1d1d1', text: 'Good evening, Leonardo', fontSize: 42, fontWeight: '400', fontFamily: 'serif', visible: true, locked: false }
+    ]},
+
+    // Central Input Bar (Multilayer)
+    { id: 'Input_Sector', name: 'Prompt_Engine', type: 'group', category: 'Container', x: 380, y: 440, width: 520, height: 160, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+      // Top Status Bar
+      { id: 'Status_Bar', name: 'Alert', type: 'rect', category: 'Container', x: 0, y: 0, width: 520, height: 40, fill: '#1b1b1a', rx: 16, ry: 16, opacity: 1, visible: true, locked: false },
+      { id: 'Status_Txt', name: 'Message', type: 'text', category: 'Typography', x: 15, y: 25, width: 0, height: 0, fill: '#FFFFFF', text: 'Claude Fable 5 is currently unavailable.', fontSize: 13, fontWeight: '600', visible: true, locked: false },
+      { id: 'Learn_More', name: 'Link', type: 'text', category: 'Typography', x: 410, y: 25, width: 0, height: 0, fill: '#FFFFFF', text: 'Learn more', fontSize: 13, fontWeight: '600', visible: true, locked: false },
+      createSystemIcon('Close_Status', 'Close', 485, 12, 'M6 6l12 12 M18 6l-12 12', '#FFFFFF', 16),
+
+      // Main Input Area
+      { id: 'Input_Box', name: 'BG', type: 'rect', category: 'Background', x: 0, y: 40, width: 520, height: 120, fill: '#262624', rx: 16, ry: 16, stroke: '#333331', strokeWidth: 1, opacity: 1, visible: true, locked: false },
+      { id: 'Placeholder', name: 'Prompt', type: 'text', category: 'Typography', x: 20, y: 80, width: 0, height: 0, fill: '#666666', text: 'How can I help you today?', fontSize: 16, visible: true, locked: false },
+      
+      // Bottom Controls
+      createSystemIcon('Plus_Input', 'Add', 15, 125, 'M12 6v12M6 12h12', '#666666', 24),
+      { id: 'Model_Selector', name: 'Model', type: 'group', category: 'Interactive', x: 340, y: 125, width: 160, height: 30, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+         { id: 'Model_Txt', name: 'Label', type: 'text', category: 'Typography', x: 0, y: 18, width: 0, height: 0, fill: '#888888', text: 'Sonnet 4.6 Low', fontSize: 13, fontWeight: '500', visible: true, locked: false },
+         createSystemIcon('Model_Chevron', 'Down', 95, 5, 'M7 10l5 5 5-5', '#888888', 14),
+         createSystemIcon('Mic_Icon', 'Voice', 120, 3, 'M12 1v11M19 10v2a7 7 0 01-14 0v-2', '#888888', 18),
+         createSystemIcon('Wave_Icon', 'Wave', 150, 3, 'M2 10l4-4 4 4 4-4 4 4', '#888888', 18)
+      ]}
+    ]}
+  ];
 }
 
-export function generateGrokReconstruction(): VisualMap {
+export function generateClaudeReconstruction(): VisualMap {
   const elements: UIElement[] = [
-    generateHeaderSector(),
-    generateHeroSector(),
-    generatePromptSector(),
-    generateBuildCardSector(),
-    generateFooterSector()
+    generateClaudeSidebar(),
+    ...generateClaudeMain()
   ];
 
-  // Validação cromática final
   const validatedElements = deepColorValidator(elements);
 
   return {
     metadata: {
-      layout_type: 'Grok xAI (Absolute Fidelity)',
+      layout_type: 'Claude AI Studio (Absolute Fidelity)',
       dimensions: { width: 1280, height: 720 },
-      color_palette: { primary: ['#FFFFFF', '#FF6B00'], neutrals: ['#000000', '#121212'] }
+      color_palette: { primary: ['#ff8c42', '#3b82f6'], neutrals: ['#1b1b1a', '#262624'] }
     },
     elements: validatedElements,
     negativeSpaceMetrics: [],

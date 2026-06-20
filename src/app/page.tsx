@@ -1,15 +1,14 @@
 "use client";
 
 /**
- * @fileOverview Grok Studio - Core Interface.
- * Interface baseada na pipeline de reconstrução de alta fidelidade do Grok.com.
+ * @fileOverview Claude Studio - High Fidelity Interface.
  */
 
 import { useEffect } from 'react';
 import { LayoutEditor } from '@/components/layout-editor';
 import { PropertiesPanel } from '@/components/properties-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateGrokReconstruction } from '@/lib/layout-templates';
+import { generateClaudeReconstruction } from '@/lib/layout-templates';
 import { 
   Sparkles
 } from 'lucide-react';
@@ -17,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ExportPanel } from '@/components/export-panel';
 
-export default function GrokForgeStudio() {
+export default function ClaudeForgeStudio() {
   const { 
     elements, 
     selectedIds, 
@@ -29,25 +28,25 @@ export default function GrokForgeStudio() {
     selectElement 
   } = useLayoutState();
 
-  // Inicializa o layout com a pipeline de fidelidade absoluta do Grok
+  // Inicializa o layout com a pipeline de fidelidade absoluta do Claude
   useEffect(() => {
-    const initialLayout = generateGrokReconstruction();
+    const initialLayout = generateClaudeReconstruction();
     setLayout(initialLayout.elements, initialLayout.negativeSpaceMetrics);
   }, [setLayout]);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-black text-white font-sans selection:bg-primary/30">
-      <header className="h-14 border-b border-white/5 bg-black/80 backdrop-blur-xl flex items-center justify-between px-6 z-[100]">
+    <div className="flex flex-col h-screen overflow-hidden bg-[#1b1b1a] text-white font-sans selection:bg-primary/30">
+      <header className="h-14 border-b border-white/5 bg-[#1b1b1a]/80 backdrop-blur-xl flex items-center justify-between px-6 z-[100]">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span className="text-[10px] font-headline uppercase tracking-[0.3em] font-bold text-white">Grok Forge</span>
+            <span className="text-[10px] font-headline uppercase tracking-[0.3em] font-bold text-white">Claude Forge</span>
           </div>
           <div className="h-4 w-px bg-white/10" />
           <div className="flex gap-4 items-center">
             <span className="flex items-center gap-1.5 text-primary text-[10px] font-mono font-bold">
               <div className={cn("w-1.5 h-1.5 rounded-full bg-primary animate-pulse")} /> 
-              HIGH_FIDELITY_READY
+              HIGH_FIDELITY_LOCKED
             </span>
           </div>
         </div>
@@ -58,7 +57,7 @@ export default function GrokForgeStudio() {
       </header>
       
       <main className="flex-1 flex overflow-hidden">
-        <div className="flex-1 relative bg-black overflow-hidden">
+        <div className="flex-1 relative bg-[#1b1b1a] overflow-hidden">
           <LayoutEditor 
             elements={elements} 
             selectedIds={selectedIds}
@@ -84,10 +83,10 @@ export default function GrokForgeStudio() {
         )}
       </main>
 
-      <footer className="h-8 border-t border-white/5 bg-black flex items-center justify-between px-6 text-[9px] text-muted-foreground/30 font-mono tracking-widest">
+      <footer className="h-8 border-t border-white/5 bg-[#1b1b1a] flex items-center justify-between px-6 text-[9px] text-muted-foreground/30 font-mono tracking-widest">
         <div className="flex gap-6 uppercase">
-          <span>PIPELINE: GROK_SECTORIZED_ENGINE</span>
-          <span>STABLE_BUILD_XAI</span>
+          <span>PIPELINE: CLAUDE_VECTOR_ENGINE</span>
+          <span>STABLE_BUILD_ANTHROPIC</span>
         </div>
         <div>
           <span>VECTOR_PRECISION: 100.00%</span>
