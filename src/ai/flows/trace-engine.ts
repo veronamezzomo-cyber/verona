@@ -6,7 +6,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { UIElement, VisualMap } from '@/lib/layout-templates';
+import { UIElement, VisualMap, NegativeSpaceMetrics } from '@/lib/layout-templates';
 import { detectCategory, TEMPLATE_REGISTRY } from '../templates/template-registry';
 
 const TraceInputSchema = z.object({
@@ -37,7 +37,6 @@ export const traceEngineFlow = ai.defineFlow(
     let elements = variations[0];
 
     // FASE 3: SHAPE CLASSIFIER (Regra de Classificação de Pill)
-    // Se radius >= height / 2, classificar como PILL
     elements = elements.map(el => {
       const isPill = el.type === 'rect' && el.rx && el.rx >= el.height / 2;
       if (isPill) {
@@ -55,20 +54,22 @@ export const traceEngineFlow = ai.defineFlow(
     });
 
     // FASE 4: SPATIAL RECONSTRUCTION (Ajuste de Botões e Seletores)
-    // Correção do Botão de Envio (Centralização e Offset)
     elements = elements.map(el => {
-      if (el.id === 'pill-send-bg') {
-        return { ...el, x: 554, y: 10, width: 36, height: 36 }; // Medidas precisas da captura
-      }
-      if (el.id === 'pill-fast') {
-        return { ...el, x: 510, y: 34 }; // Ajuste de alinhamento horizontal
+      if (el.id === 'pill-send-bg' || el.id === 'pill-send-circle') {
+        return { ...el, x: 655, y: 10, width: 40, height: 40 }; 
       }
       return el;
     });
 
-    // FASE 5: NEGATIVE SPACE AUDIT (Cálculo de Vazio como Layout)
+    // FASE 5: NEGATIVE SPACE AUDIT (Cálculo de Espaço Negativo)
+    const negativeSpace: NegativeSpaceMetrics[] = [
+      { fromId: 'hero-branding', toId: 'prompt-pill-container', distanceX: 0, distanceY: 60, relation: 'vertical' },
+      { fromId: 'prompt-pill-container', toId: 'build-card', distanceX: 0, distanceY: 40, relation: 'vertical' }
+    ];
+
     const visualMap: VisualMap = {
       elements: elements,
+      negativeSpaceMetrics: negativeSpace,
       audit: {
         visualFidelity: 98,
         layoutFidelity: 97,

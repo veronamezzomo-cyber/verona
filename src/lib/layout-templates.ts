@@ -12,6 +12,14 @@ export interface VisualMetrics {
   fidelityScore?: number;
 }
 
+export interface NegativeSpaceMetrics {
+  fromId: string;
+  toId: string;
+  distanceX: number;
+  distanceY: number;
+  relation: 'vertical' | 'horizontal' | 'overlap';
+}
+
 export interface UIElement {
   id: string;
   name: string;
@@ -56,6 +64,7 @@ export interface UIElement {
 export interface VisualMap {
   sourceImage?: string;
   elements: UIElement[];
+  negativeSpaceMetrics?: NegativeSpaceMetrics[];
   audit: {
     visualFidelity: number;
     layoutFidelity: number;
