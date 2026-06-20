@@ -53,6 +53,8 @@ export interface UIElement {
   children?: UIElement[];
   visible: boolean;
   locked: boolean;
+  clipPathId?: string;
+  maskId?: string;
 }
 
 export interface VisualMap {
@@ -98,12 +100,13 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 
 /**
  * Cria um ícone utilitário seguindo o Protocolo Geométrico (Stroke 1.5).
+ * Corrigido para usar cores explícitas em vez de currentColor para garantir exportação fiel.
  */
-function createSystemIcon(id: string, name: string, x: number, y: number, path: string): UIElement {
+function createSystemIcon(id: string, name: string, x: number, y: number, path: string, color: string = '#FFFFFF'): UIElement {
   return {
     id, name, type: 'path', category: 'Icon',
     x, y, width: 24, height: 24,
-    fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round',
+    fill: 'none', stroke: color, strokeWidth: 1.5, strokeLinecap: 'round',
     pathData: path,
     opacity: 1, visible: true, locked: false
   };
@@ -112,7 +115,7 @@ function createSystemIcon(id: string, name: string, x: number, y: number, path: 
 /**
  * Reconstrução Analítica do Logo Grok/xAI via Raw SVG.
  */
-function createGrokLogo(id: string, name: string, x: number, y: number, size: number, color: string): UIElement {
+export function createGrokLogo(id: string, name: string, x: number, y: number, size: number, color: string): UIElement {
   const scale = size / 24;
   return {
     id, name, type: 'group', category: 'Icon',
@@ -159,9 +162,9 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           x: 780, y: 16, width: 480, height: 32,
           fill: 'none', opacity: 1, visible: true, locked: false,
           children: [
-            createSystemIcon('Icon_Imagine', 'Imagine_Icon', 0, 4, 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'),
+            createSystemIcon('Icon_Imagine', 'Imagine_Icon', 0, 4, 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', textMain),
             { id: 'Txt_Imagine', name: 'Label_Imagine', type: 'text', category: 'Typography', x: 30, y: 22, width: 0, height: 0, fill: textMain, text: 'Imagine', fontSize: 13, visible: true, locked: false, opacity: 1 },
-            createSystemIcon('Icon_Settings', 'Settings_Icon', 110, 4, 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z'),
+            createSystemIcon('Icon_Settings', 'Settings_Icon', 110, 4, 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z', textMain),
             { id: 'Btn_Login_BG', name: 'Secondary_Action_Pill', type: 'pill', category: 'Interactive', x: 190, y: 0, width: 80, height: 32, fill: 'none', stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1, opacity: 1, visible: true, locked: false },
             { id: 'Btn_Login_Txt', name: 'Login_Label', type: 'text', category: 'Typography', x: 230, y: 21, width: 0, height: 0, fill: textMain, text: 'Entrar', fontSize: 13, fontWeight: '500', textAlign: 'center', visible: true, locked: false },
             { id: 'Btn_Signup_BG', name: 'Primary_Action_Pill', type: 'pill', category: 'Interactive', x: 280, y: 0, width: 100, height: 32, fill: textMain, opacity: 1, visible: true, locked: false },
@@ -185,12 +188,12 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { id: 'Pill_BG', name: 'Input_Container', type: 'pill', category: 'Container', x: 0, y: 0, width: 700, height: 60, fill: '#121212', stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, visible: true, locked: false, opacity: 1 },
-        createSystemIcon('Icon_Plus', 'Plus_Icon', 20, 18, 'M12 5v14M5 12h14'),
+        createSystemIcon('Icon_Plus', 'Plus_Icon', 20, 18, 'M12 5v14M5 12h14', textMain),
         { id: 'Pill_Hint', name: 'Prompt_Placeholder', type: 'text', category: 'Typography', x: 60, y: 36, width: 0, height: 0, fill: '#777', text: 'O que você quer saber?', fontSize: 16, visible: true, locked: false },
-        { id: 'Pill_Fast_Label', name: 'Mode_Label', type: 'text', category: 'Typography', x: 600, y: 36, width: 0, height: 0, fill: '#FFF', text: 'Fast', fontSize: 14, fontWeight: '600', visible: true, locked: false },
-        createSystemIcon('Icon_Chevron', 'Chevron_Icon', 625, 26, 'M6 9l6 6 6-6'),
+        { id: 'Pill_Fast_Label', name: 'Mode_Label', type: 'text', category: 'Typography', x: 590, y: 36, width: 0, height: 0, fill: '#FFF', text: 'Fast', fontSize: 14, fontWeight: '600', visible: true, locked: false },
+        createSystemIcon('Icon_Chevron', 'Chevron_Icon', 625, 18, 'M6 9l6 6 6-6', textMain),
         { id: 'Send_Btn_Circle', name: 'Send_Button', type: 'circle', category: 'Interactive', x: 650, y: 10, width: 40, height: 40, fill: '#272727', opacity: 1, visible: true, locked: false },
-        createSystemIcon('Send_Arrow', 'Arrow_Up', 658, 18, 'M12 19V5M5 12l7-7 7 7')
+        createSystemIcon('Send_Arrow', 'Arrow_Up', 658, 18, 'M12 19V5M5 12l7-7 7 7', textMain)
       ]
     },
     {
@@ -199,7 +202,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { id: 'Card_BG', name: 'Card_Background', type: 'rect', category: 'Container', x: 0, y: 0, width: 700, height: 140, fill: '#121212', rx: 16, ry: 16, stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, visible: true, locked: false },
-        createSystemIcon('Card_Close', 'Close_Icon', 670, 10, 'M18 6L6 18M6 6l12 12'),
+        createSystemIcon('Card_Close', 'Close_Icon', 670, 10, 'M18 6L6 18M6 6l12 12', textMuted),
         { id: 'Card_Title', name: 'Card_Headline', type: 'text', category: 'Typography', x: 24, y: 45, width: 0, height: 0, fill: textMain, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
         { id: 'Beta_Badge_BG', name: 'Badge_Container', type: 'rect', category: 'Container', x: 125, y: 28, width: 45, height: 20, fill: '#2B1208', rx: 10, ry: 10, visible: true, locked: false },
         { id: 'Beta_Badge_Txt', name: 'Badge_Label', type: 'text', category: 'Typography', x: 147, y: 42, width: 0, height: 0, fill: '#FF6B00', text: 'Beta', fontSize: 11, fontWeight: '800', textAlign: 'center', visible: true, locked: false },
@@ -214,7 +217,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
              { id: 'Tabs_WSL', name: 'Tab_Inactive', type: 'text', category: 'Typography', x: 75, y: 15, width: 0, height: 0, fill: textMuted, text: 'WSL', fontSize: 11, visible: true, locked: false },
              { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', category: 'Container', x: 0, y: 25, width: 326, height: 45, fill: '#000', rx: 8, ry: 8, visible: true, locked: false },
              { id: 'Terminal_Txt', name: 'Code_Content', type: 'text', category: 'Typography', x: 15, y: 53, width: 0, height: 0, fill: textMuted, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
-             createSystemIcon('Icon_Copy', 'Copy_Icon', 290, 36, 'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2')
+             createSystemIcon('Icon_Copy', 'Copy_Icon', 290, 36, 'M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2', textMuted)
            ]
         }
       ]
