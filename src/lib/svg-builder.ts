@@ -29,6 +29,9 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
 
   const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
   
+  // O background preto absoluto deve ser o primeiro elemento para garantir fidelidade visual
+  const backgroundRect = `<rect id="viewport-background" width="100%" height="100%" fill="#000000" data-name="Background" />`;
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
@@ -37,6 +40,7 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
     </style>
     ${filters.join('')}
   </defs>
+  ${backgroundRect}
   ${elementsSVG}
 </svg>`;
 }
@@ -44,8 +48,8 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
 function renderElement(el: UIElement): string {
   if (!el.visible) return '';
 
-  // FASE 4: METADATA PROFISSIONAL DE EXPORTAÇÃO
-  const metadata = `data-name="${el.name}" data-layer="${el.type}" data-group="${el.id}" data-export="true"`;
+  // Metadados para compatibilidade com Illustrator/After Effects
+  const metadata = `data-name="${el.name || el.id}" data-layer="${el.type}" data-group="${el.id}" data-export="true"`;
   const filterUrl = el.shadow ? `url(#shadow-${el.id})` : el.blur ? `url(#blur-${el.id})` : '';
   const filterAttr = filterUrl ? `filter="${filterUrl}"` : '';
   const commonProps = `id="${el.id.replace(/\s+/g, '_')}" opacity="${el.opacity}" ${metadata} ${filterAttr}`;
