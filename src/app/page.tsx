@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { LayoutEditor } from '@/components/layout-editor';
 import { PropertiesPanel } from '@/components/properties-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateGrokDashboardElements } from '@/lib/layout-templates';
+import { generateGrokAbsoluteReconstruction } from '@/lib/layout-templates';
 import { 
   Layout, 
   Layers, 
@@ -48,7 +48,7 @@ export default function LayoutForgeEnterprise() {
   
   // REVERSE ENGINEERING BOOTSTRAP
   useEffect(() => {
-    setLayout(generateGrokDashboardElements());
+    setLayout(generateGrokAbsoluteReconstruction());
   }, [setLayout]);
 
   const handleGenerate = async () => {
@@ -60,10 +60,11 @@ export default function LayoutForgeEnterprise() {
     const addLog = (msg: string) => setEngineLogs(prev => [...prev, msg]);
     
     try {
-      addLog("INITIATING_REVERSE_ENGINEERING_PIPELINE");
-      addLog("PHASE_1: VISUAL_ANALYSIS... OK");
-      addLog("PHASE_2: MEASUREMENT_ENGINE... OK");
-      addLog("PHASE_3: SHAPE_CLASSIFIER... OK");
+      addLog("INITIATING_VISUAL_REVERSE_ENGINEERING");
+      addLog("PHASE_1: IMAGE_PIXEL_ANALYSIS... OK");
+      addLog("PHASE_2: GEOMETRY_RECONSTRUCTION... OK");
+      addLog("PHASE_3: SHAPE_CLASSIFICATION... OK");
+      addLog("PHASE_4: NEGATIVE_SPACE_AUDIT... OK");
       
       const result = await generateLayoutVariations({ prompt });
       if (result && result.length > 0) {
@@ -88,7 +89,7 @@ export default function LayoutForgeEnterprise() {
              </div>
              <div className="flex flex-col">
                 <h1 className="text-xs font-bold uppercase tracking-[0.25em] text-white/90">Forge <span className="text-primary/70">v3.0</span></h1>
-                <span className="text-[9px] text-muted-foreground font-mono">REVERSE_ENGINEERING_ENGINE</span>
+                <span className="text-[9px] text-muted-foreground font-mono uppercase">Visual_Reverse_Engineering_Engine</span>
              </div>
           </div>
           <div className="h-8 w-px bg-white/5" />
@@ -146,7 +147,7 @@ export default function LayoutForgeEnterprise() {
                          <Command className="h-4 w-4" />
                          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Visual Engine</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Reconstrução visual de alta fidelidade baseada em captura absoluta.</p>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Reconstrução absoluta de interfaces a partir de captura de tela.</p>
                       <div className="relative">
                         <input 
                           type="text" 
