@@ -4,14 +4,38 @@ import { UIElement } from './layout-templates';
  * Gerador de SVG Profissional para Adobe Illustrator / After Effects.
  */
 export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): string {
+  const filters: string[] = [];
+  
+  const collectFiltersSVG = (els: UIElement[]) => {
+    els.forEach(el => {
+      if (el.shadow) {
+        const [dx, dy, blur, ...colorParts] = el.shadow.split(' ');
+        const color = colorParts.join(' ');
+        filters.push(`
+    <filter id="shadow-${el.id}" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="${dx}" dy="${dy}" stdDeviation="${parseFloat(blur) / 2}" flood-color="${color}" />
+    </filter>`);
+      }
+      if (el.blur) {
+        filters.push(`
+    <filter id="blur-${el.id}" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="${el.blur}" />
+    </filter>`);
+      }
+      if (el.children) collectFiltersSVG(el.children);
+    });
+  };
+  collectFiltersSVG(elements);
+
   const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
   
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
     <style type="text/css">
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
     </style>
+    ${filters.join('')}
   </defs>
   ${elementsSVG}
 </svg>`;
@@ -20,7 +44,11 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
 function renderElement(el: UIElement): string {
   if (!el.visible) return '';
 
-  const commonProps = `id="${el.id.replace(/\s+/g, '_')}" opacity="${el.opacity}"`;
+  // FASE 4: METADATA PROFISSIONAL DE EXPORTAÇÃO
+  const metadata = `data-name="${el.name}" data-layer="${el.type}" data-group="${el.id}"`;
+  const filterUrl = el.shadow ? `url(#shadow-${el.id})` : el.blur ? `url(#blur-${el.id})` : '';
+  const filterAttr = filterUrl ? `filter="${filterUrl}"` : '';
+  const commonProps = `id="${el.id.replace(/\s+/g, '_')}" opacity="${el.opacity}" ${metadata} ${filterAttr}`;
 
   switch (el.type) {
     case 'group':

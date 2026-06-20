@@ -39,7 +39,7 @@ export interface UIElement {
   ry?: number;
   
   // Effects
-  shadow?: string;
+  shadow?: string; // Formato: "x y blur color" ex: "0 4 12 rgba(0,0,0,0.5)"
   blur?: number;
   
   // Path Data
@@ -76,34 +76,55 @@ export interface VisualMap {
 
 /**
  * Layout Solver Engine
- * Reconcilia as coordenadas absolutas baseando-se nas métricas de espaço negativo.
+ * Reconcilia coordenadas baseando-se em relações espaciais e regras de posicionamento relativo.
  */
 export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceMetrics[]): UIElement[] {
-  if (!metrics || metrics.length === 0) return elements;
+  if (!elements) return [];
 
   const solvedElements = JSON.parse(JSON.stringify(elements)) as UIElement[];
-  
   const elementMap = new Map<string, UIElement>();
+
   const buildMap = (els: UIElement[]) => {
     els.forEach(el => {
       elementMap.set(el.id, el);
-      if (el.children) buildMap(el.children);
+      
+      // FASE 3: RELATIVE CHILDREN POSITIONING
+      if (el.children && el.children.length > 0) {
+        el.children.forEach(child => {
+          // Lógica de posicionamento relativo ao pai
+          if (child.id === 'pill-send-circle' || child.id === 'pill-send-arrow') {
+            child.x = el.width - 45; // Right offset
+          }
+          if (child.id === 'pill-fast-text' || child.id === 'pill-fast-chevron') {
+            child.x = el.width - 110;
+          }
+          if (child.id === 'card-beta' || child.id === 'card-beta-text') {
+            // Centralização horizontal automática no card se necessário
+            // Aqui mantemos a lógica Grok: posicionado ao lado do título
+          }
+          elementMap.set(child.id, child);
+        });
+        buildMap(el.children);
+      }
     });
   };
   buildMap(solvedElements);
 
-  metrics.forEach(metric => {
-    const from = elementMap.get(metric.fromId);
-    const to = elementMap.get(metric.toId);
+  // Reconciliação via Espaço Negativo
+  if (metrics) {
+    metrics.forEach(metric => {
+      const from = elementMap.get(metric.fromId);
+      const to = elementMap.get(metric.toId);
 
-    if (from && to) {
-      if (metric.relation === 'vertical' && metric.distanceY !== undefined) {
-        to.y = from.y + from.height + metric.distanceY;
-      } else if (metric.relation === 'horizontal' && metric.distanceX !== undefined) {
-        to.x = from.x + from.width + metric.distanceX;
+      if (from && to) {
+        if (metric.relation === 'vertical' && metric.distanceY !== undefined) {
+          to.y = from.y + from.height + metric.distanceY;
+        } else if (metric.relation === 'horizontal' && metric.distanceX !== undefined) {
+          to.x = from.x + from.width + metric.distanceX;
+        }
       }
-    }
-  });
+    });
+  }
 
   return solvedElements;
 }
@@ -117,92 +138,89 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
   const darkBlack = '#000000';
 
   const elements: UIElement[] = [
-    // TOP NAVIGATION
+    // FASE 5: LAYER NAMING SEMÂNTICO
     {
-      id: 'top-nav',
-      name: 'Layer 07 — Navigation',
+      id: 'Header',
+      name: 'Header_Navigation',
       type: 'group',
       x: 0, y: 0, width: 1280, height: 64,
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
-          id: 'top-logo-glyph', 
+          id: 'TopLogoGlyph', 
           name: 'Top_Logo_Glyph', 
           type: 'path', 
           x: 32, y: 22, width: 20, height: 20, 
           fill: 'none', stroke: textPrimary, strokeWidth: 1.5, opacity: 1, visible: true, locked: false,
           pathData: 'M16 2L4 18M14 2L18 6M2 14L6 18'
         },
-        { id: 'top-imagine-icon', name: 'Imagine_Icon', type: 'rect', x: 1040, y: 24, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1, rx: 2, ry: 2, opacity: 1, visible: true, locked: false },
-        { id: 'top-imagine-text', name: 'Imagine_Text', type: 'text', x: 1062, y: 37, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false },
-        { id: 'top-settings', name: 'Settings_Icon', type: 'path', x: 1120, y: 24, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.7, visible: true, locked: false, pathData: 'M8 4V12M4 8H12' },
-        { id: 'top-login', name: 'Login_Text', type: 'text', x: 1160, y: 37, width: 0, height: 0, fill: textPrimary, text: 'Entrar', fontSize: 13, fontWeight: '500', visible: true, locked: false },
-        { id: 'top-signup-pill', name: 'Sign_Up_Pill', type: 'pill', x: 1210, y: 16, width: 85, height: 32, fill: textPrimary, opacity: 1, visible: true, locked: false },
-        { id: 'top-signup-text', name: 'Sign_Up_Text', type: 'text', x: 1252.5, y: 36, width: 0, height: 0, fill: darkBlack, text: 'Criar conta', fontSize: 12, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
+        { id: 'ImagineIcon', name: 'Imagine_Icon', type: 'rect', x: 1040, y: 24, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1, rx: 2, ry: 2, opacity: 1, visible: true, locked: false },
+        { id: 'ImagineText', name: 'Imagine_Text', type: 'text', x: 1062, y: 37, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false },
+        { id: 'SettingsIcon', name: 'Settings_Icon', type: 'path', x: 1120, y: 24, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.7, visible: true, locked: false, pathData: 'M8 4V12M4 8H12' },
+        { id: 'LoginText', name: 'Login_Text', type: 'text', x: 1160, y: 37, width: 0, height: 0, fill: textPrimary, text: 'Entrar', fontSize: 13, fontWeight: '500', visible: true, locked: false },
+        { id: 'SignUpPill', name: 'Sign_Up_Pill', type: 'pill', x: 1210, y: 16, width: 85, height: 32, fill: textPrimary, opacity: 1, visible: true, locked: false },
+        { id: 'SignUpText', name: 'Sign_Up_Text', type: 'text', x: 1252.5, y: 36, width: 0, height: 0, fill: darkBlack, text: 'Criar conta', fontSize: 12, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
       ]
     },
-    // HERO BRANDING
     {
-      id: 'hero-branding',
-      name: 'Layer 05 — Branding',
+      id: 'HeroBranding',
+      name: 'Hero_Branding_Section',
       type: 'group',
       x: 540, y: 220, width: 200, height: 50,
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
-          id: 'hero-glyph', 
+          id: 'HeroGlyph', 
           name: 'Grok_Glyph', 
           type: 'path', 
           x: 0, y: 0, width: 50, height: 50, 
           fill: 'none', stroke: textPrimary, strokeWidth: 3, opacity: 1, visible: true, locked: false,
           pathData: 'M40 5L10 45M35 5L45 15M5 35L15 45'
         },
-        { id: 'hero-name', name: 'Grok_Text', type: 'text', x: 65, y: 44, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 44, fontWeight: '600', visible: true, locked: false }
+        { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 65, y: 44, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 44, fontWeight: '600', visible: true, locked: false }
       ]
     },
-    // PROMPT INTERACTION PILL
     {
-      id: 'prompt-pill-container',
-      name: 'Layer 09 — Interaction',
+      id: 'PromptPill',
+      name: 'Main_Prompt_Input',
       type: 'group',
-      x: 240, y: 330, width: 800, height: 60,
+      x: 290, y: 330, width: 700, height: 60,
       fill: 'none', opacity: 1, visible: true, locked: false,
+      // FASE 1: SHADOW ENGINE
+      shadow: '0 8 24 rgba(0,0,0,0.4)',
       children: [
-        { id: 'pill-surface', name: 'Input_Surface', type: 'pill', x: 0, y: 0, width: 800, height: 60, fill: surface, opacity: 1, stroke: border, strokeWidth: 1, visible: true, locked: false },
-        { id: 'pill-plus', name: 'Plus_Icon', type: 'text', x: 25, y: 38, width: 0, height: 0, fill: textSecondary, text: '+', fontSize: 24, fontWeight: '300', visible: true, locked: false },
-        { id: 'pill-hint', name: 'Placeholder_Text', type: 'text', x: 60, y: 37, width: 0, height: 0, fill: textSecondary, text: 'O que você quer saber?', fontSize: 16, fontWeight: '400', visible: true, locked: false },
-        { id: 'pill-fast-text', name: 'Fast_Label', type: 'text', x: 710, y: 37, width: 0, height: 0, fill: textPrimary, text: 'Fast', fontSize: 13, fontWeight: '600', visible: true, locked: false },
-        { id: 'pill-fast-chevron', name: 'Fast_Chevron', type: 'path', x: 745, y: 30, width: 10, height: 10, fill: 'none', stroke: textPrimary, strokeWidth: 1.5, pathData: 'M2 4L5 7L8 4', visible: true, locked: false },
-        { id: 'pill-send-circle', name: 'Send_Button_BG', type: 'circle', x: 770, y: 10, width: 40, height: 40, fill: border, opacity: 1, visible: true, locked: false },
-        { id: 'pill-send-arrow', name: 'Send_Arrow', type: 'path', x: 785, y: 22, width: 10, height: 16, fill: 'none', stroke: textSecondary, strokeWidth: 2, pathData: 'M5 14V2M2 5L5 2L8 5', visible: true, locked: false }
+        { id: 'pill-surface', name: 'Input_Background', type: 'pill', x: 0, y: 0, width: 700, height: 60, fill: surface, opacity: 1, stroke: border, strokeWidth: 1, visible: true, locked: false },
+        { id: 'pill-plus', name: 'Add_Attachment_Icon', type: 'text', x: 25, y: 38, width: 0, height: 0, fill: textSecondary, text: '+', fontSize: 24, fontWeight: '300', visible: true, locked: false },
+        { id: 'pill-hint', name: 'Placeholder_Hint', type: 'text', x: 60, y: 37, width: 0, height: 0, fill: textSecondary, text: 'O que você quer saber?', fontSize: 16, fontWeight: '400', visible: true, locked: false },
+        { id: 'pill-fast-text', name: 'Model_Selector_Text', type: 'text', x: 610, y: 37, width: 0, height: 0, fill: textPrimary, text: 'Fast', fontSize: 13, fontWeight: '600', visible: true, locked: false },
+        { id: 'pill-fast-chevron', name: 'Model_Selector_Arrow', type: 'path', x: 645, y: 30, width: 10, height: 10, fill: 'none', stroke: textPrimary, strokeWidth: 1.5, pathData: 'M2 4L5 7L8 4', visible: true, locked: false },
+        { id: 'pill-send-circle', name: 'Send_Action_Button', type: 'circle', x: 660, y: 10, width: 40, height: 40, fill: border, opacity: 1, visible: true, locked: false },
+        { id: 'pill-send-arrow', name: 'Send_Arrow_Glyph', type: 'path', x: 675, y: 22, width: 10, height: 16, fill: 'none', stroke: textSecondary, strokeWidth: 2, pathData: 'M5 14V2M2 5L5 2L8 5', visible: true, locked: false }
       ]
     },
-    // GROK BUILD CARD
     {
-      id: 'build-card',
-      name: 'Layer 02 — Features',
+      id: 'BuildCard',
+      name: 'Developer_Grok_Build_Card',
       type: 'group',
       x: 340, y: 430, width: 600, height: 140,
       fill: 'none', opacity: 1, visible: true, locked: false,
+      shadow: '0 4 16 rgba(0,0,0,0.3)',
       children: [
-        { id: 'card-bg', name: 'Card_Background', type: 'rect', x: 0, y: 0, width: 600, height: 140, fill: surface, opacity: 1, rx: 16, stroke: border, strokeWidth: 1, visible: true, locked: false },
-        { id: 'card-title', name: 'Title', type: 'text', x: 24, y: 40, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '600', visible: true, locked: false },
-        { id: 'card-beta', name: 'Beta_Badge_BG', type: 'pill', x: 120, y: 24, width: 40, height: 20, fill: accentBeta, opacity: 0.2, visible: true, locked: false },
-        { id: 'card-beta-text', name: 'Beta_Text', type: 'text', x: 140, y: 38, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
-        { id: 'card-desc', name: 'Description', type: 'text', x: 24, y: 70, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
-        { id: 'card-desc-2', name: 'Description_Line_2', type: 'text', x: 24, y: 90, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
-        { id: 'card-close', name: 'Close_Icon', type: 'text', x: 570, y: 30, width: 0, height: 0, fill: textSecondary, text: '×', fontSize: 18, visible: true, locked: false },
-        // TERMINAL SUBSECTION
-        { id: 'term-tabs', name: 'Tabs', type: 'text', x: 260, y: 40, width: 0, height: 0, fill: textPrimary, text: 'PowerShell  WSL', fontSize: 12, fontWeight: '500', opacity: 0.6, visible: true, locked: false },
-        { id: 'term-bg', name: 'Terminal_BG', type: 'rect', x: 260, y: 60, width: 316, height: 50, fill: darkBlack, rx: 8, stroke: border, strokeWidth: 1, visible: true, locked: false },
-        { id: 'term-code', name: 'Command', type: 'text', x: 280, y: 92, width: 0, height: 0, fill: textSecondary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
-        { id: 'term-copy', name: 'Copy_Icon', type: 'path', x: 540, y: 80, width: 14, height: 14, fill: 'none', stroke: textSecondary, strokeWidth: 1.2, pathData: 'M4 4H10V10H4V4M6 6H12V12H6V6', visible: true, locked: false }
+        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 600, height: 140, fill: surface, opacity: 1, rx: 16, stroke: border, strokeWidth: 1, visible: true, locked: false },
+        { id: 'card-title', name: 'Card_Header_Title', type: 'text', x: 24, y: 40, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '600', visible: true, locked: false },
+        { id: 'card-beta', name: 'Beta_Status_Badge', type: 'pill', x: 120, y: 24, width: 40, height: 20, fill: accentBeta, opacity: 0.2, visible: true, locked: false },
+        { id: 'card-beta-text', name: 'Beta_Status_Label', type: 'text', x: 140, y: 38, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
+        { id: 'card-desc', name: 'Card_Context_Line1', type: 'text', x: 24, y: 70, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
+        { id: 'card-desc-2', name: 'Card_Context_Line2', type: 'text', x: 24, y: 90, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
+        { id: 'card-close', name: 'Close_Dismiss_Icon', type: 'text', x: 570, y: 30, width: 0, height: 0, fill: textSecondary, text: '×', fontSize: 18, visible: true, locked: false },
+        { id: 'term-tabs', name: 'Terminal_Tab_Selector', type: 'text', x: 260, y: 40, width: 0, height: 0, fill: textPrimary, text: 'PowerShell  WSL', fontSize: 12, fontWeight: '500', opacity: 0.6, visible: true, locked: false },
+        { id: 'term-bg', name: 'Terminal_Interface_BG', type: 'rect', x: 260, y: 60, width: 316, height: 50, fill: darkBlack, rx: 8, stroke: border, strokeWidth: 1, visible: true, locked: false },
+        { id: 'term-code', name: 'Command_Line_String', type: 'text', x: 280, y: 92, width: 0, height: 0, fill: textSecondary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false }
       ]
     },
-    // FOOTER
     {
-      id: 'footer-disclaimer',
-      name: 'Layer 10 — Footer',
+      id: 'Footer',
+      name: 'Legal_Compliance_Footer',
       type: 'text',
       x: 640, y: 680,
       width: 0, height: 0,
@@ -216,18 +234,18 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
   ];
 
   const metrics: NegativeSpaceMetrics[] = [
-    { fromId: 'hero-branding', toId: 'prompt-pill-container', distanceY: 60, relation: 'vertical' },
-    { fromId: 'prompt-pill-container', toId: 'build-card', distanceY: 40, relation: 'vertical' }
+    { fromId: 'HeroBranding', toId: 'PromptPill', distanceY: 60, relation: 'vertical' },
+    { fromId: 'PromptPill', toId: 'BuildCard', distanceY: 40, relation: 'vertical' }
   ];
 
   return {
     elements: applyLayoutSolver(elements, metrics),
     negativeSpaceMetrics: metrics,
     audit: {
-      visualFidelity: 98,
+      visualFidelity: 95,
       layoutFidelity: 98,
       spacingFidelity: 97,
-      typographyFidelity: 96,
+      typographyFidelity: 94,
       logoFidelity: 99
     }
   };
