@@ -43,30 +43,36 @@ export function LayoutEditor({
     }
   };
 
-  const filters: JSX.Element[] = [];
-  const collectFilters = (els: UIElement[]) => {
+  const defsContent: JSX.Element[] = [];
+  
+  const collectDefs = (els: UIElement[]) => {
     els.forEach(el => {
       const idSafe = el.id.replace(/\s+/g, '_');
+      
+      // Shadows
       if (el.shadow) {
         const [dx, dy, blur, ...colorParts] = el.shadow.split(' ');
         const color = colorParts.join(' ');
-        filters.push(
+        defsContent.push(
           <filter id={`shadow-${idSafe}`} key={`shadow-${idSafe}`} x="-50%" y="-50%" width="200%" height="200%">
             <feDropShadow dx={dx} dy={dy} stdDeviation={parseFloat(blur) / 2} floodColor={color} />
           </filter>
         );
       }
+      
+      // Blurs
       if (el.blur) {
-        filters.push(
+        defsContent.push(
           <filter id={`blur-${idSafe}`} key={`blur-${idSafe}`} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation={el.blur} />
           </filter>
         );
       }
-      if (el.children) collectFilters(el.children);
+      
+      if (el.children) collectDefs(el.children);
     });
   };
-  collectFilters(elements);
+  collectDefs(elements);
 
   return (
     <div 
@@ -82,7 +88,7 @@ export function LayoutEditor({
         viewBox="0 0 1280 720"
       >
         <defs>
-          {filters}
+          {defsContent}
         </defs>
 
         {elements.map((el) => (
@@ -107,7 +113,11 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
 
   const idSafe = el.id.replace(/\s+/g, '_');
   const selectionProps = isSelected ? { stroke: '#3B82F6', strokeWidth: 2 } : {};
+  
+  // Resolve Filters/Masks/ClipPaths
   const filterUrl = el.shadow ? `url(#shadow-${idSafe})` : el.blur ? `url(#blur-${idSafe})` : undefined;
+  const clipPathUrl = el.clipPathId ? `url(#${el.clipPathId})` : undefined;
+  const maskUrl = el.maskId ? `url(#${el.maskId})` : undefined;
 
   switch (el.type) {
     case 'rect':
@@ -128,6 +138,8 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           rx={radius}
           ry={radius}
           filter={filterUrl}
+          clipPath={clipPathUrl}
+          mask={maskUrl}
           stroke={el.stroke || (isSelected ? selectionProps.stroke : undefined)}
           strokeWidth={el.strokeWidth || (isSelected ? selectionProps.strokeWidth : undefined)}
           transform={`rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})`}
@@ -147,6 +159,8 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           textAnchor={el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start'}
           opacity={el.opacity}
           filter={filterUrl}
+          clipPath={clipPathUrl}
+          mask={maskUrl}
           transform={`rotate(${el.rotation || 0}, ${el.x}, ${el.y})`}
         >
           {el.text}
@@ -163,6 +177,8 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           fill={el.fill}
           opacity={el.opacity}
           filter={filterUrl}
+          clipPath={clipPathUrl}
+          mask={maskUrl}
           stroke={el.stroke || (isSelected ? selectionProps.stroke : undefined)}
           strokeWidth={el.strokeWidth || (isSelected ? selectionProps.strokeWidth : undefined)}
         />
@@ -178,6 +194,8 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           strokeWidth={el.strokeWidth || (isSelected ? selectionProps.strokeWidth : undefined)}
           opacity={el.opacity}
           filter={filterUrl}
+          clipPath={clipPathUrl}
+          mask={maskUrl}
           transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
         />
       );
@@ -187,6 +205,8 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           key={el.id} 
           transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
           filter={filterUrl}
+          clipPath={clipPathUrl}
+          mask={maskUrl}
         >
           {el.children?.map(child => renderElementPreview(child, false))}
           {isSelected && (

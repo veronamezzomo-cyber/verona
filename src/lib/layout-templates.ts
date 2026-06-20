@@ -42,6 +42,8 @@ export interface UIElement {
   // Effects
   shadow?: string;
   blur?: number;
+  clipPathId?: string;
+  maskId?: string;
   
   // Path Data
   pathData?: string;
@@ -91,11 +93,12 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
         el.x = (VIEWPORT_WIDTH - el.width) / 2;
       }
 
-      // Correção matemática do Footer para centralização absoluta
+      // Centralização absoluta do Footer
       if (el.id === 'Footer') {
         el.x = VIEWPORT_WIDTH / 2;
       }
 
+      // Header: Largura total e ancoragem de itens à direita
       if (el.id === 'Header') {
         el.width = VIEWPORT_WIDTH;
         el.x = 0;
@@ -104,7 +107,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
           const marginRight = 24;
           const gutter = 32;
 
-          // Sign Up Pill (Far Right Anchoring)
+          // Sign Up Pill (Âncora à direita)
           const signUpPill = el.children.find(c => c.id === 'SignUpPill');
           const signUpText = el.children.find(c => c.id === 'SignUpText');
           if (signUpPill) {
@@ -114,19 +117,19 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
             }
           }
 
-          // Login Text (Relative to Sign Up)
+          // Login Text (Relativo ao Sign Up)
           const loginText = el.children.find(c => c.id === 'Login_Text');
           if (loginText && signUpPill) {
             loginText.x = signUpPill.x - 45 - gutter; 
           }
 
-          // Settings Icon (Relative to Login)
+          // Settings Icon (Relativo ao Login)
           const settingsIcon = el.children.find(c => c.id === 'Settings_Icon_Group');
           if (settingsIcon && loginText) {
             settingsIcon.x = loginText.x - 20 - gutter;
           }
 
-          // Imagine Toggle Group (Relative to Settings)
+          // Imagine Toggle Group (Relativo ao Settings)
           const imagineToggle = el.children.find(c => c.id === 'Imagine_Toggle');
           if (imagineToggle && settingsIcon) {
             imagineToggle.x = settingsIcon.x - imagineToggle.width - gutter;
@@ -134,16 +137,22 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
         }
       }
 
-      // Ancoragem interna relativa para filhos
+      // Ancoragem interna para componentes do Card "Grok Build" e PromptPill
       if (el.children && el.children.length > 0) {
         el.children.forEach(child => {
+          // PromptPill Controls
           if (child.id === 'pill-send-circle') child.x = el.width - 48;
           if (child.id === 'pill-send-arrow') child.x = el.width - 48 + 15;
           if (child.id === 'pill-fast-text') child.x = el.width - 105;
           if (child.id === 'pill-fast-chevron') child.x = el.width - 75;
-          if (child.id === 'card-close') child.x = el.width - 32;
           
-          if (child.id === 'TerminalGroup') child.x = el.width - child.width - 24;
+          // BuildCard Controls: Ancoragem à direita do terminal com respiro garantido
+          if (child.id === 'TerminalGroup') {
+            child.x = el.width - child.width - 24;
+          }
+          if (child.id === 'card-close') {
+            child.x = el.width - 32;
+          }
 
           elementMap.set(child.id, child);
         });
@@ -246,7 +255,6 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
               type: 'path', 
               x: 0, y: 0, width: 16, height: 16, 
               fill: textPrimary, opacity: 0.8, visible: true, locked: false, 
-              // Ícone de Paisagem/Mídia
               pathData: 'M 2 4 C 1 4 0 5 0 6 V 14 C 0 15 1 16 2 16 H 14 C 15 16 16 15 16 14 V 6 C 16 5 15 4 14 4 H 2 Z M 3 13 L 6 9 L 9 12 L 11 10 L 14 14 H 2 Z' 
             },
             { id: 'Imagine_Text', name: 'Imagine_Text', type: 'text', x: 24, y: 13, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false }
@@ -265,7 +273,6 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
               type: 'path', 
               x: 0, y: 0, width: 20, height: 20, 
               fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.6, visible: true, locked: false, 
-              // Ícone de Engrenagem Ortogonal de 8 Dentes (Linha Fina)
               pathData: 'M 10 3 L 9.2 4.5 C 9 4.8 8.6 5 8.2 5.1 L 6.5 4.8 L 5.5 5.8 L 5.8 7.5 C 5.9 7.9 5.8 8.3 5.5 8.6 L 4 9.4 V 10.6 L 5.5 11.4 C 5.8 11.7 5.9 12.1 5.8 12.5 L 5.5 14.2 L 6.5 15.2 L 8.2 14.9 C 8.6 14.8 9 14.9 9.2 15.2 L 10 16.7 V 17 H 14 V 16.7 L 14.8 15.2 C 15 14.9 15.4 14.8 15.8 14.9 L 17.5 15.2 L 18.5 14.2 L 18.2 12.5 C 18.1 12.1 18.2 11.7 18.5 11.4 L 20 10.6 V 9.4 L 18.5 8.6 C 18.2 8.3 18.1 7.9 18.2 7.5 L 18.5 5.8 L 17.5 4.8 L 15.8 5.1 C 15.4 5.2 15 5.1 14.8 4.8 L 14 3.3 V 3 H 10 V 3 Z M 12 8 A 4 4 0 1 1 12 16 A 4 4 0 0 1 12 8 Z'
             }
           ]
@@ -374,3 +381,4 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
     }
   };
 }
+
