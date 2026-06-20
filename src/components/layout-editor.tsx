@@ -47,16 +47,6 @@ export function LayoutEditor({
       onWheel={handleWheel}
       onClick={() => onSelect(null)}
     >
-      {/* Grid Pattern Background - Subtile Fullscreen Grid */}
-      <div 
-        className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)`,
-          backgroundSize: `${32 * zoom}px ${32 * zoom}px`,
-          backgroundPosition: `${pan.x}px ${pan.y}px`
-        }}
-      />
-
       <svg 
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
