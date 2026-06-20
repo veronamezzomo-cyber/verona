@@ -1,6 +1,6 @@
 
 /**
- * @fileOverview Reverse Engineering Engine - Reconstrução de UI de Ultra-Fidelidade.
+ * @fileOverview Visual Reverse Engineering Engine - Reconstrução de UI de Ultra-Fidelidade.
  * Fonte Absoluta: Captura de tela do Grok.com (xAI).
  */
 
@@ -147,8 +147,4 @@ export function generateGrokDashboardElements(): UIElement[] {
       locked: false
     }
   ];
-}
-
-export function generateYouTubeStudioElements(): UIElement[] {
-  return generateGrokDashboardElements();
 }
