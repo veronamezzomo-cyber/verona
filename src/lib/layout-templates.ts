@@ -303,29 +303,29 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
         { id: 'pill-fast-text', name: 'Model_Selector_Label', type: 'text', x: 0, y: 34, width: 0, height: 0, fill: textPrimary, text: 'Fast', fontSize: 13, fontWeight: '600', visible: true, locked: false },
         { id: 'pill-fast-chevron', name: 'Fast_Chevron_Path', type: 'path', x: 0, y: 28, width: 10, height: 10, fill: 'none', stroke: textPrimary, strokeWidth: 1.5, pathData: 'M2 4 L5 7 L8 4', visible: true, locked: false },
         { id: 'pill-send-circle', name: 'Send_Button_BG', type: 'circle', x: 0, y: 8, width: 40, height: 40, fill: '#262626', opacity: 1, visible: true, locked: false },
-        { id: 'pill-send-arrow', name: 'Send_Arrow_Path', type: 'path', x: 0, y: 20, width: 10, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 2, pathData: 'M5 14 V2 M2 5 L5 2 L8 5', visible: true, locked: false }
+        { id: 'pill-send-arrow', name: 'Send_Arrow_Path', x: 0, y: 20, width: 10, height: 16, type: 'path', fill: 'none', stroke: textPrimary, strokeWidth: 2, pathData: 'M5 14 V2 M2 5 L5 2 L8 5', visible: true, locked: false }
       ]
     },
     {
       id: 'BuildCard',
       name: 'Developer_Grok_Build_Card',
       type: 'group',
-      x: 0, y: 410, width: 600, height: 130,
+      x: 0, y: 410, width: 700, height: 130,
       fill: 'none', opacity: 1, visible: true, locked: false,
       shadow: '0 4 20 rgba(0,0,0,0.3)',
       children: [
-        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 600, height: 130, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
-        { id: 'card-title', name: 'Card_Title', type: 'text', x: 24, y: 36, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
-        { id: 'card-beta-badge', name: 'Beta_Badge_BG', type: 'pill', x: 120, y: 20, width: 40, height: 20, fill: accentBeta, opacity: 0.1, visible: true, locked: false },
-        { id: 'card-beta-text', name: 'Beta_Label', type: 'text', x: 140, y: 34, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
-        { id: 'card-desc', name: 'Card_Description_1', type: 'text', x: 24, y: 64, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
-        { id: 'card-desc-2', name: 'Card_Description_2', type: 'text', x: 24, y: 84, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
+        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 700, height: 130, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
+        { id: 'card-title', name: 'Card_Title', type: 'text', x: 24, y: 45, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
+        { id: 'card-beta-badge', name: 'Beta_Badge_BG', type: 'pill', x: 120, y: 28, width: 40, height: 20, fill: accentBeta, opacity: 0.1, visible: true, locked: false },
+        { id: 'card-beta-text', name: 'Beta_Label', type: 'text', x: 140, y: 42, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
+        { id: 'card-desc', name: 'Card_Description_1', type: 'text', x: 24, y: 72, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
+        { id: 'card-desc-2', name: 'Card_Description_2', type: 'text', x: 24, y: 92, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
         { id: 'card-close', name: 'Close_Icon_Path', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' },
         {
           id: 'TerminalGroup',
           name: 'Terminal_CLI_Block',
           type: 'group',
-          x: 0, y: 35, width: 340, height: 70,
+          x: 0, y: 30, width: 340, height: 70,
           fill: 'none', opacity: 1, visible: true, locked: false,
           children: [
             { id: 'term-bg', name: 'Terminal_BG', type: 'rect', x: 0, y: 0, width: 340, height: 70, fill: darkBlack, opacity: 0.8, rx: 8, visible: true, locked: false },
@@ -374,4 +374,3 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
     }
   };
 }
-
