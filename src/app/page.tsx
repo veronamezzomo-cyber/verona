@@ -2,6 +2,7 @@
 
 /**
  * @fileOverview YouTube Forge Studio - Core Interface.
+ * Interface unificada com a pipeline de reconstrução de alta fidelidade.
  */
 
 import { useState, useEffect } from 'react';
@@ -28,6 +29,7 @@ export default function YouTubeForgeStudio() {
     selectElement 
   } = useLayoutState();
 
+  // Inicializa o layout com a pipeline de fidelidade absoluta
   useEffect(() => {
     const initialMap = generateYouTubeAbsoluteReconstruction();
     setLayout(initialMap.elements, initialMap.negativeSpaceMetrics);
@@ -84,11 +86,11 @@ export default function YouTubeForgeStudio() {
 
       <footer className="h-8 border-t border-white/5 bg-[#0f0f0f] flex items-center justify-between px-6 text-[9px] text-muted-foreground/30 font-mono tracking-widest">
         <div className="flex gap-6 uppercase">
-          <span>YOUTUBE_RECONSTRUCTION_ENGINE</span>
-          <span>STABLE_REBUILD_V4.2</span>
+          <span>PIPELINE_STATUS: ABSOLUTE_FIDELITY</span>
+          <span>RECONSTRUCTION_V5.0</span>
         </div>
         <div>
-          <span>VECTOR_PRECISION: 100%</span>
+          <span>VECTOR_PRECISION: 100.00%</span>
         </div>
       </footer>
     </div>
