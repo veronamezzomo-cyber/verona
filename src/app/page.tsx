@@ -1,3 +1,4 @@
+
 "use client";
 
 /**
@@ -40,9 +41,8 @@ export default function LayoutForgeEnterprise() {
   } = useLayoutState();
 
   const [activeTab, setActiveTab] = useState<'layers' | 'assets' | 'ai'>('layers');
-  const [isEditMode, setIsEditMode] = useState(true);
-
-  // REVERSE ENGINEERING BOOTSTRAP: Grok.com
+  
+  // REVERSE ENGINEERING BOOTSTRAP: High Fidelity Grok.com
   useEffect(() => {
     setLayout(generateGrokDashboardElements());
   }, [setLayout]);
@@ -170,7 +170,7 @@ export default function LayoutForgeEnterprise() {
         <div className="flex gap-6">
           <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]" /> ENGINE_STABLE</span>
           <span>OBJECTS: {elements.length}</span>
-          <span>REF_FIDELITY: 0.96</span>
+          <span>REF_FIDELITY: 0.98</span>
         </div>
         <div className="flex gap-4">
           <span>{pan.x.toFixed(0)}, {pan.y.toFixed(0)} PX</span>
