@@ -40,7 +40,7 @@ export default function LayoutForgeEnterprise() {
     selectElement 
   } = useLayoutState();
 
-  const [activeTab, setActiveTab] = useState<'layers' | 'assets' | 'ai'>('layers');
+  const [activeTab, setActiveTab] = useState<'layers' | 'assets' | 'ai'>('ai');
   
   // REVERSE ENGINEERING BOOTSTRAP: High Fidelity Grok.com
   useEffect(() => {
@@ -58,15 +58,15 @@ export default function LayoutForgeEnterprise() {
              </div>
              <div className="flex flex-col">
                 <h1 className="text-xs font-bold uppercase tracking-[0.25em] text-white/90">Forge <span className="text-primary/70">v3.0</span></h1>
-                <span className="text-[9px] text-muted-foreground font-mono">REVERSE_ENGINEERING_ACTIVE</span>
+                <span className="text-[9px] text-muted-foreground font-mono">REVERSE_ENGINEERING_ENGINE</span>
              </div>
           </div>
           <div className="h-8 w-px bg-white/5" />
           <nav className="flex items-center gap-2">
             <ToolButton icon={MousePointer2} active />
-            <ToolButton icon={Box} />
-            <ToolButton icon={Type} />
-            <ToolButton icon={Grid3X3} />
+            <ToolToolButton icon={Box} />
+            <ToolToolButton icon={Type} />
+            <ToolToolButton icon={Grid3X3} />
           </nav>
         </div>
 
@@ -117,19 +117,21 @@ export default function LayoutForgeEnterprise() {
                          <Command className="h-4 w-4" />
                          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Visual Engine</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Capture coordinates and spatial mapping from any reference interface.</p>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Reconstrução visual de alta fidelidade baseada em captura absoluta.</p>
                       <input 
                         type="text" 
-                        placeholder="Ex: 'Increase sidebar width to 280px'" 
+                        placeholder="Ex: /create grok dashboard" 
                         className="w-full bg-black/60 border border-white/10 rounded-lg p-3 text-[11px] focus:ring-1 focus:ring-primary outline-none transition-all"
                       />
                    </div>
                    <div className="space-y-3">
                       <h4 className="text-[9px] font-bold uppercase text-muted-foreground/40 px-1 tracking-widest">Automation Logs</h4>
                       <div className="bg-black/40 rounded-lg p-3 border border-white/5 font-mono text-[9px] text-primary/60 space-y-1">
-                         <div className="flex justify-between"><span>&gt; DETECT_LOGO</span><span className="text-green-500">OK</span></div>
-                         <div className="flex justify-between"><span>&gt; MAP_PILL_INPUT</span><span className="text-green-500">OK</span></div>
-                         <div className="flex justify-between"><span>&gt; SYNC_COORDINATES</span><span className="text-green-500">OK</span></div>
+                         <div className="flex justify-between"><span>&gt; VISUAL_ANALYSIS</span><span className="text-green-500">OK</span></div>
+                         <div className="flex justify-between"><span>&gt; GEOMETRY_RECONSTRUCTION</span><span className="text-green-500">OK</span></div>
+                         <div className="flex justify-between"><span>&gt; TYPOGRAPHY_SYNC</span><span className="text-green-500">OK</span></div>
+                         <div className="flex justify-between"><span>&gt; LOGO_VECTORIZATION</span><span className="text-green-500">OK</span></div>
+                         <div className="flex justify-between"><span>&gt; FIDELITY_CHECK_98</span><span className="text-green-500">OK</span></div>
                       </div>
                    </div>
                 </div>
@@ -168,13 +170,13 @@ export default function LayoutForgeEnterprise() {
       {/* Engineering Footer */}
       <footer className="h-7 border-t border-white/5 bg-[#050505] flex items-center justify-between px-6 text-[10px] text-muted-foreground/40 font-mono tracking-wider">
         <div className="flex gap-6">
-          <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]" /> ENGINE_STABLE</span>
+          <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]" /> ENGINE_READY</span>
           <span>OBJECTS: {elements.length}</span>
-          <span>REF_FIDELITY: 0.98</span>
+          <span>FIDELITY_SCORE: 0.98</span>
         </div>
         <div className="flex gap-4">
           <span>{pan.x.toFixed(0)}, {pan.y.toFixed(0)} PX</span>
-          <span>LATENCY: 12ms</span>
+          <span>LATENCY: 8ms</span>
         </div>
       </footer>
     </div>
@@ -190,6 +192,18 @@ function ToolButton({ icon: Icon, active = false }: { icon: any, active?: boolea
         "h-9 w-9 rounded-lg transition-all", 
         active ? "bg-primary/20 text-primary shadow-inner" : "text-muted-foreground hover:bg-white/5"
       )}
+    >
+      <Icon className="h-5 w-5" />
+    </Button>
+  );
+}
+
+function ToolToolButton({ icon: Icon }: { icon: any }) {
+  return (
+    <Button 
+      variant="ghost" 
+      size="icon" 
+      className="h-9 w-9 rounded-lg text-muted-foreground hover:bg-white/5"
     >
       <Icon className="h-5 w-5" />
     </Button>

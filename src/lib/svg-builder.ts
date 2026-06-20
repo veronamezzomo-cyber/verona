@@ -1,15 +1,18 @@
+
 import { UIElement } from './layout-templates';
 
 export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): string {
   const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
   
   return `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" version="1.1">
-  <rect width="100%" height="100%" fill="#0A0E27" />
+  <rect width="100%" height="100%" fill="#000000" />
   ${elementsSVG}
 </svg>`;
 }
 
 function renderElement(el: UIElement): string {
+  if (!el.visible) return '';
+
   switch (el.type) {
     case 'group':
       const children = el.children?.map(child => renderElement(child)).join('\n    ') || '';
@@ -18,14 +21,18 @@ function renderElement(el: UIElement): string {
   </g>`;
     
     case 'rect':
-      return `<rect id="${el.id}" x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${el.fill}" opacity="${el.opacity}" rx="${el.rx || 0}" ry="${el.ry || 0}" ${el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : ''} />`;
+      return `<rect id="${el.id}" x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${el.fill}" opacity="${el.opacity}" rx="${el.rx || 0}" ry="${el.ry || 0}" ${el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : ''} transform="rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})" />`;
       
     case 'text':
-      return `<text id="${el.id}" x="${el.x}" y="${el.y}" fill="${el.fill}" opacity="${el.opacity}" font-family="Inter" font-size="${el.fontSize || 16}" text-anchor="middle">${el.text || ''}</text>`;
+      const textAnchor = el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start';
+      return `<text id="${el.id}" x="${el.x}" y="${el.y}" fill="${el.fill}" opacity="${el.opacity}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${el.fontWeight || '400'}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
       
     case 'circle':
-      const r = Math.min(el.width, el.height) / 2;
-      return `<circle id="${el.id}" cx="${el.x + r}" cy="${el.y + r}" r="${r}" fill="${el.fill}" opacity="${el.opacity}" />`;
+      const r = el.width / 2;
+      return `<circle id="${el.id}" cx="${el.x + r}" cy="${el.y + r}" r="${r}" fill="${el.fill}" opacity="${el.opacity}" ${el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : ''} />`;
+    
+    case 'path':
+      return `<path id="${el.id}" d="${el.pathData || ''}" transform="translate(${el.x}, ${el.y})" fill="${el.fill}" stroke="${el.stroke || 'none'}" stroke-width="${el.strokeWidth || 0}" opacity="${el.opacity}" />`;
       
     default:
       return '';
