@@ -1,23 +1,23 @@
 "use client";
 
 /**
- * @fileOverview Maps Forge Studio - Core Interface.
- * Interface baseada na pipeline de reconstrução de alta fidelidade do Google Maps.
+ * @fileOverview Grok Studio - Core Interface.
+ * Interface baseada na pipeline de reconstrução de alta fidelidade do Grok.com.
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { LayoutEditor } from '@/components/layout-editor';
 import { PropertiesPanel } from '@/components/properties-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateGoogleMapsReconstruction } from '@/lib/layout-templates';
+import { generateGrokReconstruction } from '@/lib/layout-templates';
 import { 
-  MapPin
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ExportPanel } from '@/components/export-panel';
 
-export default function MapsForgeStudio() {
+export default function GrokForgeStudio() {
   const { 
     elements, 
     selectedIds, 
@@ -29,10 +29,10 @@ export default function MapsForgeStudio() {
     selectElement 
   } = useLayoutState();
 
-  // Inicializa o layout com a pipeline de fidelidade absoluta do Google Maps
+  // Inicializa o layout com a pipeline de fidelidade absoluta do Grok
   useEffect(() => {
-    const initialMap = generateGoogleMapsReconstruction();
-    setLayout(initialMap.elements, initialMap.negativeSpaceMetrics);
+    const initialLayout = generateGrokReconstruction();
+    setLayout(initialLayout.elements, initialLayout.negativeSpaceMetrics);
   }, [setLayout]);
 
   return (
@@ -40,14 +40,14 @@ export default function MapsForgeStudio() {
       <header className="h-14 border-b border-white/5 bg-black/80 backdrop-blur-xl flex items-center justify-between px-6 z-[100]">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-blue-500" />
-            <span className="text-xs font-headline uppercase tracking-widest font-bold text-white">Maps Studio</span>
+            <Sparkles className="h-5 w-5 text-primary" />
+            <span className="text-[10px] font-headline uppercase tracking-[0.3em] font-bold text-white">Grok Forge</span>
           </div>
           <div className="h-4 w-px bg-white/10" />
           <div className="flex gap-4 items-center">
-            <span className="flex items-center gap-1.5 text-blue-500 text-[10px] font-mono font-bold">
-              <div className={cn("w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse")} /> 
-              EARTH_ENGINE_ONLINE
+            <span className="flex items-center gap-1.5 text-primary text-[10px] font-mono font-bold">
+              <div className={cn("w-1.5 h-1.5 rounded-full bg-primary animate-pulse")} /> 
+              HIGH_FIDELITY_READY
             </span>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function MapsForgeStudio() {
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/80 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-2xl z-50">
             <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 0.9)}>-</Button>
             <div className="h-4 w-px bg-white/10" />
-            <span className="text-[10px] font-mono w-12 text-center text-blue-500 font-bold">{Math.round(zoom * 100)}%</span>
+            <span className="text-[10px] font-mono w-12 text-center text-primary font-bold">{Math.round(zoom * 100)}%</span>
             <div className="h-4 w-px bg-white/10" />
             <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 1.1)}>+</Button>
           </div>
@@ -86,8 +86,8 @@ export default function MapsForgeStudio() {
 
       <footer className="h-8 border-t border-white/5 bg-black flex items-center justify-between px-6 text-[9px] text-muted-foreground/30 font-mono tracking-widest">
         <div className="flex gap-6 uppercase">
-          <span>PIPELINE_STATUS: SECTORIZED_MAPS_FIDELITY</span>
-          <span>ENGINE_V6.0_STABLE</span>
+          <span>PIPELINE: GROK_SECTORIZED_ENGINE</span>
+          <span>STABLE_BUILD_XAI</span>
         </div>
         <div>
           <span>VECTOR_PRECISION: 100.00%</span>

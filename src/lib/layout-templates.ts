@@ -1,6 +1,5 @@
 /**
- * @fileOverview Visual Map System - Google Maps Edition (Sectorized Absolute Fidelity).
- * Pipeline segmentada por setores: Maps Sidebar, Floating Header e Earth Engine.
+ * @fileOverview Visual Map System - Grok Edition (Sectorized Absolute Fidelity).
  */
 
 export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'pill' | 'capsule';
@@ -90,131 +89,144 @@ function createSystemIcon(id: string, name: string, x: number, y: number, path: 
 }
 
 /**
- * SETOR 01: MAPS SIDEBAR (Navegação Vertical)
+ * GLYPH: Grok Logo Construction
  */
-function generateMapsSidebarSector(): UIElement {
-  const bg = '#FFFFFF';
-  const textMuted = '#70757a';
-  
+function createGrokLogo(idPrefix: string, x: number, y: number, scale: number = 1): UIElement {
+  const color = '#FFFFFF';
   return {
-    id: 'Sidebar_Sector', name: 'Sidebar_Container', type: 'group', category: 'Container',
-    x: 0, y: 0, width: 80, height: 720, fill: bg, opacity: 1, visible: true, locked: false,
+    id: `${idPrefix}_Group`, name: 'Grok_Logo', type: 'group', category: 'Icon',
+    x, y, width: 48 * scale, height: 48 * scale, fill: 'none', opacity: 1, visible: true, locked: false,
     children: [
-      { id: 'Sidebar_BG', name: 'BG', type: 'rect', category: 'Background', x: 0, y: 0, width: 80, height: 720, fill: '#FFFFFF', opacity: 1, visible: true, locked: false },
-      createSystemIcon('Menu_Icon', 'Menu', 28, 20, 'M4 6h16M4 12h16M4 18h16', '#3c4043'),
+      // Diagonal Slash
+      { id: `${idPrefix}_Slash`, name: 'Slash', type: 'path', category: 'Icon', x: 0, y: 0, width: 48, height: 48, fill: 'none', stroke: color, strokeWidth: 4 * scale, strokeLinecap: 'round', pathData: 'M10 38 L38 10', opacity: 1, visible: true, locked: false },
+      // Top Arc
+      { id: `${idPrefix}_ArcTop`, name: 'Arc_Top', type: 'path', category: 'Icon', x: 0, y: 0, width: 48, height: 48, fill: color, pathData: 'M24 8 C30 8 36 12 38 18 L34 20 C32 16 28 14 24 14 Z', opacity: 1, visible: true, locked: false },
+      // Bottom Arc
+      { id: `${idPrefix}_ArcBot`, name: 'Arc_Bottom', type: 'path', category: 'Icon', x: 0, y: 0, width: 48, height: 48, fill: color, pathData: 'M24 40 C18 40 12 36 10 30 L14 28 C16 32 20 34 24 34 Z', opacity: 1, visible: true, locked: false }
+    ]
+  };
+}
+
+/**
+ * SETOR 01: HEADER
+ */
+function generateHeaderSector(): UIElement {
+  return {
+    id: 'Header_Sector', name: 'Header', type: 'group', category: 'Container',
+    x: 0, y: 0, width: 1280, height: 80, fill: 'none', opacity: 1, visible: true, locked: false,
+    children: [
+      createGrokLogo('Logo_Top', 24, 24, 0.6),
       
-      // Salvos
-      { id: 'Salvos_Group', name: 'Salvos', type: 'group', category: 'Interactive', x: 0, y: 80, width: 80, height: 60, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        createSystemIcon('Salvos_Icon', 'Bookmark', 28, 0, 'M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z', textMuted),
-        { id: 'Salvos_Txt', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 40, width: 0, height: 0, fill: textMuted, text: 'Salvos', fontSize: 10, textAlign: 'center', visible: true, locked: false }
-      ]},
-      
-      // Recentes
-      { id: 'Recentes_Group', name: 'Recentes', type: 'group', category: 'Interactive', x: 0, y: 150, width: 80, height: 60, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        createSystemIcon('Recentes_Icon', 'History', 28, 0, 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', textMuted),
-        { id: 'Recentes_Txt', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 40, width: 0, height: 0, fill: textMuted, text: 'Recentes', fontSize: 10, textAlign: 'center', visible: true, locked: false }
-      ]},
-
-      // Thumbnails Locations
-      { id: 'Loc1_Thumb', name: 'Loc1', type: 'rect', category: 'Image', x: 20, y: 240, width: 40, height: 40, fill: '#333344', rx: 8, ry: 8, opacity: 1, visible: true, locked: false },
-      { id: 'Loc1_Txt', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 300, width: 0, height: 0, fill: textMuted, text: 'Gaspar &', fontSize: 9, textAlign: 'center', visible: true, locked: false },
-      { id: 'Loc1_Txt2', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 312, width: 0, height: 0, fill: textMuted, text: 'Blumenau', fontSize: 9, textAlign: 'center', visible: true, locked: false },
-
-      { id: 'Loc2_Thumb', name: 'Loc2', type: 'rect', category: 'Image', x: 20, y: 340, width: 40, height: 40, fill: '#443333', rx: 8, ry: 8, opacity: 1, visible: true, locked: false },
-      { id: 'Loc2_Txt', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 400, width: 0, height: 0, fill: textMuted, text: 'Campos', fontSize: 9, textAlign: 'center', visible: true, locked: false },
-      { id: 'Loc2_Txt2', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 412, width: 0, height: 0, fill: textMuted, text: 'Gerais', fontSize: 9, textAlign: 'center', visible: true, locked: false },
-
-      createSystemIcon('VerMais_Icon', 'More', 28, 440, 'M5 12h.01M12 12h.01M19 12h.01', textMuted),
-      { id: 'VerMais_Txt', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 480, width: 0, height: 0, fill: textMuted, text: 'Ver mais', fontSize: 10, textAlign: 'center', visible: true, locked: false },
-
-      // Bottom app download
-      { id: 'App_Group', name: 'App', type: 'group', category: 'Interactive', x: 0, y: 640, width: 80, height: 60, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        createSystemIcon('App_Icon', 'Download', 28, 0, 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z', textMuted),
-        { id: 'App_Txt', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 40, width: 0, height: 0, fill: textMuted, text: 'Baixar o', fontSize: 9, textAlign: 'center', visible: true, locked: false },
-        { id: 'App_Txt2', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 52, width: 0, height: 0, fill: textMuted, text: 'aplicativo', fontSize: 9, textAlign: 'center', visible: true, locked: false }
+      { id: 'Header_Actions', name: 'Nav_Right', type: 'group', category: 'Interactive', x: 960, y: 24, width: 300, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+        createSystemIcon('Imagine_Icon', 'Imagine', 0, 8, 'M4 4h16v16H4z M9 9h6v6H9z', '#FFFFFF', 20),
+        { id: 'Imagine_Txt', name: 'Label', type: 'text', category: 'Typography', x: 28, y: 23, width: 0, height: 0, fill: '#FFFFFF', text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false },
+        
+        createSystemIcon('Settings_Icon', 'Settings', 100, 8, 'M12 8v8 M8 12h8', '#FFFFFF', 20),
+        
+        // Buttons
+        { id: 'Login_Btn', name: 'Login', type: 'rect', category: 'Interactive', x: 140, y: 0, width: 70, height: 36, fill: 'none', stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1, rx: 18, ry: 18, opacity: 1, visible: true, locked: false },
+        { id: 'Login_Txt', name: 'Label', type: 'text', category: 'Typography', x: 175, y: 23, width: 0, height: 0, fill: '#FFFFFF', text: 'Entrar', fontSize: 13, fontWeight: '600', textAlign: 'center', visible: true, locked: false },
+        
+        { id: 'Signup_Btn', name: 'Signup', type: 'rect', category: 'Interactive', x: 220, y: 0, width: 100, height: 36, fill: '#FFFFFF', rx: 18, ry: 18, opacity: 1, visible: true, locked: false },
+        { id: 'Signup_Txt', name: 'Label', type: 'text', category: 'Typography', x: 270, y: 23, width: 0, height: 0, fill: '#000000', text: 'Criar conta', fontSize: 13, fontWeight: '700', textAlign: 'center', visible: true, locked: false }
       ]}
     ]
   };
 }
 
 /**
- * SETOR 02: FLOATING HEADER (Busca e Perfil)
+ * SETOR 02: HERO
  */
-function generateMapsHeaderSector(): UIElement {
+function generateHeroSector(): UIElement {
   return {
-    id: 'Header_Sector', name: 'Header_Floating', type: 'group', category: 'Container',
-    x: 96, y: 12, width: 1184, height: 48, fill: 'none', opacity: 1, visible: true, locked: false,
+    id: 'Hero_Sector', name: 'Hero', type: 'group', category: 'Container',
+    x: 520, y: 240, width: 240, height: 60, fill: 'none', opacity: 1, visible: true, locked: false,
     children: [
-      { id: 'Search_Box', name: 'Search_Container', type: 'rect', category: 'Interactive', x: 0, y: 0, width: 380, height: 48, fill: '#FFFFFF', rx: 24, ry: 24, opacity: 1, visible: true, locked: false, shadow: '0 2px 6px rgba(0,0,0,0.3)' },
-      { id: 'Search_Plac', name: 'Txt', type: 'text', category: 'Typography', x: 16, y: 30, width: 0, height: 0, fill: '#70757a', text: 'Pesquise no Google Maps', fontSize: 15, visible: true, locked: false },
-      createSystemIcon('Search_Lens', 'Lens', 290, 12, 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z', '#70757a'),
-      createSystemIcon('Directions_Icon', 'Directions', 330, 12, 'M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z', '#1a73e8'),
+      createGrokLogo('Hero_Logo', 0, 0, 1.2),
+      { id: 'Hero_Title', name: 'Brand', type: 'text', category: 'Typography', x: 70, y: 48, width: 0, height: 0, fill: '#FFFFFF', text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
+    ]
+  };
+}
+
+/**
+ * SETOR 03: PROMPT BAR
+ */
+function generatePromptSector(): UIElement {
+  return {
+    id: 'Prompt_Sector', name: 'Search_Bar', type: 'group', category: 'Container',
+    x: 320, y: 360, width: 640, height: 60, fill: 'none', opacity: 1, visible: true, locked: false,
+    children: [
+      { id: 'Prompt_BG', name: 'BG', type: 'rect', category: 'Background', x: 0, y: 0, width: 640, height: 60, fill: '#121212', rx: 30, ry: 30, stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, opacity: 1, visible: true, locked: false },
+      createSystemIcon('Plus_Icon', 'Add', 24, 18, 'M12 6v12 M6 12h12', '#FFFFFF', 24),
+      { id: 'Prompt_Placeholder', name: 'Placeholder', type: 'text', category: 'Typography', x: 60, y: 36, width: 0, height: 0, fill: 'rgba(255,255,255,0.3)', text: 'O que você quer saber?', fontSize: 16, visible: true, locked: false },
       
-      { id: 'Lang_Box', name: 'Lang_Container', type: 'rect', category: 'Interactive', x: 400, y: 0, width: 64, height: 48, fill: '#FFFFFF', rx: 4, ry: 4, opacity: 1, visible: true, locked: false, shadow: '0 2px 6px rgba(0,0,0,0.3)' },
-      { id: 'Lang_Txt', name: 'Label', type: 'text', category: 'Typography', x: 412, y: 30, width: 0, height: 0, fill: '#3c4043', text: 'Pt', fontSize: 14, fontWeight: '700', visible: true, locked: false },
-      createSystemIcon('Lang_Arrow', 'Down', 435, 12, 'M7 10l5 5 5-5', '#70757a', 20),
-      
-      { id: 'User_Sector', name: 'Right_Profile', type: 'group', category: 'Interactive', x: 1080, y: 0, width: 80, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        createSystemIcon('Apps_Icon', 'Grid', 0, 8, 'M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z', '#FFFFFF', 24),
-        { id: 'Avatar', name: 'User_Avatar', type: 'circle', category: 'Image', x: 40, y: 0, width: 40, height: 40, fill: '#334455', opacity: 1, visible: true, locked: false }
+      { id: 'Prompt_Right', name: 'Controls', type: 'group', category: 'Interactive', x: 540, y: 10, width: 80, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+        { id: 'Fast_Txt', name: 'Label', type: 'text', category: 'Typography', x: 0, y: 26, width: 0, height: 0, fill: '#FFFFFF', text: 'Fast', fontSize: 14, fontWeight: '600', visible: true, locked: false },
+        createSystemIcon('Fast_Chevron', 'Down', 34, 18, 'M7 10l5 5 5-5', '#FFFFFF', 16),
+        { id: 'Send_Circle', name: 'Btn', type: 'circle', category: 'Interactive', x: 60, y: 0, width: 40, height: 40, fill: '#262626', opacity: 1, visible: true, locked: false },
+        createSystemIcon('Send_Icon', 'Up', 68, 8, 'M12 19V5 M5 12l7-7 7 7', '#555555', 24)
       ]}
     ]
   };
 }
 
 /**
- * SETOR 03: EARTH ENGINE (Visualização 3D)
+ * SETOR 04: GROK BUILD CARD
  */
-function generateEarthEngineSector(): UIElement {
+function generateBuildCardSector(): UIElement {
   return {
-    id: 'Earth_Sector', name: 'Main_Globe_View', type: 'group', category: 'Container',
-    x: 80, y: 0, width: 1200, height: 720, fill: 'none', opacity: 1, visible: true, locked: false,
+    id: 'Build_Sector', name: 'Promo_Card', type: 'group', category: 'Container',
+    x: 320, y: 460, width: 640, height: 160, fill: 'none', opacity: 1, visible: true, locked: false,
     children: [
-      // O Globo Central
-      { id: 'Globe_BG', name: 'Earth_Sphere', type: 'circle', category: 'Image', x: 350, y: 110, width: 500, height: 500, fill: '#2a5ea8', opacity: 1, visible: true, locked: false, shadow: '0 0 100px rgba(42, 94, 168, 0.4)' },
-      { id: 'Continents', name: 'Land_Shapes', type: 'path', category: 'Image', x: 400, y: 150, width: 400, height: 400, fill: '#4a8e3d', opacity: 0.6, visible: true, locked: false, pathData: 'M50,50 Q100,0 150,50 T250,50 T350,150 T150,350 Z' },
+      { id: 'Card_BG', name: 'BG', type: 'rect', category: 'Background', x: 0, y: 0, width: 640, height: 160, fill: '#0a0a0a', rx: 24, ry: 24, stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, opacity: 1, visible: true, locked: false },
       
-      // Pins
-      { id: 'Pin_Blue', name: 'Loc_Pin', type: 'group', category: 'Icon', x: 650, y: 250, width: 30, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        { id: 'Pin1_BG', name: 'Body', type: 'path', category: 'Icon', x: 0, y: 0, width: 30, height: 40, fill: '#1a73e8', pathData: 'M15 0a15 15 0 00-15 15c0 10 15 25 15 25s15-15 15-25a15 15 0 00-15-15z', visible: true, locked: false, opacity: 1 },
-        { id: 'Pin1_Icon', name: 'Book', type: 'path', category: 'Icon', x: 8, y: 8, width: 14, height: 14, fill: '#FFFFFF', pathData: 'M5 5h10v10H5z', visible: true, locked: false, opacity: 1 }
-      ]},
+      // Left Content
+      { id: 'Card_Title', name: 'Title', type: 'text', category: 'Typography', x: 24, y: 50, width: 0, height: 0, fill: '#FFFFFF', text: 'Grok Build', fontSize: 20, fontWeight: '700', visible: true, locked: false },
+      { id: 'Beta_Badge', name: 'Badge', type: 'rect', category: 'Container', x: 135, y: 32, width: 45, height: 22, fill: '#FF6B00', rx: 11, ry: 11, opacity: 0.15, visible: true, locked: false },
+      { id: 'Beta_Txt', name: 'Label', type: 'text', category: 'Typography', x: 157, y: 47, width: 0, height: 0, fill: '#FF6B00', text: 'Beta', fontSize: 11, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
+      { id: 'Card_Desc', name: 'Body', type: 'text', category: 'Typography', x: 24, y: 85, width: 0, height: 0, fill: 'rgba(255,255,255,0.4)', text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
+      { id: 'Card_Desc2', name: 'Body', type: 'text', category: 'Typography', x: 24, y: 105, width: 0, height: 0, fill: 'rgba(255,255,255,0.4)', text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
       
-      { id: 'Pin_Pink', name: 'Love_Pin', type: 'group', category: 'Icon', x: 600, y: 600, width: 30, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        { id: 'Pin2_BG', name: 'Body', type: 'path', category: 'Icon', x: 0, y: 0, width: 30, height: 40, fill: '#f06292', pathData: 'M15 0a15 15 0 00-15 15c0 10 15 25 15 25s15-15 15-25a15 15 0 00-15-15z', visible: true, locked: false, opacity: 1 },
-        { id: 'Pin2_Icon', name: 'Heart', type: 'circle', category: 'Icon', x: 10, y: 10, width: 10, height: 10, fill: '#FFFFFF', visible: true, locked: false, opacity: 1 }
+      // Right CLI
+      { id: 'CLI_Tabs', name: 'Tabs', type: 'group', category: 'Interactive', x: 280, y: 44, width: 100, height: 20, fill: 'none', opacity: 1, visible: true, locked: false, children: [
+        { id: 'Tab_PS', name: 'Active', type: 'text', category: 'Typography', x: 0, y: 15, width: 0, height: 0, fill: '#FFFFFF', text: 'PowerShell', fontSize: 12, fontWeight: '600', visible: true, locked: false },
+        { id: 'Tab_WSL', name: 'Inactive', type: 'text', category: 'Typography', x: 75, y: 15, width: 0, height: 0, fill: 'rgba(255,255,255,0.3)', text: 'WSL', fontSize: 12, fontWeight: '500', visible: true, locked: false }
       ]},
-
-      // Camadas Thumbnail (Bottom Left)
-      { id: 'Layers_Box', name: 'Layers_Selector', type: 'group', category: 'Interactive', x: 16, y: 610, width: 90, height: 90, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        { id: 'Layers_Img', name: 'Map_Type', type: 'rect', category: 'Image', x: 0, y: 0, width: 80, height: 80, fill: '#556677', rx: 12, ry: 12, opacity: 1, visible: true, locked: false, stroke: '#FFFFFF', strokeWidth: 2 },
-        { id: 'Layers_Txt', name: 'Label', type: 'text', category: 'Typography', x: 40, y: 70, width: 0, height: 0, fill: '#FFFFFF', text: 'Camadas', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false }
-      ]},
-
-      // Controls (Bottom Right)
-      { id: 'Controls_Group', name: 'Nav_Controls', type: 'group', category: 'Interactive', x: 1140, y: 460, width: 40, height: 240, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-        { id: 'Compass', name: 'Comp', type: 'circle', category: 'Icon', x: 0, y: 0, width: 40, height: 40, fill: '#FFFFFF', opacity: 0.9, visible: true, locked: false },
-        { id: '3D_Btn', name: '3D', type: 'rect', category: 'Interactive', x: 0, y: 50, width: 40, height: 40, fill: '#FFFFFF', rx: 8, ry: 8, opacity: 0.9, visible: true, locked: false },
-        { id: 'Loc_Btn', name: 'Me', type: 'rect', category: 'Interactive', x: 0, y: 100, width: 40, height: 40, fill: '#FFFFFF', rx: 8, ry: 8, opacity: 0.9, visible: true, locked: false },
-        { id: 'Zoom_P', name: 'Plus', type: 'rect', category: 'Interactive', x: 0, y: 150, width: 40, height: 40, fill: '#FFFFFF', rx: 8, ry: 8, opacity: 0.9, visible: true, locked: false },
-        { id: 'Zoom_M', name: 'Minus', type: 'rect', category: 'Interactive', x: 0, y: 195, width: 40, height: 40, fill: '#FFFFFF', rx: 8, ry: 8, opacity: 0.9, visible: true, locked: false }
-      ]}
+      { id: 'Terminal_BG', name: 'Terminal', type: 'rect', category: 'Container', x: 280, y: 75, width: 330, height: 45, fill: '#161616', rx: 12, ry: 12, stroke: 'rgba(255,255,255,0.03)', strokeWidth: 1, opacity: 1, visible: true, locked: false },
+      { id: 'CLI_Cmd', name: 'Command', type: 'text', category: 'Typography', x: 300, y: 103, width: 0, height: 0, fill: '#FFFFFF', text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
+      createSystemIcon('Copy_Icon', 'Copy', 580, 88, 'M8 4h8a2 2 0 012 2v12a2 2 0 01-2 2H8a2 2 0 01-2-2V6a2 2 0 012-2z', 'rgba(255,255,255,0.3)', 18),
+      
+      createSystemIcon('Close_Icon', 'Close', 600, 16, 'M18 6L6 18 M6 6l12 12', 'rgba(255,255,255,0.2)', 16)
     ]
   };
 }
 
-export function generateGoogleMapsReconstruction(): VisualMap {
+/**
+ * SETOR 05: FOOTER
+ */
+function generateFooterSector(): UIElement {
+  return {
+    id: 'Footer_Sector', name: 'Legal_Text', type: 'text', category: 'Typography',
+    x: 640, y: 700, width: 1280, height: 20, fill: 'rgba(255,255,255,0.2)',
+    text: 'Ao enviar mensagens para o Grok, você concorda com nossos termos e política de privacidade.',
+    fontSize: 11, textAlign: 'center', visible: true, locked: false, opacity: 1
+  };
+}
+
+export function generateGrokReconstruction(): VisualMap {
   const elements: UIElement[] = [
-    generateMapsSidebarSector(),
-    generateMapsHeaderSector(),
-    generateEarthEngineSector()
+    generateHeaderSector(),
+    generateHeroSector(),
+    generatePromptSector(),
+    generateBuildCardSector(),
+    generateFooterSector()
   ];
 
   return {
     metadata: {
-      layout_type: 'Google Maps Dark Space (Sectorized)',
+      layout_type: 'Grok xAI (Absolute Fidelity)',
       dimensions: { width: 1280, height: 720 },
-      color_palette: { primary: ['#1a73e8', '#f06292', '#FFFFFF'], neutrals: ['#000000', '#121212'] }
+      color_palette: { primary: ['#FFFFFF', '#FF6B00'], neutrals: ['#000000', '#121212'] }
     },
     elements: applyLayoutSolver(elements, []),
     negativeSpaceMetrics: [],
