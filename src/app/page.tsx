@@ -1,16 +1,15 @@
-
 "use client";
 
 /**
- * @fileOverview Visual Reverse Engineering Engine - Core Interface.
- * 100% Estático para Motion Design.
+ * @fileOverview YouTube UI Forge - Core Interface.
+ * 100% Estático para Motion Design de Plataformas de Vídeo.
  */
 
 import { useState, useEffect } from 'react';
 import { LayoutEditor } from '@/components/layout-editor';
 import { PropertiesPanel } from '@/components/properties-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateGrokAbsoluteReconstruction } from '@/lib/layout-templates';
+import { generateYouTubeAbsoluteReconstruction } from '@/lib/layout-templates';
 import { 
   Layout, 
   Layers, 
@@ -23,7 +22,11 @@ import {
   Command,
   ChevronRight,
   Maximize2,
-  Loader2
+  Loader2,
+  Video,
+  Search,
+  Bell,
+  Menu
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -31,7 +34,7 @@ import { cn } from '@/lib/utils';
 import { ExportPanel } from '@/components/export-panel';
 import { generateLayoutVariations } from '@/ai/flows/generate-layout-variations';
 
-export default function LayoutForgeEnterprise() {
+export default function YouTubeForgeStudio() {
   const { 
     elements, 
     selectedIds, 
@@ -43,13 +46,13 @@ export default function LayoutForgeEnterprise() {
     selectElement 
   } = useLayoutState();
 
-  const [activeTab, setActiveTab] = useState<'layers' | 'assets' | 'ai'>('ai');
+  const [activeTab, setActiveTab] = useState<'layers' | 'assets' | 'ai'>('layers');
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [engineLogs, setEngineLogs] = useState<string[]>([]);
   
   useEffect(() => {
-    const initialMap = generateGrokAbsoluteReconstruction();
+    const initialMap = generateYouTubeAbsoluteReconstruction();
     setLayout(initialMap.elements, initialMap.negativeSpaceMetrics);
   }, [setLayout]);
 
@@ -62,11 +65,10 @@ export default function LayoutForgeEnterprise() {
     const addLog = (msg: string) => setEngineLogs(prev => [...prev, msg]);
     
     try {
-      addLog("INITIATING_STATIC_RECONSTRUCTION");
-      addLog("PHASE_1: PEN_TOOL_LOGO_VECT... OK");
-      addLog("PHASE_2: ICON_GEOMETRY_RECON... OK");
-      addLog("PHASE_3: HEADER_SPACING_AUDIT... OK");
-      addLog("PHASE_4: MOTION_LAYER_AUDIT... OK");
+      addLog("INITIATING_VIDEO_RECONSTRUCTION");
+      addLog("PHASE_1: GRID_ANALYSIS... OK");
+      addLog("PHASE_2: SIDEBAR_HIERARCHY... OK");
+      addLog("PHASE_3: HEADER_CONTROLS... OK");
       
       const result = await generateLayoutVariations({ prompt });
       if (result && result.length > 0) {
@@ -81,114 +83,69 @@ export default function LayoutForgeEnterprise() {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-black text-white font-sans selection:bg-primary/30">
-      <header className="h-14 border-b border-white/5 bg-[#0A0A0A]/80 backdrop-blur-xl flex items-center justify-between px-6 z-[200]">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3">
-             <div className="bg-primary p-1.5 rounded-lg shadow-lg">
-                <Layout className="h-5 w-5" />
-             </div>
-             <div className="flex flex-col">
-                <h1 className="text-xs font-bold uppercase tracking-[0.25em] text-white/90">Forge <span className="text-primary/70">v3.0</span></h1>
-                <span className="text-[9px] text-muted-foreground font-mono uppercase">Static_Motion_Engine</span>
+    <div className="flex flex-col h-screen overflow-hidden bg-[#0f0f0f] text-white font-sans selection:bg-red-500/30">
+      <header className="h-14 border-b border-white/5 bg-[#0f0f0f]/80 backdrop-blur-xl flex items-center justify-between px-4 z-[200]">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+             <Menu className="h-6 w-6 text-white cursor-pointer" />
+             <div className="flex items-center gap-1">
+                <Video className="h-6 w-6 text-red-600 fill-red-600" />
+                <h1 className="text-sm font-bold tracking-tighter">YouTube <span className="text-[10px] text-muted-foreground align-top">BR</span></h1>
              </div>
           </div>
-          <div className="h-8 w-px bg-white/5" />
-          <nav className="flex items-center gap-2">
-            <ToolButton icon={MousePointer2} active />
-            <ToolButton icon={Box} />
-            <ToolButton icon={Type} />
-            <ToolButton icon={Grid3X3} />
-          </nav>
         </div>
 
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
-             <span className="text-[10px] font-mono text-muted-foreground uppercase">Mode</span>
-             <span className="text-[10px] font-mono text-primary font-bold">STATIC</span>
+        <div className="flex-1 max-w-2xl px-8 flex items-center gap-4">
+          <div className="flex-1 flex items-center bg-[#121212] border border-white/10 rounded-full h-10 overflow-hidden">
+             <div className="flex-1 px-4 text-sm text-muted-foreground">Pesquisar</div>
+             <div className="w-16 h-full bg-white/5 flex items-center justify-center border-l border-white/10 hover:bg-white/10 cursor-pointer">
+                <Search className="h-5 w-5 text-white" />
+             </div>
           </div>
-          <div className="h-8 w-px bg-white/5" />
-          <ExportPanel elements={elements} />
-          <Button size="sm" className="h-9 px-6 bg-primary hover:bg-primary/90 shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all font-bold">
-            <Share2 className="mr-2 h-4 w-4" /> Deploy
+          <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 cursor-pointer">
+             <div className="h-5 w-5 border-2 border-white rounded-full flex items-center justify-center">
+                <div className="h-1 w-1 bg-white rounded-full" />
+             </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" className="hidden md:flex gap-2 text-sm font-medium">
+             <div className="h-5 w-5 border border-white/20 rounded flex items-center justify-center">+</div>
+             Criar
           </Button>
+          <div className="relative cursor-pointer">
+             <Bell className="h-6 w-6" />
+             <span className="absolute -top-1 -right-1 bg-red-600 text-[10px] font-bold px-1 rounded-full">2</span>
+          </div>
+          <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-sm">P</div>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        <aside className="w-72 border-r border-white/5 bg-[#050505] flex flex-col z-[100]">
-          <div className="flex h-12 border-b border-white/5">
-            <SideTab label="Layers" active={activeTab === 'layers'} onClick={() => setActiveTab('layers')} icon={Layers} />
-            <SideTab label="Assets" active={activeTab === 'assets'} onClick={() => setActiveTab('assets')} icon={Box} />
-            <SideTab label="Generator" active={activeTab === 'ai'} onClick={() => setActiveTab('ai')} icon={Sparkles} />
-          </div>
-          
+        <aside className="w-60 border-r border-white/5 bg-[#0f0f0f] flex flex-col z-[100]">
           <ScrollArea className="flex-1">
-            <div className="p-5">
-              {activeTab === 'layers' && (
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between mb-4 px-1">
-                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Hierarchy</span>
-                     <Maximize2 className="h-3 w-3 text-muted-foreground/40" />
-                  </div>
-                  {elements.map(el => (
-                    <LayerItem 
-                      key={el.id} 
-                      element={el} 
-                      selected={selectedIds.includes(el.id)} 
-                      onClick={() => selectElement(el.id)} 
-                    />
-                  ))}
-                </div>
-              )}
-              {activeTab === 'ai' && (
-                <div className="space-y-6 pt-2">
-                   <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
-                      <div className="flex items-center gap-2 text-primary">
-                         <Command className="h-4 w-4" />
-                         <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Static Engine</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Reconstrução absoluta de interfaces para Motion Graphics.</p>
-                      <div className="relative">
-                        <input 
-                          type="text" 
-                          value={prompt}
-                          onChange={(e) => setPrompt(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                          placeholder="Ex: /create grok website" 
-                          className="w-full bg-black/60 border border-white/10 rounded-lg p-3 pr-10 text-[11px] focus:ring-1 focus:ring-primary outline-none transition-all"
-                        />
-                        <button 
-                          onClick={handleGenerate}
-                          disabled={isGenerating}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-foreground transition-colors"
-                        >
-                          {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
-                        </button>
-                      </div>
-                   </div>
-                   <div className="space-y-3">
-                      <h4 className="text-[9px] font-bold uppercase text-muted-foreground/40 px-1 tracking-widest">Automation Logs</h4>
-                      <div className="bg-black/40 rounded-lg p-3 border border-white/5 font-mono text-[9px] text-primary/60 space-y-1 min-h-[100px]">
-                         {engineLogs.length > 0 ? (
-                           engineLogs.map((log, i) => (
-                             <div key={i} className="flex justify-between">
-                               <span>&gt; {log}</span>
-                               <span className="text-green-500">OK</span>
-                             </div>
-                           ))
-                         ) : (
-                           <span className="text-muted-foreground/20 italic">Aguardando comando...</span>
-                         )}
-                      </div>
-                   </div>
-                </div>
-              )}
+            <div className="p-2 space-y-1">
+              <SidebarItem icon={Layers} label="Início" active />
+              <SidebarItem icon={Video} label="Shorts" />
+              <SidebarItem icon={Maximize2} label="Inscrições" />
+              <div className="h-px bg-white/5 my-3 mx-4" />
+              <h4 className="px-4 py-2 text-sm font-bold">Inscrições</h4>
+              <ChannelItem name="orochidois" active />
+              <ChannelItem name="Perrenoud" />
+              <ChannelItem name="Professor HOC" />
             </div>
           </ScrollArea>
         </aside>
 
-        <div className="flex-1 relative bg-black overflow-hidden">
+        <div className="flex-1 relative bg-[#0f0f0f] overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-14 z-50 px-6 flex items-center gap-3 bg-[#0f0f0f]/90 backdrop-blur-sm">
+             <CategoryPill label="Tudo" active />
+             <CategoryPill label="Música" />
+             <CategoryPill label="Podcasts" />
+             <CategoryPill label="Inteligência artificial" />
+          </div>
+          
           <LayoutEditor 
             elements={elements} 
             selectedIds={selectedIds}
@@ -203,7 +160,7 @@ export default function LayoutForgeEnterprise() {
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/80 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-2xl z-50">
             <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 0.9)}>-</Button>
             <div className="h-4 w-px bg-white/10" />
-            <span className="text-[10px] font-mono w-12 text-center text-primary font-bold">{Math.round(zoom * 100)}%</span>
+            <span className="text-[10px] font-mono w-12 text-center text-red-500 font-bold">{Math.round(zoom * 100)}%</span>
             <div className="h-4 w-px bg-white/10" />
             <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 1.1)}>+</Button>
           </div>
@@ -212,67 +169,52 @@ export default function LayoutForgeEnterprise() {
         <PropertiesPanel selectedElement={selectedElement} onUpdate={updateElement} />
       </main>
 
-      <footer className="h-7 border-t border-white/5 bg-[#050505] flex items-center justify-between px-6 text-[10px] text-muted-foreground/40 font-mono tracking-wider">
+      <footer className="h-7 border-t border-white/5 bg-[#0f0f0f] flex items-center justify-between px-6 text-[10px] text-muted-foreground/40 font-mono tracking-wider">
         <div className="flex gap-6">
-          <span className="flex items-center gap-1.5">
-            <div className={cn("w-1.5 h-1.5 rounded-full", isGenerating ? "bg-yellow-500" : "bg-green-500")} /> 
-            {isGenerating ? "PROCESSING" : "STATIC_READY"}
+          <span className="flex items-center gap-1.5 text-red-500 font-bold">
+            <div className={cn("w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse")} /> 
+            PLATFORM_LIVE
           </span>
-          <span>LAYERS: {elements.length}</span>
-          <span>CONTEXT: MOTION_GRAPHICS</span>
+          <span>CHANNELS: 142</span>
+          <span>REGION: BR</span>
         </div>
         <div className="flex gap-4">
-          <span>{pan.x.toFixed(0)}, {pan.y.toFixed(0)} PX</span>
-          <span>ENGINE: V3.0</span>
+          <ExportPanel elements={elements} />
         </div>
       </footer>
     </div>
   );
 }
 
-function ToolButton({ icon: Icon, active = false }: { icon: any, active?: boolean }) {
+function SidebarItem({ icon: Icon, label, active = false }: { icon: any, label: string, active?: boolean }) {
   return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
-      className={cn(
-        "h-9 w-9 rounded-lg transition-all", 
-        active ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-white/5"
-      )}
-    >
-      <Icon className="h-5 w-5" />
-    </Button>
+    <div className={cn(
+      "flex items-center gap-5 px-3 py-2.5 rounded-xl cursor-pointer transition-colors",
+      active ? "bg-white/10 text-white font-medium" : "text-white/80 hover:bg-white/5"
+    )}>
+      <Icon className="h-6 w-6" />
+      <span className="text-sm">{label}</span>
+    </div>
   );
 }
 
-function SideTab({ label, icon: Icon, active, onClick }: { label: string, icon: any, active: boolean, onClick: () => void }) {
+function ChannelItem({ name, active = false }: { name: string, active?: boolean }) {
   return (
-    <button 
-      onClick={onClick}
-      className={cn(
-        "flex-1 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all border-b-2",
-        active ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:bg-white/5"
-      )}
-    >
-      <Icon className="h-4 w-4" /> {label}
-    </button>
+    <div className="flex items-center gap-4 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-white/5 group">
+      <div className="h-6 w-6 rounded-full bg-white/10 border border-white/5" />
+      <span className="text-sm flex-1 truncate">{name}</span>
+      {active && <div className="h-1 w-1 bg-blue-500 rounded-full" />}
+    </div>
   );
 }
 
-function LayerItem({ element, selected, onClick }: { element: any, selected: boolean, onClick: () => void }) {
+function CategoryPill({ label, active = false }: { label: string, active?: boolean }) {
   return (
-    <div 
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer group transition-all border border-transparent",
-        selected ? "bg-primary/10 border-primary/20 text-white" : "hover:bg-white/5 text-muted-foreground/70"
-      )}
-    >
-      <div className={cn("p-1 rounded bg-black/40", selected ? "text-primary" : "text-muted-foreground/30")}>
-        <Box className="h-3.5 w-3.5" />
-      </div>
-      <span className="text-[11px] font-medium truncate flex-1 tracking-tight">{element.name}</span>
-      <ChevronRight className={cn("h-3.5 w-3.5 transition-all opacity-0", selected ? "opacity-100" : "group-hover:opacity-30")} />
+    <div className={cn(
+      "px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer transition-colors whitespace-nowrap",
+      active ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
+    )}>
+      {label}
     </div>
   );
 }
