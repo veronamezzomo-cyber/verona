@@ -42,10 +42,11 @@ function renderElement(el: UIElement): string {
       const textAnchor = el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start';
       return `<text ${commonProps} x="${el.x}" y="${el.y}" fill="${el.fill}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${el.fontWeight || '400'}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
       
-    case 'circle':
+    case 'circle': {
       const r = el.width / 2;
       const cStrokeProps = el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : '';
-      return `<circle ${commonProps} cx="${el.x + r}" cx="${el.y + r}" r="${r}" fill="${el.fill}" ${cStrokeProps} />`;
+      return `<circle ${commonProps} cx="${el.x + r}" cy="${el.y + r}" r="${r}" fill="${el.fill}" ${cStrokeProps} />`;
+    }
     
     case 'path':
       const pStrokeProps = el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : '';
