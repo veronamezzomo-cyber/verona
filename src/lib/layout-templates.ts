@@ -91,17 +91,22 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
       // FASE 3: RELATIVE CHILDREN POSITIONING
       if (el.children && el.children.length > 0) {
         el.children.forEach(child => {
-          // Lógica de posicionamento relativo ao pai
+          // Lógica de posicionamento relativo ao pai (Pill)
           if (child.id === 'pill-send-circle' || child.id === 'pill-send-arrow') {
-            child.x = el.width - 45; // Right offset
+            child.x = el.width - 45; // Fixed right offset
           }
           if (child.id === 'pill-fast-text' || child.id === 'pill-fast-chevron') {
-            child.x = el.width - 110;
+            child.x = el.width - 110; // Positioning Fast selector relative to right
           }
-          if (child.id === 'card-beta' || child.id === 'card-beta-text') {
-            // Centralização horizontal automática no card se necessário
-            // Aqui mantemos a lógica Grok: posicionado ao lado do título
+          
+          // Lógica de posicionamento relativo no Card
+          if (child.id === 'card-close') {
+             child.x = el.width - 30;
           }
+          if (child.id === 'term-bg' || child.id === 'term-tabs') {
+             child.x = el.width - 340; // Right align terminal block
+          }
+
           elementMap.set(child.id, child);
         });
         buildMap(el.children);
@@ -138,7 +143,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
   const darkBlack = '#000000';
 
   const elements: UIElement[] = [
-    // FASE 5: LAYER NAMING SEMÂNTICO
+    // FASE 5: LAYER NAMING SEMÂNTICO & FASE 4: METADATA
     {
       id: 'Header',
       name: 'Header_Navigation',

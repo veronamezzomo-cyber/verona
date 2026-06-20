@@ -45,7 +45,7 @@ function renderElement(el: UIElement): string {
   if (!el.visible) return '';
 
   // FASE 4: METADATA PROFISSIONAL DE EXPORTAÇÃO
-  const metadata = `data-name="${el.name}" data-layer="${el.type}" data-group="${el.id}"`;
+  const metadata = `data-name="${el.name}" data-layer="${el.type}" data-group="${el.id}" data-export="true"`;
   const filterUrl = el.shadow ? `url(#shadow-${el.id})` : el.blur ? `url(#blur-${el.id})` : '';
   const filterAttr = filterUrl ? `filter="${filterUrl}"` : '';
   const commonProps = `id="${el.id.replace(/\s+/g, '_')}" opacity="${el.opacity}" ${metadata} ${filterAttr}`;

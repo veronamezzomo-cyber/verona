@@ -40,7 +40,7 @@ export function LayoutEditor({
     }
   };
 
-  // Coleta todos os filtros únicos necessários
+  // Coleta todos os filtros únicos necessários (FASE 1 & 2)
   const filters: JSX.Element[] = [];
   const collectFilters = (els: UIElement[]) => {
     els.forEach(el => {
