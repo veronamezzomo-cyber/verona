@@ -89,17 +89,14 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
     els.forEach(el => {
       elementMap.set(el.id, el);
       
-      // Centralização horizontal dinâmica para blocos principais
       if (el.id === 'HeroBranding' || el.id === 'PromptPill' || el.id === 'BuildCard') {
         el.x = (VIEWPORT_WIDTH - el.width) / 2;
       }
 
-      // Centralização absoluta do Footer
       if (el.id === 'Footer') {
         el.x = VIEWPORT_WIDTH / 2;
       }
 
-      // Header: Largura total e ancoragem de itens à direita
       if (el.id === 'Header') {
         el.width = VIEWPORT_WIDTH;
         el.x = 0;
@@ -108,7 +105,6 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
           const marginRight = 24;
           const gutter = 32;
 
-          // Sign Up Pill (Âncora à direita)
           const signUpPill = el.children.find(c => c.id === 'SignUpPill');
           const signUpText = el.children.find(c => c.id === 'SignUpText');
           if (signUpPill) {
@@ -118,19 +114,16 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
             }
           }
 
-          // Login Button (Relativo ao Sign Up)
-          const loginButton = el.children.find(c => c.id === 'Login_Button');
-          if (loginButton && signUpPill) {
-            loginButton.x = signUpPill.x - loginButton.width - gutter;
+          const loginBtn = el.children.find(c => c.id === 'Login_Button');
+          if (loginBtn && signUpPill) {
+            loginBtn.x = signUpPill.x - loginBtn.width - 20;
           }
 
-          // Settings Icon (Relativo ao Login)
           const settingsIcon = el.children.find(c => c.id === 'Settings_Icon_Group');
-          if (settingsIcon && loginButton) {
-            settingsIcon.x = loginButton.x - 20 - gutter;
+          if (settingsIcon && loginBtn) {
+            settingsIcon.x = loginBtn.x - 20 - gutter;
           }
 
-          // Imagine Toggle Group (Relativo ao Settings)
           const imagineToggle = el.children.find(c => c.id === 'Imagine_Toggle');
           if (imagineToggle && settingsIcon) {
             imagineToggle.x = settingsIcon.x - imagineToggle.width - gutter;
@@ -138,7 +131,6 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
         }
       }
 
-      // Ancoragem interna para componentes do Card "Grok Build" e PromptPill
       if (el.children && el.children.length > 0) {
         el.children.forEach(child => {
           if (child.id === 'pill-send-circle') child.x = el.width - 48;
@@ -152,6 +144,9 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
           if (child.id === 'card-close') {
             child.x = el.width - 32;
           }
+
+          if (child.id === 'PowerShell_Tab') child.x = el.width - 340 - 24;
+          if (child.id === 'WSL_Tab') child.x = el.width - 340 - 24 + 80;
 
           elementMap.set(child.id, child);
         });
@@ -188,7 +183,7 @@ function createGrokLogo(id: string, name: string, size: number, color: string): 
     children: [
       {
         id: `${id}_Slash`,
-        name: 'Logo_Slash_Raw',
+        name: 'Logo_Slash',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: 'none', stroke: color, strokeWidth: 1.75 * scale, strokeLinecap: 'round',
@@ -197,7 +192,7 @@ function createGrokLogo(id: string, name: string, size: number, color: string): 
       },
       {
         id: `${id}_Left_Arc`,
-        name: 'Logo_Left_Arc_Raw',
+        name: 'Logo_Left_Arc',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: color, stroke: 'none',
@@ -206,7 +201,7 @@ function createGrokLogo(id: string, name: string, size: number, color: string): 
       },
       {
         id: `${id}_Right_Arc`,
-        name: 'Logo_Right_Arc_Raw',
+        name: 'Logo_Right_Arc',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: color, stroke: 'none',
@@ -333,20 +328,22 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
         { id: 'card-desc', name: 'Card_Description_1', type: 'text', x: 24, y: 72, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
         { id: 'card-desc-2', name: 'Card_Description_2', type: 'text', x: 24, y: 92, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
         { id: 'card-close', name: 'Close_Icon_Path', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' },
+        { id: 'PowerShell_Tab', name: 'Tab_PowerShell', type: 'text', x: 0, y: 55, width: 0, height: 0, fill: textPrimary, text: 'PowerShell', fontSize: 11, fontWeight: '600', visible: true, locked: false },
+        { id: 'WSL_Tab', name: 'Tab_WSL', type: 'text', x: 0, y: 55, width: 0, height: 0, fill: textSecondary, text: 'WSL', fontSize: 11, fontWeight: '400', visible: true, locked: false },
         {
           id: 'TerminalGroup',
           name: 'Terminal_CLI_Block',
           type: 'group',
-          x: 0, y: 30, width: 340, height: 70,
+          x: 0, y: 65, width: 340, height: 45,
           fill: 'none', opacity: 1, visible: true, locked: false,
           children: [
-            { id: 'term-bg', name: 'Terminal_BG', type: 'rect', x: 0, y: 0, width: 340, height: 70, fill: darkBlack, opacity: 0.8, rx: 8, visible: true, locked: false },
-            { id: 'term-text', name: 'Terminal_Command', type: 'text', x: 15, y: 40, width: 0, height: 0, fill: textPrimary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
+            { id: 'term-bg', name: 'Terminal_BG', type: 'rect', x: 0, y: 0, width: 340, height: 45, fill: darkBlack, opacity: 0.8, rx: 8, visible: true, locked: false, stroke: border, strokeWidth: 0.5 },
+            { id: 'term-text', name: 'Terminal_Command', type: 'text', x: 15, y: 28, width: 0, height: 0, fill: textPrimary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
             { 
               id: 'term-copy-icon', 
               name: 'Copy_Icon_Path', 
               type: 'path', 
-              x: 310, y: 25, width: 16, height: 16, 
+              x: 310, y: 15, width: 16, height: 16, 
               fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false,
               pathData: 'M4 4 H12 V12 H4 Z M2 2 H10 V10 H2 Z' 
             }
@@ -358,7 +355,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'Footer',
       name: 'Legal_Disclaimer_Footer',
       type: 'text',
-      x: 640, y: 640,
+      x: 640, y: 700,
       width: 0, height: 0,
       fill: textSecondary,
       text: 'Ao enviar mensagens para o Grok, você concorda com nossos termos e política de privacidade.',
