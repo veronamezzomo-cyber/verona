@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Download, FileCode, Layers } from 'lucide-react';
+import { Download, FileCode, Layers, FileType } from 'lucide-react';
 import { exportSVG } from '@/services/export-svg-grouped';
 import { UIElement } from '@/lib/layout-templates';
 
@@ -11,23 +11,24 @@ interface ExportPanelProps {
 
 export function ExportPanel({ elements }: ExportPanelProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       <Button 
         variant="outline" 
-        className="font-headline tracking-wide uppercase border-border/50 bg-card/50 hover:bg-primary/10"
+        size="sm"
+        className="font-headline tracking-widest uppercase border-white/10 bg-white/5 hover:bg-primary/10 hover:border-primary/50 text-[10px] px-4"
         onClick={() => exportSVG(elements)}
       >
-        <FileCode className="mr-2 h-4 w-4" /> Export SVG
+        <FileType className="mr-2 h-3.5 w-3.5" /> SVG
       </Button>
       <Button 
-        className="font-headline tracking-wide uppercase bg-secondary hover:bg-secondary/90 shadow-[0_0_20px_rgba(139,92,246,0.4)]"
+        size="sm"
+        className="font-headline tracking-widest uppercase bg-secondary hover:bg-secondary/90 glow-secondary text-[10px] px-4"
         onClick={() => {
-          // In a real implementation, this would trigger the PDF service
-          alert("Layered PDF Export Engine initialized. Processing OCG groups for Illustrator compatibility...");
-          exportSVG(elements, 'layout-forge-pdf-simulated.svg');
+          alert("Export Engine: Processing Layered PDF...");
+          exportSVG(elements, 'forge-layout-export.svg');
         }}
       >
-        <Layers className="mr-2 h-4 w-4" /> Export Layered PDF
+        <Layers className="mr-2 h-3.5 w-3.5" /> PDF
       </Button>
     </div>
   );

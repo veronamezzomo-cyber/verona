@@ -11,14 +11,9 @@ interface LayoutEditorProps {
 }
 
 export function LayoutEditor({ elements, selectedId, onSelect, onUpdate }: LayoutEditorProps) {
-  const handleDrag = (e: React.MouseEvent, id: string) => {
-    // Basic drag-and-drop orchestration could be implemented here
-    // For this prototype, we'll rely on property panel controls to maintain robustness
-  };
-
   return (
     <div 
-      className="canvas-container w-full aspect-video max-w-5xl mx-auto border border-border rounded-xl shadow-2xl relative overflow-hidden bg-[#0A0E27]"
+      className="w-full aspect-video max-w-5xl mx-auto rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden bg-[#0A0E27] border border-white/10"
       onClick={() => onSelect(null)}
     >
       <svg 
@@ -28,7 +23,7 @@ export function LayoutEditor({ elements, selectedId, onSelect, onUpdate }: Layou
       >
         <defs>
           <filter id="selection-glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feGaussianBlur stdDeviation="2" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
@@ -95,7 +90,7 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
                 x={-5} y={-5} 
                 width={el.width + 10} height={el.height + 10} 
                 fill="transparent" 
-                stroke="#3B82F6" strokeWidth="2" strokeDasharray="4 4" 
+                stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4 4" 
              />
           )}
         </g>
