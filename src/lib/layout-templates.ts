@@ -260,9 +260,9 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
               name: 'Settings_Gear_Path', 
               type: 'path', 
               x: 0, y: 0, width: 20, height: 20, 
-              fill: textPrimary, opacity: 0.6, visible: true, locked: false, 
-              // Engrenagem geométrica preenchida
-              pathData: 'M 10 7.5 A 2.5 2.5 0 1 0 10 12.5 A 2.5 2.5 0 1 0 10 7.5 Z M 10 0 L 11.5 3 L 14.5 3 L 16 5.5 L 19 6 L 19 9 L 20 10 L 19 11 L 19 14 L 16 14.5 L 14.5 17 L 11.5 17 L 10 20 L 8.5 17 L 5.5 17 L 4 14.5 L 1 14 L 1 11 L 0 10 L 1 9 L 1 6 L 4 5.5 L 5.5 3 L 8.5 3 Z' 
+              fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.6, visible: true, locked: false, 
+              // Engrenagem geométrica vazada e fina
+              pathData: 'M 10 7.5 A 2.5 2.5 0 1 0 10 12.5 A 2.5 2.5 0 1 0 10 7.5 Z M 10 2 L 11 4 L 13 4 L 14 5 L 16 5 L 16 7 L 18 8 L 18 10 L 20 10 L 18 10 L 18 12 L 16 13 L 16 15 L 14 15 L 13 16 L 11 16 L 10 18 L 9 16 L 7 16 L 6 15 L 4 15 L 4 13 L 2 12 L 2 10 L 0 10 L 2 10 L 2 8 L 4 7 L 4 5 L 6 5 L 7 4 L 9 4 Z' 
             }
           ]
         },
