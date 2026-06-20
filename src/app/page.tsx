@@ -1,3 +1,4 @@
+
 "use client";
 
 /**
@@ -13,16 +14,11 @@ import { generateGrokAbsoluteReconstruction } from '@/lib/layout-templates';
 import { 
   Maximize2,
   Loader2,
-  Video,
-  Search,
-  Bell,
-  Menu,
   Settings,
-  Image as ImageIcon,
-  Plus
+  Plus,
+  Box
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { ExportPanel } from '@/components/export-panel';
 import { generateLayoutVariations } from '@/ai/flows/generate-layout-variations';
@@ -47,25 +43,28 @@ export default function GrokForgeStudio() {
     setLayout(initialMap.elements, initialMap.negativeSpaceMetrics);
   }, [setLayout]);
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-    
-    setIsGenerating(true);
-    try {
-      const result = await generateLayoutVariations({ prompt });
-      if (result && result.length > 0) {
-        setLayout(result[0]);
-      }
-    } catch (error) {
-      console.error("PIPELINE_ERROR:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-black text-white font-sans selection:bg-primary/30">
-      {/* Header logic removed from layout as it's part of the static SVG for higher fidelity and simpler AE export */}
+      {/* Top Header - Export and Status */}
+      <header className="h-14 border-b border-white/5 bg-black/80 backdrop-blur-xl flex items-center justify-between px-6 z-[100]">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <Box className="h-5 w-5 text-primary" />
+            <span className="text-xs font-headline uppercase tracking-widest font-bold">Forge Studio</span>
+          </div>
+          <div className="h-4 w-px bg-white/10" />
+          <div className="flex gap-4 items-center">
+            <span className="flex items-center gap-1.5 text-primary text-[10px] font-mono font-bold">
+              <div className={cn("w-1.5 h-1.5 rounded-full bg-primary animate-pulse")} /> 
+              SYSTEM_STABLE
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <ExportPanel elements={elements} />
+        </div>
+      </header>
       
       <main className="flex-1 flex overflow-hidden">
         <div className="flex-1 relative bg-black overflow-hidden">
@@ -89,20 +88,18 @@ export default function GrokForgeStudio() {
           </div>
         </div>
 
-        <PropertiesPanel selectedElement={selectedElement} onUpdate={updateElement} />
+        {selectedElement && (
+          <PropertiesPanel selectedElement={selectedElement} onUpdate={updateElement} />
+        )}
       </main>
 
-      <footer className="h-10 border-t border-white/5 bg-black flex items-center justify-between px-6 text-[10px] text-muted-foreground/40 font-mono tracking-wider">
-        <div className="flex gap-6">
-          <span className="flex items-center gap-1.5 text-primary font-bold">
-            <div className={cn("w-1.5 h-1.5 rounded-full bg-primary animate-pulse")} /> 
-            GROK_ENGINE_STABLE
-          </span>
-          <span>SYSTEM: xAI_CLUSTER</span>
-          <span>VERSION: 3.14-BETA</span>
+      <footer className="h-8 border-t border-white/5 bg-black flex items-center justify-between px-6 text-[9px] text-muted-foreground/30 font-mono tracking-widest">
+        <div className="flex gap-6 uppercase">
+          <span>xAI_CLUSTER_NODE_01</span>
+          <span>v3.14_STABLE</span>
         </div>
-        <div className="flex gap-4">
-          <ExportPanel elements={elements} />
+        <div>
+          <span>VECTOR_PRECISION: 100%</span>
         </div>
       </footer>
     </div>

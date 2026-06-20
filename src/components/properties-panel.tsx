@@ -1,7 +1,9 @@
+
 "use client";
 
 /**
  * @fileOverview Painel de Propriedades Profissional (Inspetor Contextual).
+ * Retorna null se não houver seleção para manter o ambiente limpo.
  */
 
 import { UIElement } from '@/lib/layout-templates';
@@ -18,17 +20,10 @@ interface PropertiesPanelProps {
 }
 
 export function PropertiesPanel({ selectedElement, onUpdate }: PropertiesPanelProps) {
-  if (!selectedElement) {
-    return (
-      <div className="w-72 h-full border-l border-white/5 bg-[#0C0F1D] flex flex-col items-center justify-center p-8 text-center text-muted-foreground/30">
-        <MousePointer2 className="h-12 w-12 mb-4" />
-        <p className="text-xs uppercase tracking-widest font-bold">Select an object to inspect</p>
-      </div>
-    );
-  }
+  if (!selectedElement) return null;
 
   return (
-    <div className="w-80 h-full border-l border-white/5 bg-[#0C0F1D] flex flex-col z-[100]">
+    <div className="w-80 h-full border-l border-white/5 bg-[#0C0F1D] flex flex-col z-[100] animate-in slide-in-from-right duration-300">
       <div className="p-4 border-b border-white/5 flex items-center gap-2">
         <Target className="h-4 w-4 text-primary" />
         <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">Inspector</h2>
@@ -96,7 +91,7 @@ export function PropertiesPanel({ selectedElement, onUpdate }: PropertiesPanelPr
           <section className="space-y-4">
             <div className="flex items-center gap-2 text-primary/60">
               <Palette className="h-3 w-3" />
-              <h3 className="text-[10px] font-bold uppercase tracking-widest">Appearence</h3>
+              <h3 className="text-[10px] font-bold uppercase tracking-widest">Appearance</h3>
             </div>
             <div className="space-y-4">
                <div className="flex items-center justify-between">

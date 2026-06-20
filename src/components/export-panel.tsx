@@ -1,9 +1,11 @@
+
 "use client";
 
 import { Button } from '@/components/ui/button';
 import { FileType, Layers, Database } from 'lucide-react';
 import { exportSVG } from '@/services/export-svg-grouped';
 import { exportAEJson } from '@/services/export-ae-json';
+import { exportPDF } from '@/services/export-pdf';
 import { UIElement } from '@/lib/layout-templates';
 
 interface ExportPanelProps {
@@ -32,10 +34,7 @@ export function ExportPanel({ elements }: ExportPanelProps) {
       <Button 
         size="sm"
         className="font-headline tracking-widest uppercase bg-secondary hover:bg-secondary/90 glow-secondary text-[10px] px-4"
-        onClick={() => {
-          alert("Export Engine: Processing Layered PDF...");
-          exportSVG(elements, 'forge-layout-export.svg');
-        }}
+        onClick={() => exportPDF(elements)}
       >
         <Layers className="mr-2 h-3.5 w-3.5" /> PDF
       </Button>
