@@ -2,7 +2,8 @@
 "use client";
 
 /**
- * @fileOverview Engine de renderização vetorial profissional - Contexto WEBSITE (Fullscreen).
+ * @fileOverview Engine de renderização vetorial 100% Estática.
+ * Focada em Motion Design e exportação profissional.
  */
 
 import { UIElement } from '@/lib/layout-templates';
@@ -69,7 +70,7 @@ export function LayoutEditor({
   return (
     <div 
       ref={containerRef}
-      className="w-full h-full relative overflow-hidden bg-black cursor-crosshair selection:bg-transparent"
+      className="w-full h-full relative overflow-hidden bg-black selection:bg-transparent"
       onWheel={handleWheel}
       onClick={() => onSelect(null)}
     >
@@ -82,26 +83,18 @@ export function LayoutEditor({
           {filters}
         </defs>
 
-        {elements.map((el) => {
-          // IDs interativos no layout Grok
-          const isInteractive = el.id === 'SignUpPill' || el.id === 'Login_Text' || el.id === 'Settings_Icon';
-          
-          return (
-            <g 
-              key={el.id}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelect(el.id, e.shiftKey);
-              }}
-              className={cn(
-                "cursor-pointer pointer-events-auto transition-all duration-200",
-                isInteractive && "hover:opacity-70 active:scale-95 origin-center"
-              )}
-            >
-              {renderElementPreview(el, selectedIds.includes(el.id))}
-            </g>
-          );
-        })}
+        {elements.map((el) => (
+          <g 
+            key={el.id}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(el.id, e.shiftKey);
+            }}
+            className="pointer-events-auto"
+          >
+            {renderElementPreview(el, selectedIds.includes(el.id))}
+          </g>
+        ))}
       </svg>
     </div>
   );

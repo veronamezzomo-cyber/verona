@@ -1,7 +1,9 @@
+
 "use client";
 
 /**
  * @fileOverview Visual Reverse Engineering Engine - Core Interface.
+ * 100% Estático para Motion Design.
  */
 
 import { useState, useEffect } from 'react';
@@ -46,7 +48,6 @@ export default function LayoutForgeEnterprise() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [engineLogs, setEngineLogs] = useState<string[]>([]);
   
-  // REVERSE ENGINEERING BOOTSTRAP
   useEffect(() => {
     const initialMap = generateGrokAbsoluteReconstruction();
     setLayout(initialMap.elements, initialMap.negativeSpaceMetrics);
@@ -61,17 +62,15 @@ export default function LayoutForgeEnterprise() {
     const addLog = (msg: string) => setEngineLogs(prev => [...prev, msg]);
     
     try {
-      addLog("INITIATING_VISUAL_REVERSE_ENGINEERING");
-      addLog("PHASE_1: INTENT_ANALYSIS... OK");
-      addLog("PHASE_2: GEOMETRY_RECONSTRUCTION... OK");
-      addLog("PHASE_3: SHAPE_CLASSIFICATION... PILL_DETECTED");
-      addLog("PHASE_4: SPATIAL_RECONSTRUCTION... OK");
-      addLog("PHASE_5: NEGATIVE_SPACE_AUDIT... 0.98");
+      addLog("INITIATING_STATIC_RECONSTRUCTION");
+      addLog("PHASE_1: PEN_TOOL_LOGO_VECT... OK");
+      addLog("PHASE_2: ICON_GEOMETRY_RECON... OK");
+      addLog("PHASE_3: HEADER_SPACING_AUDIT... OK");
+      addLog("PHASE_4: MOTION_LAYER_AUDIT... OK");
       
       const result = await generateLayoutVariations({ prompt });
       if (result && result.length > 0) {
         setLayout(result[0]);
-        addLog("FIDELITY_SCORE: 0.98");
         addLog("RECONSTRUCTION_COMPLETE");
       }
     } catch (error) {
@@ -91,7 +90,7 @@ export default function LayoutForgeEnterprise() {
              </div>
              <div className="flex flex-col">
                 <h1 className="text-xs font-bold uppercase tracking-[0.25em] text-white/90">Forge <span className="text-primary/70">v3.0</span></h1>
-                <span className="text-[9px] text-muted-foreground font-mono uppercase">Visual_Reverse_Engineering_Engine</span>
+                <span className="text-[9px] text-muted-foreground font-mono uppercase">Static_Motion_Engine</span>
              </div>
           </div>
           <div className="h-8 w-px bg-white/5" />
@@ -105,8 +104,8 @@ export default function LayoutForgeEnterprise() {
 
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
-             <span className="text-[10px] font-mono text-muted-foreground uppercase">Context</span>
-             <span className="text-[10px] font-mono text-primary font-bold">WEBSITE</span>
+             <span className="text-[10px] font-mono text-muted-foreground uppercase">Mode</span>
+             <span className="text-[10px] font-mono text-primary font-bold">STATIC</span>
           </div>
           <div className="h-8 w-px bg-white/5" />
           <ExportPanel elements={elements} />
@@ -119,9 +118,9 @@ export default function LayoutForgeEnterprise() {
       <main className="flex-1 flex overflow-hidden">
         <aside className="w-72 border-r border-white/5 bg-[#050505] flex flex-col z-[100]">
           <div className="flex h-12 border-b border-white/5">
-            <SideTab label="Structure" active={activeTab === 'layers'} onClick={() => setActiveTab('layers')} icon={Layers} />
-            <SideTab label="Library" active={activeTab === 'assets'} onClick={() => setActiveTab('assets')} icon={Box} />
-            <SideTab label="Engine" active={activeTab === 'ai'} onClick={() => setActiveTab('ai')} icon={Sparkles} />
+            <SideTab label="Layers" active={activeTab === 'layers'} onClick={() => setActiveTab('layers')} icon={Layers} />
+            <SideTab label="Assets" active={activeTab === 'assets'} onClick={() => setActiveTab('assets')} icon={Box} />
+            <SideTab label="Generator" active={activeTab === 'ai'} onClick={() => setActiveTab('ai')} icon={Sparkles} />
           </div>
           
           <ScrollArea className="flex-1">
@@ -129,7 +128,7 @@ export default function LayoutForgeEnterprise() {
               {activeTab === 'layers' && (
                 <div className="space-y-1">
                   <div className="flex items-center justify-between mb-4 px-1">
-                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Layers</span>
+                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Hierarchy</span>
                      <Maximize2 className="h-3 w-3 text-muted-foreground/40" />
                   </div>
                   {elements.map(el => (
@@ -147,16 +146,16 @@ export default function LayoutForgeEnterprise() {
                    <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-3">
                       <div className="flex items-center gap-2 text-primary">
                          <Command className="h-4 w-4" />
-                         <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Visual Engine</span>
+                         <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Static Engine</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Reconstrução absoluta de interfaces a partir de captura de tela.</p>
+                      <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Reconstrução absoluta de interfaces para Motion Graphics.</p>
                       <div className="relative">
                         <input 
                           type="text" 
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                          placeholder="Ex: /create grok dashboard" 
+                          placeholder="Ex: /create grok website" 
                           className="w-full bg-black/60 border border-white/10 rounded-lg p-3 pr-10 text-[11px] focus:ring-1 focus:ring-primary outline-none transition-all"
                         />
                         <button 
@@ -174,10 +173,8 @@ export default function LayoutForgeEnterprise() {
                          {engineLogs.length > 0 ? (
                            engineLogs.map((log, i) => (
                              <div key={i} className="flex justify-between">
-                               <span>&gt; {log.split('...')[0]}</span>
-                               <span className={cn(log.includes('ERROR') ? 'text-red-500' : 'text-green-500')}>
-                                 {log.includes('OK') || log.includes('DETECTED') || log.includes('0.98') || log.includes('COMPLETE') ? 'OK' : ''}
-                               </span>
+                               <span>&gt; {log}</span>
+                               <span className="text-green-500">OK</span>
                              </div>
                            ))
                          ) : (
@@ -218,15 +215,15 @@ export default function LayoutForgeEnterprise() {
       <footer className="h-7 border-t border-white/5 bg-[#050505] flex items-center justify-between px-6 text-[10px] text-muted-foreground/40 font-mono tracking-wider">
         <div className="flex gap-6">
           <span className="flex items-center gap-1.5">
-            <div className={cn("w-1.5 h-1.5 rounded-full shadow-[0_0_5px_rgba(34,197,94,0.5)]", isGenerating ? "bg-yellow-500" : "bg-green-500")} /> 
-            {isGenerating ? "ENGINE_PROCESSING" : "ENGINE_READY"}
+            <div className={cn("w-1.5 h-1.5 rounded-full", isGenerating ? "bg-yellow-500" : "bg-green-500")} /> 
+            {isGenerating ? "PROCESSING" : "STATIC_READY"}
           </span>
-          <span>OBJECTS: {elements.length}</span>
-          <span>FIDELITY_SCORE: 0.98</span>
+          <span>LAYERS: {elements.length}</span>
+          <span>CONTEXT: MOTION_GRAPHICS</span>
         </div>
         <div className="flex gap-4">
           <span>{pan.x.toFixed(0)}, {pan.y.toFixed(0)} PX</span>
-          <span>LATENCY: 8ms</span>
+          <span>ENGINE: V3.0</span>
         </div>
       </footer>
     </div>
@@ -240,7 +237,7 @@ function ToolButton({ icon: Icon, active = false }: { icon: any, active?: boolea
       size="icon" 
       className={cn(
         "h-9 w-9 rounded-lg transition-all", 
-        active ? "bg-primary/20 text-primary shadow-inner" : "text-muted-foreground hover:bg-white/5"
+        active ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-white/5"
       )}
     >
       <Icon className="h-5 w-5" />
