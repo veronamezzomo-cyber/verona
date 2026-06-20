@@ -8,17 +8,18 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
   
   const collectFiltersSVG = (els: UIElement[]) => {
     els.forEach(el => {
+      const idSafe = el.id.replace(/\s+/g, '_');
       if (el.shadow) {
         const [dx, dy, blur, ...colorParts] = el.shadow.split(' ');
         const color = colorParts.join(' ');
         filters.push(`
-    <filter id="shadow-${el.id}" x="-50%" y="-50%" width="200%" height="200%">
+    <filter id="shadow-${idSafe}" x="-50%" y="-50%" width="200%" height="200%">
       <feDropShadow dx="${dx}" dy="${dy}" stdDeviation="${parseFloat(blur) / 2}" flood-color="${color}" />
     </filter>`);
       }
       if (el.blur) {
         filters.push(`
-    <filter id="blur-${el.id}" x="-50%" y="-50%" width="200%" height="200%">
+    <filter id="blur-${idSafe}" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="${el.blur}" />
     </filter>`);
       }
@@ -27,10 +28,10 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
   };
   collectFiltersSVG(elements);
 
-  const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
-  
-  // O background preto absoluto deve ser o primeiro elemento para garantir fidelidade visual
+  // Background preto absoluto como base da Viewport (Essencial para fidelidade visual isolada)
   const backgroundRect = `<rect id="viewport-background" width="100%" height="100%" fill="#000000" data-name="Background" />`;
+  
+  const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -48,11 +49,11 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
 function renderElement(el: UIElement): string {
   if (!el.visible) return '';
 
-  // Metadados para compatibilidade com Illustrator/After Effects
+  const idSafe = el.id.replace(/\s+/g, '_');
   const metadata = `data-name="${el.name || el.id}" data-layer="${el.type}" data-group="${el.id}" data-export="true"`;
-  const filterUrl = el.shadow ? `url(#shadow-${el.id})` : el.blur ? `url(#blur-${el.id})` : '';
+  const filterUrl = el.shadow ? `url(#shadow-${idSafe})` : el.blur ? `url(#blur-${idSafe})` : '';
   const filterAttr = filterUrl ? `filter="${filterUrl}"` : '';
-  const commonProps = `id="${el.id.replace(/\s+/g, '_')}" opacity="${el.opacity}" ${metadata} ${filterAttr}`;
+  const commonProps = `id="${idSafe}" opacity="${el.opacity}" ${metadata} ${filterAttr}`;
 
   switch (el.type) {
     case 'group':
