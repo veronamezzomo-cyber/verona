@@ -4,7 +4,6 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
   const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
   
   return `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" version="1.1">
-  <rect width="100%" height="100%" fill="#000000" />
   ${elementsSVG}
 </svg>`;
 }
@@ -22,7 +21,8 @@ function renderElement(el: UIElement): string {
     case 'rect':
     case 'pill':
     case 'capsule': {
-      const radius = (el.type === 'pill' || el.type === 'capsule') ? el.height / 2 : (el.rx || 0);
+      const isPill = el.type === 'pill' || el.type === 'capsule';
+      const radius = isPill ? el.height / 2 : (el.rx || 0);
       return `<rect id="${el.id}" x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${el.fill}" opacity="${el.opacity}" rx="${radius}" ry="${radius}" ${el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : ''} transform="rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})" />`;
     }
       

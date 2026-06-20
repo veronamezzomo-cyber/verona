@@ -1,5 +1,6 @@
 /**
  * @fileOverview Visual Map System - Definições de infraestrutura para Engenharia Reversa.
+ * Contexto: WEBSITE (Fullscreen).
  */
 
 export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'chart' | 'table' | 'pill' | 'capsule';
@@ -61,7 +62,6 @@ export interface VisualMap {
 }
 
 export function generateGrokAbsoluteReconstruction(): UIElement[] {
-  const bg = '#000000';
   const surface = '#0d0d0d';
   const cardBg = '#0d0d0d';
   const border = '#1e1e1e';
@@ -71,13 +71,6 @@ export function generateGrokAbsoluteReconstruction(): UIElement[] {
   const terminalBg = '#050505';
 
   return [
-    {
-      id: 'artboard-bg',
-      name: 'Background Layer',
-      type: 'rect',
-      x: 0, y: 0, width: 1280, height: 720,
-      fill: bg, opacity: 1, visible: true, locked: true
-    },
     // TOP NAVIGATION (ALIGNED RIGHT)
     {
       id: 'top-nav',
@@ -90,7 +83,7 @@ export function generateGrokAbsoluteReconstruction(): UIElement[] {
         { id: 'top-settings', name: 'Settings Icon', type: 'circle', x: 1085, y: 22, width: 20, height: 20, fill: textSecondary, opacity: 0.5, visible: true, locked: false },
         { id: 'top-entrar', name: 'Login Link', type: 'text', x: 1140, y: 38, width: 0, height: 0, fill: textPrimary, text: 'Entrar', fontSize: 13, fontWeight: '500', visible: true, locked: false },
         { id: 'top-signup-pill', name: 'Sign Up Button', type: 'pill', x: 1195, y: 16, width: 90, height: 32, fill: textPrimary, opacity: 1, visible: true, locked: false },
-        { id: 'top-signup-text', name: 'Sign Up Label', type: 'text', x: 1240, y: 37, width: 0, height: 0, fill: bg, text: 'Criar conta', fontSize: 12, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
+        { id: 'top-signup-text', name: 'Sign Up Label', type: 'text', x: 1240, y: 37, width: 0, height: 0, fill: '#000000', text: 'Criar conta', fontSize: 12, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
       ]
     },
     // HERO BRANDING (CENTERED)

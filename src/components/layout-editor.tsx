@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * @fileOverview Engine de renderização vetorial profissional com Zoom e Pan.
+ * @fileOverview Engine de renderização vetorial profissional - Contexto WEBSITE (Fullscreen).
  */
 
 import { UIElement } from '@/lib/layout-templates';
 import { cn } from '@/lib/utils';
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 
 interface LayoutEditorProps {
   elements: UIElement[];
@@ -43,11 +43,11 @@ export function LayoutEditor({
   return (
     <div 
       ref={containerRef}
-      className="w-full h-full relative overflow-hidden bg-[#03040B] cursor-crosshair selection:bg-transparent"
+      className="w-full h-full relative overflow-hidden bg-black cursor-crosshair selection:bg-transparent"
       onWheel={handleWheel}
       onClick={() => onSelect(null)}
     >
-      {/* Grid Pattern Background */}
+      {/* Grid Pattern Background - Subtile Fullscreen Grid */}
       <div 
         className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
@@ -101,7 +101,7 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
     case 'rect':
     case 'pill':
     case 'capsule': {
-      // Regra de Geometria para Pills e Capsules
+      // Regra de Geometria para Pills e Capsules (Geometria Perfeita)
       const isPill = el.type === 'pill' || el.type === 'capsule';
       const radius = isPill ? el.height / 2 : (el.rx || 0);
       

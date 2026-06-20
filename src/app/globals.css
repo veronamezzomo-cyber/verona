@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    --background: 232 58% 4%; /* #03040B */
+    --background: 0 0% 0%; /* #000000 */
     --foreground: 220 14% 96%;
-    --card: 232 58% 8%;
+    --card: 232 58% 4%;
     --card-foreground: 220 14% 96%;
-    --popover: 232 58% 12%;
+    --popover: 232 58% 8%;
     --popover-foreground: 220 14% 96%;
     --primary: 217 91% 60%; /* #3B82F6 */
     --primary-foreground: 220 14% 96%;
     --secondary: 258 90% 66%; /* #8B5CF6 */
     --secondary-foreground: 220 14% 96%;
-    --muted: 232 30% 15%;
+    --muted: 232 30% 10%;
     --muted-foreground: 220 10% 60%;
     --accent: 258 90% 66%;
     --accent-foreground: 220 14% 96%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 232 30% 15%;
-    --input: 232 30% 15%;
+    --border: 232 30% 10%;
+    --input: 232 30% 10%;
     --ring: 217 91% 60%;
     --radius: 0.75rem;
   }
@@ -32,7 +32,7 @@
     @apply border-border outline-none;
   }
   body {
-    @apply bg-background text-foreground font-body select-none overflow-hidden;
+    @apply bg-black text-foreground font-body select-none overflow-hidden;
   }
 }
 
@@ -62,7 +62,7 @@
 
 /* Editor Specifics */
 .canvas-grid {
-  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
   background-size: 40px 40px;
 }
 
