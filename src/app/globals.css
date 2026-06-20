@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 232 58% 6%; /* #050714 */
-    --foreground: 220 14% 96%; /* #E5E7EB */
+    --background: 232 58% 4%; /* #03040B */
+    --foreground: 220 14% 96%;
     --card: 232 58% 8%;
     --card-foreground: 220 14% 96%;
     --popover: 232 58% 12%;
@@ -14,14 +14,14 @@
     --primary-foreground: 220 14% 96%;
     --secondary: 258 90% 66%; /* #8B5CF6 */
     --secondary-foreground: 220 14% 96%;
-    --muted: 232 30% 20%;
-    --muted-foreground: 220 10% 70%;
+    --muted: 232 30% 15%;
+    --muted-foreground: 220 10% 60%;
     --accent: 258 90% 66%;
     --accent-foreground: 220 14% 96%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 232 30% 25%;
-    --input: 232 30% 25%;
+    --border: 232 30% 15%;
+    --input: 232 30% 15%;
     --ring: 217 91% 60%;
     --radius: 0.75rem;
   }
@@ -29,43 +29,51 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-none;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground font-body select-none overflow-hidden;
   }
 }
 
 .glow-primary {
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
 }
 
 .glow-secondary {
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
 }
 
-.neon-border-primary {
-  border: 1px solid rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.neon-border-secondary {
-  border: 1px solid rgba(139, 92, 246, 0.5);
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+/* Editor Specifics */
+.canvas-grid {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 40px 40px;
 }
 
-.canvas-container {
-  background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
-  background-size: 32px 32px;
+@keyframes selection-pulse {
+  0% { outline-color: rgba(59, 130, 246, 0.5); }
+  50% { outline-color: rgba(59, 130, 246, 0.8); }
+  100% { outline-color: rgba(59, 130, 246, 0.5); }
 }
 
-@keyframes gradient-move {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-move 5s ease infinite;
+.active-selection {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+  animation: selection-pulse 2s infinite;
 }

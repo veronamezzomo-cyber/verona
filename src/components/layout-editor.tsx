@@ -1,30 +1,70 @@
 "use client";
 
+/**
+ * @fileOverview Engine de renderização vetorial profissional com Zoom e Pan.
+ */
+
 import { UIElement } from '@/lib/layout-templates';
 import { cn } from '@/lib/utils';
+import React, { useRef, useEffect } from 'react';
 
 interface LayoutEditorProps {
   elements: UIElement[];
-  selectedId: string | null;
-  onSelect: (id: string | null) => void;
+  selectedIds: string[];
+  zoom: number;
+  pan: { x: number; y: number };
+  onSelect: (id: string | null, multi?: boolean) => void;
   onUpdate: (id: string, updates: Partial<UIElement>) => void;
+  onPan: (x: number, y: number) => void;
+  onZoom: (delta: number) => void;
 }
 
-export function LayoutEditor({ elements, selectedId, onSelect, onUpdate }: LayoutEditorProps) {
+export function LayoutEditor({ 
+  elements, 
+  selectedIds, 
+  zoom, 
+  pan, 
+  onSelect, 
+  onUpdate,
+  onPan,
+  onZoom 
+}: LayoutEditorProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      onZoom(e.deltaY > 0 ? 0.9 : 1.1);
+    } else {
+      onPan(pan.x - e.deltaX, pan.y - e.deltaY);
+    }
+  };
+
   return (
     <div 
-      className="w-full aspect-video max-w-5xl mx-auto rounded-2xl shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden bg-[#0A0E27] border border-white/10"
+      ref={containerRef}
+      className="w-full h-full relative overflow-hidden bg-[#03040B] cursor-crosshair selection:bg-transparent"
+      onWheel={handleWheel}
       onClick={() => onSelect(null)}
     >
+      {/* Grid Pattern Background */}
+      <div 
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)`,
+          backgroundSize: `${32 * zoom}px ${32 * zoom}px`,
+          backgroundPosition: `${pan.x}px ${pan.y}px`
+        }}
+      />
+
       <svg 
-        viewBox="0 0 1280 720" 
-        className="w-full h-full select-none"
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <filter id="selection-glow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          <filter id="shadow-professional">
+            <feDropShadow dx="0" dy="4" stdDeviation="8" floodOpacity="0.3" />
           </filter>
         </defs>
 
@@ -33,23 +73,29 @@ export function LayoutEditor({ elements, selectedId, onSelect, onUpdate }: Layou
             key={el.id}
             onClick={(e) => {
               e.stopPropagation();
-              onSelect(el.id);
+              onSelect(el.id, e.shiftKey);
             }}
             className={cn(
-              "cursor-pointer transition-all duration-300",
-              selectedId === el.id && "filter-[url(#selection-glow)]"
+              "cursor-pointer pointer-events-auto",
+              selectedIds.includes(el.id) && "filter-[url(#shadow-professional)]"
             )}
           >
-            {renderElementPreview(el, selectedId === el.id)}
+            {renderElementPreview(el, selectedIds.includes(el.id))}
           </g>
         ))}
       </svg>
+
+      {/* Rulers Placeholder */}
+      <div className="absolute top-0 left-0 w-full h-4 bg-black/40 border-b border-white/5 z-20" />
+      <div className="absolute top-0 left-0 w-4 h-full bg-black/40 border-r border-white/5 z-20" />
     </div>
   );
 }
 
 function renderElementPreview(el: UIElement, isSelected: boolean) {
-  const selectionProps = isSelected ? { stroke: '#3B82F6', strokeWidth: 2 } : {};
+  if (!el.visible) return null;
+
+  const selectionProps = isSelected ? { stroke: '#3B82F6', strokeWidth: 2 / 1 } : {};
 
   switch (el.type) {
     case 'rect':
@@ -62,9 +108,11 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           height={el.height}
           fill={el.fill}
           opacity={el.opacity}
-          rx={el.rx}
-          ry={el.ry}
-          {...selectionProps}
+          rx={el.rx || 0}
+          ry={el.ry || 0}
+          stroke={el.stroke || selectionProps.stroke}
+          strokeWidth={el.strokeWidth || selectionProps.strokeWidth}
+          transform={`rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})`}
         />
       );
     case 'text':
@@ -75,16 +123,17 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           y={el.y}
           fill={el.fill}
           fontSize={el.fontSize}
-          fontFamily="Inter"
-          textAnchor="middle"
+          fontWeight={el.fontWeight}
+          fontFamily={el.fontFamily || 'Inter'}
+          textAnchor={el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start'}
           opacity={el.opacity}
-          className="font-medium"
+          transform={`rotate(${el.rotation || 0}, ${el.x}, ${el.y})`}
         >
           {el.text}
         </text>
       );
     case 'circle': {
-      const r = Math.min(el.width, el.height) / 2;
+      const r = el.width / 2;
       return (
         <circle
           key={el.id}
@@ -93,21 +142,22 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           r={r}
           fill={el.fill}
           opacity={el.opacity}
-          {...selectionProps}
+          stroke={el.stroke || selectionProps.stroke}
+          strokeWidth={el.strokeWidth || selectionProps.strokeWidth}
         />
       );
     }
     case 'group':
       return (
-        <g key={el.id} transform={`translate(${el.x}, ${el.y})`}>
+        <g key={el.id} transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}>
           {el.children?.map(child => renderElementPreview(child, false))}
           {isSelected && (
              <rect 
-                key={`${el.id}-selection-outline`}
-                x={-5} y={-5} 
-                width={el.width + 10} height={el.height + 10} 
+                key={`${el.id}-outline`}
+                x={-4} y={-4} 
+                width={el.width + 8} height={el.height + 8} 
                 fill="transparent" 
-                stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4 4" 
+                stroke="#3B82F6" strokeWidth="1" strokeDasharray="4 2" 
              />
           )}
         </g>
