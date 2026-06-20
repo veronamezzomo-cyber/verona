@@ -1,6 +1,6 @@
 /**
  * @fileOverview Visual Map System - Grok High-Fidelity Static Edition.
- * Implementação baseada na DIRETRIZ ANALÍTICA GLOBAL e PROTOCOLO DE ICONOGRAFIA.
+ * Reversão para estado estável de Alta Fidelidade (Pen Tool Mode).
  */
 
 export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'pill' | 'capsule';
@@ -127,8 +127,7 @@ function createSystemIcon(id: string, name: string, x: number, y: number, path: 
 }
 
 /**
- * Reconstrução Analítica do Logo Grok/xAI via Raw SVG (Pen Tool Mode).
- * Implementa o glifo tapered com pontas agudas.
+ * Reconstrução Analítica do Logo Grok/xAI via Raw SVG Definitivo.
  */
 function createGrokLogo(id: string, name: string, x: number, y: number, size: number, color: string): UIElement {
   const scale = size / 24;
@@ -145,9 +144,9 @@ function createGrokLogo(id: string, name: string, x: number, y: number, size: nu
         name: 'Slash',
         type: 'path',
         x: 0, y: 0, width: 24, height: 24,
-        fill: color, opacity: 1, visible: true, locked: false,
-        pathData: `M${4.5 * scale} ${19.5 * scale} L${19.5 * scale} ${4.5 * scale} L${18.5 * scale} ${5.5 * scale} L${5.5 * scale} ${18.5 * scale} Z`,
-        strokeLinecap: 'round'
+        fill: 'none', stroke: color, strokeWidth: 1.75 * scale, strokeLinecap: 'round',
+        opacity: 1, visible: true, locked: false,
+        pathData: `M${4.5 * scale} ${19.5 * scale} L${19.5 * scale} ${4.5 * scale}`
       },
       // Arco Crescente Esquerdo (Tapered)
       {
@@ -196,7 +195,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
             createSystemIcon('Icon_Imagine', 'Imagine_Toggle', 0, 4, 'M4 4h16v16H4z M4 12h16 M12 4v16'),
             { id: 'Txt_Imagine', name: 'Label', type: 'text', x: 30, y: 22, width: 0, height: 0, fill: textMain, text: 'Imagine', fontSize: 13, visible: true, locked: false, opacity: 1 },
             
-            // Settings Gear (8-tooth industrial gear - Pen Tool Path Literal)
+            // Settings Gear Industrial
             createSystemIcon('Icon_Settings', 'Settings_Gear', 100, 4, 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z'),
             
             // Secondary Action (Outline Pill)
@@ -259,26 +258,26 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
         { id: 'Card_Desc1', name: 'Sub', type: 'text', x: 24, y: 72, width: 0, height: 0, fill: textMuted, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
         { id: 'Card_Desc2', name: 'Sub2', type: 'text', x: 24, y: 92, width: 0, height: 0, fill: textMuted, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
         
-        // Terminal Group
+        // Terminal Group Compacto e Alinhado
         {
            id: 'TerminalGroup',
            name: 'CLI_Section',
            type: 'group',
-           x: 320, y: 30, width: 356, height: 80,
+           x: 340, y: 30, width: 336, height: 80,
            fill: 'none', opacity: 1, visible: true, locked: false,
            children: [
              { id: 'Terminal_Label', name: 'Env', type: 'text', x: 0, y: 40, width: 0, height: 0, fill: textMain, text: 'PowerShell', fontSize: 12, fontWeight: '600', visible: true, locked: false },
              { id: 'Terminal_Label2', name: 'Env2', type: 'text', x: 75, y: 40, width: 0, height: 0, fill: textMuted, text: 'WSL', fontSize: 12, visible: true, locked: false },
-             { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', x: 0, y: 50, width: 356, height: 36, fill: '#000', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
+             { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', x: 0, y: 50, width: 336, height: 36, fill: '#000', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
              { id: 'Terminal_Txt', name: 'CLI_Command', type: 'text', x: 15, y: 73, width: 0, height: 0, fill: textMuted, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
-             createSystemIcon('Terminal_Copy', 'Copy_Icon', 320, 56, 'M8 12h8m-8-4h8m-10 4V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4')
+             createSystemIcon('Terminal_Copy', 'Copy_Icon', 300, 56, 'M8 12h8m-8-4h8m-10 4V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4')
            ]
         },
         createSystemIcon('Card_Close', 'Dismiss', 670, 8, 'M18 6L6 18M6 6l12 12')
       ]
     },
 
-    // --- FOOTER ---
+    // --- FOOTER CENTRALIZADO ---
     {
       id: 'Footer_Disclaimer',
       name: 'Legal_Notice',
