@@ -1,7 +1,7 @@
 import { UIElement } from '@/lib/layout-templates';
 
 /**
- * @fileOverview Gerador de manifesto JSON para Adobe After Effects.
+ * @fileOverview Gerador de manifesto JSON para Adobe After Effects (Rigorously Structured).
  */
 
 export function generateAEJson(elements: UIElement[]) {
@@ -11,7 +11,7 @@ export function generateAEJson(elements: UIElement[]) {
     els.forEach(el => {
       const layer = {
         id: el.id,
-        name: `${el.category}_${el.name}_Static`,
+        name: el.name || `${el.category}_${el.id}`,
         type: el.type === 'group' ? 'Group' : el.type === 'text' ? 'Text' : 'Shape',
         category: el.category,
         position: { x: el.x, y: el.y },
@@ -26,7 +26,7 @@ export function generateAEJson(elements: UIElement[]) {
           width: el.strokeWidth || 0,
           type: 'solid'
         } : null,
-        border_radius: el.rx || 0,
+        border_radius: el.rx || (el.type === 'pill' ? el.height / 2 : 0),
         content: el.text || '',
         typography: el.type === 'text' ? {
           font_family: el.fontFamily || 'Inter',
@@ -35,7 +35,11 @@ export function generateAEJson(elements: UIElement[]) {
           text_align: el.textAlign || 'left',
           color: el.fill
         } : null,
-        animation_hint: el.animationHint || null
+        animation_hint: el.animationHint || {
+          suggested_animation: 'fade',
+          duration_ms: 300,
+          easing: 'ease-out'
+        }
       };
       layers.push(layer);
       if (el.children) flattenElements(el.children, el.id);
@@ -46,24 +50,27 @@ export function generateAEJson(elements: UIElement[]) {
 
   const manifest = {
     metadata: {
-      layout_type: "Vector UI Studio Layout",
+      layout_type: "AI Interface Studio",
       color_palette: {
         primary: ["#FFFFFF", "#3B82F6"],
-        neutrals: ["#000000", "#121212"]
+        neutrals: ["#000000", "#121212"],
+        accents: ["#FF6B00"]
+      },
+      typography: {
+        primary_font: "Inter",
+        sizes: ["11px", "13px", "14px", "16px", "18px", "64px"]
       },
       dimensions: { width: 1280, height: 720 },
-      viewport: "Desktop"
+      viewport: "Desktop",
+      grid_system: "Flexbox-inspired coordinate mapping"
     },
     layers: layers,
-    animation_hints: layers.filter(l => l.animation_hint).map(l => ({
-      layer_id: l.id,
-      ...l.animation_hint
-    })),
     export_instructions: {
       format: "JSON + Layered SVG",
       color_space: "RGB",
       resolution: "4K Ready",
-      notes: "Import using AE Layered Importer Script"
+      layers_structure: "Hierarchical naming convention [Category]_[Component]_[Descriptor]",
+      notes: "Import using AE Layered Importer Script. Check 'Create Shapes from Vector Layer' for all shape layers."
     }
   };
 

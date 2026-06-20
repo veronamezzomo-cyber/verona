@@ -1,8 +1,8 @@
-
 import { UIElement } from './layout-templates';
 
 /**
  * Gerador de SVG Profissional para Adobe Illustrator / After Effects.
+ * Otimizado com metadados para importação hierárquica.
  */
 export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): string {
   const filters: string[] = [];
@@ -29,8 +29,7 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
   };
   collectFiltersSVG(elements);
 
-  // Background preto absoluto como base da Viewport (Essencial para fidelidade visual isolada)
-  const backgroundRect = `<rect id="viewport-background" width="100%" height="100%" fill="#000000" data-name="Background" />`;
+  const backgroundRect = `<rect id="Viewport_Background" width="100%" height="100%" fill="#000000" data-name="Background" />`;
   
   const elementsSVG = elements.map(el => renderElement(el)).join('\n  ');
 
@@ -38,7 +37,7 @@ export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): strin
 <svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
     <style type="text/css">
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap');
     </style>
     ${filters.join('')}
   </defs>
@@ -51,10 +50,11 @@ function renderElement(el: UIElement): string {
   if (!el.visible) return '';
 
   const idSafe = el.id.replace(/\s+/g, '_');
-  const metadata = `data-name="${el.name || el.id}" data-layer="${el.type}" data-group="${el.id}" data-export="true"`;
+  const layerName = el.name || el.id;
+  const metadata = `id="${idSafe}" data-name="${layerName}" data-layer-type="${el.type}" data-category="${el.category}"`;
   const filterUrl = el.shadow ? `url(#shadow-${idSafe})` : el.blur ? `url(#blur-${idSafe})` : '';
   const filterAttr = filterUrl ? `filter="${filterUrl}"` : '';
-  const commonProps = `id="${idSafe}" opacity="${el.opacity}" ${metadata} ${filterAttr}`;
+  const commonProps = `${metadata} opacity="${el.opacity}" ${filterAttr}`;
 
   switch (el.type) {
     case 'group':
@@ -74,7 +74,8 @@ function renderElement(el: UIElement): string {
       
     case 'text':
       const textAnchor = el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start';
-      return `<text ${commonProps} x="${el.x}" y="${el.y}" fill="${el.fill}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${el.fontWeight || '400'}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
+      const fontWeight = el.fontWeight || '400';
+      return `<text ${commonProps} x="${el.x}" y="${el.y}" fill="${el.fill}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${fontWeight}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
       
     case 'circle': {
       const r = el.width / 2;
