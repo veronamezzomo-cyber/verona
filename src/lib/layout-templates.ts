@@ -1,6 +1,6 @@
 /**
- * @fileOverview Visual Map System - Definições de infraestrutura para Engenharia Reversa.
- * Implementação baseada na DIRETRIZ ANALÍTICA GLOBAL (YouTube Edition).
+ * @fileOverview Visual Map System - YouTube & Grok Edition.
+ * Implementação baseada na DIRETRIZ ANALÍTICA GLOBAL e PROTOCOLO DE ICONOGRAFIA.
  */
 
 export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'pill' | 'capsule';
@@ -85,7 +85,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 
   const buildMap = (els: UIElement[]) => {
     els.forEach(el => {
-      // Sidebar Fixed Width
+      // Sidebar Fixed Width (YouTube Mode)
       if (el.id === 'Sidebar') {
         el.height = 720;
         el.width = 240;
@@ -98,8 +98,13 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 
       // Content Area Offset
       if (el.id === 'MainContent') {
-        el.x = 240;
-        el.width = VIEWPORT_WIDTH - 240;
+        el.x = (VIEWPORT_WIDTH - el.width) / 2;
+      }
+
+      // Footer Absolute Centering
+      if (el.id === 'Footer_Disclaimer') {
+        el.x = VIEWPORT_WIDTH / 2;
+        el.y = 690;
       }
 
       if (el.children && el.children.length > 0) {
@@ -113,147 +118,183 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 }
 
 /**
- * YouTube Logo Pen Tool
+ * System Icon Factory (24x24 Grid, Stroke 1.5)
  */
-function createYouTubeLogo(id: string, x: number, y: number): UIElement {
+function createSystemIcon(id: string, name: string, x: number, y: number, path: string): UIElement {
+  return {
+    id,
+    name,
+    type: 'path',
+    x, y, width: 24, height: 24,
+    fill: 'none', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round',
+    pathData: path,
+    opacity: 1, visible: true, locked: false
+  };
+}
+
+/**
+ * Reconstrução Analítica do Logo Grok/xAI via Raw SVG imutável.
+ */
+function createGrokLogo(id: string, x: number, y: number, size: number): UIElement {
+  const scale = size / 24;
   return {
     id: id,
-    name: 'YouTube_Logo',
+    name: 'Grok_Logo',
     type: 'group',
-    x, y, width: 90, height: 20,
+    x, y, width: size, height: size,
     fill: 'none', opacity: 1, visible: true, locked: false,
     children: [
       {
-        id: `${id}_Rect`,
-        name: 'Logo_Red_Play',
-        type: 'rect',
-        x: 0, y: 0, width: 30, height: 20,
-        fill: '#FF0000', rx: 6, ry: 6, opacity: 1, visible: true, locked: false
-      },
-      {
-        id: `${id}_Triangle`,
-        name: 'Logo_Triangle',
+        id: `${id}_Slash`,
+        name: 'Logo_Slash',
         type: 'path',
-        x: 12, y: 6, width: 8, height: 8,
-        fill: '#FFFFFF', pathData: 'M 0 0 L 8 4 L 0 8 Z', opacity: 1, visible: true, locked: false
+        x: 0, y: 0, width: 24, height: 24,
+        fill: 'none', stroke: 'currentColor', strokeWidth: 1.75 * scale, strokeLinecap: 'round',
+        pathData: 'M4.5 19.5 L19.5 4.5',
+        opacity: 1, visible: true, locked: false
       },
       {
-        id: `${id}_Text`,
-        name: 'Logo_Text',
-        type: 'text',
-        x: 35, y: 16, width: 0, height: 0,
-        fill: '#FFFFFF', text: 'YouTube', fontSize: 18, fontWeight: '700', visible: true, locked: false
+        id: `${id}_ArcL`,
+        name: 'Logo_Arc_Left',
+        type: 'path',
+        x: 0, y: 0, width: 24, height: 24,
+        fill: 'currentColor',
+        pathData: 'M10.2 4.5C7.2 8.5 7.2 15.5 10.2 19.5C8.5 15.5 8.5 8.5 10.2 4.5Z',
+        opacity: 1, visible: true, locked: false
       },
       {
-        id: `${id}_Region`,
-        name: 'Region_BR',
-        type: 'text',
-        x: 105, y: 10, width: 0, height: 0,
-        fill: '#AAAAAA', text: 'BR', fontSize: 10, visible: true, locked: false
+        id: `${id}_ArcR`,
+        name: 'Logo_Arc_Right',
+        type: 'path',
+        x: 0, y: 0, width: 24, height: 24,
+        fill: 'currentColor',
+        pathData: 'M13.8 4.5C16.8 8.5 16.8 15.5 13.8 19.5C12.1 15.5 12.1 8.5 13.8 4.5Z',
+        opacity: 1, visible: true, locked: false
       }
     ]
   };
 }
 
 export function generateYouTubeAbsoluteReconstruction(): VisualMap {
-  const bg = '#0f0f0f';
-  const sidebarBg = '#0f0f0f';
+  const bg = '#000000';
   const textMain = '#FFFFFF';
   const textMuted = '#AAAAAA';
 
   const elements: UIElement[] = [
+    // --- HEADER ---
     {
       id: 'Header',
-      name: 'YouTube_Header',
+      name: 'Global_Header',
       type: 'group',
-      x: 0, y: 0, width: 1280, height: 56,
-      fill: bg, opacity: 1, visible: true, locked: false,
+      x: 0, y: 0, width: 1280, height: 64,
+      fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
-        { id: 'Menu_Icon', name: 'Menu', type: 'path', x: 20, y: 18, width: 24, height: 20, fill: 'none', stroke: textMain, strokeWidth: 2, pathData: 'M 4 5 H 20 M 4 12 H 20 M 4 19 H 20', visible: true, locked: false, opacity: 1 },
-        createYouTubeLogo('Header_Logo', 60, 18),
+        createGrokLogo('Header_Logo_Small', 24, 20, 24),
+        // Group: Right Controls
         {
-          id: 'Search_Group',
-          name: 'Search_Bar_Container',
+          id: 'Header_Actions',
+          name: 'Navigation_Actions',
           type: 'group',
-          x: 400, y: 10, width: 500, height: 36,
+          x: 920, y: 16, width: 340, height: 32,
           fill: 'none', opacity: 1, visible: true, locked: false,
           children: [
-            { id: 'Search_Pill', name: 'Input_BG', type: 'pill', x: 0, y: 0, width: 440, height: 36, fill: '#121212', stroke: '#333333', strokeWidth: 1, rx: 18, ry: 18, visible: true, locked: false, opacity: 1 },
-            { id: 'Search_Hint', name: 'Placeholder', type: 'text', x: 20, y: 22, width: 0, height: 0, fill: '#777777', text: 'Pesquisar', fontSize: 14, visible: true, locked: false, opacity: 1 },
-            { id: 'Search_Btn', name: 'Search_Icon_Btn', type: 'rect', x: 440, y: 0, width: 60, height: 36, fill: '#222222', stroke: '#333333', strokeWidth: 1, rx: 0, ry: 0, visible: true, locked: false, opacity: 1 },
-            { id: 'Search_Icon', name: 'Icon', type: 'path', x: 460, y: 10, width: 16, height: 16, fill: 'none', stroke: textMain, strokeWidth: 1.5, pathData: 'M 14 14 L 11 11 M 12 6.5 A 5.5 5.5 0 1 1 1 6.5 A 5.5 5.5 0 1 1 12 6.5', visible: true, locked: false, opacity: 1 }
-          ]
-        },
-        { id: 'Mic_Btn', name: 'Voice_Search', type: 'circle', x: 920, y: 8, width: 40, height: 40, fill: '#181818', opacity: 1, visible: true, locked: false },
-        { id: 'User_Avatar', name: 'User', type: 'circle', x: 1220, y: 10, width: 32, height: 32, fill: '#8B5CF6', opacity: 1, visible: true, locked: false },
-        { id: 'Notif_Icon', name: 'Notifications', type: 'path', x: 1180, y: 16, width: 24, height: 24, fill: 'none', stroke: textMain, strokeWidth: 1.5, pathData: 'M 12 22 A 2 2 0 0 0 14 20 H 10 A 2 2 0 0 0 12 22 M 18 16 V 11 A 6 6 0 0 0 6 11 V 16 L 4 18 V 19 H 20 V 18 L 18 16', visible: true, locked: false, opacity: 1 },
-        { id: 'Notif_Badge', name: 'Badge', type: 'circle', x: 1195, y: 15, width: 14, height: 14, fill: '#FF0000', opacity: 1, visible: true, locked: false }
-      ]
-    },
-    {
-      id: 'Sidebar',
-      name: 'Left_Navigation',
-      type: 'group',
-      x: 0, y: 56, width: 240, height: 664,
-      fill: sidebarBg, opacity: 1, visible: true, locked: false,
-      children: [
-        { id: 'Nav_Home', name: 'Inicio_Item', type: 'rect', x: 10, y: 10, width: 220, height: 40, fill: '#272727', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
-        { id: 'Home_Text', name: 'Label', type: 'text', x: 60, y: 35, width: 0, height: 0, fill: textMain, text: 'Início', fontSize: 14, fontWeight: '600', visible: true, locked: false, opacity: 1 },
-        { id: 'Nav_Shorts', name: 'Shorts_Item', type: 'text', x: 60, y: 75, width: 0, height: 0, fill: textMain, text: 'Shorts', fontSize: 14, visible: true, locked: false, opacity: 1 },
-        { id: 'Insc_Title', name: 'Section_Title', type: 'text', x: 20, y: 140, width: 0, height: 0, fill: textMain, text: 'Inscrições', fontSize: 16, fontWeight: '700', visible: true, locked: false, opacity: 1 },
-        { id: 'Sub_1', name: 'Channel_1', type: 'group', x: 10, y: 160, width: 220, height: 40, fill: 'none', opacity: 1, visible: true, locked: false, children: [
-          { id: 'Sub_Avatar_1', name: 'Avatar', type: 'circle', x: 10, y: 8, width: 24, height: 24, fill: '#444', opacity: 1, visible: true, locked: false },
-          { id: 'Sub_Name_1', name: 'Name', type: 'text', x: 50, y: 25, width: 0, height: 0, fill: textMain, text: 'orochidois', fontSize: 13, visible: true, locked: false },
-          { id: 'Sub_Dot_1', name: 'New_Indicator', type: 'circle', x: 200, y: 18, width: 4, height: 4, fill: '#3B82F6', opacity: 1, visible: true, locked: false }
-        ]}
-      ]
-    },
-    {
-      id: 'MainContent',
-      name: 'Video_Grid_Feed',
-      type: 'group',
-      x: 240, y: 56, width: 1040, height: 664,
-      fill: bg, opacity: 1, visible: true, locked: false,
-      children: [
-        {
-          id: 'Category_Bar',
-          name: 'Pill_Scroller',
-          type: 'group',
-          x: 20, y: 10, width: 1000, height: 40,
-          fill: 'none', opacity: 1, visible: true, locked: false,
-          children: [
-            { id: 'Pill_All', name: 'Tudo', type: 'pill', x: 0, y: 0, width: 60, height: 32, fill: textMain, rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
-            { id: 'Pill_All_Text', name: 'Txt', type: 'text', x: 30, y: 20, width: 0, height: 0, fill: bg, text: 'Tudo', fontSize: 13, fontWeight: '600', textAlign: 'center', visible: true, locked: false },
-            { id: 'Pill_Music', name: 'Music', type: 'pill', x: 70, y: 0, width: 80, height: 32, fill: '#272727', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
-            { id: 'Pill_Music_Text', name: 'Txt', type: 'text', x: 110, y: 20, width: 0, height: 0, fill: textMain, text: 'Música', fontSize: 13, textAlign: 'center', visible: true, locked: false }
-          ]
-        },
-        {
-          id: 'Video_1',
-          name: 'Primary_Video',
-          type: 'group',
-          x: 20, y: 60, width: 340, height: 280,
-          fill: 'none', opacity: 1, visible: true, locked: false,
-          children: [
-            { id: 'Thumb_1', name: 'Thumbnail', type: 'rect', x: 0, y: 0, width: 340, height: 190, fill: '#222', rx: 12, ry: 12, visible: true, locked: false },
-            { id: 'Duration_1', name: 'Time', type: 'rect', x: 290, y: 160, width: 40, height: 20, fill: 'rgba(0,0,0,0.8)', rx: 4, ry: 4, visible: true, locked: false },
-            { id: 'Dur_Txt_1', name: 'TimeTxt', type: 'text', x: 310, y: 174, width: 0, height: 0, fill: '#FFF', text: '27:17', fontSize: 11, textAlign: 'center', visible: true, locked: false },
-            { id: 'Vid_Title_1', name: 'Title', type: 'text', x: 0, y: 220, width: 300, height: 0, fill: textMain, text: 'receba e speed juntos no cozinha', fontSize: 14, fontWeight: '600', visible: true, locked: false },
-            { id: 'Vid_Meta_1', name: 'Meta', type: 'text', x: 0, y: 245, width: 0, height: 0, fill: textMuted, text: 'orochidois • 377 mil visualizações • há 1 mês', fontSize: 12, visible: true, locked: false }
-          ]
-        },
-        {
-          id: 'Shorts_Section',
-          name: 'Shorts_Shelf',
-          type: 'group',
-          x: 20, y: 380, width: 1000, height: 400,
-          fill: 'none', opacity: 1, visible: true, locked: false,
-          children: [
-            { id: 'Shorts_Icon', name: 'Icon', type: 'path', x: 0, y: 0, width: 24, height: 24, fill: '#FF0000', pathData: 'M 17 10 L 10 17 L 10 7 L 17 14 Z', visible: true, locked: false, opacity: 1 },
-            { id: 'Shorts_Title', name: 'Title', type: 'text', x: 30, y: 18, width: 0, height: 0, fill: textMain, text: 'Shorts', fontSize: 18, fontWeight: '700', visible: true, locked: false }
+            createSystemIcon('Icon_Imagine', 'Imagine_Toggle', 0, 4, 'M4 4h16v16H4z M4 12h16 M12 4v16'), // Placeholder for landscape
+            { id: 'Txt_Imagine', name: 'Label', type: 'text', x: 30, y: 22, width: 0, height: 0, fill: textMain, text: 'Imagine', fontSize: 13, visible: true, locked: false, opacity: 1 },
+            
+            // Settings Gear (Injected Path)
+            {
+              id: 'Icon_Settings',
+              name: 'Settings_Gear',
+              type: 'path',
+              x: 100, y: 4, width: 24, height: 24,
+              fill: 'none', stroke: textMain, strokeWidth: 1.5,
+              pathData: 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z',
+              opacity: 1, visible: true, locked: false
+            },
+            
+            // Secondary Action (Outline)
+            { id: 'Btn_Login_BG', name: 'Login_Pill', type: 'pill', x: 160, y: 0, width: 80, height: 32, fill: 'none', stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1, opacity: 1, visible: true, locked: false },
+            { id: 'Btn_Login_Txt', name: 'Label', type: 'text', x: 200, y: 21, width: 0, height: 0, fill: textMain, text: 'Entrar', fontSize: 13, fontWeight: '600', textAlign: 'center', visible: true, locked: false },
+            
+            // Primary Action (Solid)
+            { id: 'Btn_Signup_BG', name: 'Signup_Pill', type: 'pill', x: 250, y: 0, width: 90, height: 32, fill: textMain, opacity: 1, visible: true, locked: false },
+            { id: 'Btn_Signup_Txt', name: 'Label', type: 'text', x: 295, y: 21, width: 0, height: 0, fill: bg, text: 'Criar conta', fontSize: 13, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
           ]
         }
       ]
+    },
+
+    // --- MAIN HERO ---
+    {
+      id: 'HeroLogo',
+      name: 'Main_Identity',
+      type: 'group',
+      x: 540, y: 240, width: 200, height: 80,
+      fill: 'none', opacity: 1, visible: true, locked: false,
+      children: [
+        createGrokLogo('Hero_Glifo', 0, 0, 80),
+        { id: 'Hero_Text', name: 'Logo_Wordmark', type: 'text', x: 90, y: 62, width: 0, height: 0, fill: textMain, text: 'Grok', fontSize: 64, fontWeight: '700', visible: true, locked: false }
+      ]
+    },
+
+    // --- PROMPT PILL ---
+    {
+      id: 'PromptContainer',
+      name: 'Input_Area',
+      type: 'group',
+      x: 290, y: 360, width: 700, height: 60,
+      fill: 'none', opacity: 1, visible: true, locked: false,
+      children: [
+        { id: 'Pill_BG', name: 'Pill_Shape', type: 'pill', x: 0, y: 0, width: 700, height: 60, fill: '#121212', stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, visible: true, locked: false, opacity: 1 },
+        createSystemIcon('Icon_Plus', 'Attach', 20, 18, 'M12 5v14M5 12h14'),
+        { id: 'Pill_Hint', name: 'Placeholder', type: 'text', x: 60, y: 36, width: 0, height: 0, fill: '#777', text: 'O que você quer saber?', fontSize: 16, visible: true, locked: false },
+        { id: 'Fast_Selector', name: 'Mode', type: 'group', x: 580, y: 20, width: 60, height: 20, fill: 'none', opacity: 1, children: [
+          { id: 'Fast_Txt', name: 'Label', type: 'text', x: 0, y: 15, width: 0, height: 0, fill: textMain, text: 'Fast', fontSize: 13, fontWeight: '600', visible: true, locked: false },
+          createSystemIcon('Fast_Chevron', 'Arrow', 35, -4, 'm6 9 6 6 6-6')
+        ]},
+        { id: 'Send_Btn_Circle', name: 'Send_Action', type: 'circle', x: 650, y: 10, width: 40, height: 40, fill: '#272727', opacity: 1, visible: true, locked: false },
+        createSystemIcon('Send_Arrow', 'Arrow_Up', 658, 18, 'M12 19V5M5 12l7-7 7 7')
+      ]
+    },
+
+    // --- BUILD CARD ---
+    {
+      id: 'BuildCard',
+      name: 'Beta_Promo_Card',
+      type: 'group',
+      x: 290, y: 460, width: 700, height: 130,
+      fill: 'none', opacity: 1, visible: true, locked: false,
+      children: [
+        { id: 'Card_BG', name: 'Container', type: 'rect', x: 0, y: 0, width: 700, height: 130, fill: '#121212', rx: 16, ry: 16, stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, visible: true, locked: false, opacity: 1 },
+        { id: 'Card_Title', name: 'Headline', type: 'text', x: 24, y: 45, width: 0, height: 0, fill: textMain, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
+        { id: 'Card_Beta', name: 'Badge', type: 'pill', x: 125, y: 28, width: 40, height: 20, fill: 'rgba(255,87,34,0.15)', visible: true, locked: false, opacity: 1 },
+        { id: 'Beta_Txt', name: 'Label', type: 'text', x: 145, y: 42, width: 0, height: 0, fill: '#FF5722', text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
+        { id: 'Card_Desc1', name: 'Sub', type: 'text', x: 24, y: 72, width: 0, height: 0, fill: textMuted, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
+        { id: 'Card_Desc2', name: 'Sub2', type: 'text', x: 24, y: 92, width: 0, height: 0, fill: textMuted, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
+        
+        // Terminal Box (Gap 32px from text)
+        { id: 'Terminal_Label', name: 'Env', type: 'text', x: 300, y: 70, width: 0, height: 0, fill: textMain, text: 'PowerShell', fontSize: 12, fontWeight: '600', visible: true, locked: false },
+        { id: 'Terminal_Label2', name: 'Env2', type: 'text', x: 375, y: 70, width: 0, height: 0, fill: textMuted, text: 'WSL', fontSize: 12, visible: true, locked: false },
+        { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', x: 300, y: 80, width: 376, height: 36, fill: '#000', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
+        { id: 'Terminal_Txt', name: 'CLI_Command', type: 'text', x: 315, y: 103, width: 0, height: 0, fill: textMuted, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
+        createSystemIcon('Terminal_Copy', 'Copy_Icon', 645, 86, 'M8 12h8m-8-4h8m-10 4V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4'),
+        createSystemIcon('Card_Close', 'Dismiss', 670, 8, 'M18 6L6 18M6 6l12 12')
+      ]
+    },
+
+    // --- FOOTER ---
+    {
+      id: 'Footer_Disclaimer',
+      name: 'Legal_Notice',
+      type: 'text',
+      x: 640, y: 690, width: 1280, height: 20,
+      fill: textMuted,
+      text: 'Ao enviar mensagens para o Grok, você concorda com nossos termos e política de privacidade.',
+      fontSize: 11,
+      textAlign: 'center',
+      opacity: 0.5,
+      visible: true,
+      locked: false
     }
   ];
 
