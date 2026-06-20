@@ -1,4 +1,3 @@
-
 import { UIElement } from './layout-templates';
 
 export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): string {
@@ -21,7 +20,11 @@ function renderElement(el: UIElement): string {
   </g>`;
     
     case 'rect':
-      return `<rect id="${el.id}" x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${el.fill}" opacity="${el.opacity}" rx="${el.rx || 0}" ry="${el.ry || 0}" ${el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : ''} transform="rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})" />`;
+    case 'pill':
+    case 'capsule': {
+      const radius = (el.type === 'pill' || el.type === 'capsule') ? el.height / 2 : (el.rx || 0);
+      return `<rect id="${el.id}" x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${el.fill}" opacity="${el.opacity}" rx="${radius}" ry="${radius}" ${el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : ''} transform="rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})" />`;
+    }
       
     case 'text':
       const textAnchor = el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start';

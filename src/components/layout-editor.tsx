@@ -95,10 +95,16 @@ export function LayoutEditor({
 function renderElementPreview(el: UIElement, isSelected: boolean) {
   if (!el.visible) return null;
 
-  const selectionProps = isSelected ? { stroke: '#3B82F6', strokeWidth: 2 / 1 } : {};
+  const selectionProps = isSelected ? { stroke: '#3B82F6', strokeWidth: 2 } : {};
 
   switch (el.type) {
     case 'rect':
+    case 'pill':
+    case 'capsule': {
+      // Regra de Geometria para Pills e Capsules
+      const isPill = el.type === 'pill' || el.type === 'capsule';
+      const radius = isPill ? el.height / 2 : (el.rx || 0);
+      
       return (
         <rect
           key={el.id}
@@ -108,13 +114,14 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           height={el.height}
           fill={el.fill}
           opacity={el.opacity}
-          rx={el.rx || 0}
-          ry={el.ry || 0}
+          rx={radius}
+          ry={radius}
           stroke={el.stroke || selectionProps.stroke}
           strokeWidth={el.strokeWidth || selectionProps.strokeWidth}
           transform={`rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})`}
         />
       );
+    }
     case 'text':
       return (
         <text
@@ -147,6 +154,18 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
         />
       );
     }
+    case 'path':
+      return (
+        <path
+          key={el.id}
+          d={el.pathData || ''}
+          fill={el.fill}
+          stroke={el.stroke || selectionProps.stroke}
+          strokeWidth={el.strokeWidth || selectionProps.strokeWidth}
+          opacity={el.opacity}
+          transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}
+        />
+      );
     case 'group':
       return (
         <g key={el.id} transform={`translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})`}>

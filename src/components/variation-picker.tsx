@@ -58,11 +58,18 @@ export function VariationPicker({ variations, onSelect }: VariationPickerProps) 
 function renderMiniElement(el: UIElement) {
   switch (el.type) {
     case 'rect':
-      return <rect key={el.id} x={el.x} y={el.y} width={el.width} height={el.height} fill={el.fill} opacity={el.opacity} rx={el.rx} ry={el.ry} stroke={el.stroke} strokeWidth={el.strokeWidth} />;
+    case 'pill':
+    case 'capsule': {
+      const radius = (el.type === 'pill' || el.type === 'capsule') ? el.height / 2 : (el.rx || 0);
+      return <rect key={el.id} x={el.x} y={el.y} width={el.width} height={el.height} fill={el.fill} opacity={el.opacity} rx={radius} ry={radius} stroke={el.stroke} strokeWidth={el.strokeWidth} />;
+    }
     case 'circle':
       return <circle key={el.id} cx={el.x + el.width/2} cy={el.y + el.height/2} r={el.width/2} fill={el.fill} opacity={el.opacity} />;
     case 'text':
-      return <text key={el.id} x={el.x} y={el.y} fill={el.fill} fontSize={el.fontSize} opacity={el.opacity} textAnchor="middle">{el.text}</text>;
+      const textAnchor = el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start';
+      return <text key={el.id} x={el.x} y={el.y} fill={el.fill} fontSize={el.fontSize} opacity={el.opacity} textAnchor={textAnchor}>{el.text}</text>;
+    case 'path':
+      return <path key={el.id} d={el.pathData} transform={`translate(${el.x}, ${el.y})`} fill={el.fill} opacity={el.opacity} />;
     case 'group':
       return <g key={el.id} transform={`translate(${el.x}, ${el.y})`}>{el.children?.map(c => renderMiniElement(c))}</g>;
     default: return null;
