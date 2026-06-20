@@ -4,6 +4,7 @@
 /**
  * @fileOverview Engine de renderização vetorial 100% Estática.
  * Focada em Motion Design e exportação profissional.
+ * Inclui ViewBox explícita para escalabilidade absoluta.
  */
 
 import { UIElement } from '@/lib/layout-templates';

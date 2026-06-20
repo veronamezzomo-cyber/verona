@@ -91,7 +91,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
         el.x = (VIEWPORT_WIDTH - el.width) / 2;
       }
 
-      // Correção matemática do Footer: para text-anchor: middle, x deve ser o centro.
+      // Correção matemática do Footer para centralização absoluta
       if (el.id === 'Footer') {
         el.x = VIEWPORT_WIDTH / 2;
       }
@@ -167,8 +167,8 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 }
 
 /**
- * Helper para gerar o grupo do Logo Grok (xAI) com 3 paths discretos.
- * REFINAMENTO: Pontas agudas (Tapered) via fill paths.
+ * RECONSTRUÇÃO PEN TOOL MODE: Logo Grok (xAI) com afilamento (tapered) absoluto.
+ * Utiliza paths fechados para simular pontas agudas de lâmina.
  */
 function createGrokLogo(id: string, name: string, size: number, fillColor: string): UIElement {
   const scale = size / 24;
@@ -181,29 +181,32 @@ function createGrokLogo(id: string, name: string, size: number, fillColor: strin
     children: [
       {
         id: `${id}_Slash`,
-        name: 'Logo_Slash_Sharp',
+        name: 'Logo_Slash_PenTool',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: fillColor, stroke: 'none',
-        pathData: `M ${3 * scale} ${21 * scale} L ${21 * scale} ${3 * scale} L ${20.5 * scale} ${3 * scale} L ${2.5 * scale} ${21 * scale} Z`,
+        // Diagonal afilada (blade-like) via curvas quadráticas
+        pathData: `M ${3.8 * scale} ${20.2 * scale} Q ${12 * scale} ${12.5 * scale} ${20.2 * scale} ${3.8 * scale} Q ${12 * scale} ${11.5 * scale} ${3.8 * scale} ${20.2 * scale} Z`,
         visible: true, locked: false, opacity: 1
       },
       {
         id: `${id}_Left_Arc`,
-        name: 'Logo_Left_Arc_Sharp',
+        name: 'Logo_Left_Arc_PenTool',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: fillColor, stroke: 'none',
-        pathData: `M ${10 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 0 ${10 * scale} ${19.5 * scale} L ${10.5 * scale} ${18 * scale} A ${7 * scale} ${7 * scale} 0 0 1 ${10.5 * scale} ${6 * scale} Z`,
+        // Arco crescente afilado nas pontas
+        pathData: `M ${10 * scale} ${4.8 * scale} Q ${6.2 * scale} ${12 * scale} ${10 * scale} ${19.2 * scale} Q ${8.5 * scale} ${12 * scale} ${10 * scale} ${4.8 * scale} Z`,
         visible: true, locked: false, opacity: 1
       },
       {
         id: `${id}_Right_Arc`,
-        name: 'Logo_Right_Arc_Sharp',
+        name: 'Logo_Right_Arc_PenTool',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: fillColor, stroke: 'none',
-        pathData: `M ${14 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 1 ${14 * scale} ${19.5 * scale} L ${13.5 * scale} ${18 * scale} A ${7 * scale} ${7 * scale} 0 0 0 ${13.5 * scale} ${6 * scale} Z`,
+        // Arco crescente simétrico afilado
+        pathData: `M ${14 * scale} ${4.8 * scale} Q ${17.8 * scale} ${12 * scale} ${14 * scale} ${19.2 * scale} Q ${15.5 * scale} ${12 * scale} ${14 * scale} ${4.8 * scale} Z`,
         visible: true, locked: false, opacity: 1
       }
     ]
@@ -227,8 +230,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
-          ...createGrokLogo('TopLogo', 'Header_Logo', 20, textPrimary),
-          x: 24, y: 20
+          ...createGrokLogo('TopLogo', 'Header_Logo', 18, textPrimary),
+          x: 24, y: 21
         },
         {
           id: 'Imagine_Toggle',
@@ -243,6 +246,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
               type: 'path', 
               x: 0, y: 0, width: 16, height: 16, 
               fill: textPrimary, opacity: 0.8, visible: true, locked: false, 
+              // Ícone de Paisagem/Mídia
               pathData: 'M 2 4 C 1 4 0 5 0 6 V 14 C 0 15 1 16 2 16 H 14 C 15 16 16 15 16 14 V 6 C 16 5 15 4 14 4 H 2 Z M 3 13 L 6 9 L 9 12 L 11 10 L 14 14 H 2 Z' 
             },
             { id: 'Imagine_Text', name: 'Imagine_Text', type: 'text', x: 24, y: 13, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false }
@@ -261,8 +265,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
               type: 'path', 
               x: 0, y: 0, width: 20, height: 20, 
               fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.6, visible: true, locked: false, 
-              // Ícone de Engrenagem Ortogonal Geométrica
-              pathData: 'M 10 7 A 3 3 0 1 1 10 13 A 3 3 0 0 1 10 7 Z M 9 2 H 11 V 4.5 A 6 6 0 0 1 12.5 5.2 L 14.2 3.5 L 15.6 4.9 L 13.9 6.6 A 6 6 0 0 1 14.6 8 H 17 V 10 H 14.6 A 6 6 0 0 1 13.9 11.4 L 15.6 13.1 L 14.2 14.5 L 12.5 12.8 A 6 6 0 0 1 11 13.5 V 16 H 9 V 13.5 A 6 6 0 0 1 7.5 12.8 L 5.8 14.5 L 4.4 13.1 L 6.1 11.4 A 6 6 0 0 1 5.4 10 H 3 V 8 H 5.4 A 6 6 0 0 1 6.1 6.6 L 4.4 4.9 L 5.8 3.5 L 7.5 5.2 A 6 6 0 0 1 9 4.5 V 2 Z'
+              // Ícone de Engrenagem Ortogonal de 8 Dentes (Linha Fina)
+              pathData: 'M 10 3 L 9.2 4.5 C 9 4.8 8.6 5 8.2 5.1 L 6.5 4.8 L 5.5 5.8 L 5.8 7.5 C 5.9 7.9 5.8 8.3 5.5 8.6 L 4 9.4 V 10.6 L 5.5 11.4 C 5.8 11.7 5.9 12.1 5.8 12.5 L 5.5 14.2 L 6.5 15.2 L 8.2 14.9 C 8.6 14.8 9 14.9 9.2 15.2 L 10 16.7 V 17 H 14 V 16.7 L 14.8 15.2 C 15 14.9 15.4 14.8 15.8 14.9 L 17.5 15.2 L 18.5 14.2 L 18.2 12.5 C 18.1 12.1 18.2 11.7 18.5 11.4 L 20 10.6 V 9.4 L 18.5 8.6 C 18.2 8.3 18.1 7.9 18.2 7.5 L 18.5 5.8 L 17.5 4.8 L 15.8 5.1 C 15.4 5.2 15 5.1 14.8 4.8 L 14 3.3 V 3 H 10 V 3 Z M 12 8 A 4 4 0 1 1 12 16 A 4 4 0 0 1 12 8 Z'
             }
           ]
         },
@@ -275,14 +279,14 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'HeroBranding',
       name: 'Hero_Branding_Section',
       type: 'group',
-      x: 0, y: 210, width: 250, height: 60,
+      x: 0, y: 210, width: 220, height: 56,
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
           ...createGrokLogo('HeroLogo', 'Hero_Logo_Main', 56, textPrimary),
           x: 0, y: 0
         },
-        { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 72, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
+        { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 68, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
       ]
     },
     {
@@ -306,11 +310,11 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'BuildCard',
       name: 'Developer_Grok_Build_Card',
       type: 'group',
-      x: 0, y: 410, width: 640, height: 140,
+      x: 0, y: 410, width: 600, height: 130,
       fill: 'none', opacity: 1, visible: true, locked: false,
       shadow: '0 4 20 rgba(0,0,0,0.3)',
       children: [
-        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 640, height: 140, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
+        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 600, height: 130, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
         { id: 'card-title', name: 'Card_Title', type: 'text', x: 24, y: 36, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
         { id: 'card-beta-badge', name: 'Beta_Badge_BG', type: 'pill', x: 120, y: 20, width: 40, height: 20, fill: accentBeta, opacity: 0.1, visible: true, locked: false },
         { id: 'card-beta-text', name: 'Beta_Label', type: 'text', x: 140, y: 34, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
@@ -342,8 +346,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'Footer',
       name: 'Legal_Disclaimer_Footer',
       type: 'text',
-      x: 0, y: 640,
-      width: 1280, height: 0,
+      x: 640, y: 640,
+      width: 0, height: 0,
       fill: textSecondary,
       text: 'Ao enviar mensagens para o Grok, você concorda com nossos termos e política de privacidade.',
       fontSize: 11,
@@ -370,3 +374,4 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
     }
   };
 }
+
