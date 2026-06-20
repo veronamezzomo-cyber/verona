@@ -55,6 +55,7 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
     case 'rect':
       return (
         <rect
+          key={el.id}
           x={el.x}
           y={el.y}
           width={el.width}
@@ -69,6 +70,7 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
     case 'text':
       return (
         <text
+          key={el.id}
           x={el.x}
           y={el.y}
           fill={el.fill}
@@ -81,12 +83,27 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           {el.text}
         </text>
       );
+    case 'circle': {
+      const r = Math.min(el.width, el.height) / 2;
+      return (
+        <circle
+          key={el.id}
+          cx={el.x + r}
+          cy={el.y + r}
+          r={r}
+          fill={el.fill}
+          opacity={el.opacity}
+          {...selectionProps}
+        />
+      );
+    }
     case 'group':
       return (
-        <g transform={`translate(${el.x}, ${el.y})`}>
+        <g key={el.id} transform={`translate(${el.x}, ${el.y})`}>
           {el.children?.map(child => renderElementPreview(child, false))}
           {isSelected && (
              <rect 
+                key={`${el.id}-selection-outline`}
                 x={-5} y={-5} 
                 width={el.width + 10} height={el.height + 10} 
                 fill="transparent" 
