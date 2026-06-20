@@ -1,7 +1,6 @@
-
 /**
  * @fileOverview Visual Map System - Definições de infraestrutura para Engenharia Reversa.
- * Contexto: WEBSITE (Fullscreen). 100% Estático para Motion Design.
+ * Implementação baseada na DIRETRIZ ANALÍTICA GLOBAL (Constraint-Based Layout).
  */
 
 export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'pill' | 'capsule';
@@ -78,10 +77,14 @@ export interface VisualMap {
   };
 }
 
+/**
+ * Constraint Solver: Motor de posicionamento absoluto baseado em regras de respiro.
+ */
 export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceMetrics[]): UIElement[] {
   if (!elements) return [];
 
   const VIEWPORT_WIDTH = 1280;
+  const VIEWPORT_HEIGHT = 720;
   const solvedElements = JSON.parse(JSON.stringify(elements)) as UIElement[];
   const elementMap = new Map<string, UIElement>();
 
@@ -89,22 +92,27 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
     els.forEach(el => {
       elementMap.set(el.id, el);
       
+      // Centralização Horizontal de Elementos Hero
       if (el.id === 'HeroBranding' || el.id === 'PromptPill' || el.id === 'BuildCard') {
         el.x = (VIEWPORT_WIDTH - el.width) / 2;
       }
 
+      // Rodapé: Ancoragem Absoluta Centralizada
       if (el.id === 'Footer') {
         el.x = VIEWPORT_WIDTH / 2;
+        el.y = VIEWPORT_HEIGHT - 40;
       }
 
+      // Header: Distribuição Analítica de Unidades
       if (el.id === 'Header') {
         el.width = VIEWPORT_WIDTH;
         el.x = 0;
         
         if (el.children) {
           const marginRight = 24;
-          const gutter = 32;
+          const gap = 32;
 
+          // Unidade 1: Primary Action (Sign Up) - Extrema Direita
           const signUpPill = el.children.find(c => c.id === 'SignUpPill');
           const signUpText = el.children.find(c => c.id === 'SignUpText');
           if (signUpPill) {
@@ -114,48 +122,55 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
             }
           }
 
-          const loginBtn = el.children.find(c => c.id === 'Login_Button');
+          // Unidade 2: Secondary Action (Login) - Adjacente ao Sign Up
+          const loginBtn = el.children.find(c => c.id === 'Login_Button_Group');
           if (loginBtn && signUpPill) {
             loginBtn.x = signUpPill.x - loginBtn.width - 20;
           }
 
+          // Unidade 3: Tertiary Icons (Settings, Imagine)
           const settingsIcon = el.children.find(c => c.id === 'Settings_Icon_Group');
           if (settingsIcon && loginBtn) {
-            settingsIcon.x = loginBtn.x - 20 - gutter;
+            settingsIcon.x = loginBtn.x - gap - settingsIcon.width;
           }
 
-          const imagineToggle = el.children.find(c => c.id === 'Imagine_Toggle');
+          const imagineToggle = el.children.find(c => c.id === 'Imagine_Toggle_Group');
           if (imagineToggle && settingsIcon) {
-            imagineToggle.x = settingsIcon.x - imagineToggle.width - gutter;
+            imagineToggle.x = settingsIcon.x - gap - imagineToggle.width;
           }
         }
       }
 
+      // Distribuição Interna do Prompt Pill
+      if (el.id === 'PromptPill' && el.children) {
+        const sendBtn = el.children.find(c => c.id === 'pill-send-group');
+        if (sendBtn) sendBtn.x = el.width - sendBtn.width - 8;
+
+        const modelSelector = el.children.find(c => c.id === 'pill-model-selector');
+        if (modelSelector && sendBtn) modelSelector.x = sendBtn.x - modelSelector.width - 12;
+      }
+
+      // Distribuição Interna do Card (No-Collision)
+      if (el.id === 'BuildCard' && el.children) {
+        const terminal = el.children.find(c => c.id === 'TerminalGroup');
+        const textBlock = el.children.find(c => c.id === 'Card_Text_Block');
+        
+        if (terminal) {
+          terminal.x = el.width - terminal.width - 24;
+        }
+        
+        const closeBtn = el.children.find(c => c.id === 'card-close');
+        if (closeBtn) closeBtn.x = el.width - 32;
+      }
+
       if (el.children && el.children.length > 0) {
-        el.children.forEach(child => {
-          if (child.id === 'pill-send-circle') child.x = el.width - 48;
-          if (child.id === 'pill-send-arrow') child.x = el.width - 48 + 15;
-          if (child.id === 'pill-fast-text') child.x = el.width - 105;
-          if (child.id === 'pill-fast-chevron') child.x = el.width - 75;
-          
-          if (child.id === 'TerminalGroup') {
-            child.x = el.width - child.width - 24;
-          }
-          if (child.id === 'card-close') {
-            child.x = el.width - 32;
-          }
-
-          if (child.id === 'PowerShell_Tab') child.x = el.width - 340 - 24;
-          if (child.id === 'WSL_Tab') child.x = el.width - 340 - 24 + 80;
-
-          elementMap.set(child.id, child);
-        });
         buildMap(el.children);
       }
     });
   };
   buildMap(solvedElements);
 
+  // Aplicação de Métricas de Espaçamento Negativo (Vertical Flow)
   if (metrics) {
     metrics.forEach(metric => {
       const from = elementMap.get(metric.fromId);
@@ -171,6 +186,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 
 /**
  * Reconstrução Analítica do Logo Grok/xAI via Raw SVG.
+ * Protocolo de Identidade Vetorial (Lâmina Afiada).
  */
 function createGrokLogo(id: string, name: string, size: number, color: string): UIElement {
   const scale = size / 24;
@@ -233,8 +249,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           x: 24, y: 21
         },
         {
-          id: 'Imagine_Toggle',
-          name: 'Imagine_Toggle_Group',
+          id: 'Imagine_Toggle_Group',
+          name: 'Imagine_Toggle (Tertiary)',
           type: 'group',
           x: 0, y: 22, width: 80, height: 16,
           fill: 'none', opacity: 1, visible: true, locked: false,
@@ -252,7 +268,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
         },
         {
           id: 'Settings_Icon_Group',
-          name: 'Settings_Group',
+          name: 'Settings (Tertiary)',
           type: 'group',
           x: 0, y: 22, width: 20, height: 20,
           fill: 'none', opacity: 1, visible: true, locked: false,
@@ -268,8 +284,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           ]
         },
         {
-          id: 'Login_Button',
-          name: 'Login_Button_Group',
+          id: 'Login_Button_Group',
+          name: 'Login (Secondary)',
           type: 'group',
           x: 0, y: 14, width: 76, height: 32,
           fill: 'none', opacity: 1, visible: true, locked: false,
@@ -278,13 +294,13 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
             { id: 'Login_Text', name: 'Login_Label', type: 'text', x: 38, y: 20, width: 0, height: 0, fill: textPrimary, text: 'Entrar', fontSize: 13, fontWeight: '500', textAlign: 'center', visible: true, locked: false }
           ]
         },
-        { id: 'SignUpPill', name: 'Sign_Up_Pill', type: 'pill', x: 0, y: 14, width: 92, height: 32, fill: textPrimary, opacity: 1, visible: true, locked: false, rx: 8, ry: 8 },
+        { id: 'SignUpPill', name: 'Sign_Up (Primary)', type: 'pill', x: 0, y: 14, width: 92, height: 32, fill: textPrimary, opacity: 1, visible: true, locked: false, rx: 8, ry: 8 },
         { id: 'SignUpText', name: 'Sign_Up_Text', type: 'text', x: 0, y: 34, width: 0, height: 0, fill: darkBlack, text: 'Criar conta', fontSize: 12, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
       ]
     },
     {
       id: 'HeroBranding',
-      name: 'Hero_Branding_Section',
+      name: 'Hero_Branding',
       type: 'group',
       x: 0, y: 210, width: 220, height: 56,
       fill: 'none', opacity: 1, visible: true, locked: false,
@@ -293,57 +309,84 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           ...createGrokLogo('HeroLogo', 'Hero_Logo_Main', 56, textPrimary),
           x: 0, y: 0
         },
-        { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 68, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
+        { id: 'HeroName', name: 'Grok_Title', type: 'text', x: 68, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
       ]
     },
     {
       id: 'PromptPill',
-      name: 'Main_Prompt_Input',
+      name: 'Prompt_Pill_Input',
       type: 'group',
       x: 0, y: 320, width: 700, height: 56,
       fill: 'none', opacity: 1, visible: true, locked: false,
       shadow: '0 8 24 rgba(0,0,0,0.4)', 
       children: [
-        { id: 'pill-surface', name: 'Input_Background', type: 'pill', x: 0, y: 0, width: 700, height: 56, fill: surface, opacity: 1, stroke: border, strokeWidth: 1, rx: 28, ry: 28, visible: true, locked: false },
-        { id: 'pill-plus', name: 'Plus_Icon_Path', type: 'path', x: 20, y: 20, width: 16, height: 16, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M8 2 V14 M2 8 H14' },
-        { id: 'pill-hint', name: 'Placeholder_Hint', type: 'text', x: 52, y: 34, width: 0, height: 0, fill: textSecondary, text: 'O que você quer saber?', fontSize: 16, fontWeight: '400', visible: true, locked: false },
-        { id: 'pill-fast-text', name: 'Model_Selector_Label', type: 'text', x: 0, y: 34, width: 0, height: 0, fill: textPrimary, text: 'Fast', fontSize: 13, fontWeight: '600', visible: true, locked: false },
-        { id: 'pill-fast-chevron', name: 'Fast_Chevron_Path', type: 'path', x: 0, y: 28, width: 10, height: 10, fill: 'none', stroke: textPrimary, strokeWidth: 1.5, pathData: 'M2 4 L5 7 L8 4', visible: true, locked: false },
-        { id: 'pill-send-circle', name: 'Send_Button_BG', type: 'circle', x: 0, y: 8, width: 40, height: 40, fill: '#262626', opacity: 1, visible: true, locked: false },
-        { id: 'pill-send-arrow', name: 'Send_Arrow_Path', x: 0, y: 20, width: 10, height: 16, type: 'path', fill: 'none', stroke: textPrimary, strokeWidth: 2, pathData: 'M5 14 V2 M2 5 L5 2 L8 5', visible: true, locked: false }
+        { id: 'pill-surface', name: 'Pill_BG', type: 'pill', x: 0, y: 0, width: 700, height: 56, fill: surface, opacity: 1, stroke: border, strokeWidth: 1, rx: 28, ry: 28, visible: true, locked: false },
+        { id: 'pill-plus', name: 'Plus_Icon', type: 'path', x: 20, y: 20, width: 16, height: 16, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M8 2 V14 M2 8 H14' },
+        { id: 'pill-hint', name: 'Hint', type: 'text', x: 52, y: 34, width: 0, height: 0, fill: textSecondary, text: 'O que você quer saber?', fontSize: 16, fontWeight: '400', visible: true, locked: false },
+        {
+          id: 'pill-model-selector',
+          name: 'Model_Selector',
+          type: 'group',
+          x: 0, y: 20, width: 60, height: 16,
+          fill: 'none', opacity: 1, visible: true, locked: false,
+          children: [
+            { id: 'pill-fast-text', name: 'Fast_Label', type: 'text', x: 0, y: 14, width: 0, height: 0, fill: textPrimary, text: 'Fast', fontSize: 13, fontWeight: '600', visible: true, locked: false },
+            { id: 'pill-fast-chevron', name: 'Chevron', type: 'path', x: 35, y: 8, width: 10, height: 10, fill: 'none', stroke: textPrimary, strokeWidth: 1.5, pathData: 'M2 4 L5 7 L8 4', visible: true, locked: false }
+          ]
+        },
+        {
+          id: 'pill-send-group',
+          name: 'Send_Action',
+          type: 'group',
+          x: 0, y: 8, width: 40, height: 40,
+          fill: 'none', opacity: 1, visible: true, locked: false,
+          children: [
+            { id: 'pill-send-circle', name: 'Circle', type: 'circle', x: 0, y: 0, width: 40, height: 40, fill: '#262626', opacity: 1, visible: true, locked: false },
+            { id: 'pill-send-arrow', name: 'Arrow', x: 15, y: 12, width: 10, height: 16, type: 'path', fill: 'none', stroke: textPrimary, strokeWidth: 2, pathData: 'M5 14 V2 M2 5 L5 2 L8 5', visible: true, locked: false }
+          ]
+        }
       ]
     },
     {
       id: 'BuildCard',
-      name: 'Developer_Grok_Build_Card',
+      name: 'Grok_Build_Card',
       type: 'group',
       x: 0, y: 410, width: 700, height: 130,
       fill: 'none', opacity: 1, visible: true, locked: false,
       shadow: '0 4 20 rgba(0,0,0,0.3)',
       children: [
-        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 700, height: 130, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
-        { id: 'card-title', name: 'Card_Title', type: 'text', x: 24, y: 45, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
-        { id: 'card-beta-badge', name: 'Beta_Badge_BG', type: 'pill', x: 120, y: 28, width: 40, height: 20, fill: accentBeta, opacity: 0.1, visible: true, locked: false },
-        { id: 'card-beta-text', name: 'Beta_Label', type: 'text', x: 140, y: 42, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
-        { id: 'card-desc', name: 'Card_Description_1', type: 'text', x: 24, y: 72, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
-        { id: 'card-desc-2', name: 'Card_Description_2', type: 'text', x: 24, y: 92, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
-        { id: 'card-close', name: 'Close_Icon_Path', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' },
-        { id: 'PowerShell_Tab', name: 'Tab_PowerShell', type: 'text', x: 0, y: 55, width: 0, height: 0, fill: textPrimary, text: 'PowerShell', fontSize: 11, fontWeight: '600', visible: true, locked: false },
-        { id: 'WSL_Tab', name: 'Tab_WSL', type: 'text', x: 0, y: 55, width: 0, height: 0, fill: textSecondary, text: 'WSL', fontSize: 11, fontWeight: '400', visible: true, locked: false },
+        { id: 'card-bg', name: 'Surface', type: 'rect', x: 0, y: 0, width: 700, height: 130, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
         {
-          id: 'TerminalGroup',
-          name: 'Terminal_CLI_Block',
+          id: 'Card_Text_Block',
+          name: 'Text_Block',
           type: 'group',
-          x: 0, y: 65, width: 340, height: 45,
+          x: 24, y: 30, width: 300, height: 80,
           fill: 'none', opacity: 1, visible: true, locked: false,
           children: [
-            { id: 'term-bg', name: 'Terminal_BG', type: 'rect', x: 0, y: 0, width: 340, height: 45, fill: darkBlack, opacity: 0.8, rx: 8, visible: true, locked: false, stroke: border, strokeWidth: 0.5 },
-            { id: 'term-text', name: 'Terminal_Command', type: 'text', x: 15, y: 28, width: 0, height: 0, fill: textPrimary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
+            { id: 'card-title', name: 'Title', type: 'text', x: 0, y: 15, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
+            { id: 'card-beta-badge', name: 'Badge_BG', type: 'pill', x: 100, y: 0, width: 40, height: 20, fill: accentBeta, opacity: 0.1, visible: true, locked: false },
+            { id: 'card-beta-text', name: 'Badge_Text', type: 'text', x: 120, y: 14, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
+            { id: 'card-desc', name: 'Desc_1', type: 'text', x: 0, y: 42, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
+            { id: 'card-desc-2', name: 'Desc_2', type: 'text', x: 0, y: 62, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false }
+          ]
+        },
+        { id: 'card-close', name: 'Close', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' },
+        {
+          id: 'TerminalGroup',
+          name: 'Terminal_Unit',
+          type: 'group',
+          x: 0, y: 30, width: 340, height: 70,
+          fill: 'none', opacity: 1, visible: true, locked: false,
+          children: [
+            { id: 'PowerShell_Tab', name: 'Tab_PS', type: 'text', x: 0, y: 10, width: 0, height: 0, fill: textPrimary, text: 'PowerShell', fontSize: 11, fontWeight: '600', visible: true, locked: false },
+            { id: 'WSL_Tab', name: 'Tab_WSL', type: 'text', x: 80, y: 10, width: 0, height: 0, fill: textSecondary, text: 'WSL', fontSize: 11, fontWeight: '400', visible: true, locked: false },
+            { id: 'term-bg', name: 'CLI_BG', type: 'rect', x: 0, y: 20, width: 340, height: 45, fill: darkBlack, opacity: 0.8, rx: 8, visible: true, locked: false, stroke: border, strokeWidth: 0.5 },
+            { id: 'term-text', name: 'Command', type: 'text', x: 15, y: 48, width: 0, height: 0, fill: textPrimary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
             { 
               id: 'term-copy-icon', 
-              name: 'Copy_Icon_Path', 
+              name: 'Copy_Asset', 
               type: 'path', 
-              x: 310, y: 15, width: 16, height: 16, 
+              x: 310, y: 35, width: 16, height: 16, 
               fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false,
               pathData: 'M4 4 H12 V12 H4 Z M2 2 H10 V10 H2 Z' 
             }
@@ -353,7 +396,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
     },
     {
       id: 'Footer',
-      name: 'Legal_Disclaimer_Footer',
+      name: 'Disclaimer (Ancoragem Absoluta)',
       type: 'text',
       x: 640, y: 700,
       width: 0, height: 0,
