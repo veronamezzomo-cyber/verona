@@ -76,7 +76,7 @@ export interface VisualMap {
 }
 
 /**
- * Layout Solver Engine (v5.0 - Constraint & Anchor System)
+ * Layout Solver Engine (v6.0 - Constraint & Anchor System)
  * Implementa ancoragem Right-to-Left e centralização dinâmica.
  */
 export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceMetrics[]): UIElement[] {
@@ -183,8 +183,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
   const accentBeta = '#d34b30';
   const darkBlack = '#000000';
 
-  // GROK GLYPH PATH (FIDELIDADE XAI)
-  const grokGlyphPath = 'M14 46 L46 14 M32 14 H48 M14 46 H30';
+  // GROK GLYPH PATH (FIDELIDADE xAI PRECISA)
+  const grokGlyphPath = 'M4 44 L44 4 M4 4 H20 M28 44 H44';
 
   const elements: UIElement[] = [
     {

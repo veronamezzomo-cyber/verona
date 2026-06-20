@@ -83,7 +83,8 @@ export function LayoutEditor({
         </defs>
 
         {elements.map((el) => {
-          const isInteractive = el.id === 'Imagine_Toggle' || el.id === 'SignUpPill' || el.id === 'Login_Text' || el.id === 'Settings_Icon';
+          // IDs interativos no layout Grok
+          const isInteractive = el.id === 'SignUpPill' || el.id === 'Login_Text' || el.id === 'Settings_Icon';
           
           return (
             <g 
