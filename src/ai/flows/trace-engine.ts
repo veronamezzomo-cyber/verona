@@ -1,7 +1,6 @@
 'use server';
 /**
- * @fileOverview Trace Engine - Motor de Engenharia Reversa Visual.
- * Implementa a lógica de medição, classificação de formas e mapeamento visual.
+ * @fileOverview Trace Engine - Motor de Engenharia Reversa Visual (AE Optimized).
  */
 
 import { ai } from '@/ai/genkit';
@@ -23,10 +22,7 @@ export const traceEngineFlow = ai.defineFlow(
   async (input) => {
     console.log('[TraceEngine] INITIATING_VISUAL_REVERSE_ENGINEERING');
     
-    // FASE 1: CATEGORY & INTENT ANALYSIS
     const category = detectCategory(input.prompt);
-    
-    // FASE 2: GEOMETRY ENGINE (Recuperação de Estrutura Base)
     const variations = TEMPLATE_REGISTRY[category]({
       bg: "#000000",
       primary: "#FFFFFF",
@@ -34,42 +30,20 @@ export const traceEngineFlow = ai.defineFlow(
       text: "#FFFFFF"
     });
     
-    let elements = variations[0];
-
-    // FASE 3: SHAPE CLASSIFIER (Regra de Classificação de Pill)
-    elements = elements.map(el => {
-      const isPill = el.type === 'rect' && el.rx && el.rx >= el.height / 2;
-      if (isPill) {
-        return { 
-          ...el, 
-          type: 'pill' as any, 
-          name: `${el.name} (CLASSIFIED: PILL)`,
-          metrics: {
-            ...el.metrics,
-            fidelityScore: 0.99
-          }
-        };
-      }
-      return el;
-    });
-
-    // FASE 4: SPATIAL RECONSTRUCTION (Ajuste de Botões e Seletores)
-    elements = elements.map(el => {
-      if (el.id === 'pill-send-bg' || el.id === 'pill-send-circle') {
-        return { ...el, x: 655, y: 10, width: 40, height: 40 }; 
-      }
-      return el;
-    });
-
-    // FASE 5: NEGATIVE SPACE AUDIT (Cálculo de Espaço Negativo)
-    const negativeSpace: NegativeSpaceMetrics[] = [
-      { fromId: 'hero-branding', toId: 'prompt-pill-container', distanceX: 0, distanceY: 60, relation: 'vertical' },
-      { fromId: 'prompt-pill-container', toId: 'build-card', distanceX: 0, distanceY: 40, relation: 'vertical' }
-    ];
+    let elements = variations[0].map(el => ({
+      ...el,
+      category: el.category || 'Container',
+      animationHint: el.animationHint || { type: 'fade', duration: 300, easing: 'ease-out' }
+    })) as UIElement[];
 
     const visualMap: VisualMap = {
+      metadata: {
+        layout_type: category,
+        dimensions: { width: 1280, height: 720 },
+        color_palette: { primary: ["#FFFFFF"], neutrals: ["#000000"] }
+      },
       elements: elements,
-      negativeSpaceMetrics: negativeSpace,
+      negativeSpaceMetrics: [],
       audit: {
         visualFidelity: 98,
         layoutFidelity: 97,
@@ -79,7 +53,6 @@ export const traceEngineFlow = ai.defineFlow(
       }
     };
 
-    console.log('[TraceEngine] RECONSTRUCTION_COMPLETE. FIDELITY: 0.98');
     return visualMap;
   }
 );
