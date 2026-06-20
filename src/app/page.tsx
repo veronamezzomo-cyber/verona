@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { LayoutEditor } from '@/components/layout-editor';
 import { PropertiesPanel } from '@/components/properties-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateYouTubeStudioElements } from '@/lib/layout-templates';
+import { generateGrokDashboardElements } from '@/lib/layout-templates';
 import { 
   ChevronLeft, 
   Layout, 
@@ -43,9 +43,9 @@ export default function LayoutForgeEnterprise() {
 
   const [activeTab, setActiveTab] = useState<'layers' | 'assets' | 'ai'>('layers');
 
-  // Bootstrap com YouTube Studio Real
+  // Bootstrap com Grok.com Dashboard
   useEffect(() => {
-    setLayout(generateYouTubeStudioElements());
+    setLayout(generateGrokDashboardElements());
   }, [setLayout]);
 
   return (
