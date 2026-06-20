@@ -1,3 +1,4 @@
+
 import { UIElement } from './layout-templates';
 
 /**
@@ -83,7 +84,8 @@ function renderElement(el: UIElement): string {
     
     case 'path':
       const pStrokeProps = el.stroke ? `stroke="${el.stroke}" stroke-width="${el.strokeWidth || 1}"` : '';
-      return `<path ${commonProps} d="${el.pathData || ''}" transform="translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})" fill="${el.fill}" ${pStrokeProps} />`;
+      const linecapProp = el.strokeLinecap ? `stroke-linecap="${el.strokeLinecap}"` : '';
+      return `<path ${commonProps} d="${el.pathData || ''}" transform="translate(${el.x}, ${el.y}) rotate(${el.rotation || 0})" fill="${el.fill}" ${pStrokeProps} ${linecapProp} />`;
       
     default:
       return '';

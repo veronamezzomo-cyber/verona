@@ -192,6 +192,7 @@ function renderElementPreview(el: UIElement, isSelected: boolean) {
           fill={el.fill}
           stroke={el.stroke || (isSelected ? selectionProps.stroke : undefined)}
           strokeWidth={el.strokeWidth || (isSelected ? selectionProps.strokeWidth : undefined)}
+          strokeLinecap={el.strokeLinecap}
           opacity={el.opacity}
           filter={filterUrl}
           clipPath={clipPathUrl}
