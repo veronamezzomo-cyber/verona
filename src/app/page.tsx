@@ -9,7 +9,7 @@ import { ExportPanel } from '@/components/export-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
 import { generateLayoutVariations } from '@/ai/flows/generate-layout-variations';
 import { UIElement } from '@/lib/layout-templates';
-import { Layers, ChevronLeft, Layout, Sparkles } from 'lucide-react';
+import { ChevronLeft, Layout, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -17,17 +17,29 @@ type ViewMode = 'browse' | 'edit';
 
 export default function LayoutForge() {
   const [viewMode, setViewMode] = useState<ViewMode>('browse');
-  const [variations, setVariations] = useState<string[]>([]);
+  const [variations, setVariations] = useState<UIElement[][]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [selectedVariation, setSelectedVariation] = useState<string | null>(null);
+  const [selectedVariation, setSelectedVariation] = useState<UIElement[] | null>(null);
   const { elements, selectedId, selectedElement, setLayout, addElement, updateElement, removeElement, selectElement } = useLayoutState();
 
   const handleGenerate = async (prompt: string) => {
     setIsGenerating(true);
+    const isDirectCreate = prompt.toLowerCase().startsWith('/create');
+    
     try {
       const results = await generateLayoutVariations({ prompt });
       setVariations(results);
-      setSelectedVariation(results[0] || null);
+      
+      if (isDirectCreate && results.length > 0) {
+        // Habilidade /create: Escolhe a primeira variação e entra no editor imediatamente
+        const firstVar = results[0];
+        setSelectedVariation(firstVar);
+        setLayout(firstVar);
+        setViewMode('edit');
+      } else {
+        // Fluxo normal: Mostra as opções
+        setSelectedVariation(results[0] || null);
+      }
     } catch (error) {
       console.error("Generation failed", error);
     } finally {
@@ -37,48 +49,13 @@ export default function LayoutForge() {
 
   const handleEnterEdit = () => {
     if (!selectedVariation) return;
-    
-    // Simulação de inicialização de elementos baseada na variação
-    const initialElements: UIElement[] = [
-      {
-        id: 'logo-group',
-        name: 'Header Branding',
-        type: 'group',
-        x: 50,
-        y: 40,
-        width: 180,
-        height: 50,
-        fill: '#3B82F6',
-        opacity: 1,
-        children: [
-          { id: 'logo-rect', name: 'Logo Rect', type: 'rect', x: 0, y: 0, width: 40, height: 40, fill: '#3B82F6', opacity: 1, rx: 8, ry: 8 },
-          { id: 'logo-text', name: 'Brand Name', type: 'text', x: 100, y: 28, width: 0, height: 0, fill: '#E5E7EB', opacity: 1, text: 'FORGE UI', fontSize: 24 }
-        ]
-      },
-      {
-        id: 'hero-main',
-        name: 'Main Layout Card',
-        type: 'rect',
-        x: 340,
-        y: 180,
-        width: 600,
-        height: 300,
-        fill: 'rgba(59, 130, 246, 0.05)',
-        opacity: 1,
-        rx: 16,
-        ry: 16,
-        stroke: '#3B82F6',
-        strokeWidth: 1
-      }
-    ];
-    
-    setLayout(initialElements);
+    setLayout(selectedVariation);
     setViewMode('edit');
   };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-[#050714]">
-      {/* Header - Fixed in both modes */}
+      {/* Header */}
       <header className="h-16 border-b border-white/5 bg-card/20 backdrop-blur-md flex items-center justify-between px-8 z-[100]">
         <div className="flex items-center gap-4">
           <div className="bg-primary p-1.5 rounded-lg glow-primary">
@@ -110,7 +87,9 @@ export default function LayoutForge() {
               <h2 className="text-4xl font-headline font-bold uppercase tracking-tight text-white/90">
                 Architect Your <span className="text-primary glow-primary">Interface</span>
               </h2>
-              <p className="text-muted-foreground">Descreva sua visão e forje variações vetoriais instantâneas.</p>
+              <p className="text-muted-foreground text-sm">
+                Use <code className="bg-white/5 px-2 py-0.5 rounded text-primary">/create [termo]</code> para editar instantaneamente.
+              </p>
             </div>
 
             <PromptInput onGenerate={handleGenerate} isLoading={isGenerating} />
@@ -129,7 +108,7 @@ export default function LayoutForge() {
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="flex justify-between items-center border-b border-white/5 pb-4">
                   <h3 className="font-headline text-sm uppercase tracking-[0.3em] text-muted-foreground">Variações Geradas</h3>
-                  <span className="text-[10px] font-mono text-white/20">3 LAYOUTS DISPONÍVEIS</span>
+                  <span className="text-[10px] font-mono text-white/20">{variations.length} LAYOUTS DISPONÍVEIS</span>
                 </div>
                 <VariationPicker 
                   variations={variations} 
@@ -138,7 +117,7 @@ export default function LayoutForge() {
               </div>
             )}
             
-            {viewMode === 'browse' && !isGenerating && variations.length === 0 && (
+            {!isGenerating && variations.length === 0 && (
               <div className="flex flex-col items-center justify-center py-24 opacity-20 pointer-events-none">
                 <Sparkles className="h-12 w-12 mb-4" />
                 <p className="text-sm uppercase tracking-widest">Waiting for architect input</p>
@@ -160,7 +139,6 @@ export default function LayoutForge() {
               onUpdate={updateElement}
             />
             
-            {/* Floating Toolbar Overlay */}
             <EditorToolbar 
               selectedElement={selectedElement}
               onUpdate={updateElement}
@@ -169,7 +147,6 @@ export default function LayoutForge() {
               onClose={() => selectElement(null)}
             />
 
-            {/* Editor Footer Actions */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-3 bg-card/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50">
               <Button 
                 variant="ghost" 

@@ -1,20 +1,21 @@
 'use server';
 /**
  * @fileOverview Gerador de variações de layout UI 100% local.
- *               Orquestra a detecção de categoria e chama o gerador correspondente.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { detectCategory, TEMPLATE_REGISTRY } from '../templates/template-registry';
+import { UIElement } from '@/lib/layout-templates';
 
 const GenerateLayoutVariationsInputSchema = z.object({
   prompt: z.string(),
 });
 export type GenerateLayoutVariationsInput = z.infer<typeof GenerateLayoutVariationsInputSchema>;
 
-const GenerateLayoutVariationsOutputSchema = z.array(z.string());
-export type GenerateLayoutVariationsOutput = z.infer<typeof GenerateLayoutVariationsOutputSchema>;
+// O output agora é um array de arrays de UIElement (cada sub-array é uma variação completa)
+const GenerateLayoutVariationsOutputSchema = z.array(z.array(z.any())); 
+export type GenerateLayoutVariationsOutput = UIElement[][];
 
 /**
  * Cores padrão baseadas no tema dark/neon do sistema.
@@ -33,16 +34,13 @@ export const generateLayoutVariationsFlow = ai.defineFlow(
     outputSchema: GenerateLayoutVariationsOutputSchema,
   },
   async (input) => {
-    // 1. Detecta a intenção (categoria)
-    const category = detectCategory(input.prompt);
-    
-    // 2. Obtém o gerador registrado
+    // Remove o comando /create se presente para a detecção de categoria
+    const promptClean = input.prompt.replace(/^\/create\s*/i, '');
+    const category = detectCategory(promptClean);
     const generator = TEMPLATE_REGISTRY[category];
     
-    // 3. Simula um pequeno atraso para UX (calculando vetores...)
     await new Promise(resolve => setTimeout(resolve, 800));
     
-    // 4. Retorna as 3 variações específicas da categoria
     return generator(SYSTEM_COLORS);
   }
 );
@@ -50,5 +48,5 @@ export const generateLayoutVariationsFlow = ai.defineFlow(
 export async function generateLayoutVariations(
   input: GenerateLayoutVariationsInput
 ): Promise<GenerateLayoutVariationsOutput> {
-  return generateLayoutVariationsFlow(input);
+  return generateLayoutVariationsFlow(input) as unknown as Promise<GenerateLayoutVariationsOutput>;
 }

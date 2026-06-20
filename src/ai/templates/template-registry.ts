@@ -6,10 +6,11 @@ import { generateChatTemplates } from './chat-llm';
 import { generateSearchTemplates } from './search-engine';
 import { generateVideoTemplates } from './video-platform';
 import { generateDashboardTemplates } from './dashboard';
+import { UIElement } from '@/lib/layout-templates';
 
 export type UICategory = 'chat-llm' | 'search-engine' | 'video-platform' | 'dashboard';
 
-export const TEMPLATE_REGISTRY: Record<UICategory, (colors: any) => string[]> = {
+export const TEMPLATE_REGISTRY: Record<UICategory, (colors: any) => UIElement[][]> = {
   'chat-llm': generateChatTemplates,
   'search-engine': generateSearchTemplates,
   'video-platform': generateVideoTemplates,
