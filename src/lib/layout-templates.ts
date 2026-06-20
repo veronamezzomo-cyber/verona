@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Visual Map System - Definições de infraestrutura para Engenharia Reversa.
  * Contexto: WEBSITE (Fullscreen).
@@ -75,8 +76,8 @@ export interface VisualMap {
 }
 
 /**
- * Layout Solver Engine (v4.0 - Constraint & Anchor System)
- * Reconcilia coordenadas baseando-se em relações espaciais e regras de posicionamento relativo.
+ * Layout Solver Engine (v5.0 - Constraint & Anchor System)
+ * Implementa ancoragem Right-to-Left e centralização dinâmica.
  */
 export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceMetrics[]): UIElement[] {
   if (!elements) return [];
@@ -100,41 +101,36 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
         el.x = 0;
         
         if (el.children) {
-          // RIGHT-TO-LEFT ANCHORING STACK
           const margin = 24;
           const gutter = 32;
 
-          // Sign Up Pill (Rightmost)
+          // Sign Up Pill (Extrema Direita)
           const signUpPill = el.children.find(c => c.id === 'SignUpPill');
           const signUpText = el.children.find(c => c.id === 'SignUpText');
           if (signUpPill) {
             signUpPill.x = VIEWPORT_WIDTH - signUpPill.width - margin;
             if (signUpText) {
               signUpText.x = signUpPill.x + (signUpPill.width / 2);
-              signUpText.y = 34; // Perfeito alinhamento vertical
+              signUpText.y = 34; 
             }
           }
 
-          // Login Text
+          // Login Text (Ancorado ao Sign Up)
           const loginText = el.children.find(c => c.id === 'Login_Text');
           if (loginText && signUpPill) {
-            loginText.x = signUpPill.x - 45 - gutter; // 45 aprox width de "Entrar"
+            loginText.x = signUpPill.x - 45 - gutter; 
           }
 
-          // Settings Icon
+          // Settings Icon (Ancorado ao Login)
           const settingsIcon = el.children.find(c => c.id === 'Settings_Icon');
           if (settingsIcon && loginText) {
             settingsIcon.x = loginText.x - 16 - gutter;
           }
 
-          // Imagine Group
-          const imagineText = el.children.find(c => c.id === 'Imagine_Text');
-          const imagineIcon = el.children.find(c => c.id === 'Imagine_Icon');
-          if (imagineText && settingsIcon) {
-            imagineText.x = settingsIcon.x - 55 - gutter;
-            if (imagineIcon) {
-              imagineIcon.x = imagineText.x - 16 - 8;
-            }
+          // Imagine Toggle Group (Ancorado ao Settings)
+          const imagineToggle = el.children.find(c => c.id === 'Imagine_Toggle');
+          if (imagineToggle && settingsIcon) {
+            imagineToggle.x = settingsIcon.x - imagineToggle.width - gutter;
           }
         }
       }
@@ -142,18 +138,14 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
       // 3. DYNAMIC ANCHORING FOR PROMPT & CARD
       if (el.children && el.children.length > 0) {
         el.children.forEach(child => {
-          // Prompt Pill Right Anchoring
           if (child.id === 'pill-send-circle') child.x = el.width - 48;
           if (child.id === 'pill-send-arrow') child.x = el.width - 48 + 15;
           if (child.id === 'pill-fast-text') child.x = el.width - 105;
           if (child.id === 'pill-fast-chevron') child.x = el.width - 75;
-          
-          // Build Card Right Anchoring
           if (child.id === 'card-close') child.x = el.width - 32;
           if (child.id === 'term-bg' || child.id === 'term-tabs') child.x = el.width - child.width - 24;
           if (child.id === 'term-code') child.x = el.width - 305;
           if (child.id === 'term-copy') child.x = el.width - 52;
-
           elementMap.set(child.id, child);
         });
         buildMap(el.children);
@@ -167,16 +159,13 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
     metrics.forEach(metric => {
       const from = elementMap.get(metric.fromId);
       const to = elementMap.get(metric.toId);
-
-      if (from && to) {
-        if (metric.relation === 'vertical' && metric.distanceY !== undefined) {
-          to.y = from.y + from.height + metric.distanceY;
-        }
+      if (from && to && metric.relation === 'vertical' && metric.distanceY !== undefined) {
+        to.y = from.y + from.height + metric.distanceY;
       }
     });
   }
 
-  // Footer Anchoring relative to last block
+  // Footer Anchoring
   const footer = elementMap.get('Footer');
   const buildCard = elementMap.get('BuildCard');
   if (footer && buildCard) {
@@ -194,9 +183,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
   const accentBeta = '#d34b30';
   const darkBlack = '#000000';
 
-  // FIDELITY GLYPH PATHS
-  const heroGlyphPath = 'M14 46 L46 14 M32 14 H48 M14 46 H30';
-  const smallGlyphPath = 'M5 16.5 L16.5 5 M11 5 H17.5 M5 16.5 H11.5';
+  // GROK GLYPH PATH (FIDELIDADE XAI)
+  const grokGlyphPath = 'M14 46 L46 14 M32 14 H48 M14 46 H30';
 
   const elements: UIElement[] = [
     {
@@ -212,10 +200,19 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           type: 'path', 
           x: 24, y: 20, width: 20, height: 20, 
           fill: 'none', stroke: textPrimary, strokeWidth: 1.5, opacity: 1, visible: true, locked: false,
-          pathData: smallGlyphPath
+          pathData: grokGlyphPath
         },
-        { id: 'Imagine_Icon', name: 'Imagine_Icon', type: 'rect', x: 0, y: 22, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1, rx: 2, ry: 2, opacity: 0.8, visible: true, locked: false },
-        { id: 'Imagine_Text', name: 'Imagine_Text', type: 'text', x: 0, y: 35, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false },
+        {
+          id: 'Imagine_Toggle',
+          name: 'Imagine_Toggle_Group',
+          type: 'group',
+          x: 0, y: 22, width: 80, height: 16,
+          fill: 'none', opacity: 1, visible: true, locked: false,
+          children: [
+            { id: 'Imagine_Icon', name: 'Imagine_Icon', type: 'rect', x: 0, y: 0, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1, rx: 2, ry: 2, opacity: 0.8, visible: true, locked: false },
+            { id: 'Imagine_Text', name: 'Imagine_Text', type: 'text', x: 24, y: 13, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false }
+          ]
+        },
         { id: 'Settings_Icon', name: 'Settings_Icon', type: 'path', x: 0, y: 22, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.6, visible: true, locked: false, pathData: 'M8 4V12M4 8H12' },
         { id: 'Login_Text', name: 'Login_Text', type: 'text', x: 0, y: 35, width: 0, height: 0, fill: textPrimary, text: 'Entrar', fontSize: 13, fontWeight: '500', visible: true, locked: false },
         { id: 'SignUpPill', name: 'Sign_Up_Pill', type: 'pill', x: 0, y: 14, width: 92, height: 32, fill: textPrimary, opacity: 1, visible: true, locked: false, rx: 8, ry: 8 },
@@ -235,7 +232,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           type: 'path', 
           x: 0, y: 0, width: 56, height: 56, 
           fill: 'none', stroke: textPrimary, strokeWidth: 2.5, opacity: 1, visible: true, locked: false,
-          pathData: heroGlyphPath
+          pathData: grokGlyphPath
         },
         { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 68, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
       ]

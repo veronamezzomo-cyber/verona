@@ -1,3 +1,4 @@
+
 "use client";
 
 /**
@@ -40,22 +41,22 @@ export function LayoutEditor({
     }
   };
 
-  // Coleta todos os filtros únicos necessários (FASE 1 & 2)
   const filters: JSX.Element[] = [];
   const collectFilters = (els: UIElement[]) => {
     els.forEach(el => {
+      const idSafe = el.id.replace(/\s+/g, '_');
       if (el.shadow) {
         const [dx, dy, blur, ...colorParts] = el.shadow.split(' ');
         const color = colorParts.join(' ');
         filters.push(
-          <filter id={`shadow-${el.id}`} key={`shadow-${el.id}`} x="-50%" y="-50%" width="200%" height="200%">
+          <filter id={`shadow-${idSafe}`} key={`shadow-${idSafe}`} x="-50%" y="-50%" width="200%" height="200%">
             <feDropShadow dx={dx} dy={dy} stdDeviation={parseFloat(blur) / 2} floodColor={color} />
           </filter>
         );
       }
       if (el.blur) {
         filters.push(
-          <filter id={`blur-${el.id}`} key={`blur-${el.id}`} x="-50%" y="-50%" width="200%" height="200%">
+          <filter id={`blur-${idSafe}`} key={`blur-${idSafe}`} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation={el.blur} />
           </filter>
         );
@@ -81,20 +82,25 @@ export function LayoutEditor({
           {filters}
         </defs>
 
-        {elements.map((el) => (
-          <g 
-            key={el.id}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(el.id, e.shiftKey);
-            }}
-            className={cn(
-              "cursor-pointer pointer-events-auto"
-            )}
-          >
-            {renderElementPreview(el, selectedIds.includes(el.id))}
-          </g>
-        ))}
+        {elements.map((el) => {
+          const isInteractive = el.id === 'Imagine_Toggle' || el.id === 'SignUpPill' || el.id === 'Login_Text' || el.id === 'Settings_Icon';
+          
+          return (
+            <g 
+              key={el.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(el.id, e.shiftKey);
+              }}
+              className={cn(
+                "cursor-pointer pointer-events-auto transition-all duration-200",
+                isInteractive && "hover:opacity-70 active:scale-95 origin-center"
+              )}
+            >
+              {renderElementPreview(el, selectedIds.includes(el.id))}
+            </g>
+          );
+        })}
       </svg>
     </div>
   );
@@ -103,10 +109,9 @@ export function LayoutEditor({
 function renderElementPreview(el: UIElement, isSelected: boolean) {
   if (!el.visible) return null;
 
+  const idSafe = el.id.replace(/\s+/g, '_');
   const selectionProps = isSelected ? { stroke: '#3B82F6', strokeWidth: 2 } : {};
-  
-  // FASE 1 & 2: SHADOW/BLUR ENGINE
-  const filterUrl = el.shadow ? `url(#shadow-${el.id})` : el.blur ? `url(#blur-${el.id})` : undefined;
+  const filterUrl = el.shadow ? `url(#shadow-${idSafe})` : el.blur ? `url(#blur-${idSafe})` : undefined;
 
   switch (el.type) {
     case 'rect':
