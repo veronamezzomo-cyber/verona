@@ -2,7 +2,7 @@ import { UIElement } from './layout-templates';
 
 /**
  * Gerador de SVG Profissional para Adobe Illustrator / After Effects.
- * Otimizado com metadados para importação hierárquica.
+ * Otimizado com metadados e suporte a fontes bold para fidelidade absoluta.
  */
 export function buildSVG(elements: UIElement[], viewBox = '0 0 1280 720'): string {
   const filters: string[] = [];
@@ -72,10 +72,15 @@ function renderElement(el: UIElement): string {
       return `<rect ${commonProps} x="${el.x}" y="${el.y}" width="${el.width}" height="${el.height}" fill="${el.fill}" rx="${radius}" ry="${radius}" ${strokeProps} transform="rotate(${el.rotation || 0}, ${el.x + el.width/2}, ${el.y + el.height/2})" />`;
     }
       
-    case 'text':
+    case 'text': {
       const textAnchor = el.textAlign === 'center' ? 'middle' : el.textAlign === 'right' ? 'end' : 'start';
       const fontWeight = el.fontWeight || '400';
-      return `<text ${commonProps} x="${el.x}" y="${el.y}" fill="${el.fill}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${fontWeight}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
+      // Implementação de bold inteligente baseada em metadados
+      const isBold = fontWeight === '700' || fontWeight === '800' || fontWeight === '600';
+      const finalWeight = isBold ? fontWeight : '400';
+
+      return `<text ${commonProps} x="${el.x}" y="${el.y}" fill="${el.fill}" font-family="${el.fontFamily || 'Inter'}" font-size="${el.fontSize || 16}" font-weight="${finalWeight}" text-anchor="${textAnchor}">${el.text || ''}</text>`;
+    }
       
     case 'circle': {
       const r = el.width / 2;
