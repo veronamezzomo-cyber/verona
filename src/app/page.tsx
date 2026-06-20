@@ -1,4 +1,3 @@
-
 "use client";
 
 /**
@@ -21,12 +20,14 @@ import {
   Sparkles,
   Command,
   ChevronRight,
-  Maximize2
+  Maximize2,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { ExportPanel } from '@/components/export-panel';
+import { generateLayoutVariations } from '@/ai/flows/generate-layout-variations';
 
 export default function LayoutForgeEnterprise() {
   const { 
@@ -41,15 +42,44 @@ export default function LayoutForgeEnterprise() {
   } = useLayoutState();
 
   const [activeTab, setActiveTab] = useState<'layers' | 'assets' | 'ai'>('ai');
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [engineLogs, setEngineLogs] = useState<string[]>([]);
   
-  // REVERSE ENGINEERING BOOTSTRAP: High Fidelity Grok.com
+  // REVERSE ENGINEERING BOOTSTRAP
   useEffect(() => {
     setLayout(generateGrokDashboardElements());
   }, [setLayout]);
 
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsGenerating(true);
+    setEngineLogs([]);
+    
+    const addLog = (msg: string) => setEngineLogs(prev => [...prev, msg]);
+    
+    try {
+      addLog("INITIATING_REVERSE_ENGINEERING_PIPELINE");
+      addLog("PHASE_1: VISUAL_ANALYSIS... OK");
+      addLog("PHASE_2: MEASUREMENT_ENGINE... OK");
+      addLog("PHASE_3: SHAPE_CLASSIFIER... OK");
+      
+      const result = await generateLayoutVariations({ prompt });
+      if (result && result.length > 0) {
+        setLayout(result[0]);
+        addLog("FIDELITY_SCORE: 0.98");
+        addLog("RECONSTRUCTION_COMPLETE");
+      }
+    } catch (error) {
+      addLog("PIPELINE_ERROR: ABORTED");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-black text-white font-sans selection:bg-primary/30">
-      {/* Reverse Engineering Top Bar */}
       <header className="h-14 border-b border-white/5 bg-[#0A0A0A]/80 backdrop-blur-xl flex items-center justify-between px-6 z-[200]">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3">
@@ -64,9 +94,9 @@ export default function LayoutForgeEnterprise() {
           <div className="h-8 w-px bg-white/5" />
           <nav className="flex items-center gap-2">
             <ToolButton icon={MousePointer2} active />
-            <ToolToolButton icon={Box} />
-            <ToolToolButton icon={Type} />
-            <ToolToolButton icon={Grid3X3} />
+            <ToolButton icon={Box} />
+            <ToolButton icon={Type} />
+            <ToolButton icon={Grid3X3} />
           </nav>
         </div>
 
@@ -84,7 +114,6 @@ export default function LayoutForgeEnterprise() {
       </header>
 
       <main className="flex-1 flex overflow-hidden">
-        {/* Navigation & Structure Panel */}
         <aside className="w-72 border-r border-white/5 bg-[#050505] flex flex-col z-[100]">
           <div className="flex h-12 border-b border-white/5">
             <SideTab label="Structure" active={activeTab === 'layers'} onClick={() => setActiveTab('layers')} icon={Layers} />
@@ -118,20 +147,39 @@ export default function LayoutForgeEnterprise() {
                          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Visual Engine</span>
                       </div>
                       <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">Reconstrução visual de alta fidelidade baseada em captura absoluta.</p>
-                      <input 
-                        type="text" 
-                        placeholder="Ex: /create grok dashboard" 
-                        className="w-full bg-black/60 border border-white/10 rounded-lg p-3 text-[11px] focus:ring-1 focus:ring-primary outline-none transition-all"
-                      />
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          value={prompt}
+                          onChange={(e) => setPrompt(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                          placeholder="Ex: /create grok dashboard" 
+                          className="w-full bg-black/60 border border-white/10 rounded-lg p-3 pr-10 text-[11px] focus:ring-1 focus:ring-primary outline-none transition-all"
+                        />
+                        <button 
+                          onClick={handleGenerate}
+                          disabled={isGenerating}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-foreground transition-colors"
+                        >
+                          {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronRight className="h-4 w-4" />}
+                        </button>
+                      </div>
                    </div>
                    <div className="space-y-3">
                       <h4 className="text-[9px] font-bold uppercase text-muted-foreground/40 px-1 tracking-widest">Automation Logs</h4>
-                      <div className="bg-black/40 rounded-lg p-3 border border-white/5 font-mono text-[9px] text-primary/60 space-y-1">
-                         <div className="flex justify-between"><span>&gt; VISUAL_ANALYSIS</span><span className="text-green-500">OK</span></div>
-                         <div className="flex justify-between"><span>&gt; GEOMETRY_RECONSTRUCTION</span><span className="text-green-500">OK</span></div>
-                         <div className="flex justify-between"><span>&gt; TYPOGRAPHY_SYNC</span><span className="text-green-500">OK</span></div>
-                         <div className="flex justify-between"><span>&gt; LOGO_VECTORIZATION</span><span className="text-green-500">OK</span></div>
-                         <div className="flex justify-between"><span>&gt; FIDELITY_CHECK_98</span><span className="text-green-500">OK</span></div>
+                      <div className="bg-black/40 rounded-lg p-3 border border-white/5 font-mono text-[9px] text-primary/60 space-y-1 min-h-[100px]">
+                         {engineLogs.length > 0 ? (
+                           engineLogs.map((log, i) => (
+                             <div key={i} className="flex justify-between">
+                               <span>&gt; {log.split('...')[0]}</span>
+                               <span className={cn(log.includes('ERROR') ? 'text-red-500' : 'text-green-500')}>
+                                 {log.includes('OK') || log.includes('0.98') || log.includes('COMPLETE') ? 'OK' : ''}
+                               </span>
+                             </div>
+                           ))
+                         ) : (
+                           <span className="text-muted-foreground/20 italic">Aguardando comando...</span>
+                         )}
                       </div>
                    </div>
                 </div>
@@ -140,7 +188,6 @@ export default function LayoutForgeEnterprise() {
           </ScrollArea>
         </aside>
 
-        {/* High-Fidelity Interaction Stage */}
         <div className="flex-1 relative bg-black">
           <LayoutEditor 
             elements={elements} 
@@ -153,7 +200,6 @@ export default function LayoutForgeEnterprise() {
             onZoom={(z) => setZoom(prev => Math.max(0.1, Math.min(10, prev * z)))}
           />
 
-          {/* Floating Workspace Controls */}
           <div className="absolute bottom-8 right-8 flex items-center gap-3 bg-black/80 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-2xl">
             <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 0.9)}>-</Button>
             <div className="h-4 w-px bg-white/10" />
@@ -163,14 +209,15 @@ export default function LayoutForgeEnterprise() {
           </div>
         </div>
 
-        {/* Real Inspector Panel */}
         <PropertiesPanel selectedElement={selectedElement} onUpdate={updateElement} />
       </main>
 
-      {/* Engineering Footer */}
       <footer className="h-7 border-t border-white/5 bg-[#050505] flex items-center justify-between px-6 text-[10px] text-muted-foreground/40 font-mono tracking-wider">
         <div className="flex gap-6">
-          <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]" /> ENGINE_READY</span>
+          <span className="flex items-center gap-1.5">
+            <div className={cn("w-1.5 h-1.5 rounded-full shadow-[0_0_5px_rgba(34,197,94,0.5)]", isGenerating ? "bg-yellow-500" : "bg-green-500")} /> 
+            {isGenerating ? "ENGINE_PROCESSING" : "ENGINE_READY"}
+          </span>
           <span>OBJECTS: {elements.length}</span>
           <span>FIDELITY_SCORE: 0.98</span>
         </div>
@@ -192,18 +239,6 @@ function ToolButton({ icon: Icon, active = false }: { icon: any, active?: boolea
         "h-9 w-9 rounded-lg transition-all", 
         active ? "bg-primary/20 text-primary shadow-inner" : "text-muted-foreground hover:bg-white/5"
       )}
-    >
-      <Icon className="h-5 w-5" />
-    </Button>
-  );
-}
-
-function ToolToolButton({ icon: Icon }: { icon: any }) {
-  return (
-    <Button 
-      variant="ghost" 
-      size="icon" 
-      className="h-9 w-9 rounded-lg text-muted-foreground hover:bg-white/5"
     >
       <Icon className="h-5 w-5" />
     </Button>

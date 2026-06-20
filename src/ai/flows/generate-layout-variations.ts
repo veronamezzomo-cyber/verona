@@ -1,47 +1,34 @@
 'use server';
 /**
- * @fileOverview Gerador de variações de layout UI 100% local.
+ * @fileOverview Gerador de variações de layout UI utilizando o TraceEngine.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { detectCategory, TEMPLATE_REGISTRY } from '../templates/template-registry';
-import { UIElement } from '@/lib/layout-templates';
+import { UIElement, VisualMap } from '@/lib/layout-templates';
+import { traceEngineFlow } from './trace-engine';
 
 const GenerateLayoutVariationsInputSchema = z.object({
   prompt: z.string(),
 });
 export type GenerateLayoutVariationsInput = z.infer<typeof GenerateLayoutVariationsInputSchema>;
 
-// O output agora é um array de arrays de UIElement (cada sub-array é uma variação completa)
-const GenerateLayoutVariationsOutputSchema = z.array(z.array(z.any())); 
 export type GenerateLayoutVariationsOutput = UIElement[][];
-
-/**
- * Cores padrão baseadas no tema dark/neon do sistema.
- */
-const SYSTEM_COLORS = {
-  bg: "#0A0E27",
-  primary: "#3B82F6",
-  secondary: "#8B5CF6",
-  text: "#E5E7EB"
-};
 
 export const generateLayoutVariationsFlow = ai.defineFlow(
   {
     name: 'generateLayoutVariationsFlow',
     inputSchema: GenerateLayoutVariationsInputSchema,
-    outputSchema: GenerateLayoutVariationsOutputSchema,
+    outputSchema: z.array(z.array(z.any())),
   },
   async (input) => {
-    // Remove o comando /create se presente para a detecção de categoria
-    const promptClean = input.prompt.replace(/^\/create\s*/i, '');
-    const category = detectCategory(promptClean);
-    const generator = TEMPLATE_REGISTRY[category];
+    // Agora o /create utiliza o TraceEngine para a análise inicial
+    const visualMap = await traceEngineFlow({
+      prompt: input.prompt
+    }) as VisualMap;
     
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    return generator(SYSTEM_COLORS);
+    // Retornamos um array de variações (aqui poderíamos gerar mais baseado no VisualMap)
+    return [visualMap.elements];
   }
 );
 
