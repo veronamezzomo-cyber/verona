@@ -47,14 +47,7 @@ export interface UIElement {
   ry?: number;
   
   // Effects
-  shadow?: {
-    offsetX: number;
-    offsetY: number;
-    blur: number;
-    spread: number;
-    color: string;
-    opacity: number;
-  };
+  shadow?: string; // Format: "dx dy blur color"
   blur?: number;
   
   // Typography
@@ -75,6 +68,10 @@ export interface UIElement {
   children?: UIElement[];
   visible: boolean;
   locked: boolean;
+  
+  // SVG specific attributes for complex shapes
+  maskId?: string;
+  clipPathId?: string;
 }
 
 export interface VisualMap {
@@ -202,6 +199,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
         { id: 'Pill_BG', name: 'Pill_Shape', type: 'pill', category: 'Container', x: 0, y: 0, width: 700, height: 60, fill: '#121212', stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, visible: true, locked: false, opacity: 1 },
         createSystemIcon('Icon_Plus', 'Attach', 20, 18, 'M12 5v14M5 12h14'),
         { id: 'Pill_Hint', name: 'Placeholder', type: 'text', category: 'Typography', x: 60, y: 36, width: 0, height: 0, fill: '#777', text: 'O que você quer saber?', fontSize: 16, visible: true, locked: false },
+        { id: 'Pill_Fast_Label', name: 'Fast_Mode', type: 'text', category: 'Typography', x: 600, y: 36, width: 0, height: 0, fill: '#FFF', text: 'Fast', fontSize: 14, fontWeight: '600', visible: true, locked: false },
+        createSystemIcon('Icon_Chevron', 'Fast_Menu', 625, 26, 'M6 9l6 6 6-6'),
         { id: 'Send_Btn_Circle', name: 'Send_Action', type: 'circle', category: 'Interactive', x: 650, y: 10, width: 40, height: 40, fill: '#272727', opacity: 1, visible: true, locked: false },
         createSystemIcon('Send_Arrow', 'Arrow_Up', 658, 18, 'M12 19V5M5 12l7-7 7 7')
       ]
@@ -212,7 +211,10 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { id: 'Card_BG', name: 'Container', type: 'rect', category: 'Container', x: 0, y: 0, width: 700, height: 130, fill: '#121212', rx: 16, ry: 16, stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, visible: true, locked: false, opacity: 1 },
+        createSystemIcon('Card_Close', 'Close_Action', 670, 10, 'M18 6L6 18M6 6l12 12'),
         { id: 'Card_Title', name: 'Headline', type: 'text', category: 'Typography', x: 24, y: 45, width: 0, height: 0, fill: textMain, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
+        { id: 'Beta_Badge_BG', name: 'Beta_Shape', type: 'rect', category: 'Container', x: 125, y: 28, width: 40, height: 20, fill: '#2B1208', rx: 10, ry: 10, visible: true, locked: false, opacity: 1 },
+        { id: 'Beta_Badge_Txt', name: 'Beta_Label', type: 'text', category: 'Typography', x: 145, y: 42, width: 0, height: 0, fill: '#FF6B00', text: 'Beta', fontSize: 10, fontWeight: '800', textAlign: 'center', visible: true, locked: false },
         { id: 'Card_Desc1', name: 'Sub', type: 'text', category: 'Typography', x: 24, y: 72, width: 0, height: 0, fill: textMuted, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
         { id: 'Card_Desc2', name: 'Sub2', type: 'text', category: 'Typography', x: 24, y: 92, width: 0, height: 0, fill: textMuted, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
         {
@@ -220,8 +222,11 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
            x: 340, y: 30, width: 336, height: 80,
            fill: 'none', opacity: 1, visible: true, locked: false,
            children: [
-             { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', category: 'Container', x: 0, y: 50, width: 336, height: 36, fill: '#000', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
-             { id: 'Terminal_Txt', name: 'CLI_Command', type: 'text', category: 'Typography', x: 15, y: 73, width: 0, height: 0, fill: textMuted, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false }
+             { id: 'Tabs_PS', name: 'Env_PS', type: 'text', category: 'Typography', x: 0, y: 15, width: 0, height: 0, fill: textMain, text: 'PowerShell', fontSize: 11, fontWeight: '600', visible: true, locked: false },
+             { id: 'Tabs_WSL', name: 'Env_WSL', type: 'text', category: 'Typography', x: 75, y: 15, width: 0, height: 0, fill: textMuted, text: 'WSL', fontSize: 11, visible: true, locked: false },
+             { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', category: 'Container', x: 0, y: 25, width: 336, height: 45, fill: '#000', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
+             { id: 'Terminal_Txt', name: 'CLI_Command', type: 'text', category: 'Typography', x: 15, y: 53, width: 0, height: 0, fill: textMuted, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
+             createSystemIcon('Icon_Copy', 'Copy_Code', 300, 36, 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 002-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2')
            ]
         }
       ]
@@ -245,3 +250,9 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
     audit: { visualFidelity: 100, layoutFidelity: 100, spacingFidelity: 100, typographyFidelity: 100, logoFidelity: 100 }
   };
 }
+
+export const TEMPLATES: Record<string, UIElement> = {
+  rect: { id: 'tpl_rect', name: 'Rectangle', type: 'rect', category: 'Container', x: 0, y: 0, width: 100, height: 100, fill: '#FFFFFF', opacity: 1, visible: true, locked: false },
+  circle: { id: 'tpl_circle', name: 'Circle', type: 'circle', category: 'Container', x: 0, y: 0, width: 100, height: 100, fill: '#FFFFFF', opacity: 1, visible: true, locked: false },
+  text: { id: 'tpl_text', name: 'Text', type: 'text', category: 'Typography', x: 0, y: 0, width: 100, height: 40, fill: '#FFFFFF', opacity: 1, text: 'New Text', fontSize: 16, visible: true, locked: false }
+};
