@@ -4,7 +4,7 @@
  * Contexto: WEBSITE (Fullscreen). 100% Estático para Motion Design.
  */
 
-export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'chart' | 'table' | 'pill' | 'capsule';
+export type UIElementType = 'rect' | 'circle' | 'text' | 'group' | 'path' | 'pill' | 'capsule';
 
 export interface VisualMetrics {
   padding?: { top: number; right: number; bottom: number; left: number };
@@ -86,6 +86,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
     els.forEach(el => {
       elementMap.set(el.id, el);
       
+      // Centralização horizontal dinâmica para blocos principais
       if (el.id === 'HeroBranding' || el.id === 'PromptPill' || el.id === 'BuildCard' || el.id === 'Footer') {
         el.x = (VIEWPORT_WIDTH - el.width) / 2;
       }
@@ -98,7 +99,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
           const marginRight = 24;
           const gutter = 32;
 
-          // Sign Up Pill (Far Right)
+          // Sign Up Pill (Far Right Anchoring)
           const signUpPill = el.children.find(c => c.id === 'SignUpPill');
           const signUpText = el.children.find(c => c.id === 'SignUpText');
           if (signUpPill) {
@@ -108,19 +109,19 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
             }
           }
 
-          // Login Text (Anchored to Sign Up)
+          // Login Text (Relative to Sign Up)
           const loginText = el.children.find(c => c.id === 'Login_Text');
           if (loginText && signUpPill) {
             loginText.x = signUpPill.x - 45 - gutter; 
           }
 
-          // Settings Icon (Anchored to Login)
-          const settingsIcon = el.children.find(c => c.id === 'Settings_Icon');
+          // Settings Icon (Relative to Login)
+          const settingsIcon = el.children.find(c => c.id === 'Settings_Icon_Group');
           if (settingsIcon && loginText) {
-            settingsIcon.x = loginText.x - 16 - gutter;
+            settingsIcon.x = loginText.x - 20 - gutter;
           }
 
-          // Imagine Toggle Group (Anchored to Settings)
+          // Imagine Toggle Group (Relative to Settings)
           const imagineToggle = el.children.find(c => c.id === 'Imagine_Toggle');
           if (imagineToggle && settingsIcon) {
             imagineToggle.x = settingsIcon.x - imagineToggle.width - gutter;
@@ -128,6 +129,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
         }
       }
 
+      // Ancoragem interna relativa para filhos
       if (el.children && el.children.length > 0) {
         el.children.forEach(child => {
           if (child.id === 'pill-send-circle') child.x = el.width - 48;
@@ -135,9 +137,6 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
           if (child.id === 'pill-fast-text') child.x = el.width - 105;
           if (child.id === 'pill-fast-chevron') child.x = el.width - 75;
           if (child.id === 'card-close') child.x = el.width - 32;
-          if (child.id === 'term-tabs') child.x = el.width - 180;
-          if (child.id === 'term-bg' || child.id === 'term-code') child.x = el.width - 340;
-          if (child.id === 'term-copy') child.x = el.width - 52;
           elementMap.set(child.id, child);
         });
         buildMap(el.children);
@@ -159,6 +158,50 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
   return solvedElements;
 }
 
+/**
+ * Helper para gerar o grupo do Logo Grok (xAI) com 3 paths discretos.
+ * Normalizado para um bounding box de 24x24 para facilitar o scaling.
+ */
+function createGrokLogo(id: string, name: string, size: number, strokeColor: string, strokeWidth: number): UIElement {
+  const scale = size / 24;
+  return {
+    id: id,
+    name: name,
+    type: 'group',
+    x: 0, y: 0, width: size, height: size,
+    fill: 'none', opacity: 1, visible: true, locked: false,
+    children: [
+      {
+        id: `${id}_Slash`,
+        name: 'Logo_Slash',
+        type: 'path',
+        x: 0, y: 0, width: size, height: size,
+        fill: 'none', stroke: strokeColor, strokeWidth: strokeWidth * scale,
+        pathData: `M ${6 * scale} ${18 * scale} L ${18 * scale} ${6 * scale}`,
+        visible: true, locked: false, opacity: 1
+      },
+      {
+        id: `${id}_Left_Arc`,
+        name: 'Logo_Left_Arc',
+        type: 'path',
+        x: 0, y: 0, width: size, height: size,
+        fill: 'none', stroke: strokeColor, strokeWidth: strokeWidth * scale,
+        pathData: `M ${10 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 0 ${10 * scale} ${19.5 * scale}`,
+        visible: true, locked: false, opacity: 1
+      },
+      {
+        id: `${id}_Right_Arc`,
+        name: 'Logo_Right_Arc',
+        type: 'path',
+        x: 0, y: 0, width: size, height: size,
+        fill: 'none', stroke: strokeColor, strokeWidth: strokeWidth * scale,
+        pathData: `M ${14 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 1 ${14 * scale} ${19.5 * scale}`,
+        visible: true, locked: false, opacity: 1
+      }
+    ]
+  };
+}
+
 export function generateGrokAbsoluteReconstruction(): VisualMap {
   const surface = '#0d0d0d'; 
   const border = '#1a1a1a'; 
@@ -166,9 +209,6 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
   const textSecondary = '#737373'; 
   const accentBeta = '#d34b30';
   const darkBlack = '#000000';
-
-  // GROK GLYPH - VETORIZAÇÃO PEN TOOL (Curvas Exatas)
-  const grokGlyphPath = 'M 4 44 L 44 4 M 4 4 L 22 4 M 26 44 L 44 44';
 
   const elements: UIElement[] = [
     {
@@ -179,12 +219,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
-          id: 'TopLogoGlyph', 
-          name: 'Top_Logo_Glyph', 
-          type: 'path', 
-          x: 24, y: 20, width: 20, height: 20, 
-          fill: 'none', stroke: textPrimary, strokeWidth: 1.5, opacity: 1, visible: true, locked: false,
-          pathData: grokGlyphPath
+          ...createGrokLogo('TopLogo', 'Header_Logo', 20, textPrimary, 1.8),
+          x: 24, y: 20
         },
         {
           id: 'Imagine_Toggle',
@@ -193,11 +229,34 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           x: 0, y: 22, width: 80, height: 16,
           fill: 'none', opacity: 1, visible: true, locked: false,
           children: [
-            { id: 'Imagine_Icon', name: 'Imagine_Icon', type: 'path', x: 0, y: 0, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1, opacity: 0.8, visible: true, locked: false, pathData: 'M2 2 H14 V14 H2 Z M5 5 H11 V11 H5 Z' },
+            { 
+              id: 'Imagine_Icon', 
+              name: 'Imagine_Icon', 
+              type: 'path', 
+              x: 0, y: 0, width: 16, height: 16, 
+              fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.8, visible: true, locked: false, 
+              pathData: 'M 3 5 H 17 V 15 H 3 Z M 7 9 A 1.5 1.5 0 1 1 7 9.01 M 17 13 L 13 9 L 10 12 L 8 10 L 3 15' 
+            },
             { id: 'Imagine_Text', name: 'Imagine_Text', type: 'text', x: 24, y: 13, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false }
           ]
         },
-        { id: 'Settings_Icon', name: 'Settings_Icon', type: 'path', x: 0, y: 22, width: 16, height: 16, fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.6, visible: true, locked: false, pathData: 'M8 2 V14 M2 8 H14 M4 4 L12 12 M12 4 L4 12' },
+        {
+          id: 'Settings_Icon_Group',
+          name: 'Settings_Group',
+          type: 'group',
+          x: 0, y: 22, width: 20, height: 20,
+          fill: 'none', opacity: 1, visible: true, locked: false,
+          children: [
+            { 
+              id: 'Settings_Icon_Path', 
+              name: 'Settings_Gear', 
+              type: 'path', 
+              x: 0, y: 0, width: 20, height: 20, 
+              fill: textPrimary, opacity: 0.6, visible: true, locked: false, 
+              pathData: 'M10,2l0.8,1.6l1.6,0.4l0.8,1.2l1.6,0.4l-0.4,1.6l1.2,1.2l-1.2,1.2l0.4,1.6l-1.6,0.4l-0.8,1.2l-1.6,0.4l-0.8,1.6l-0.8-1.6l-1.6-0.4l-0.8-1.2l-1.6-0.4l0.4-1.6l-1.2-1.2l1.2-1.2l-0.4-1.6l1.6-0.4l0.8-1.2l1.6-0.4L10,2z M10,7c-1.7,0-3,1.3-3,3s1.3,3,3,3s3-1.3,3-3S11.7,7,10,7z' 
+            }
+          ]
+        },
         { id: 'Login_Text', name: 'Login_Text', type: 'text', x: 0, y: 35, width: 0, height: 0, fill: textPrimary, text: 'Entrar', fontSize: 13, fontWeight: '500', visible: true, locked: false },
         { id: 'SignUpPill', name: 'Sign_Up_Pill', type: 'pill', x: 0, y: 14, width: 92, height: 32, fill: textPrimary, opacity: 1, visible: true, locked: false, rx: 8, ry: 8 },
         { id: 'SignUpText', name: 'Sign_Up_Text', type: 'text', x: 0, y: 34, width: 0, height: 0, fill: darkBlack, text: 'Criar conta', fontSize: 12, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
@@ -207,18 +266,14 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'HeroBranding',
       name: 'Hero_Branding_Section',
       type: 'group',
-      x: 0, y: 210, width: 220, height: 56,
+      x: 0, y: 210, width: 250, height: 60,
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
-          id: 'HeroGlyph', 
-          name: 'Grok_Glyph_Hero', 
-          type: 'path', 
-          x: 0, y: 0, width: 56, height: 56, 
-          fill: 'none', stroke: textPrimary, strokeWidth: 2.5, opacity: 1, visible: true, locked: false,
-          pathData: grokGlyphPath
+          ...createGrokLogo('HeroLogo', 'Hero_Logo_Main', 56, textPrimary, 2.2),
+          x: 0, y: 0
         },
-        { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 68, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
+        { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 72, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
       ]
     },
     {
@@ -251,11 +306,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
         { id: 'card-beta-badge', name: 'Beta_Badge_BG', type: 'pill', x: 120, y: 20, width: 40, height: 20, fill: accentBeta, opacity: 0.1, visible: true, locked: false },
         { id: 'card-beta-text', name: 'Beta_Label', type: 'text', x: 140, y: 34, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
         { id: 'card-desc', name: 'Card_Description', type: 'text', x: 24, y: 64, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
-        { id: 'card-close', name: 'Close_Icon_Path', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' },
-        { id: 'term-tabs', name: 'Terminal_Tabs_Label', type: 'text', x: 0, y: 36, width: 100, height: 0, fill: textPrimary, text: 'PowerShell  WSL', fontSize: 12, fontWeight: '600', opacity: 0.5, visible: true, locked: false },
-        { id: 'term-bg', name: 'Terminal_Background', type: 'rect', x: 0, y: 55, width: 316, height: 54, fill: darkBlack, rx: 6, stroke: border, strokeWidth: 1, visible: true, locked: false },
-        { id: 'term-code', name: 'Terminal_Code_Text', type: 'text', x: 12, y: 88, width: 0, height: 0, fill: textSecondary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
-        { id: 'term-copy', name: 'Copy_Icon_Path', type: 'path', x: 0, y: 75, width: 16, height: 16, fill: 'none', stroke: textSecondary, strokeWidth: 1, pathData: 'M4 4 h8 v8 h-8 Z M6 6 h8 v8 h-8 Z', visible: true, locked: false }
+        { id: 'card-close', name: 'Close_Icon_Path', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' }
       ]
     },
     {
