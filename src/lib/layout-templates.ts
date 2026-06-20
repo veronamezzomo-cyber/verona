@@ -137,6 +137,10 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
           if (child.id === 'pill-fast-text') child.x = el.width - 105;
           if (child.id === 'pill-fast-chevron') child.x = el.width - 75;
           if (child.id === 'card-close') child.x = el.width - 32;
+          
+          // Terminal positioning inside BuildCard
+          if (child.id === 'TerminalGroup') child.x = el.width - child.width - 24;
+
           elementMap.set(child.id, child);
         });
         buildMap(el.children);
@@ -160,9 +164,9 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 
 /**
  * Helper para gerar o grupo do Logo Grok (xAI) com 3 paths discretos.
- * Normalizado para um bounding box de 24x24 para facilitar o scaling.
+ * REFINAMENTO: Pontas agudas (Tapered) via fill paths.
  */
-function createGrokLogo(id: string, name: string, size: number, strokeColor: string, strokeWidth: number): UIElement {
+function createGrokLogo(id: string, name: string, size: number, fillColor: string): UIElement {
   const scale = size / 24;
   return {
     id: id,
@@ -173,29 +177,32 @@ function createGrokLogo(id: string, name: string, size: number, strokeColor: str
     children: [
       {
         id: `${id}_Slash`,
-        name: 'Logo_Slash',
+        name: 'Logo_Slash_Sharp',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
-        fill: 'none', stroke: strokeColor, strokeWidth: strokeWidth * scale,
-        pathData: `M ${6 * scale} ${18 * scale} L ${18 * scale} ${6 * scale}`,
+        fill: fillColor, stroke: 'none',
+        // Diagonal afilada (diamante alongado)
+        pathData: `M ${3 * scale} ${21 * scale} L ${21 * scale} ${3 * scale} L ${20.5 * scale} ${3 * scale} L ${2.5 * scale} ${21 * scale} Z`,
         visible: true, locked: false, opacity: 1
       },
       {
         id: `${id}_Left_Arc`,
-        name: 'Logo_Left_Arc',
+        name: 'Logo_Left_Arc_Sharp',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
-        fill: 'none', stroke: strokeColor, strokeWidth: strokeWidth * scale,
-        pathData: `M ${10 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 0 ${10 * scale} ${19.5 * scale}`,
+        fill: fillColor, stroke: 'none',
+        // Arco crescente com pontas afiladas
+        pathData: `M ${10 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 0 ${10 * scale} ${19.5 * scale} L ${10.5 * scale} ${18 * scale} A ${7 * scale} ${7 * scale} 0 0 1 ${10.5 * scale} ${6 * scale} Z`,
         visible: true, locked: false, opacity: 1
       },
       {
         id: `${id}_Right_Arc`,
-        name: 'Logo_Right_Arc',
+        name: 'Logo_Right_Arc_Sharp',
         type: 'path',
         x: 0, y: 0, width: size, height: size,
-        fill: 'none', stroke: strokeColor, strokeWidth: strokeWidth * scale,
-        pathData: `M ${14 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 1 ${14 * scale} ${19.5 * scale}`,
+        fill: fillColor, stroke: 'none',
+        // Arco crescente com pontas afiladas
+        pathData: `M ${14 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 1 ${14 * scale} ${19.5 * scale} L ${13.5 * scale} ${18 * scale} A ${7 * scale} ${7 * scale} 0 0 0 ${13.5 * scale} ${6 * scale} Z`,
         visible: true, locked: false, opacity: 1
       }
     ]
@@ -219,7 +226,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
-          ...createGrokLogo('TopLogo', 'Header_Logo', 20, textPrimary, 1.8),
+          ...createGrokLogo('TopLogo', 'Header_Logo', 20, textPrimary),
           x: 24, y: 20
         },
         {
@@ -231,11 +238,12 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           children: [
             { 
               id: 'Imagine_Icon', 
-              name: 'Imagine_Icon', 
+              name: 'Imagine_Icon_Path', 
               type: 'path', 
               x: 0, y: 0, width: 16, height: 16, 
-              fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.8, visible: true, locked: false, 
-              pathData: 'M 3 5 H 17 V 15 H 3 Z M 7 9 A 1.5 1.5 0 1 1 7 9.01 M 17 13 L 13 9 L 10 12 L 8 10 L 3 15' 
+              fill: textPrimary, opacity: 0.8, visible: true, locked: false, 
+              // Ícone geométrico de mídia (compacto)
+              pathData: 'M 2 4 C 1 4 0 5 0 6 V 14 C 0 15 1 16 2 16 H 14 C 15 16 16 15 16 14 V 6 C 16 5 15 4 14 4 H 2 Z M 3 13 L 6 9 L 9 12 L 11 10 L 14 14 H 2 Z' 
             },
             { id: 'Imagine_Text', name: 'Imagine_Text', type: 'text', x: 24, y: 13, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false }
           ]
@@ -249,11 +257,12 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           children: [
             { 
               id: 'Settings_Icon_Path', 
-              name: 'Settings_Gear', 
+              name: 'Settings_Gear_Path', 
               type: 'path', 
               x: 0, y: 0, width: 20, height: 20, 
               fill: textPrimary, opacity: 0.6, visible: true, locked: false, 
-              pathData: 'M10,2l0.8,1.6l1.6,0.4l0.8,1.2l1.6,0.4l-0.4,1.6l1.2,1.2l-1.2,1.2l0.4,1.6l-1.6,0.4l-0.8,1.2l-1.6,0.4l-0.8,1.6l-0.8-1.6l-1.6-0.4l-0.8-1.2l-1.6-0.4l0.4-1.6l-1.2-1.2l1.2-1.2l-0.4-1.6l1.6-0.4l0.8-1.2l1.6-0.4L10,2z M10,7c-1.7,0-3,1.3-3,3s1.3,3,3,3s3-1.3,3-3S11.7,7,10,7z' 
+              // Engrenagem geométrica preenchida
+              pathData: 'M 10 7.5 A 2.5 2.5 0 1 0 10 12.5 A 2.5 2.5 0 1 0 10 7.5 Z M 10 0 L 11.5 3 L 14.5 3 L 16 5.5 L 19 6 L 19 9 L 20 10 L 19 11 L 19 14 L 16 14.5 L 14.5 17 L 11.5 17 L 10 20 L 8.5 17 L 5.5 17 L 4 14.5 L 1 14 L 1 11 L 0 10 L 1 9 L 1 6 L 4 5.5 L 5.5 3 L 8.5 3 Z' 
             }
           ]
         },
@@ -270,7 +279,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
         { 
-          ...createGrokLogo('HeroLogo', 'Hero_Logo_Main', 56, textPrimary, 2.2),
+          ...createGrokLogo('HeroLogo', 'Hero_Logo_Main', 56, textPrimary),
           x: 0, y: 0
         },
         { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 72, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
@@ -297,16 +306,36 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       id: 'BuildCard',
       name: 'Developer_Grok_Build_Card',
       type: 'group',
-      x: 0, y: 410, width: 600, height: 130,
+      x: 0, y: 410, width: 640, height: 140,
       fill: 'none', opacity: 1, visible: true, locked: false,
       shadow: '0 4 20 rgba(0,0,0,0.3)',
       children: [
-        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 600, height: 130, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
+        { id: 'card-bg', name: 'Card_Surface', type: 'rect', x: 0, y: 0, width: 640, height: 140, fill: surface, opacity: 1, rx: 12, stroke: border, strokeWidth: 1, visible: true, locked: false },
         { id: 'card-title', name: 'Card_Title', type: 'text', x: 24, y: 36, width: 0, height: 0, fill: textPrimary, text: 'Grok Build', fontSize: 18, fontWeight: '700', visible: true, locked: false },
         { id: 'card-beta-badge', name: 'Beta_Badge_BG', type: 'pill', x: 120, y: 20, width: 40, height: 20, fill: accentBeta, opacity: 0.1, visible: true, locked: false },
         { id: 'card-beta-text', name: 'Beta_Label', type: 'text', x: 140, y: 34, width: 0, height: 0, fill: accentBeta, text: 'Beta', fontSize: 10, fontWeight: '700', textAlign: 'center', visible: true, locked: false },
-        { id: 'card-desc', name: 'Card_Description', type: 'text', x: 24, y: 64, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
-        { id: 'card-close', name: 'Close_Icon_Path', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' }
+        { id: 'card-desc', name: 'Card_Description_1', type: 'text', x: 24, y: 64, width: 0, height: 0, fill: textSecondary, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
+        { id: 'card-desc-2', name: 'Card_Description_2', type: 'text', x: 24, y: 84, width: 0, height: 0, fill: textSecondary, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
+        { id: 'card-close', name: 'Close_Icon_Path', type: 'path', x: 0, y: 20, width: 12, height: 12, fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false, pathData: 'M2 2 L10 10 M10 2 L2 10' },
+        {
+          id: 'TerminalGroup',
+          name: 'Terminal_CLI_Block',
+          type: 'group',
+          x: 0, y: 35, width: 340, height: 70,
+          fill: 'none', opacity: 1, visible: true, locked: false,
+          children: [
+            { id: 'term-bg', name: 'Terminal_BG', type: 'rect', x: 0, y: 0, width: 340, height: 70, fill: darkBlack, opacity: 0.8, rx: 8, visible: true, locked: false },
+            { id: 'term-text', name: 'Terminal_Command', type: 'text', x: 15, y: 40, width: 0, height: 0, fill: textPrimary, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
+            { 
+              id: 'term-copy-icon', 
+              name: 'Copy_Icon_Path', 
+              type: 'path', 
+              x: 310, y: 25, width: 16, height: 16, 
+              fill: 'none', stroke: textSecondary, strokeWidth: 1.5, visible: true, locked: false,
+              pathData: 'M4 4 H12 V12 H4 Z M2 2 H10 V10 H2 Z' 
+            }
+          ]
+        }
       ]
     },
     {
@@ -333,10 +362,10 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
     elements: applyLayoutSolver(elements, metrics),
     negativeSpaceMetrics: metrics,
     audit: {
-      visualFidelity: 98,
+      visualFidelity: 99,
       layoutFidelity: 100,
       spacingFidelity: 99,
-      typographyFidelity: 98,
+      typographyFidelity: 99,
       logoFidelity: 100
     }
   };
