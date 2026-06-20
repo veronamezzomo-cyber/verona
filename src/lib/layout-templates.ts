@@ -208,7 +208,7 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
           type: 'path', 
           x: 0, y: 0, width: 56, height: 56, 
           fill: 'none', stroke: textPrimary, strokeWidth: 2.5, opacity: 1, visible: true, locked: false,
-          pathData: 'M44 4L12 52M36 4L52 20M4 36L20 52' // Path mais preciso
+          pathData: 'M44 4L12 52M36 4L52 20M4 36L20 52' 
         },
         { id: 'HeroName', name: 'Grok_Title_Text', type: 'text', x: 68, y: 48, width: 0, height: 0, fill: textPrimary, text: 'Grok', fontSize: 56, fontWeight: '700', visible: true, locked: false }
       ]
@@ -219,9 +219,9 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
       type: 'group',
       x: 0, y: 320, width: 700, height: 56,
       fill: 'none', opacity: 1, visible: true, locked: false,
-      shadow: '0 4 30 rgba(0,0,0,0.3)', // Sombra mais sutil e espalhada
+      shadow: '0 4 30 rgba(0,0,0,0.3)', 
       children: [
-        { id: 'pill-surface', name: 'Input_Background', type: 'pill', x: 0, y: 0, width: 700, height: 56, fill: surface, opacity: 1, stroke: border, strokeWidth: 1, visible: true, locked: false },
+        { id: 'pill-surface', name: 'Input_Background', type: 'pill', x: 0, y: 0, width: 700, height: 56, fill: surface, opacity: 1, stroke: border, strokeWidth: 1, rx: 28, ry: 28, visible: true, locked: false },
         { id: 'pill-plus', name: 'Add_Attachment_Icon', type: 'text', x: 20, y: 35, width: 0, height: 0, fill: textSecondary, text: '+', fontSize: 22, fontWeight: '300', visible: true, locked: false },
         { id: 'pill-hint', name: 'Placeholder_Hint', type: 'text', x: 52, y: 34, width: 0, height: 0, fill: textSecondary, text: 'O que você quer saber?', fontSize: 16, fontWeight: '400', visible: true, locked: false },
         { id: 'pill-fast-text', name: 'Model_Selector_Text', type: 'text', x: 0, y: 34, width: 0, height: 0, fill: textPrimary, text: 'Fast', fontSize: 13, fontWeight: '600', visible: true, locked: false },
