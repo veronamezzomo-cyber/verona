@@ -78,6 +78,7 @@ export function LayoutEditor({
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
         xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1280 720"
       >
         <defs>
           {filters}

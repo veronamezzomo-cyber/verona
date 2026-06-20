@@ -87,8 +87,13 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
       elementMap.set(el.id, el);
       
       // Centralização horizontal dinâmica para blocos principais
-      if (el.id === 'HeroBranding' || el.id === 'PromptPill' || el.id === 'BuildCard' || el.id === 'Footer') {
+      if (el.id === 'HeroBranding' || el.id === 'PromptPill' || el.id === 'BuildCard') {
         el.x = (VIEWPORT_WIDTH - el.width) / 2;
+      }
+
+      // Correção matemática do Footer: para text-anchor: middle, x deve ser o centro.
+      if (el.id === 'Footer') {
+        el.x = VIEWPORT_WIDTH / 2;
       }
 
       if (el.id === 'Header') {
@@ -138,7 +143,6 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
           if (child.id === 'pill-fast-chevron') child.x = el.width - 75;
           if (child.id === 'card-close') child.x = el.width - 32;
           
-          // Terminal positioning inside BuildCard
           if (child.id === 'TerminalGroup') child.x = el.width - child.width - 24;
 
           elementMap.set(child.id, child);
@@ -181,7 +185,6 @@ function createGrokLogo(id: string, name: string, size: number, fillColor: strin
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: fillColor, stroke: 'none',
-        // Diagonal afilada (diamante alongado)
         pathData: `M ${3 * scale} ${21 * scale} L ${21 * scale} ${3 * scale} L ${20.5 * scale} ${3 * scale} L ${2.5 * scale} ${21 * scale} Z`,
         visible: true, locked: false, opacity: 1
       },
@@ -191,7 +194,6 @@ function createGrokLogo(id: string, name: string, size: number, fillColor: strin
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: fillColor, stroke: 'none',
-        // Arco crescente com pontas afiladas
         pathData: `M ${10 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 0 ${10 * scale} ${19.5 * scale} L ${10.5 * scale} ${18 * scale} A ${7 * scale} ${7 * scale} 0 0 1 ${10.5 * scale} ${6 * scale} Z`,
         visible: true, locked: false, opacity: 1
       },
@@ -201,7 +203,6 @@ function createGrokLogo(id: string, name: string, size: number, fillColor: strin
         type: 'path',
         x: 0, y: 0, width: size, height: size,
         fill: fillColor, stroke: 'none',
-        // Arco crescente com pontas afiladas
         pathData: `M ${14 * scale} ${4.5 * scale} A ${8 * scale} ${8 * scale} 0 0 1 ${14 * scale} ${19.5 * scale} L ${13.5 * scale} ${18 * scale} A ${7 * scale} ${7 * scale} 0 0 0 ${13.5 * scale} ${6 * scale} Z`,
         visible: true, locked: false, opacity: 1
       }
@@ -242,7 +243,6 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
               type: 'path', 
               x: 0, y: 0, width: 16, height: 16, 
               fill: textPrimary, opacity: 0.8, visible: true, locked: false, 
-              // Ícone geométrico de mídia (compacto)
               pathData: 'M 2 4 C 1 4 0 5 0 6 V 14 C 0 15 1 16 2 16 H 14 C 15 16 16 15 16 14 V 6 C 16 5 15 4 14 4 H 2 Z M 3 13 L 6 9 L 9 12 L 11 10 L 14 14 H 2 Z' 
             },
             { id: 'Imagine_Text', name: 'Imagine_Text', type: 'text', x: 24, y: 13, width: 0, height: 0, fill: textPrimary, text: 'Imagine', fontSize: 13, fontWeight: '500', visible: true, locked: false }
@@ -261,8 +261,8 @@ export function generateGrokAbsoluteReconstruction(): VisualMap {
               type: 'path', 
               x: 0, y: 0, width: 20, height: 20, 
               fill: 'none', stroke: textPrimary, strokeWidth: 1.2, opacity: 0.6, visible: true, locked: false, 
-              // Engrenagem geométrica vazada e fina
-              pathData: 'M 10 7.5 A 2.5 2.5 0 1 0 10 12.5 A 2.5 2.5 0 1 0 10 7.5 Z M 10 2 L 11 4 L 13 4 L 14 5 L 16 5 L 16 7 L 18 8 L 18 10 L 20 10 L 18 10 L 18 12 L 16 13 L 16 15 L 14 15 L 13 16 L 11 16 L 10 18 L 9 16 L 7 16 L 6 15 L 4 15 L 4 13 L 2 12 L 2 10 L 0 10 L 2 10 L 2 8 L 4 7 L 4 5 L 6 5 L 7 4 L 9 4 Z' 
+              // Ícone de Engrenagem Ortogonal Geométrica
+              pathData: 'M 10 7 A 3 3 0 1 1 10 13 A 3 3 0 0 1 10 7 Z M 9 2 H 11 V 4.5 A 6 6 0 0 1 12.5 5.2 L 14.2 3.5 L 15.6 4.9 L 13.9 6.6 A 6 6 0 0 1 14.6 8 H 17 V 10 H 14.6 A 6 6 0 0 1 13.9 11.4 L 15.6 13.1 L 14.2 14.5 L 12.5 12.8 A 6 6 0 0 1 11 13.5 V 16 H 9 V 13.5 A 6 6 0 0 1 7.5 12.8 L 5.8 14.5 L 4.4 13.1 L 6.1 11.4 A 6 6 0 0 1 5.4 10 H 3 V 8 H 5.4 A 6 6 0 0 1 6.1 6.6 L 4.4 4.9 L 5.8 3.5 L 7.5 5.2 A 6 6 0 0 1 9 4.5 V 2 Z'
             }
           ]
         },
