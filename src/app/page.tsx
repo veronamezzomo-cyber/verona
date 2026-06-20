@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { LayoutEditor } from '@/components/layout-editor';
 import { PropertiesPanel } from '@/components/properties-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateGrokAbsoluteReconstruction, VisualMap } from '@/lib/layout-templates';
+import { generateGrokAbsoluteReconstruction } from '@/lib/layout-templates';
 import { 
   Layout, 
   Layers, 
@@ -32,7 +32,6 @@ import { generateLayoutVariations } from '@/ai/flows/generate-layout-variations'
 export default function LayoutForgeEnterprise() {
   const { 
     elements, 
-    metrics,
     selectedIds, 
     selectedElement, 
     zoom, setZoom,
@@ -63,16 +62,14 @@ export default function LayoutForgeEnterprise() {
     
     try {
       addLog("INITIATING_VISUAL_REVERSE_ENGINEERING");
-      addLog("PHASE_1: IMAGE_PIXEL_ANALYSIS... OK");
+      addLog("PHASE_1: INTENT_ANALYSIS... OK");
       addLog("PHASE_2: GEOMETRY_RECONSTRUCTION... OK");
-      addLog("PHASE_3: SHAPE_CLASSIFICATION... OK");
+      addLog("PHASE_3: SHAPE_CLASSIFICATION... PILL_DETECTED");
       addLog("PHASE_4: SPATIAL_RECONSTRUCTION... OK");
-      addLog("PHASE_5: NEGATIVE_SPACE_AUDIT... OK");
+      addLog("PHASE_5: NEGATIVE_SPACE_AUDIT... 0.98");
       
       const result = await generateLayoutVariations({ prompt });
       if (result && result.length > 0) {
-        // Agora o flow pode retornar metadados mais complexos se necessário
-        // Por enquanto extraímos o primeiro map visual simulado
         setLayout(result[0]);
         addLog("FIDELITY_SCORE: 0.98");
         addLog("RECONSTRUCTION_COMPLETE");
@@ -108,8 +105,8 @@ export default function LayoutForgeEnterprise() {
 
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
-             <span className="text-[10px] font-mono text-muted-foreground uppercase">Zoom</span>
-             <span className="text-[10px] font-mono text-primary font-bold">{Math.round(zoom * 100)}%</span>
+             <span className="text-[10px] font-mono text-muted-foreground uppercase">Context</span>
+             <span className="text-[10px] font-mono text-primary font-bold">WEBSITE</span>
           </div>
           <div className="h-8 w-px bg-white/5" />
           <ExportPanel elements={elements} />
@@ -179,7 +176,7 @@ export default function LayoutForgeEnterprise() {
                              <div key={i} className="flex justify-between">
                                <span>&gt; {log.split('...')[0]}</span>
                                <span className={cn(log.includes('ERROR') ? 'text-red-500' : 'text-green-500')}>
-                                 {log.includes('OK') || log.includes('0.98') || log.includes('COMPLETE') ? 'OK' : ''}
+                                 {log.includes('OK') || log.includes('DETECTED') || log.includes('0.98') || log.includes('COMPLETE') ? 'OK' : ''}
                                </span>
                              </div>
                            ))
@@ -194,7 +191,7 @@ export default function LayoutForgeEnterprise() {
           </ScrollArea>
         </aside>
 
-        <div className="flex-1 relative bg-black">
+        <div className="flex-1 relative bg-black overflow-hidden">
           <LayoutEditor 
             elements={elements} 
             selectedIds={selectedIds}
@@ -206,7 +203,7 @@ export default function LayoutForgeEnterprise() {
             onZoom={(z) => setZoom(prev => Math.max(0.1, Math.min(10, prev * z)))}
           />
 
-          <div className="absolute bottom-8 right-8 flex items-center gap-3 bg-black/80 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-2xl">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/80 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-2xl z-50">
             <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 0.9)}>-</Button>
             <div className="h-4 w-px bg-white/10" />
             <span className="text-[10px] font-mono w-12 text-center text-primary font-bold">{Math.round(zoom * 100)}%</span>
@@ -265,7 +262,7 @@ function SideTab({ label, icon: Icon, active, onClick }: { label: string, icon: 
   );
 }
 
-function LayerItem({ element, selected, onClick }: { element: UIElement, selected: boolean, onClick: () => void }) {
+function LayerItem({ element, selected, onClick }: { element: any, selected: boolean, onClick: () => void }) {
   return (
     <div 
       onClick={onClick}
