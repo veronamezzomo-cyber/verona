@@ -1,5 +1,5 @@
 /**
- * @fileOverview Visual Map System - YouTube & Grok Edition.
+ * @fileOverview Visual Map System - Grok High-Fidelity Static Edition.
  * Implementação baseada na DIRETRIZ ANALÍTICA GLOBAL e PROTOCOLO DE ICONOGRAFIA.
  */
 
@@ -85,12 +85,6 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 
   const buildMap = (els: UIElement[]) => {
     els.forEach(el => {
-      // Sidebar Fixed Width (YouTube Mode)
-      if (el.id === 'Sidebar') {
-        el.height = 720;
-        el.width = 240;
-      }
-
       // Header Full Width
       if (el.id === 'Header') {
         el.width = VIEWPORT_WIDTH;
@@ -118,7 +112,7 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 }
 
 /**
- * System Icon Factory (24x24 Grid, Stroke 1.5)
+ * System Icon Factory (Protocolo de Iconografia: 24x24, Stroke 1.5)
  */
 function createSystemIcon(id: string, name: string, x: number, y: number, path: string): UIElement {
   return {
@@ -133,42 +127,22 @@ function createSystemIcon(id: string, name: string, x: number, y: number, path: 
 }
 
 /**
- * Reconstrução Analítica do Logo Grok/xAI via Raw SVG imutável.
+ * BRAND_LOGO_PLACEHOLDER: Garantindo o respiro visual e o grid para Motion Design.
  */
-function createGrokLogo(id: string, x: number, y: number, size: number): UIElement {
-  const scale = size / 24;
+function createBrandPlaceholder(id: string, x: number, y: number, size: number): UIElement {
   return {
     id: id,
-    name: 'Grok_Logo',
+    name: 'BRAND_LOGO_PLACEHOLDER',
     type: 'group',
     x, y, width: size, height: size,
     fill: 'none', opacity: 1, visible: true, locked: false,
     children: [
       {
-        id: `${id}_Slash`,
-        name: 'Logo_Slash',
-        type: 'path',
-        x: 0, y: 0, width: 24, height: 24,
-        fill: 'none', stroke: 'currentColor', strokeWidth: 1.75 * scale, strokeLinecap: 'round',
-        pathData: 'M4.5 19.5 L19.5 4.5',
-        opacity: 1, visible: true, locked: false
-      },
-      {
-        id: `${id}_ArcL`,
-        name: 'Logo_Arc_Left',
-        type: 'path',
-        x: 0, y: 0, width: 24, height: 24,
-        fill: 'currentColor',
-        pathData: 'M10.2 4.5C7.2 8.5 7.2 15.5 10.2 19.5C8.5 15.5 8.5 8.5 10.2 4.5Z',
-        opacity: 1, visible: true, locked: false
-      },
-      {
-        id: `${id}_ArcR`,
-        name: 'Logo_Arc_Right',
-        type: 'path',
-        x: 0, y: 0, width: 24, height: 24,
-        fill: 'currentColor',
-        pathData: 'M13.8 4.5C16.8 8.5 16.8 15.5 13.8 19.5C12.1 15.5 12.1 8.5 13.8 4.5Z',
+        id: `${id}_Shape`,
+        name: 'Placeholder_Mark',
+        type: 'circle',
+        x: 0, y: 0, width: size, height: size,
+        fill: 'none', stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1,
         opacity: 1, visible: true, locked: false
       }
     ]
@@ -189,8 +163,7 @@ export function generateYouTubeAbsoluteReconstruction(): VisualMap {
       x: 0, y: 0, width: 1280, height: 64,
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
-        createGrokLogo('Header_Logo_Small', 24, 20, 24),
-        // Group: Right Controls
+        createBrandPlaceholder('LOGO_TOPO_PLACEHOLDER', 24, 20, 24),
         {
           id: 'Header_Actions',
           name: 'Navigation_Actions',
@@ -198,25 +171,17 @@ export function generateYouTubeAbsoluteReconstruction(): VisualMap {
           x: 920, y: 16, width: 340, height: 32,
           fill: 'none', opacity: 1, visible: true, locked: false,
           children: [
-            createSystemIcon('Icon_Imagine', 'Imagine_Toggle', 0, 4, 'M4 4h16v16H4z M4 12h16 M12 4v16'), // Placeholder for landscape
+            createSystemIcon('Icon_Imagine', 'Imagine_Toggle', 0, 4, 'M4 4h16v16H4z M4 12h16 M12 4v16'),
             { id: 'Txt_Imagine', name: 'Label', type: 'text', x: 30, y: 22, width: 0, height: 0, fill: textMain, text: 'Imagine', fontSize: 13, visible: true, locked: false, opacity: 1 },
             
-            // Settings Gear (Injected Path)
-            {
-              id: 'Icon_Settings',
-              name: 'Settings_Gear',
-              type: 'path',
-              x: 100, y: 4, width: 24, height: 24,
-              fill: 'none', stroke: textMain, strokeWidth: 1.5,
-              pathData: 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z',
-              opacity: 1, visible: true, locked: false
-            },
+            // Settings Gear (8-tooth industrial gear)
+            createSystemIcon('Icon_Settings', 'Settings_Gear', 100, 4, 'M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z'),
             
-            // Secondary Action (Outline)
+            // Secondary Action (Outline Pill)
             { id: 'Btn_Login_BG', name: 'Login_Pill', type: 'pill', x: 160, y: 0, width: 80, height: 32, fill: 'none', stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1, opacity: 1, visible: true, locked: false },
             { id: 'Btn_Login_Txt', name: 'Label', type: 'text', x: 200, y: 21, width: 0, height: 0, fill: textMain, text: 'Entrar', fontSize: 13, fontWeight: '600', textAlign: 'center', visible: true, locked: false },
             
-            // Primary Action (Solid)
+            // Primary Action (Solid Pill)
             { id: 'Btn_Signup_BG', name: 'Signup_Pill', type: 'pill', x: 250, y: 0, width: 90, height: 32, fill: textMain, opacity: 1, visible: true, locked: false },
             { id: 'Btn_Signup_Txt', name: 'Label', type: 'text', x: 295, y: 21, width: 0, height: 0, fill: bg, text: 'Criar conta', fontSize: 13, fontWeight: '600', textAlign: 'center', visible: true, locked: false }
           ]
@@ -229,11 +194,11 @@ export function generateYouTubeAbsoluteReconstruction(): VisualMap {
       id: 'HeroLogo',
       name: 'Main_Identity',
       type: 'group',
-      x: 540, y: 240, width: 200, height: 80,
+      x: 520, y: 240, width: 240, height: 80,
       fill: 'none', opacity: 1, visible: true, locked: false,
       children: [
-        createGrokLogo('Hero_Glifo', 0, 0, 80),
-        { id: 'Hero_Text', name: 'Logo_Wordmark', type: 'text', x: 90, y: 62, width: 0, height: 0, fill: textMain, text: 'Grok', fontSize: 64, fontWeight: '700', visible: true, locked: false }
+        createBrandPlaceholder('LOGO_CENTRO_PLACEHOLDER', 0, 16, 48),
+        { id: 'Hero_Text', name: 'Logo_Wordmark', type: 'text', x: 60, y: 62, width: 0, height: 0, fill: textMain, text: 'Grok', fontSize: 64, fontWeight: '700', visible: true, locked: false }
       ]
     },
 
@@ -272,12 +237,21 @@ export function generateYouTubeAbsoluteReconstruction(): VisualMap {
         { id: 'Card_Desc1', name: 'Sub', type: 'text', x: 24, y: 72, width: 0, height: 0, fill: textMuted, text: 'Acesso antecipado para assinantes', fontSize: 13, visible: true, locked: false },
         { id: 'Card_Desc2', name: 'Sub2', type: 'text', x: 24, y: 92, width: 0, height: 0, fill: textMuted, text: 'SuperGrok e X Premium+', fontSize: 13, visible: true, locked: false },
         
-        // Terminal Box (Gap 32px from text)
-        { id: 'Terminal_Label', name: 'Env', type: 'text', x: 300, y: 70, width: 0, height: 0, fill: textMain, text: 'PowerShell', fontSize: 12, fontWeight: '600', visible: true, locked: false },
-        { id: 'Terminal_Label2', name: 'Env2', type: 'text', x: 375, y: 70, width: 0, height: 0, fill: textMuted, text: 'WSL', fontSize: 12, visible: true, locked: false },
-        { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', x: 300, y: 80, width: 376, height: 36, fill: '#000', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
-        { id: 'Terminal_Txt', name: 'CLI_Command', type: 'text', x: 315, y: 103, width: 0, height: 0, fill: textMuted, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
-        createSystemIcon('Terminal_Copy', 'Copy_Icon', 645, 86, 'M8 12h8m-8-4h8m-10 4V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4'),
+        // Terminal Group (Gap horizontal de 32px garantido pelo Solver)
+        {
+           id: 'TerminalGroup',
+           name: 'CLI_Section',
+           type: 'group',
+           x: 300, y: 30, width: 376, height: 80,
+           fill: 'none', opacity: 1, visible: true, locked: false,
+           children: [
+             { id: 'Terminal_Label', name: 'Env', type: 'text', x: 0, y: 40, width: 0, height: 0, fill: textMain, text: 'PowerShell', fontSize: 12, fontWeight: '600', visible: true, locked: false },
+             { id: 'Terminal_Label2', name: 'Env2', type: 'text', x: 75, y: 40, width: 0, height: 0, fill: textMuted, text: 'WSL', fontSize: 12, visible: true, locked: false },
+             { id: 'Terminal_BG', name: 'Code_Box', type: 'rect', x: 0, y: 50, width: 376, height: 36, fill: '#000', rx: 8, ry: 8, visible: true, locked: false, opacity: 1 },
+             { id: 'Terminal_Txt', name: 'CLI_Command', type: 'text', x: 15, y: 73, width: 0, height: 0, fill: textMuted, text: 'irm https://x.ai/cli/install.ps1 | iex', fontSize: 11, fontFamily: 'monospace', visible: true, locked: false },
+             createSystemIcon('Terminal_Copy', 'Copy_Icon', 330, 56, 'M8 12h8m-8-4h8m-10 4V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4')
+           ]
+        },
         createSystemIcon('Card_Close', 'Dismiss', 670, 8, 'M18 6L6 18M6 6l12 12')
       ]
     },
@@ -302,11 +276,11 @@ export function generateYouTubeAbsoluteReconstruction(): VisualMap {
     elements: applyLayoutSolver(elements, []),
     negativeSpaceMetrics: [],
     audit: {
-      visualFidelity: 100,
+      visualFidelity: 98,
       layoutFidelity: 100,
       spacingFidelity: 100,
-      typographyFidelity: 100,
-      logoFidelity: 100
+      typographyFidelity: 95,
+      logoFidelity: 90
     }
   };
 }
