@@ -99,14 +99,14 @@ export function applyLayoutSolver(elements: UIElement[], metrics: NegativeSpaceM
 }
 
 /**
- * RECONSTRUÇÃO ABSOLUTA: BUSINESS CARD (PATRICK BATEMAN)
+ * RECONSTRUÇÃO ABSOLUTA: BUSINESS CARD (Fernando Timmermans Kunz)
  */
 export function generateBusinessCardReconstruction(): VisualMap {
   const bgColor = '#f8f8f2'; // Eggshell / Bone
-  const textColor = '#1a1a1a'; // Silian Rail
+  const textColor = '#1a1a1a'; // Deep Black
 
   const elements: UIElement[] = [
-    // The Card Base (Canvas representing the physical card)
+    // The Card Base
     {
       id: 'Card_Base',
       name: 'Card Background',
@@ -127,7 +127,7 @@ export function generateBusinessCardReconstruction(): VisualMap {
       category: 'Typography',
       x: 180, y: 175, width: 0, height: 0,
       fill: textColor,
-      text: '212 555 6342',
+      text: '47 988151771',
       fontSize: 28,
       fontWeight: '500',
       fontFamily: 'serif',
@@ -142,7 +142,7 @@ export function generateBusinessCardReconstruction(): VisualMap {
       category: 'Typography',
       x: 1100, y: 175, width: 0, height: 0,
       fill: textColor,
-      text: 'PIERCE & PIERCE',
+      text: 'BLUE AIR SYSTEMS',
       fontSize: 28,
       fontWeight: '600',
       fontFamily: 'serif',
@@ -152,12 +152,12 @@ export function generateBusinessCardReconstruction(): VisualMap {
     },
     {
       id: 'Company_Subtitle',
-      name: 'Company Subtitle',
+      name: 'Website',
       type: 'text',
       category: 'Typography',
       x: 1100, y: 202, width: 0, height: 0,
       fill: textColor,
-      text: 'MERGERS AND AQUISITIONS',
+      text: 'www.blueairsystems.com.br',
       fontSize: 15,
       fontWeight: '500',
       fontFamily: 'serif',
@@ -165,15 +165,15 @@ export function generateBusinessCardReconstruction(): VisualMap {
       visible: true,
       locked: false
     },
-    // Center: Name and Title
+    // Center: Name and Signature
     {
       id: 'Owner_Name',
-      name: 'Name',
+      name: 'Full Name',
       type: 'text',
       category: 'Typography',
       x: 640, y: 350, width: 0, height: 0,
       fill: textColor,
-      text: 'PATRICK BATEMAN',
+      text: 'FERNANDO TIMMERMANS KUNZ',
       fontSize: 34,
       fontWeight: '600',
       fontFamily: 'serif',
@@ -183,12 +183,12 @@ export function generateBusinessCardReconstruction(): VisualMap {
     },
     {
       id: 'Owner_Title',
-      name: 'Title',
+      name: 'Short Name',
       type: 'text',
       category: 'Typography',
       x: 640, y: 395, width: 0, height: 0,
       fill: textColor,
-      text: 'VICE PRESIDENT',
+      text: 'Fernando T. Kunz',
       fontSize: 28,
       fontWeight: '500',
       fontFamily: 'serif',
@@ -196,16 +196,16 @@ export function generateBusinessCardReconstruction(): VisualMap {
       visible: true,
       locked: false
     },
-    // Bottom: Address and Contact Details
+    // Bottom: Address and Email Detail
     {
       id: 'Address_Line',
-      name: 'Address',
+      name: 'Email Contact',
       type: 'text',
       category: 'Typography',
       x: 640, y: 575, width: 0, height: 0,
       fill: textColor,
-      text: '358 EXCHANGE PLACE NEW YORK, N.Y. 10099 FAX 212 555 6390 TELEX 10 4534',
-      fontSize: 16,
+      text: 'kunz@blueairsystems.com.br',
+      fontSize: 20,
       fontWeight: '500',
       fontFamily: 'serif',
       textAlign: 'center',
@@ -218,7 +218,7 @@ export function generateBusinessCardReconstruction(): VisualMap {
 
   return {
     metadata: {
-      layout_type: 'Business Card (Patrick Bateman)',
+      layout_type: 'Business Card (Kunz)',
       dimensions: { width: 1280, height: 720 },
       color_palette: { primary: [textColor], neutrals: [bgColor] }
     },
