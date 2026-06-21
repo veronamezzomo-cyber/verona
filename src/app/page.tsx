@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * @fileOverview Claude Studio - High Fidelity Interface.
+ * @fileOverview Business Card Forge - High Fidelity Vector Studio.
  */
 
 import { useEffect } from 'react';
 import { LayoutEditor } from '@/components/layout-editor';
 import { PropertiesPanel } from '@/components/properties-panel';
 import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateClaudeReconstruction } from '@/lib/layout-templates';
+import { generateBusinessCardReconstruction } from '@/lib/layout-templates';
 import { 
   Sparkles
 } from 'lucide-react';
@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ExportPanel } from '@/components/export-panel';
 
-export default function ClaudeForgeStudio() {
+export default function BusinessCardStudio() {
   const { 
     elements, 
     selectedIds, 
@@ -28,9 +28,9 @@ export default function ClaudeForgeStudio() {
     selectElement 
   } = useLayoutState();
 
-  // Inicializa o layout com a pipeline de fidelidade absoluta do Claude
+  // Inicializa o layout com a fidelidade absoluta do cartão do Patrick Bateman
   useEffect(() => {
-    const initialLayout = generateClaudeReconstruction();
+    const initialLayout = generateBusinessCardReconstruction();
     setLayout(initialLayout.elements, initialLayout.negativeSpaceMetrics);
   }, [setLayout]);
 
@@ -40,13 +40,13 @@ export default function ClaudeForgeStudio() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span className="text-[10px] font-headline uppercase tracking-[0.3em] font-bold text-white">Claude Forge</span>
+            <span className="text-[10px] font-headline uppercase tracking-[0.3em] font-bold text-white">Layout Forge</span>
           </div>
           <div className="h-4 w-px bg-white/10" />
           <div className="flex gap-4 items-center">
             <span className="flex items-center gap-1.5 text-primary text-[10px] font-mono font-bold">
               <div className={cn("w-1.5 h-1.5 rounded-full bg-primary animate-pulse")} /> 
-              HIGH_FIDELITY_LOCKED
+              ASSET_FIDELITY: 100%
             </span>
           </div>
         </div>
@@ -85,8 +85,8 @@ export default function ClaudeForgeStudio() {
 
       <footer className="h-8 border-t border-white/5 bg-[#1b1b1a] flex items-center justify-between px-6 text-[9px] text-muted-foreground/30 font-mono tracking-widest">
         <div className="flex gap-6 uppercase">
-          <span>PIPELINE: CLAUDE_VECTOR_ENGINE</span>
-          <span>STABLE_BUILD_ANTHROPIC</span>
+          <span>PIPELINE: VECTOR_STABILIZATION_v1</span>
+          <span>ASSET: AMERICAN_PSYCHO_RECON</span>
         </div>
         <div>
           <span>VECTOR_PRECISION: 100.00%</span>
