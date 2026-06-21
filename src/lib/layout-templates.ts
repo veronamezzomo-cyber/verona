@@ -82,8 +82,8 @@ export function deepColorValidator(elements: UIElement[]): UIElement[] {
   return elements.map(el => {
     const validated = { ...el };
     if (!validated.fill || validated.fill === 'transparent' || validated.fill === '') {
-      if (validated.type === 'text') validated.fill = '#333333';
-      else if (validated.type === 'path' && !validated.stroke) validated.fill = '#333333';
+      if (validated.type === 'text') validated.fill = '#1a1a1a';
+      else if (validated.type === 'path' && !validated.stroke) validated.fill = '#1a1a1a';
       else if (validated.type === 'rect' && validated.category === 'Background') validated.fill = '#f8f8f2';
     }
     if (validated.children) {
@@ -165,7 +165,7 @@ export function generateBusinessCardReconstruction(): VisualMap {
       visible: true,
       locked: false
     },
-    // Center: Name and Signature
+    // Center: Name and Professional Title
     {
       id: 'Owner_Name',
       name: 'Full Name',
@@ -183,13 +183,13 @@ export function generateBusinessCardReconstruction(): VisualMap {
     },
     {
       id: 'Owner_Title',
-      name: 'Short Name',
+      name: 'Job Title',
       type: 'text',
       category: 'Typography',
       x: 640, y: 395, width: 0, height: 0,
       fill: textColor,
-      text: 'Fernando T. Kunz',
-      fontSize: 28,
+      text: 'Diretor de Operações',
+      fontSize: 26,
       fontWeight: '500',
       fontFamily: 'serif',
       textAlign: 'center',
