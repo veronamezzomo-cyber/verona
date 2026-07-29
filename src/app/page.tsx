@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -34,6 +35,9 @@ export default function PortfolioPage() {
     { value: '45M', label: 'Total Views' }
   ];
 
+  const profileImage = PlaceHolderImages.find(i => i.id === 'hero-profile');
+  const projectImages = PlaceHolderImages.filter(i => i.id !== 'hero-profile');
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       {/* 1. HEADER */}
@@ -53,41 +57,61 @@ export default function PortfolioPage() {
         </div>
       </header>
 
-      <main className="pt-20">
-        {/* 2. HERO - RECONSTRUCTED COMPACT BLOCK */}
-        <section className="container mx-auto px-6 py-24 md:py-40 flex flex-col items-center justify-center">
-          <div className="w-full flex flex-col items-center text-center">
-            {/* Label */}
-            <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              Leonardo Verona — Video Editor
+      <main>
+        {/* 2. SPLIT HERO */}
+        <section className="relative min-h-screen lg:min-h-[90vh] flex items-center pt-20 overflow-hidden">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-0 items-center">
+              {/* Left Content */}
+              <div className="flex flex-col gap-8 py-12 lg:py-0 lg:pr-12">
+                <div className="flex items-center gap-4">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary">
+                    Video Editor • Brazil
+                  </span>
+                  <div className="h-px w-12 bg-primary/30" />
+                </div>
+                
+                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] tracking-tighter text-white/90">
+                  CRAFTING<br />
+                  VISUAL<br />
+                  STORYTELLING.
+                </h1>
+
+                <p className="text-muted-foreground text-lg max-w-md font-mono uppercase tracking-tight">
+                  Transforming raw concepts into cinematic digital experiences with precision and pace.
+                </p>
+
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-white text-black hover:bg-primary hover:text-white transition-all duration-300">
+                    View Projects
+                  </Button>
+                  <Button size="lg" variant="outline" className="rounded-none px-10 h-16 text-base font-bold border-white/20 hover:border-primary transition-all duration-300">
+                    Contact Me
+                  </Button>
+                </div>
+              </div>
+
+              {/* Right Image */}
+              <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[80vh] group overflow-hidden border border-white/5 bg-white/5">
+                {profileImage && (
+                  <Image 
+                    src={profileImage.imageUrl} 
+                    alt={profileImage.description}
+                    fill
+                    className="object-cover duotone-primary grayscale transition-transform duration-1000 group-hover:scale-105"
+                    priority
+                    data-ai-hint={profileImage.imageHint}
+                  />
+                )}
+                <div className="absolute inset-0 halftone-overlay pointer-events-none opacity-40" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+              </div>
             </div>
-            
-            {/* Headline Block - Compressed Stacking */}
-            <h1 className="flex flex-col items-center mb-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-              <span className="text-[clamp(2.5rem,8vw,6.5rem)] font-serif italic font-light leading-none mb-[-0.25em] z-10 text-white/90">
-                CRAFTING
-              </span>
-              <span className="text-[clamp(3.5rem,15vw,13rem)] font-black leading-[0.8] tracking-tighter flex flex-col md:flex-row items-center md:gap-[0.1em]">
-                <span className="text-outline uppercase">VISUAL</span>
-                <span className="uppercase">NARRATIVES.</span>
-              </span>
-            </h1>
-
-            {/* Subtext */}
-            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-12 duration-1000 font-mono uppercase tracking-tight">
-              Transforming raw footage into high-impact digital experiences. Specialized in fast-paced storytelling and cinematic motion graphics.
-            </p>
-
-            {/* CTA Button */}
-            <Button size="lg" className="rounded-full px-10 h-16 text-base font-bold group transition-all hover:scale-105 bg-white text-black hover:bg-primary hover:text-white">
-              View Projects
-              <ArrowUpRight className="ml-2 h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-            </Button>
           </div>
         </section>
 
         {/* 3. SELECTED WORKS */}
-        <section id="works" className="py-24 bg-white/[0.02]">
+        <section id="works" className="py-24 border-t border-white/5">
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
               <div>
@@ -99,7 +123,7 @@ export default function PortfolioPage() {
                   <Badge 
                     key={cat} 
                     variant={cat === 'All' ? 'default' : 'outline'} 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all font-mono text-[9px] px-4 py-1.5 uppercase tracking-tighter"
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all font-mono text-[9px] px-4 py-1.5 uppercase tracking-tighter rounded-none"
                   >
                     {cat}
                   </Badge>
@@ -108,8 +132,8 @@ export default function PortfolioPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {PlaceHolderImages.map((work, index) => (
-                <Card key={work.id || index} className="group relative overflow-hidden bg-transparent border-white/5 transition-all hover:border-primary/50">
+              {projectImages.map((work, index) => (
+                <Card key={work.id || index} className="group relative overflow-hidden bg-transparent border-white/5 rounded-none transition-all hover:border-primary/50">
                   <CardContent className="p-0 relative aspect-video overflow-hidden">
                     <Image 
                       src={work.imageUrl} 
@@ -132,7 +156,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* 4. STATS */}
-        <section className="py-24 border-y border-white/5">
+        <section className="py-24 border-y border-white/5 bg-white/[0.01]">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
               {stats.map((stat) => (
@@ -154,9 +178,9 @@ export default function PortfolioPage() {
           <div className="container mx-auto px-6 text-center relative z-10">
             <h2 className="text-5xl md:text-7xl font-bold mb-8 italic font-serif">Ready to tell your story?</h2>
             <p className="text-muted-foreground mb-12 max-w-xl mx-auto font-mono text-sm uppercase tracking-widest">
-              Available for freelance opportunities and long-term partnerships.
+              Available for freelance opportunities and long-term partnerships worldwide.
             </p>
-            <Button size="lg" variant="default" className="rounded-full px-12 h-16 text-lg font-bold">
+            <Button size="lg" className="rounded-none px-12 h-16 text-lg font-bold bg-white text-black hover:bg-primary hover:text-white transition-all duration-300">
               Let&apos;s Talk
             </Button>
           </div>
@@ -180,7 +204,7 @@ export default function PortfolioPage() {
           </div>
           
           <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-            © 2024 Leonardo Verona. All rights reserved.
+            © 2024 Leonardo Verona.
           </div>
           
           <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">

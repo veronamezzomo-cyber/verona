@@ -1,6 +1,12 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-profile",
+      "description": "Leonardo Verona Portrait",
+      "imageUrl": "https://picsum.photos/seed/leohero/800/1200",
+      "imageHint": "man portrait"
+    },
+    {
       "id": "work-1",
       "description": "Short film edit project",
       "imageUrl": "https://picsum.photos/seed/work1/800/600",
