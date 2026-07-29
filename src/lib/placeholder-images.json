@@ -7,6 +7,42 @@
       "imageHint": "man portrait"
     },
     {
+      "id": "cat-all",
+      "description": "All Categories",
+      "imageUrl": "https://picsum.photos/seed/catall/600/600",
+      "imageHint": "abstract texture"
+    },
+    {
+      "id": "cat-shorts",
+      "description": "Shorts",
+      "imageUrl": "https://picsum.photos/seed/catshorts/600/600",
+      "imageHint": "cinema film"
+    },
+    {
+      "id": "cat-podcast",
+      "description": "Podcast",
+      "imageUrl": "https://picsum.photos/seed/catpod/600/600",
+      "imageHint": "microphone studio"
+    },
+    {
+      "id": "cat-motion",
+      "description": "Motion",
+      "imageUrl": "https://picsum.photos/seed/catmotion/600/600",
+      "imageHint": "gears machine"
+    },
+    {
+      "id": "cat-talking",
+      "description": "Talking Heads",
+      "imageUrl": "https://picsum.photos/seed/cattalk/600/600",
+      "imageHint": "eye vision"
+    },
+    {
+      "id": "cat-vlogs",
+      "description": "Vlogs",
+      "imageUrl": "https://picsum.photos/seed/catvlog/600/600",
+      "imageHint": "mountain landscape"
+    },
+    {
       "id": "work-1",
       "description": "Short film edit project",
       "imageUrl": "https://picsum.photos/seed/work1/800/600",
@@ -23,24 +59,6 @@
       "description": "Podcast highlights",
       "imageUrl": "https://picsum.photos/seed/work3/800/600",
       "imageHint": "podcast studio"
-    },
-    {
-      "id": "work-4",
-      "description": "Commercial vlog edit",
-      "imageUrl": "https://picsum.photos/seed/work4/800/600",
-      "imageHint": "vlog style"
-    },
-    {
-      "id": "work-5",
-      "description": "Talking head corporate video",
-      "imageUrl": "https://picsum.photos/seed/work5/800/600",
-      "imageHint": "corporate interview"
-    },
-    {
-      "id": "work-6",
-      "description": "Music video motion piece",
-      "imageUrl": "https://picsum.photos/seed/work6/800/600",
-      "imageHint": "music video"
     }
   ]
 }

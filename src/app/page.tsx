@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,6 +13,7 @@ import {
   Mail, 
   ArrowRight
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -26,7 +28,14 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 export default function PortfolioPage() {
-  const categories = ['All', 'Shorts', 'Podcasts', 'Motion', 'Talking', 'Vlogs'];
+  const categories = [
+    { id: 'cat-all', label: 'all' },
+    { id: 'cat-shorts', label: 'shorts' },
+    { id: 'cat-podcast', label: 'podcast' },
+    { id: 'cat-motion', label: 'motion' },
+    { id: 'cat-talking', label: 'talking' },
+    { id: 'cat-vlogs', label: 'vlogs' }
+  ];
   
   const stats = [
     { value: '08+', label: 'Years of Experience' },
@@ -36,7 +45,8 @@ export default function PortfolioPage() {
   ];
 
   const profileImage = PlaceHolderImages.find(i => i.id === 'hero-profile');
-  const projectImages = PlaceHolderImages.filter(i => i.id !== 'hero-profile');
+  const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
+  const projectImages = PlaceHolderImages.filter(i => i.id.startsWith('work-'));
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
@@ -126,6 +136,39 @@ export default function PortfolioPage() {
           </div>
         </section>
 
+        {/* 2.5 CATEGORY GRID */}
+        <section className="pt-24 pb-12">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border border-foreground/5 bg-foreground/5 gap-[1px]">
+              {categories.map((cat, index) => {
+                const img = catImages.find(i => i.id === cat.id);
+                return (
+                  <Link 
+                    key={cat.id} 
+                    href={`#${cat.label}`} 
+                    className="group relative aspect-square lg:aspect-[1/1.1] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10"
+                  >
+                    {img && (
+                      <Image 
+                        src={img.imageUrl}
+                        alt={cat.label}
+                        fill
+                        className="object-cover duotone-primary opacity-40 transition-transform duration-500 group-hover:scale-110"
+                        data-ai-hint={img.imageHint}
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-background/60 group-hover:bg-background/20 transition-colors duration-300" />
+                    <div className="absolute inset-0 halftone-overlay pointer-events-none" />
+                    <span className="relative z-20 font-serif font-bold text-2xl lg:text-3xl text-foreground lowercase tracking-tighter">
+                      {cat.label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* 3. SELECTED WORKS */}
         <section id="works" className="py-32 border-t border-foreground/5">
           <div className="container mx-auto px-6">
@@ -135,7 +178,7 @@ export default function PortfolioPage() {
                 <h2 className="text-4xl md:text-5xl font-bold font-serif text-foreground">Selected Works</h2>
               </div>
               <div className="flex flex-wrap justify-center md:justify-end gap-2">
-                {categories.map((cat) => (
+                {['All', 'Shorts', 'Podcasts', 'Motion', 'Talking', 'Vlogs'].map((cat) => (
                   <Badge 
                     key={cat} 
                     variant={cat === 'All' ? 'default' : 'outline'} 
