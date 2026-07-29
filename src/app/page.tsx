@@ -54,21 +54,34 @@ export default function PortfolioPage() {
       </header>
 
       <main className="pt-20">
-        {/* 2. HERO */}
-        <section className="container mx-auto px-6 py-24 md:py-40 flex flex-col items-center justify-center text-center">
-          <div className="w-full flex flex-col items-center">
-            <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* 2. HERO - RECONSTRUCTED COMPACT BLOCK */}
+        <section className="container mx-auto px-6 py-24 md:py-40 flex flex-col items-center justify-center">
+          <div className="w-full flex flex-col items-center text-center">
+            {/* Label */}
+            <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               Leonardo Verona — Video Editor
             </div>
-            <h1 className="text-[clamp(2.5rem,9vw,9rem)] font-bold leading-[0.85] tracking-tighter mb-6 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
-              CRAFTING <span className="text-outline italic">VISUAL</span> NARRATIVES.
+            
+            {/* Headline Block - Compressed Stacking */}
+            <h1 className="flex flex-col items-center mb-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+              <span className="text-[clamp(2.5rem,8vw,6.5rem)] font-serif italic font-light leading-none mb-[-0.25em] z-10 text-white/90">
+                CRAFTING
+              </span>
+              <span className="text-[clamp(3.5rem,15vw,13rem)] font-black leading-[0.8] tracking-tighter flex flex-col md:flex-row items-center md:gap-[0.1em]">
+                <span className="text-outline uppercase">VISUAL</span>
+                <span className="uppercase">NARRATIVES.</span>
+              </span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+
+            {/* Subtext */}
+            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-12 duration-1000 font-mono uppercase tracking-tight">
               Transforming raw footage into high-impact digital experiences. Specialized in fast-paced storytelling and cinematic motion graphics.
             </p>
-            <Button size="lg" className="rounded-full px-8 h-14 text-base font-medium group transition-all hover:scale-105">
+
+            {/* CTA Button */}
+            <Button size="lg" className="rounded-full px-10 h-16 text-base font-bold group transition-all hover:scale-105 bg-white text-black hover:bg-primary hover:text-white">
               View Projects
-              <ArrowUpRight className="ml-2 h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              <ArrowUpRight className="ml-2 h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
             </Button>
           </div>
         </section>
