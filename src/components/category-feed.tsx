@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EditableImage } from '@/components/editable-image';
@@ -11,86 +11,166 @@ interface CategoryFeedProps {
   onClose: () => void;
 }
 
+interface FeedItem {
+  id: string;
+  title: string;
+  date: string;
+  notes: string;
+  imgId: string;
+}
+
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   // Mock data for the feed items based on category
-  const feedItems = [
-    { id: '1', title: `${category.toUpperCase()} PROJECT 01`, desc: 'Advanced color grading and rhythmic pacing.', imgId: 'feed-1' },
-    { id: '2', title: `${category.toUpperCase()} PROJECT 02`, desc: 'Dynamic motion graphics integration.', imgId: 'feed-2' },
-    { id: '3', title: `${category.toUpperCase()} PROJECT 03`, desc: 'Audio-driven visual storytelling.', imgId: 'feed-3' },
-    { id: '4', title: `${category.toUpperCase()} PROJECT 04`, desc: 'High-impact narrative editing.', imgId: 'feed-4' },
+  const feedItems: FeedItem[] = [
+    { 
+      id: '1', 
+      title: `${category.toUpperCase()} PROJECT 01`, 
+      date: 'OCT 2023',
+      notes: 'Exploration of high-contrast visual rhythm and experimental color grading techniques for high-end digital media.',
+      imgId: 'feed-1' 
+    },
+    { 
+      id: '2', 
+      title: `${category.toUpperCase()} PROJECT 02`, 
+      date: 'AUG 2023',
+      notes: 'Technical breakdown of motion graphics integration within raw footage, focusing on seamless transitions.',
+      imgId: 'feed-2' 
+    },
+    { 
+      id: '3', 
+      title: `${category.toUpperCase()} PROJECT 03`, 
+      date: 'MAY 2023',
+      notes: 'Sound-driven editorial piece where every cut responds to auditory frequencies and sub-bass impacts.',
+      imgId: 'feed-3' 
+    },
+    { 
+      id: '4', 
+      title: `${category.toUpperCase()} PROJECT 04`, 
+      date: 'JAN 2023',
+      notes: 'Narrative-heavy short form content designed for maximum engagement within the first 3 seconds.',
+      imgId: 'feed-4' 
+    },
   ];
 
+  // Observer to track which item is active during scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute('data-index') || '0');
+            setActiveIndex(index);
+          }
+        });
+      },
+      { threshold: 0.6, root: scrollRef.current }
+    );
+
+    const items = scrollRef.current?.querySelectorAll('.feed-item');
+    items?.forEach((item) => observer.observe(item));
+
+    return () => observer.disconnect();
+  }, [category]);
+
+  const currentItem = feedItems[activeIndex];
+
   return (
-    <section className="relative w-full bg-background animate-reveal">
+    <section className="relative w-full bg-background animate-reveal border-t border-foreground/5 py-12 md:py-20">
       <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between mb-8 border-b border-foreground/5 pb-4">
+        {/* Header inside the inline section */}
+        <div className="flex items-center justify-between mb-12 border-b border-foreground/5 pb-6">
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Now Viewing</span>
-            <h2 className="font-serif text-3xl italic font-bold text-foreground lowercase">{category}</h2>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Selected Works</span>
+            <h2 className="font-serif text-4xl italic font-bold text-foreground lowercase">{category}</h2>
           </div>
           <Button 
             variant="ghost" 
-            size="icon" 
+            size="sm" 
             onClick={onClose}
-            className="rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2"
           >
-            <X className="h-6 w-6" />
+            Close Feed <X className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Vertical Snap Feed */}
-        <div className="relative h-[85vh] w-full max-w-4xl mx-auto overflow-y-scroll snap-y snap-mandatory scrollbar-hide border-x border-foreground/5 bg-black rounded-none shadow-2xl">
-          {feedItems.map((item, idx) => {
-            const img = PlaceHolderImages.find(p => p.id === item.imgId);
-            return (
-              <div 
-                key={item.id} 
-                className="relative w-full h-full snap-start overflow-hidden group"
-              >
-                {/* Background Image with Duotone */}
-                {img && (
-                  <EditableImage 
-                    src={img.imageUrl} 
-                    alt={item.title}
-                    storageKey={`feed-${category}-${item.id}`}
-                    fill
-                    className="object-cover duotone-primary opacity-60 transition-transform duration-[2000ms] group-hover:scale-105"
-                    data-ai-hint={img.imageHint}
-                  />
-                )}
-                
-                {/* Overlay Textures */}
-                <div className="absolute inset-0 halftone-overlay pointer-events-none z-10" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 z-20" />
-
-                {/* Content */}
-                <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 z-30 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold mb-4 block">
-                    0{idx + 1} / 0{feedItems.length}
-                  </span>
-                  <h3 className="font-serif text-4xl md:text-6xl font-bold text-white leading-none tracking-tighter mb-4">
-                    {item.title}<span className="text-primary">.</span>
-                  </h3>
-                  <p className="font-mono text-xs uppercase tracking-widest text-white/60 max-w-md">
-                    {item.desc}
-                  </p>
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 items-start">
+          
+          {/* Left Column: Synchronized Details */}
+          <div className="sticky top-32 flex flex-col gap-8">
+            <div className="animate-reveal" key={currentItem.id}>
+              <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-4">
+                {currentItem.date}
+              </span>
+              <h3 className="font-serif text-5xl md:text-6xl font-bold text-foreground leading-[0.9] tracking-tighter mb-8 max-w-sm">
+                {currentItem.title}<span className="text-primary">.</span>
+              </h3>
+              <div className="space-y-4 max-w-xs">
+                <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground leading-relaxed">
+                  {currentItem.notes}
+                </p>
+                <div className="pt-8 border-t border-foreground/10 flex items-center gap-4">
+                   <div className="h-1 flex-1 bg-foreground/5 relative">
+                      <div 
+                        className="absolute h-full bg-primary transition-all duration-500" 
+                        style={{ width: `${((activeIndex + 1) / feedItems.length) * 100}%` }}
+                      />
+                   </div>
+                   <span className="font-mono text-[10px] text-muted-foreground">
+                    0{activeIndex + 1} / 0{feedItems.length}
+                   </span>
                 </div>
-
-                {/* Scroll Indicator (Inside Feed) */}
-                {idx < feedItems.length - 1 && (
-                  <div className="absolute bottom-8 right-8 z-30 animate-bounce hidden md:block">
-                    <ChevronDown className="h-6 w-6 text-primary" />
-                  </div>
-                )}
               </div>
-            );
-          })}
+            </div>
+          </div>
+
+          {/* Right Column: Vertical Snap Feed */}
+          <div 
+            ref={scrollRef}
+            className="relative h-[75vh] w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
+          >
+            {feedItems.map((item, idx) => {
+              const img = PlaceHolderImages.find(p => p.id === item.imgId);
+              return (
+                <div 
+                  key={item.id} 
+                  data-index={idx}
+                  className="feed-item relative w-full h-full snap-start overflow-hidden group"
+                >
+                  {img && (
+                    <EditableImage 
+                      src={img.imageUrl} 
+                      alt={item.title}
+                      storageKey={`feed-${category}-${item.id}`}
+                      fill
+                      className="object-cover duotone-primary opacity-70 transition-transform duration-[2000ms] group-hover:scale-105"
+                      data-ai-hint={img.imageHint}
+                    />
+                  )}
+                  
+                  {/* Overlay Textures */}
+                  <div className="absolute inset-0 halftone-overlay pointer-events-none z-10 opacity-40" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
+
+                  {/* Scroll Indicator for Desktop */}
+                  {idx < feedItems.length - 1 && (
+                    <div className="absolute bottom-8 right-8 z-30 animate-bounce text-primary/80">
+                      <ChevronDown className="h-8 w-8" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
         
         {/* Footer info for feed */}
-        <div className="mt-6 text-center">
+        <div className="mt-12 text-center border-t border-foreground/5 pt-8">
           <p className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground">
-            Scroll vertically to explore • Click X to close
+            Scroll vertically inside the black area to explore projects • Use keyboard arrows to snap
           </p>
         </div>
       </div>

@@ -169,35 +169,31 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 3. DYNAMIC CATEGORY FEED */}
+        {/* 3. DYNAMIC CATEGORY FEED (INLINE) */}
         {activeCategory && (
-          <div className="py-12 border-t border-foreground/5">
-            <CategoryFeed 
-              category={activeCategory} 
-              onClose={() => setActiveCategory(null)} 
-            />
-          </div>
+          <CategoryFeed 
+            category={activeCategory} 
+            onClose={() => setActiveCategory(null)} 
+          />
         )}
 
         {/* 4. STATS */}
-        {!activeCategory && (
-          <section className="py-24 border-y border-foreground/5 bg-muted/20 animate-reveal">
-            <div className="container mx-auto px-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="flex flex-col items-center">
-                    <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-foreground">
-                      {stat.value}
-                    </span>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
-                      {stat.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
+        <section className="py-24 border-y border-foreground/5 bg-muted/20 animate-reveal">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+              {stats.map((stat) => (
+                <div key={stat.label} className="flex flex-col items-center">
+                  <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-foreground">
+                    {stat.value}
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
+                    {stat.label}
+                  </span>
+                </div>
+              ))}
             </div>
-          </section>
-        )}
+          </div>
+        </section>
 
         {/* 5. CALL TO ACTION */}
         <section id="contact" className="py-32 relative overflow-hidden">
