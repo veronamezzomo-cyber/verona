@@ -15,13 +15,13 @@
     {
       "id": "cat-shorts",
       "description": "Shorts",
-      "imageUrl": "https://picsum.photos/seed/catshorts/600/600",
+      "imageUrl": "https://i.imgur.com/ehRTGR0.png",
       "imageHint": "cinema film"
     },
     {
       "id": "cat-podcast",
       "description": "Podcast",
-      "imageUrl": "https://picsum.photos/seed/catpod/600/600",
+      "imageUrl": "https://i.imgur.com/VYInbZ5.png",
       "imageHint": "microphone studio"
     },
     {
@@ -33,13 +33,13 @@
     {
       "id": "cat-talking",
       "description": "Talking Heads",
-      "imageUrl": "https://picsum.photos/seed/cattalk/600/600",
+      "imageUrl": "https://i.imgur.com/2u5rbjn.png",
       "imageHint": "eye vision"
     },
     {
       "id": "cat-vlogs",
       "description": "Vlogs",
-      "imageUrl": "https://picsum.photos/seed/catvlog/600/600",
+      "imageUrl": "https://i.imgur.com/85wpzam.png",
       "imageHint": "mountain landscape"
     },
     {
