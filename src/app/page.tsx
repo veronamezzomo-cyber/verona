@@ -75,18 +75,18 @@ export default function PortfolioPage() {
 
       <main>
         {/* 2. SPLIT HERO */}
-        <section className="relative min-h-screen lg:min-h-[90vh] flex items-center pt-20 overflow-hidden">
+        <section className="relative min-h-0 flex pt-28 pb-8 overflow-hidden">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-0 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-0 items-start">
               {/* Left Content */}
-              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-8 py-12 lg:py-0 lg:pr-12">
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-6 py-8 lg:py-0 lg:pr-12">
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
                     Video Editor • Brazil
                   </span>
                 </div>
                 
-                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
+                <h1 className="font-serif font-bold text-[clamp(2rem,5.5vw,4.75rem)] leading-[0.95] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
                   CRAFTING<br />
                   VISUAL<br />
                   STORYTELLING<span className="text-primary">.</span>
@@ -96,7 +96,7 @@ export default function PortfolioPage() {
                   Transforming raw concepts into cinematic digital experiences with precision and pace.
                 </p>
 
-                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 pt-4 animate-slide-up [animation-delay:400ms]">
+                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 pt-2 animate-slide-up [animation-delay:400ms]">
                   <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-foreground text-background hover:opacity-90 transition-all duration-300 shadow-xl">
                     View Projects
                   </Button>
@@ -107,8 +107,8 @@ export default function PortfolioPage() {
               </div>
 
               {/* Right Image (Poster Style) */}
-              <div className="p-6 lg:p-12 animate-image-reveal">
-                <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[75vh] group overflow-hidden border border-primary/20 bg-muted shadow-2xl">
+              <div className="px-6 lg:px-12 animate-image-reveal">
+                <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[70vh] group overflow-hidden border border-primary/20 bg-muted shadow-2xl">
                   {profileImage && (
                     <Image 
                       src={profileImage.imageUrl} 
@@ -127,16 +127,16 @@ export default function PortfolioPage() {
           </div>
 
           {/* Scroll Indicator */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-reveal [animation-delay:800ms]">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
-            <div className="w-[2px] h-12 bg-primary/20 relative overflow-hidden">
+            <div className="w-[2px] h-8 bg-primary/20 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(139,30,46,0.5)]" />
             </div>
           </div>
         </section>
 
         {/* 2.5 CATEGORY GRID */}
-        <section className="pt-24 pb-12">
+        <section className="pt-12 pb-12">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border border-foreground/5 bg-foreground/5 gap-[1px]">
               {categories.map((cat, index) => {
@@ -145,7 +145,7 @@ export default function PortfolioPage() {
                   <Link 
                     key={cat.id} 
                     href={`#${cat.label}`} 
-                    className="group relative aspect-square lg:aspect-[1/1.1] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10"
+                    className="group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10"
                   >
                     {img && (
                       <Image 
@@ -169,7 +169,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* 3. SELECTED WORKS */}
-        <section id="works" className="py-32 border-t border-foreground/5">
+        <section id="works" className="py-24 border-t border-foreground/5">
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-center md:text-left">
               <div>
