@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Pencil, Check, X, Loader2, Volume2, VolumeX } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface EditableVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
@@ -85,24 +85,46 @@ export function EditableVideo({
       
       {/* Edit Trigger */}
       <div className="absolute top-2 right-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2">
-        <Button 
-          size="icon" 
-          variant="secondary" 
+        <div 
+          role="button"
+          tabIndex={0}
           onClick={toggleMute}
-          className="h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleMute(e as any);
+            }
+          }}
+          className={cn(
+            buttonVariants({ variant: "secondary", size: "icon" }),
+            "h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl cursor-pointer"
+          )}
         >
           {isMuted ? <VolumeX className="h-3.5 w-3.5 text-white" /> : <Volume2 className="h-3.5 w-3.5 text-white" />}
-        </Button>
+        </div>
 
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <Button 
-              size="icon" 
-              variant="secondary" 
-              className="h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl"
+            <div 
+              role="button"
+              tabIndex={0}
+              className={cn(
+                buttonVariants({ variant: "secondary", size: "icon" }),
+                "h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl cursor-pointer"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsOpen(true);
+                }
+              }}
             >
               <Pencil className="h-3.5 w-3.5 text-white" />
-            </Button>
+            </div>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 p-3 bg-background border-foreground/10 shadow-2xl backdrop-blur-xl">
             <div className="flex flex-col gap-3">

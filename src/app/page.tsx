@@ -139,10 +139,18 @@ export default function PortfolioPage() {
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
-                  <button 
+                  <div 
                     key={cat.id} 
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setActiveCategory(cat.label)}
-                    className="group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10 outline-none"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setActiveCategory(cat.label);
+                      }
+                    }}
+                    className="group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10 outline-none cursor-pointer"
                   >
                     {img && (
                       <EditableImage 
@@ -157,10 +165,10 @@ export default function PortfolioPage() {
                     )}
                     <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-300 z-10" />
                     <div className="absolute inset-0 halftone-overlay pointer-events-none z-20" />
-                    <span className="relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter text-center px-2">
+                    <span className="relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter text-center px-2 pointer-events-none">
                       {cat.label}
                     </span>
-                  </button>
+                  </div>
                 );
               })}
               {/* Fade suggestion overlay */}
