@@ -1,20 +1,29 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Image, { ImageProps } from 'next/image';
 import { Pencil, Check, X, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-interface EditableImageProps extends Omit<ImageProps, 'src'> {
+interface EditableImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
   storageKey: string;
   containerClassName?: string;
+  fill?: boolean;
+  priority?: boolean;
 }
 
-export function EditableImage({ src: defaultSrc, storageKey, containerClassName, ...props }: EditableImageProps) {
+export function EditableImage({ 
+  src: defaultSrc, 
+  storageKey, 
+  containerClassName, 
+  fill, 
+  priority,
+  className,
+  ...props 
+}: EditableImageProps) {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
   const [newUrl, setNewUrl] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +44,7 @@ export function EditableImage({ src: defaultSrc, storageKey, containerClassName,
 
     try {
       // Basic URL validation
-      const url = new URL(newUrl);
+      new URL(newUrl);
       
       // Attempt to load the image to verify it's valid
       const img = new window.Image();
@@ -59,7 +68,15 @@ export function EditableImage({ src: defaultSrc, storageKey, containerClassName,
 
   return (
     <div className={cn("group relative w-full h-full", containerClassName)}>
-      <Image {...props} src={currentSrc} />
+      <img 
+        {...props} 
+        src={currentSrc} 
+        className={cn(
+          className,
+          fill && "absolute inset-0 w-full h-full object-cover"
+        )}
+        loading={priority ? "eager" : "lazy"}
+      />
       
       <div className="absolute top-2 right-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
