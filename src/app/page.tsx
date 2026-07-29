@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -150,8 +149,8 @@ export default function PortfolioPage() {
                   >
                     {img && (
                       <Image 
-                        src={img.imageUrl}
-                        alt={cat.label}
+                        src={img.imageUrl} 
+                        alt={cat.label} 
                         fill
                         className="object-cover duotone-primary opacity-40 transition-transform duration-500 group-hover:scale-110"
                         data-ai-hint={img.imageHint}
