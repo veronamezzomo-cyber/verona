@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 3%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3%;
-    --popover-foreground: 0 0% 98%;
+    --background: 210 20% 98%;
+    --foreground: 221 39% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 221 39% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 39% 11%;
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --secondary: 221 20% 92%;
+    --secondary-foreground: 221 39% 11%;
+    --muted: 221 20% 94%;
+    --muted-foreground: 221 15% 46%;
+    --accent: 221 20% 94%;
+    --accent-foreground: 221.2 83.2% 53.3%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 221 20% 90%;
+    --input: 221 20% 90%;
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0rem;
   }
 }
@@ -49,13 +49,13 @@
   }
   
   .duotone-primary {
-    filter: grayscale(100%) contrast(1.1) brightness(0.9) sepia(20%) hue-rotate(190deg) saturate(150%);
+    filter: grayscale(100%) brightness(1.05) contrast(1.1) sepia(100%) hue-rotate(185deg) saturate(350%);
   }
 
   .halftone-overlay {
-    background-image: radial-gradient(circle, currentColor 0.8px, transparent 0.8px);
-    background-size: 3px 3px;
-    opacity: 0.15;
+    background-image: radial-gradient(circle, currentColor 0.6px, transparent 0.6px);
+    background-size: 4px 4px;
+    opacity: 0.12;
   }
 
   /* Entry Animations */

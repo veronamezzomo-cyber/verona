@@ -39,9 +39,9 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       {/* 1. HEADER */}
-      <header className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
+      <header className="fixed top-0 w-full z-50 border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic">
+          <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -61,14 +61,14 @@ export default function PortfolioPage() {
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-0 items-center">
               {/* Left Content */}
-              <div className="flex flex-col gap-8 py-12 lg:py-0 lg:pr-12">
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-8 py-12 lg:py-0 lg:pr-12">
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary">
                     Video Editor • Brazil
                   </span>
                 </div>
                 
-                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] tracking-tighter text-white/90 animate-slide-up [animation-delay:200ms]">
+                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
                   CRAFTING<br />
                   VISUAL<br />
                   STORYTELLING.
@@ -78,29 +78,29 @@ export default function PortfolioPage() {
                   Transforming raw concepts into cinematic digital experiences with precision and pace.
                 </p>
 
-                <div className="flex flex-wrap gap-4 pt-4 animate-slide-up [animation-delay:400ms]">
-                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-white text-black hover:bg-primary hover:text-white transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-primary/20">
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4 animate-slide-up [animation-delay:400ms]">
+                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
                     View Projects
                   </Button>
-                  <Button size="lg" variant="outline" className="rounded-none px-10 h-16 text-base font-bold border-white/20 hover:border-primary transition-all duration-300">
+                  <Button size="lg" variant="outline" className="rounded-none px-10 h-16 text-base font-bold border-foreground/20 text-foreground hover:border-primary transition-all duration-300">
                     Contact Me
                   </Button>
                 </div>
               </div>
 
               {/* Right Image */}
-              <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[80vh] group overflow-hidden border border-white/5 bg-white/5 animate-image-reveal">
+              <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[80vh] group overflow-hidden border border-foreground/5 bg-muted animate-image-reveal">
                 {profileImage && (
                   <Image 
                     src={profileImage.imageUrl} 
                     alt={profileImage.description}
                     fill
-                    className="object-cover duotone-primary grayscale transition-transform duration-1000 group-hover:scale-105"
+                    className="object-cover duotone-primary transition-transform duration-1000 group-hover:scale-105"
                     priority
                     data-ai-hint={profileImage.imageHint}
                   />
                 )}
-                <div className="absolute inset-0 halftone-overlay pointer-events-none opacity-40" />
+                <div className="absolute inset-0 halftone-overlay pointer-events-none" />
                 <div className="absolute inset-0 bg-gradient-to-r from-background to-transparent pointer-events-none" />
               </div>
             </div>
@@ -108,22 +108,22 @@ export default function PortfolioPage() {
 
           {/* Scroll Indicator */}
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-reveal [animation-delay:800ms]">
-            <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground">Scroll</span>
-            <div className="w-[1px] h-12 bg-white/10 relative overflow-hidden">
+            <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary">Scroll</span>
+            <div className="w-[1px] h-12 bg-primary/20 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line" />
             </div>
           </div>
         </section>
 
         {/* 3. SELECTED WORKS */}
-        <section id="works" className="py-24 border-t border-white/5">
+        <section id="works" className="py-24 border-t border-foreground/5">
           <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-center md:text-left">
               <div>
                 <span className="font-mono text-[10px] uppercase tracking-widest text-primary block mb-2">Portfolio</span>
-                <h2 className="text-4xl md:text-5xl font-bold font-serif">Selected Works</h2>
+                <h2 className="text-4xl md:text-5xl font-bold font-serif text-foreground">Selected Works</h2>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center md:justify-end gap-2">
                 {categories.map((cat) => (
                   <Badge 
                     key={cat} 
@@ -138,20 +138,20 @@ export default function PortfolioPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {projectImages.map((work, index) => (
-                <Card key={work.id || index} className="group relative overflow-hidden bg-transparent border-white/5 rounded-none transition-all hover:border-primary/50">
+                <Card key={work.id || index} className="group relative overflow-hidden bg-transparent border-foreground/5 rounded-none transition-all hover:border-primary/50">
                   <CardContent className="p-0 relative aspect-video overflow-hidden">
                     <Image 
                       src={work.imageUrl} 
                       alt={work.description}
                       width={800}
                       height={600}
-                      className="object-cover w-full h-full duotone-primary transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0"
+                      className="object-cover w-full h-full duotone-primary grayscale transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0"
                       data-ai-hint={work.imageHint}
                     />
                     <div className="absolute inset-0 halftone-overlay pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
                       <span className="font-mono text-[9px] uppercase tracking-widest text-primary mb-1">Project {index + 1}</span>
-                      <h3 className="text-xl font-bold text-white">{work.description}</h3>
+                      <h3 className="text-xl font-bold text-foreground">{work.description}</h3>
                     </div>
                   </CardContent>
                 </Card>
@@ -161,12 +161,12 @@ export default function PortfolioPage() {
         </section>
 
         {/* 4. STATS */}
-        <section className="py-24 border-y border-white/5 bg-white/[0.01]">
+        <section className="py-24 border-y border-foreground/5 bg-muted/20">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
               {stats.map((stat) => (
                 <div key={stat.label} className="flex flex-col items-center">
-                  <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-white">
+                  <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-foreground">
                     {stat.value}
                   </span>
                   <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
@@ -181,11 +181,11 @@ export default function PortfolioPage() {
         {/* 5. CALL TO ACTION */}
         <section id="contact" className="py-32 relative overflow-hidden">
           <div className="container mx-auto px-6 text-center relative z-10">
-            <h2 className="text-5xl md:text-7xl font-bold mb-8 italic font-serif">Ready to tell your story?</h2>
+            <h2 className="text-5xl md:text-7xl font-bold mb-8 italic font-serif text-foreground">Ready to tell your story?</h2>
             <p className="text-muted-foreground mb-12 max-w-xl mx-auto font-mono text-sm uppercase tracking-widest">
               Available for freelance opportunities and long-term partnerships worldwide.
             </p>
-            <Button size="lg" className="rounded-none px-12 h-16 text-lg font-bold bg-white text-black hover:bg-primary hover:text-white transition-all duration-300">
+            <Button size="lg" className="rounded-none px-12 h-16 text-lg font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300">
               Let&apos;s Talk
             </Button>
           </div>
@@ -194,7 +194,7 @@ export default function PortfolioPage() {
       </main>
 
       {/* 6. FOOTER */}
-      <footer className="py-12 border-t border-white/5">
+      <footer className="py-12 border-t border-foreground/5">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-6">
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
