@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EditableVideo } from '@/components/editable-video';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface CategoryFeedProps {
   category: string;
