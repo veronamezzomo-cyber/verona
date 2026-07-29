@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { 
   Mail, 
   ChevronDown
@@ -37,7 +38,7 @@ export default function PortfolioPage() {
   const projectImages = PlaceHolderImages.filter(i => i.id !== 'hero-profile');
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
       {/* 1. HEADER */}
       <header className="fixed top-0 w-full z-50 border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
@@ -49,8 +50,11 @@ export default function PortfolioPage() {
             <Link href="#about" className="hover:text-primary transition-colors">About</Link>
             <Link href="#contact" className="hover:text-primary transition-colors">Contact</Link>
           </nav>
-          <div className="md:hidden">
-            <Button variant="ghost" size="sm" className="font-mono text-[10px]">MENU</Button>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <div className="md:hidden">
+              <Button variant="ghost" size="sm" className="font-mono text-[10px]">MENU</Button>
+            </div>
           </div>
         </div>
       </header>
@@ -63,7 +67,7 @@ export default function PortfolioPage() {
               {/* Left Content */}
               <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-8 py-12 lg:py-0 lg:pr-12">
                 <div className="animate-slide-up [animation-delay:100ms]">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
                     Video Editor • Brazil
                   </span>
                 </div>
@@ -71,7 +75,7 @@ export default function PortfolioPage() {
                 <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.95] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
                   CRAFTING<br />
                   VISUAL<br />
-                  STORYTELLING.
+                  STORYTELLING<span className="text-primary">.</span>
                 </h1>
 
                 <p className="text-muted-foreground text-lg max-w-md font-mono uppercase tracking-tight animate-slide-up [animation-delay:300ms]">
@@ -79,7 +83,7 @@ export default function PortfolioPage() {
                 </p>
 
                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4 animate-slide-up [animation-delay:400ms]">
-                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
                     View Projects
                   </Button>
                   <Button size="lg" variant="outline" className="rounded-none px-10 h-16 text-base font-bold border-foreground/20 text-foreground hover:border-primary transition-all duration-300">
@@ -108,9 +112,9 @@ export default function PortfolioPage() {
 
           {/* Scroll Indicator */}
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-reveal [animation-delay:800ms]">
-            <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary">Scroll</span>
-            <div className="w-[1px] h-12 bg-primary/20 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line" />
+            <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
+            <div className="w-[2px] h-12 bg-primary/20 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
             </div>
           </div>
         </section>
@@ -120,7 +124,7 @@ export default function PortfolioPage() {
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-center md:text-left">
               <div>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-primary block mb-2">Portfolio</span>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-primary block mb-2 font-bold">Portfolio</span>
                 <h2 className="text-4xl md:text-5xl font-bold font-serif text-foreground">Selected Works</h2>
               </div>
               <div className="flex flex-wrap justify-center md:justify-end gap-2">
@@ -150,7 +154,7 @@ export default function PortfolioPage() {
                     />
                     <div className="absolute inset-0 halftone-overlay pointer-events-none" />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-primary mb-1">Project {index + 1}</span>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-primary mb-1 font-bold">Project {index + 1}</span>
                       <h3 className="text-xl font-bold text-foreground">{work.description}</h3>
                     </div>
                   </CardContent>
