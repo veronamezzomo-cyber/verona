@@ -1,18 +1,17 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { EditableImage } from '@/components/editable-image';
 import { 
   Mail, 
   ArrowRight
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -106,9 +105,10 @@ export default function PortfolioPage() {
               <div className="px-6 lg:px-12 animate-image-reveal">
                 <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[55vh] group overflow-hidden border border-primary/20 bg-muted shadow-2xl">
                   {profileImage && (
-                    <Image 
+                    <EditableImage 
                       src={profileImage.imageUrl} 
                       alt={profileImage.description}
+                      storageKey="hero-profile"
                       fill
                       className="object-cover duotone-primary transition-transform duration-1000 group-hover:scale-105"
                       priority
@@ -144,9 +144,10 @@ export default function PortfolioPage() {
                     className="group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10"
                   >
                     {img && (
-                      <Image 
+                      <EditableImage 
                         src={img.imageUrl} 
                         alt={cat.label} 
+                        storageKey={`cat-${cat.id}`}
                         fill
                         className="object-cover duotone-primary opacity-90 transition-transform duration-500 group-hover:scale-110"
                         data-ai-hint={img.imageHint}
@@ -191,9 +192,10 @@ export default function PortfolioPage() {
               {projectImages.map((work, index) => (
                 <Card key={work.id || index} className="group relative overflow-hidden bg-transparent border-foreground/5 rounded-none transition-all hover:border-primary/50">
                   <CardContent className="p-0 relative aspect-video overflow-hidden">
-                    <Image 
+                    <EditableImage 
                       src={work.imageUrl} 
                       alt={work.description}
+                      storageKey={`work-${work.id || index}`}
                       width={800}
                       height={600}
                       className="object-cover w-full h-full duotone-primary transition-transform duration-700 group-hover:scale-110"
@@ -271,3 +273,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
