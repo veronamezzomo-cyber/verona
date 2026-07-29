@@ -1,7 +1,6 @@
 import { genkit } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
-// Genkit agora inicializado sem plugins de modelos externos (Gemini/OpenAI)
-// Servindo apenas como orquestrador de flows locais.
 export const ai = genkit({
-  plugins: [],
+  plugins: [googleAI()],
 });

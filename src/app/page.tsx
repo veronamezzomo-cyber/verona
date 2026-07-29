@@ -1,97 +1,53 @@
-"use client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sparkles } from "lucide-react";
 
-/**
- * @fileOverview Business Card Forge - High Fidelity Vector Studio.
- */
-
-import { useEffect } from 'react';
-import { LayoutEditor } from '@/components/layout-editor';
-import { PropertiesPanel } from '@/components/properties-panel';
-import { useLayoutState } from '@/hooks/use-layout-state';
-import { generateBusinessCardReconstruction } from '@/lib/layout-templates';
-import { 
-  Sparkles
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { ExportPanel } from '@/components/export-panel';
-
-export default function BusinessCardStudio() {
-  const { 
-    elements, 
-    selectedIds, 
-    selectedElement, 
-    zoom, setZoom,
-    pan, setPan,
-    setLayout, 
-    updateElement, 
-    selectElement 
-  } = useLayoutState();
-
-  // Inicializa o layout com a fidelidade absoluta do cartão do Patrick Bateman
-  useEffect(() => {
-    const initialLayout = generateBusinessCardReconstruction();
-    setLayout(initialLayout.elements, initialLayout.negativeSpaceMetrics);
-  }, [setLayout]);
-
+export default function Home() {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#1b1b1a] text-white font-sans selection:bg-primary/30">
-      <header className="h-14 border-b border-white/5 bg-[#1b1b1a]/80 backdrop-blur-xl flex items-center justify-between px-6 z-[100]">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <span className="text-[10px] font-headline uppercase tracking-[0.3em] font-bold text-white">Layout Forge</span>
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+      <main className="max-w-2xl w-full space-y-8 text-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="p-3 bg-primary/10 rounded-2xl">
+            <Sparkles className="h-10 w-10 text-primary" />
           </div>
-          <div className="h-4 w-px bg-white/10" />
-          <div className="flex gap-4 items-center">
-            <span className="flex items-center gap-1.5 text-primary text-[10px] font-mono font-bold">
-              <div className={cn("w-1.5 h-1.5 rounded-full bg-primary animate-pulse")} /> 
-              ASSET_FIDELITY: 100%
-            </span>
-          </div>
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+            Novo Projeto
+          </h1>
+          <p className="text-xl text-muted-foreground">
+            Sua estrutura básica está pronta. Comece a construir seu novo site aqui.
+          </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <ExportPanel elements={elements} />
-        </div>
-      </header>
-      
-      <main className="flex-1 flex overflow-hidden">
-        <div className="flex-1 relative bg-[#1b1b1a] overflow-hidden">
-          <LayoutEditor 
-            elements={elements} 
-            selectedIds={selectedIds}
-            zoom={zoom}
-            pan={pan}
-            onSelect={selectElement}
-            onUpdate={updateElement}
-            onPan={(x, y) => setPan({ x, y })}
-            onZoom={(z) => setZoom(prev => Math.max(0.1, Math.min(10, prev * z)))}
-          />
-
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-black/80 backdrop-blur-md p-1.5 rounded-xl border border-white/10 shadow-2xl z-50">
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 0.9)}>-</Button>
-            <div className="h-4 w-px bg-white/10" />
-            <span className="text-[10px] font-mono w-12 text-center text-primary font-bold">{Math.round(zoom * 100)}%</span>
-            <div className="h-4 w-px bg-white/10" />
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => setZoom(prev => prev * 1.1)}>+</Button>
-          </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Genkit</CardTitle>
+              <CardDescription>IA Generativa configurada</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Pronto para criar fluxos de IA em src/ai/flows.
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>ShadCN UI</CardTitle>
+              <CardDescription>Componentes instalados</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Componentes base disponíveis na pasta components/ui.
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
-        {selectedElement && (
-          <PropertiesPanel selectedElement={selectedElement} onUpdate={updateElement} />
-        )}
+        <div className="flex justify-center gap-4 pt-8">
+          <Button size="lg">Documentação</Button>
+          <Button variant="outline" size="lg">Configurações</Button>
+        </div>
       </main>
-
-      <footer className="h-8 border-t border-white/5 bg-[#1b1b1a] flex items-center justify-between px-6 text-[9px] text-muted-foreground/30 font-mono tracking-widest">
-        <div className="flex gap-6 uppercase">
-          <span>PIPELINE: VECTOR_STABILIZATION_v1</span>
-          <span>ASSET: AMERICAN_PSYCHO_RECON</span>
-        </div>
-        <div>
-          <span>VECTOR_PRECISION: 100.00%</span>
-        </div>
-      </footer>
     </div>
   );
 }
