@@ -47,19 +47,19 @@ export default function PortfolioPage() {
             LV<span className="text-primary">.</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            <Link href="#works" className="hover:text-primary transition-colors">Works</Link>
-            <Link href="#about" className="hover:text-primary transition-colors">About</Link>
-            <Link href="#contact" className="hover:text-primary transition-colors">Contact</Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <Avatar className="h-8 w-8 border border-foreground/10">
-              <AvatarImage src={profileImage?.imageUrl} alt="Leonardo Verona" className="object-cover" />
-              <AvatarFallback className="font-mono text-[10px]">LV</AvatarFallback>
-            </Avatar>
-            <div className="md:hidden">
-              <Button variant="ghost" size="sm" className="font-mono text-[10px]">MENU</Button>
+            <Link href="#works" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary">Works</Link>
+            <Link href="#about" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary">About</Link>
+            <Link href="#contact" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary">Contact</Link>
+            <div className="flex items-center gap-4 border-l border-foreground/10 pl-8">
+              <ThemeToggle />
+              <Avatar className="h-8 w-8 border border-foreground/10">
+                <AvatarImage src={profileImage?.imageUrl} alt="Leonardo Verona" className="object-cover" />
+                <AvatarFallback className="font-mono text-[10px]">LV</AvatarFallback>
+              </Avatar>
             </div>
+          </nav>
+          <div className="md:hidden">
+            <Button variant="ghost" size="sm" className="font-mono text-[10px]">MENU</Button>
           </div>
         </div>
       </header>
@@ -99,7 +99,7 @@ export default function PortfolioPage() {
 
               {/* Right Image (Poster Style) */}
               <div className="p-6 lg:p-12 animate-image-reveal">
-                <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[75vh] group overflow-hidden border border-foreground/5 bg-muted shadow-2xl">
+                <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[75vh] group overflow-hidden border border-primary/20 bg-muted shadow-2xl">
                   {profileImage && (
                     <Image 
                       src={profileImage.imageUrl} 
@@ -127,7 +127,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* 3. SELECTED WORKS */}
-        <section id="works" className="py-24 border-t border-foreground/5">
+        <section id="works" className="py-32 border-t border-foreground/5">
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-center md:text-left">
               <div>
@@ -156,7 +156,7 @@ export default function PortfolioPage() {
                       alt={work.description}
                       width={800}
                       height={600}
-                      className="object-cover w-full h-full duotone-primary grayscale transition-transform duration-700 group-hover:scale-110 group-hover:grayscale-0"
+                      className="object-cover w-full h-full duotone-primary transition-transform duration-700 group-hover:scale-110"
                       data-ai-hint={work.imageHint}
                     />
                     <div className="absolute inset-0 halftone-overlay pointer-events-none" />

@@ -72,8 +72,8 @@
   }
   
   .duotone-primary {
-    /* Refined duotone mapping shadows to accent/bg and highlights to white */
-    filter: grayscale(100%) contrast(1.2) brightness(1.1) sepia(50%) hue-rotate(320deg) saturate(200%);
+    /* High-contrast Red/Black mapping */
+    filter: grayscale(100%) contrast(1.2) brightness(0.9) sepia(100%) hue-rotate(320deg) saturate(400%) contrast(1.1);
   }
 
   .halftone-overlay {
