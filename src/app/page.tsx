@@ -150,6 +150,7 @@ export default function PortfolioPage() {
                         storageKey={`cat-${cat.id}`}
                         fill
                         className="object-cover duotone-primary opacity-90 transition-transform duration-500 group-hover:scale-110"
+                        containerClassName="absolute inset-0"
                         data-ai-hint={img.imageHint}
                       />
                     )}
@@ -273,4 +274,3 @@ export default function PortfolioPage() {
     </div>
   );
 }
-
