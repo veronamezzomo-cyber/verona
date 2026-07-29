@@ -152,20 +152,20 @@ export default function PortfolioPage() {
                         src={img.imageUrl} 
                         alt={cat.label} 
                         fill
-                        className="object-cover duotone-primary opacity-40 transition-transform duration-500 group-hover:scale-110"
+                        className="object-cover duotone-primary opacity-90 transition-transform duration-500 group-hover:scale-110"
                         data-ai-hint={img.imageHint}
                       />
                     )}
-                    <div className="absolute inset-0 bg-background/60 group-hover:bg-background/20 transition-colors duration-300" />
-                    <div className="absolute inset-0 halftone-overlay pointer-events-none" />
-                    <span className="relative z-20 font-serif font-bold text-2xl lg:text-3xl text-foreground lowercase tracking-tighter">
+                    <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors duration-300 z-10" />
+                    <div className="absolute inset-0 halftone-overlay pointer-events-none z-20" />
+                    <span className="relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter">
                       {cat.label}
                     </span>
                   </Link>
                 );
               })}
               {/* Fade suggestion overlay */}
-              <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none z-30 opacity-60" />
+              <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none z-40 opacity-60" />
             </div>
           </div>
         </section>
