@@ -127,43 +127,45 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          {/* Right Column: Vertical Snap Feed */}
-          <div 
-            ref={scrollRef}
-            className="relative h-[75vh] w-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
-          >
-            {feedItems.map((item, idx) => {
-              const img = PlaceHolderImages.find(p => p.id === item.imgId);
-              return (
-                <div 
-                  key={item.id} 
-                  data-index={idx}
-                  className="feed-item relative w-full h-full snap-start overflow-hidden group"
-                >
-                  {img && (
-                    <EditableImage 
-                      src={img.imageUrl} 
-                      alt={item.title}
-                      storageKey={`feed-${category}-${item.id}`}
-                      fill
-                      className="object-cover duotone-primary opacity-70 transition-transform duration-[2000ms] group-hover:scale-105"
-                      data-ai-hint={img.imageHint}
-                    />
-                  )}
-                  
-                  {/* Overlay Textures */}
-                  <div className="absolute inset-0 halftone-overlay pointer-events-none z-10 opacity-40" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
+          {/* Right Column: Centered Vertical Snap Feed */}
+          <div className="flex justify-center w-full">
+            <div 
+              ref={scrollRef}
+              className="relative h-[80vh] max-h-[85vh] aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
+            >
+              {feedItems.map((item, idx) => {
+                const img = PlaceHolderImages.find(p => p.id === item.imgId);
+                return (
+                  <div 
+                    key={item.id} 
+                    data-index={idx}
+                    className="feed-item relative w-full h-full snap-start overflow-hidden group"
+                  >
+                    {img && (
+                      <EditableImage 
+                        src={img.imageUrl} 
+                        alt={item.title}
+                        storageKey={`feed-${category}-${item.id}`}
+                        fill
+                        className="object-cover duotone-primary opacity-70 transition-transform duration-[2000ms] group-hover:scale-105"
+                        data-ai-hint={img.imageHint}
+                      />
+                    )}
+                    
+                    {/* Overlay Textures */}
+                    <div className="absolute inset-0 halftone-overlay pointer-events-none z-10 opacity-40" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
 
-                  {/* Scroll Indicator for Desktop */}
-                  {idx < feedItems.length - 1 && (
-                    <div className="absolute bottom-8 right-8 z-30 animate-bounce text-primary/80">
-                      <ChevronDown className="h-8 w-8" />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    {/* Scroll Indicator for Desktop */}
+                    {idx < feedItems.length - 1 && (
+                      <div className="absolute bottom-8 right-8 z-30 animate-bounce text-primary/80">
+                        <ChevronDown className="h-8 w-8" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
         
