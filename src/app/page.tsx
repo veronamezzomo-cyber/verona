@@ -5,11 +5,12 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { 
   Mail, 
-  ChevronDown
+  ArrowRight
 } from 'lucide-react';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -52,6 +53,10 @@ export default function PortfolioPage() {
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
+            <Avatar className="h-8 w-8 border border-foreground/10">
+              <AvatarImage src={profileImage?.imageUrl} alt="Leonardo Verona" className="object-cover" />
+              <AvatarFallback className="font-mono text-[10px]">LV</AvatarFallback>
+            </Avatar>
             <div className="md:hidden">
               <Button variant="ghost" size="sm" className="font-mono text-[10px]">MENU</Button>
             </div>
@@ -82,30 +87,32 @@ export default function PortfolioPage() {
                   Transforming raw concepts into cinematic digital experiences with precision and pace.
                 </p>
 
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4 animate-slide-up [animation-delay:400ms]">
-                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-[0_0_20px_rgba(139,30,46,0.2)]">
+                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 pt-4 animate-slide-up [animation-delay:400ms]">
+                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-foreground text-background hover:opacity-90 transition-all duration-300 shadow-xl">
                     View Projects
                   </Button>
-                  <Button size="lg" variant="outline" className="rounded-none px-10 h-16 text-base font-bold border-foreground/20 text-foreground hover:border-primary transition-all duration-300">
-                    Contact Me
-                  </Button>
+                  <Link href="#contact" className="group flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] font-bold text-foreground hover:text-primary transition-colors">
+                    Contact Me <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 </div>
               </div>
 
-              {/* Right Image */}
-              <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[80vh] group overflow-hidden border border-foreground/5 bg-muted animate-image-reveal">
-                {profileImage && (
-                  <Image 
-                    src={profileImage.imageUrl} 
-                    alt={profileImage.description}
-                    fill
-                    className="object-cover duotone-primary transition-transform duration-1000 group-hover:scale-105"
-                    priority
-                    data-ai-hint={profileImage.imageHint}
-                  />
-                )}
-                <div className="absolute inset-0 halftone-overlay pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+              {/* Right Image (Poster Style) */}
+              <div className="p-6 lg:p-12 animate-image-reveal">
+                <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[75vh] group overflow-hidden border border-foreground/5 bg-muted shadow-2xl">
+                  {profileImage && (
+                    <Image 
+                      src={profileImage.imageUrl} 
+                      alt={profileImage.description}
+                      fill
+                      className="object-cover duotone-primary transition-transform duration-1000 group-hover:scale-105"
+                      priority
+                      data-ai-hint={profileImage.imageHint}
+                    />
+                  )}
+                  <div className="absolute inset-0 halftone-overlay pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-background/20 to-transparent pointer-events-none" />
+                </div>
               </div>
             </div>
           </div>

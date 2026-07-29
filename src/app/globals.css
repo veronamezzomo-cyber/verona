@@ -72,8 +72,8 @@
   }
   
   .duotone-primary {
-    /* Adjusted hue-rotate to 345deg for Wine Red spectrum */
-    filter: grayscale(100%) brightness(1.05) contrast(1.1) sepia(100%) hue-rotate(320deg) saturate(300%);
+    /* Refined duotone mapping shadows to accent/bg and highlights to white */
+    filter: grayscale(100%) contrast(1.2) brightness(1.1) sepia(50%) hue-rotate(320deg) saturate(200%);
   }
 
   .halftone-overlay {
