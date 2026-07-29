@@ -1,13 +1,13 @@
 'use client';
 
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { EditableImage } from '@/components/editable-image';
+import { CategoryFeed } from '@/components/category-feed';
 import { 
   Mail, 
   ArrowRight
@@ -26,6 +26,8 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 export default function PortfolioPage() {
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
   const categories = [
     { id: 'cat-all', label: 'all' },
     { id: 'cat-shorts', label: 'shorts' },
@@ -44,7 +46,6 @@ export default function PortfolioPage() {
 
   const profileImage = PlaceHolderImages.find(i => i.id === 'hero-profile');
   const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
-  const projectImages = PlaceHolderImages.filter(i => i.id.startsWith('work-'));
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
@@ -132,16 +133,16 @@ export default function PortfolioPage() {
         </section>
 
         {/* 2.5 CATEGORY GRID */}
-        <section className="relative pt-12 pb-12">
+        <section id="works" className="relative pt-12 pb-12 scroll-mt-24">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border border-foreground/5 bg-foreground/5 gap-[1px] relative overflow-hidden">
-              {categories.map((cat, index) => {
+              {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
-                  <Link 
+                  <button 
                     key={cat.id} 
-                    href={`#${cat.label}`} 
-                    className="group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10"
+                    onClick={() => setActiveCategory(cat.label)}
+                    className="group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10 outline-none"
                   >
                     {img && (
                       <EditableImage 
@@ -159,7 +160,7 @@ export default function PortfolioPage() {
                     <span className="relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter text-center px-2">
                       {cat.label}
                     </span>
-                  </Link>
+                  </button>
                 );
               })}
               {/* Fade suggestion overlay */}
@@ -168,69 +169,35 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 3. SELECTED WORKS */}
-        <section id="works" className="py-24 border-t border-foreground/5">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 text-center md:text-left">
-              <div>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-primary block mb-2 font-bold">Portfolio</span>
-                <h2 className="text-4xl md:text-5xl font-bold font-serif text-foreground">Selected Works</h2>
-              </div>
-              <div className="flex flex-wrap justify-center md:justify-end gap-2">
-                {['All', 'Shorts', 'Podcasts', 'Motion', 'Talking', 'Vlogs'].map((cat) => (
-                  <Badge 
-                    key={cat} 
-                    variant={cat === 'All' ? 'default' : 'outline'} 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all font-mono text-[9px] px-4 py-1.5 uppercase tracking-tighter rounded-none"
-                  >
-                    {cat}
-                  </Badge>
+        {/* 3. DYNAMIC CATEGORY FEED */}
+        {activeCategory && (
+          <div className="py-12 border-t border-foreground/5">
+            <CategoryFeed 
+              category={activeCategory} 
+              onClose={() => setActiveCategory(null)} 
+            />
+          </div>
+        )}
+
+        {/* 4. STATS */}
+        {!activeCategory && (
+          <section className="py-24 border-y border-foreground/5 bg-muted/20 animate-reveal">
+            <div className="container mx-auto px-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="flex flex-col items-center">
+                    <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-foreground">
+                      {stat.value}
+                    </span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
+                      {stat.label}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {projectImages.map((work, index) => (
-                <Card key={work.id || index} className="group relative overflow-hidden bg-transparent border-foreground/5 rounded-none transition-all hover:border-primary/50">
-                  <CardContent className="p-0 relative aspect-video overflow-hidden">
-                    <EditableImage 
-                      src={work.imageUrl} 
-                      alt={work.description}
-                      storageKey={`work-${work.id || index}`}
-                      width={800}
-                      height={600}
-                      className="object-cover w-full h-full duotone-primary transition-transform duration-700 group-hover:scale-110"
-                      data-ai-hint={work.imageHint}
-                    />
-                    <div className="absolute inset-0 halftone-overlay pointer-events-none" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-primary mb-1 font-bold">Project {index + 1}</span>
-                      <h3 className="text-xl font-bold text-foreground">{work.description}</h3>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* 4. STATS */}
-        <section className="py-24 border-y border-foreground/5 bg-muted/20">
-          <div className="container mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-              {stats.map((stat) => (
-                <div key={stat.label} className="flex flex-col items-center">
-                  <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-foreground">
-                    {stat.value}
-                  </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* 5. CALL TO ACTION */}
         <section id="contact" className="py-32 relative overflow-hidden">

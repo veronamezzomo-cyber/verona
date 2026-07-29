@@ -43,22 +43,28 @@
       "imageHint": "mountain landscape"
     },
     {
-      "id": "work-1",
-      "description": "Short film edit project",
-      "imageUrl": "https://picsum.photos/seed/work1/800/600",
-      "imageHint": "cinematic editing"
+      "id": "feed-1",
+      "description": "Cinematic Short Film",
+      "imageUrl": "https://picsum.photos/seed/f1/1080/1920",
+      "imageHint": "cinematic movie"
     },
     {
-      "id": "work-2",
-      "description": "Motion graphics showcase",
-      "imageUrl": "https://picsum.photos/seed/work2/800/600",
-      "imageHint": "motion graphics"
+      "id": "feed-2",
+      "description": "High-End Motion Design",
+      "imageUrl": "https://picsum.photos/seed/f2/1080/1920",
+      "imageHint": "3d render"
     },
     {
-      "id": "work-3",
-      "description": "Podcast highlights",
-      "imageUrl": "https://picsum.photos/seed/work3/800/600",
+      "id": "feed-3",
+      "description": "Podcast Highlight Reel",
+      "imageUrl": "https://picsum.photos/seed/f3/1080/1920",
       "imageHint": "podcast studio"
+    },
+    {
+      "id": "feed-4",
+      "description": "Vlog Adventure Series",
+      "imageUrl": "https://picsum.photos/seed/f4/1080/1920",
+      "imageHint": "nature travel"
     }
   ]
 }
