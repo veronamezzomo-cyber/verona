@@ -57,10 +57,10 @@
     @apply bg-background text-foreground;
   }
   h1, h2, h3, .serif {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-playfair);
   }
   .mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-jetbrains);
   }
 }
 

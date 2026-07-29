@@ -6,8 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { 
   Mail, 
-  ArrowUpRight,
-  MessageSquare
+  ArrowUpRight
 } from 'lucide-react';
 
 // Custom Brand Icons as SVG components
@@ -39,7 +38,7 @@ export default function PortfolioPage() {
       <header className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter serif italic">
-            FK<span className="text-primary">.</span>
+            LV<span className="text-primary">.</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 mono text-xs uppercase tracking-widest text-muted-foreground">
             <Link href="#works" className="hover:text-primary transition-colors">Works</Link>
@@ -56,9 +55,9 @@ export default function PortfolioPage() {
         {/* 2. HERO */}
         <section className="container mx-auto px-6 py-24 md:py-40 flex flex-col items-center text-center">
           <div className="mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            Fernando T. Kunz — Video Editor
+            Leonardo Verona — Video Editor
           </div>
-          <h1 className="text-6xl md:text-9xl font-bold leading-none mb-8 max-w-5xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <h1 className="text-[clamp(2.5rem,8vw,8rem)] font-bold leading-[0.9] tracking-tighter mb-8 max-w-5xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
             CRAFTING <span className="text-outline italic">VISUAL</span> NARRATIVES.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
@@ -158,13 +157,13 @@ export default function PortfolioPage() {
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
               <WhatsAppIcon className="h-5 w-5" />
             </Link>
-            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+            <Link href="mailto:contact@leonardoverona.com" className="text-muted-foreground hover:text-primary transition-colors">
               <Mail className="h-5 w-5" />
             </Link>
           </div>
           
           <div className="mono text-[10px] text-muted-foreground uppercase tracking-widest">
-            © 2024 Fernando T. Kunz. All rights reserved.
+            © 2024 Leonardo Verona. All rights reserved.
           </div>
           
           <div className="mono text-[10px] text-muted-foreground uppercase tracking-widest">
