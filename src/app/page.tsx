@@ -47,7 +47,7 @@ export default function PortfolioPage() {
   const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-500">
+    <div className="min-h-screen text-foreground transition-colors duration-500">
       {/* 1. HEADER */}
       <header className="fixed top-0 w-full z-50 border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
