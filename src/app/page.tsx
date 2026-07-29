@@ -55,10 +55,10 @@ export default function PortfolioPage() {
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-            <Link href="#works" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary">Works</Link>
-            <Link href="#about" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary">About</Link>
-            <Link href="#contact" className="hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary">Contact</Link>
+          <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest">
+            <Link href="#works" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">Works</Link>
+            <Link href="#about" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">About</Link>
+            <Link href="#contact" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">Contact</Link>
             <div className="flex items-center gap-4 border-l border-foreground/10 pl-8">
               <ThemeToggle />
               <Avatar className="h-8 w-8 border border-foreground/10">
