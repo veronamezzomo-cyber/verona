@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { EditableImage } from '@/components/editable-image';
@@ -61,10 +60,6 @@ export default function PortfolioPage() {
             <Link href="#contact" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">Contact</Link>
             <div className="flex items-center gap-4 border-l border-foreground/10 pl-8">
               <ThemeToggle />
-              <Avatar className="h-8 w-8 border border-foreground/10">
-                <AvatarImage src={profileImage?.imageUrl} alt="Leonardo Verona" className="object-cover" />
-                <AvatarFallback className="font-mono text-[10px]">LV</AvatarFallback>
-              </Avatar>
             </div>
           </nav>
           <div className="md:hidden">
