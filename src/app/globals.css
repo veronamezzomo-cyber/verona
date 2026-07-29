@@ -56,6 +56,15 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Subtle Engraving / Paper Texture for Light Mode */
+    background-image: 
+      radial-gradient(rgba(180, 100, 50, 0.04) 0.5px, transparent 0.5px),
+      linear-gradient(rgba(180, 100, 50, 0.015) 1px, transparent 1px);
+    background-size: 12px 12px, 100% 3px;
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image: none;
   }
   h1, h2, h3, .serif {
     font-family: var(--font-playfair);
