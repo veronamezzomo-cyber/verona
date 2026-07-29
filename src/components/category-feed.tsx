@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { EditableImage } from '@/components/editable-image';
+import { EditableVideo } from '@/components/editable-video';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface CategoryFeedProps {
@@ -142,13 +142,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     className="feed-item relative w-full h-full snap-start overflow-hidden group"
                   >
                     {img && (
-                      <EditableImage 
-                        src={img.imageUrl} 
-                        alt={item.title}
+                      <EditableVideo 
+                        src="" // Standard behavior: editable state will override this
                         storageKey={`feed-${category}-${item.id}`}
                         fill
                         className="object-cover duotone-primary opacity-70 transition-transform duration-[2000ms] group-hover:scale-105"
-                        data-ai-hint={img.imageHint}
                       />
                     )}
                     
