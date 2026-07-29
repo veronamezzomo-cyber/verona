@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -37,36 +39,38 @@ export default function PortfolioPage() {
       {/* 1. HEADER */}
       <header className="fixed top-0 w-full z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tighter serif italic">
+          <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic">
             LV<span className="text-primary">.</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-8 mono text-xs uppercase tracking-widest text-muted-foreground">
+          <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">
             <Link href="#works" className="hover:text-primary transition-colors">Works</Link>
             <Link href="#about" className="hover:text-primary transition-colors">About</Link>
             <Link href="#contact" className="hover:text-primary transition-colors">Contact</Link>
           </nav>
           <div className="md:hidden">
-            <Button variant="ghost" size="sm" className="mono text-[10px]">MENU</Button>
+            <Button variant="ghost" size="sm" className="font-mono text-[10px]">MENU</Button>
           </div>
         </div>
       </header>
 
       <main className="pt-20">
         {/* 2. HERO */}
-        <section className="container mx-auto px-6 py-24 md:py-40 flex flex-col items-center text-center">
-          <div className="mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            Leonardo Verona — Video Editor
+        <section className="container mx-auto px-6 py-24 md:py-40 flex flex-col items-center justify-center text-center">
+          <div className="w-full flex flex-col items-center">
+            <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              Leonardo Verona — Video Editor
+            </div>
+            <h1 className="text-[clamp(2.5rem,9vw,9rem)] font-bold leading-[0.85] tracking-tighter mb-6 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
+              CRAFTING <span className="text-outline italic">VISUAL</span> NARRATIVES.
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+              Transforming raw footage into high-impact digital experiences. Specialized in fast-paced storytelling and cinematic motion graphics.
+            </p>
+            <Button size="lg" className="rounded-full px-8 h-14 text-base font-medium group transition-all hover:scale-105">
+              View Projects
+              <ArrowUpRight className="ml-2 h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </Button>
           </div>
-          <h1 className="text-[clamp(2.5rem,8vw,8rem)] font-bold leading-[0.9] tracking-tighter mb-8 max-w-5xl animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            CRAFTING <span className="text-outline italic">VISUAL</span> NARRATIVES.
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
-            Transforming raw footage into high-impact digital experiences. Specialized in fast-paced storytelling and cinematic motion graphics.
-          </p>
-          <Button size="lg" className="rounded-full px-8 h-14 text-base font-medium group transition-all hover:scale-105">
-            View Projects
-            <ArrowUpRight className="ml-2 h-4 w-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-          </Button>
         </section>
 
         {/* 3. SELECTED WORKS */}
@@ -74,15 +78,15 @@ export default function PortfolioPage() {
           <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
               <div>
-                <span className="mono text-[10px] uppercase tracking-widest text-primary block mb-2">Portfolio</span>
-                <h2 className="text-4xl md:text-5xl font-bold">Selected Works</h2>
+                <span className="font-mono text-[10px] uppercase tracking-widest text-primary block mb-2">Portfolio</span>
+                <h2 className="text-4xl md:text-5xl font-bold font-serif">Selected Works</h2>
               </div>
               <div className="flex flex-wrap gap-2">
                 {categories.map((cat) => (
                   <Badge 
                     key={cat} 
                     variant={cat === 'All' ? 'default' : 'outline'} 
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all mono text-[9px] px-4 py-1.5 uppercase tracking-tighter"
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all font-mono text-[9px] px-4 py-1.5 uppercase tracking-tighter"
                   >
                     {cat}
                   </Badge>
@@ -92,7 +96,7 @@ export default function PortfolioPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {PlaceHolderImages.map((work, index) => (
-                <Card key={work.id} className="group relative overflow-hidden bg-transparent border-white/5 transition-all hover:border-primary/50">
+                <Card key={work.id || index} className="group relative overflow-hidden bg-transparent border-white/5 transition-all hover:border-primary/50">
                   <CardContent className="p-0 relative aspect-video overflow-hidden">
                     <Image 
                       src={work.imageUrl} 
@@ -104,7 +108,7 @@ export default function PortfolioPage() {
                     />
                     <div className="absolute inset-0 halftone-overlay pointer-events-none" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                      <span className="mono text-[9px] uppercase tracking-widest text-primary mb-1">Project {index + 1}</span>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-primary mb-1">Project {index + 1}</span>
                       <h3 className="text-xl font-bold text-white">{work.description}</h3>
                     </div>
                   </CardContent>
@@ -120,10 +124,10 @@ export default function PortfolioPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
               {stats.map((stat) => (
                 <div key={stat.label} className="flex flex-col items-center">
-                  <span className="text-5xl md:text-7xl font-bold mb-2 mono tracking-tighter text-white">
+                  <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-white">
                     {stat.value}
                   </span>
-                  <span className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
                     {stat.label}
                   </span>
                 </div>
@@ -135,8 +139,8 @@ export default function PortfolioPage() {
         {/* 5. CALL TO ACTION */}
         <section id="contact" className="py-32 relative overflow-hidden">
           <div className="container mx-auto px-6 text-center relative z-10">
-            <h2 className="text-5xl md:text-7xl font-bold mb-8 italic">Ready to tell your story?</h2>
-            <p className="text-muted-foreground mb-12 max-w-xl mx-auto mono text-sm uppercase tracking-widest">
+            <h2 className="text-5xl md:text-7xl font-bold mb-8 italic font-serif">Ready to tell your story?</h2>
+            <p className="text-muted-foreground mb-12 max-w-xl mx-auto font-mono text-sm uppercase tracking-widest">
               Available for freelance opportunities and long-term partnerships.
             </p>
             <Button size="lg" variant="default" className="rounded-full px-12 h-16 text-lg font-bold">
@@ -162,11 +166,11 @@ export default function PortfolioPage() {
             </Link>
           </div>
           
-          <div className="mono text-[10px] text-muted-foreground uppercase tracking-widest">
+          <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
             © 2024 Leonardo Verona. All rights reserved.
           </div>
           
-          <div className="mono text-[10px] text-muted-foreground uppercase tracking-widest">
+          <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
             Built with <span className="text-primary italic">Next.js & Genkit</span>
           </div>
         </div>
