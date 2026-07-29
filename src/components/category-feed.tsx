@@ -143,15 +143,14 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   >
                     {img && (
                       <EditableVideo 
-                        src="" // Standard behavior: editable state will override this
+                        src="" 
                         storageKey={`feed-${category}-${item.id}`}
                         fill
-                        className="object-cover duotone-primary opacity-70 transition-transform duration-[2000ms] group-hover:scale-105"
+                        className="object-cover transition-transform duration-[2000ms] group-hover:scale-105"
                       />
                     )}
                     
-                    {/* Overlay Textures */}
-                    <div className="absolute inset-0 halftone-overlay pointer-events-none z-10 opacity-40" />
+                    {/* Overlay Textures - Grain/Duotone removed for video reproduction */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
 
                     {/* Scroll Indicator for Desktop */}
