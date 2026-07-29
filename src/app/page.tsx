@@ -83,7 +83,7 @@ export default function PortfolioPage() {
                 </p>
 
                 <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4 animate-slide-up [animation-delay:400ms]">
-                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-[0_0_20px_rgba(139,30,46,0.2)]">
                     View Projects
                   </Button>
                   <Button size="lg" variant="outline" className="rounded-none px-10 h-16 text-base font-bold border-foreground/20 text-foreground hover:border-primary transition-all duration-300">
@@ -114,7 +114,7 @@ export default function PortfolioPage() {
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 animate-reveal [animation-delay:800ms]">
             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
             <div className="w-[2px] h-12 bg-primary/20 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+              <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(139,30,46,0.5)]" />
             </div>
           </div>
         </section>
