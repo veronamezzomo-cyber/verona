@@ -17,6 +17,7 @@ interface FeedItem {
   date: string;
   notes: string;
   imgId: string;
+  videoUrl?: string;
 }
 
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
@@ -30,7 +31,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       title: `${category.toUpperCase()} PROJECT 01`, 
       date: 'OCT 2023',
       notes: 'Exploration of high-contrast visual rhythm and experimental color grading techniques for high-end digital media.',
-      imgId: 'feed-1' 
+      imgId: 'feed-1',
+      videoUrl: category === 'shorts' ? 'https://i.imgur.com/6lrRPzC.mp4' : undefined
     },
     { 
       id: '2', 
@@ -134,21 +136,18 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               className="relative h-[80vh] max-h-[85vh] aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
             >
               {feedItems.map((item, idx) => {
-                const img = PlaceHolderImages.find(p => p.id === item.imgId);
                 return (
                   <div 
                     key={item.id} 
                     data-index={idx}
                     className="feed-item relative w-full h-full snap-start overflow-hidden group"
                   >
-                    {img && (
-                      <EditableVideo 
-                        src="" 
-                        storageKey={`feed-${category}-${item.id}`}
-                        fill
-                        className="object-cover transition-transform duration-[2000ms] group-hover:scale-105"
-                      />
-                    )}
+                    <EditableVideo 
+                      src={item.videoUrl || ""} 
+                      storageKey={`feed-${category}-${item.id}`}
+                      fill
+                      className="object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                    />
                     
                     {/* Overlay Textures - Grain/Duotone removed for video reproduction */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
