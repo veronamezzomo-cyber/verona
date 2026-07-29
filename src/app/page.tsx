@@ -75,11 +75,11 @@ export default function PortfolioPage() {
 
       <main>
         {/* 2. SPLIT HERO */}
-        <section className="relative min-h-0 flex pt-28 pb-8 overflow-hidden">
+        <section className="relative min-h-[clamp(500px,78vh,850px)] flex pt-28 pb-8 overflow-hidden">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-0 items-start">
               {/* Left Content */}
-              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-6 py-8 lg:py-0 lg:pr-12">
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12">
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
                     Video Editor • Brazil
@@ -108,7 +108,7 @@ export default function PortfolioPage() {
 
               {/* Right Image (Poster Style) */}
               <div className="px-6 lg:px-12 animate-image-reveal">
-                <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[70vh] group overflow-hidden border border-primary/20 bg-muted shadow-2xl">
+                <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[55vh] group overflow-hidden border border-primary/20 bg-muted shadow-2xl">
                   {profileImage && (
                     <Image 
                       src={profileImage.imageUrl} 
@@ -136,9 +136,9 @@ export default function PortfolioPage() {
         </section>
 
         {/* 2.5 CATEGORY GRID */}
-        <section className="pt-12 pb-12">
+        <section className="relative pt-12 pb-12">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border border-foreground/5 bg-foreground/5 gap-[1px]">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border border-foreground/5 bg-foreground/5 gap-[1px] relative overflow-hidden">
               {categories.map((cat, index) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
@@ -164,6 +164,8 @@ export default function PortfolioPage() {
                   </Link>
                 );
               })}
+              {/* Fade suggestion overlay */}
+              <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none z-30 opacity-60" />
             </div>
           </div>
         </section>
