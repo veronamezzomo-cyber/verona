@@ -55,7 +55,7 @@ export default function PortfolioPage() {
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest">
+          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <Link href="#works" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">Works</Link>
             <Link href="#about" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">About</Link>
             <Link href="#contact" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">Contact</Link>
@@ -75,11 +75,11 @@ export default function PortfolioPage() {
 
       <main>
         {/* 2. SPLIT HERO */}
-        <section className="relative min-h-[clamp(500px,78vh,850px)] flex pt-28 pb-8 overflow-hidden">
+        <section className="relative flex pt-28 pb-8 overflow-hidden min-h-[clamp(500px,78vh,850px)]">
           <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-12 lg:gap-0 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-0 items-start">
               {/* Left Content */}
-              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12">
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6">
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
                     Video Editor • Brazil
@@ -92,12 +92,8 @@ export default function PortfolioPage() {
                   STORYTELLING<span className="text-primary">.</span>
                 </h1>
 
-                <p className="text-muted-foreground text-lg max-w-md font-mono uppercase tracking-tight animate-slide-up [animation-delay:300ms]">
-                  Transforming raw concepts into cinematic digital experiences with precision and pace.
-                </p>
-
                 <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 pt-2 animate-slide-up [animation-delay:400ms]">
-                  <Button size="lg" className="rounded-none px-10 h-16 text-base font-bold bg-foreground text-background hover:opacity-90 transition-all duration-300 shadow-xl">
+                  <Button size="lg" className="rounded-none px-12 h-16 text-base font-bold bg-foreground text-background hover:opacity-90 transition-all duration-300 shadow-xl">
                     View Projects
                   </Button>
                   <Link href="#contact" className="group flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] font-bold text-foreground hover:text-primary transition-colors">
@@ -156,9 +152,9 @@ export default function PortfolioPage() {
                         data-ai-hint={img.imageHint}
                       />
                     )}
-                    <div className="absolute inset-0 bg-black/50 group-hover:bg-black/30 transition-colors duration-300 z-10" />
+                    <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-300 z-10" />
                     <div className="absolute inset-0 halftone-overlay pointer-events-none z-20" />
-                    <span className="relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter">
+                    <span className="relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter text-center px-2">
                       {cat.label}
                     </span>
                   </Link>
