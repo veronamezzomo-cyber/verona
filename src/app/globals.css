@@ -58,7 +58,7 @@
     @apply bg-background text-foreground relative;
   }
   
-  /* Canvas / Painting Texture for Light Mode */
+  /* Frottage / Hand-Pressed Ink Texture for Light Mode */
   body::before {
     content: "";
     position: fixed;
@@ -68,12 +68,11 @@
     height: 100%;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.5; /* Confirming visible as requested */
-    /* Combined Linen Weave and Fractal Noise in Wine Red (#8B1E2E) */
+    opacity: 0.25; /* Visible but organic */
+    /* Frottage Noise in Wine Red (#8B1E2E) */
     background-image: 
-      url("data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 5 0 L 5 10 M 0 5 L 10 5' fill='none' stroke='%238B1E2E' stroke-width='0.2' opacity='0.3'/%3E%3C/svg%3E"),
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.545 0 0 0 0 0.118 0 0 0 0 0.18 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 8px 8px, 150px 150px;
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='frottage'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.545 0 0 0 0 0.118 0 0 0 0 0.18 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23frottage)'/%3E%3C/svg%3E");
+    background-size: 300px 300px;
   }
 
   .dark body::before {
@@ -95,7 +94,8 @@
   }
   
   .duotone-primary {
-    filter: grayscale(100%) brightness(1.4) contrast(0.9) sepia(1) hue-rotate(330deg) saturate(350%) brightness(0.95);
+    /* Refined duotone: Lighter shadows, vibrant Wine Red highlights */
+    filter: grayscale(100%) brightness(1.1) contrast(1.1) sepia(1) hue-rotate(320deg) saturate(280%) brightness(0.9);
   }
 
   .halftone-overlay {
@@ -152,7 +152,7 @@
     }
     to {
       opacity: 1;
-      filter: none;
+      filter: none; /* Removed fixed grayscale end-state to allow duotone through */
     }
   }
 
