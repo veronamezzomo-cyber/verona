@@ -38,24 +38,23 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   
   // Angle / Time Reference (Independent Physics)
   const timeRef = useRef(0);
-  const currentSpeedRef = useRef(0.2); // Base Hypnotic Speed
+  const currentSpeedRef = useRef(0.2); // Hypnotic Base Speed
   
-  // Transition Factors (Updated via GSAP, read by rAF)
-  // Index 0 starts in focus immediately on load
-  const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0))); 
-  const morphFactorRef = useRef({ value: 1 }); // Start stacked in leque
+  // Attractor Factors (Updated via GSAP, read by rAF)
+  // Initial state: Item 0 starts in focus (1) and stack (1)
+  const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0)));
+  const morphFactorRef = useRef({ value: 1 }); // Start in "Leque" (Stack)
   const activeIndexRef = useRef(0);
   
-  // Orbital Parameters - Increased vertical radius (ry) for better fill
+  // Orbital Parameters
   const orbitParams = useMemo(() => videos.map((_, i) => ({
     rx: 240 + Math.sin(i * 1.5) * 60,
-    ry: 180 + Math.cos(i * 2.2) * 60, // Increased vertical openness
+    ry: 180 + Math.cos(i * 2.2) * 40,
     offset: (i * (Math.PI * 2)) / videos.length
   })), [videos]);
 
   useEffect(() => {
-    // 1. Initial State Handling: Item 0 starts in focus. 
-    // The "Explosion" sequence from stack to orbit occurs after 0.5s.
+    // 1. Initial State Handling: Start in Stack for 0.5s, then explode.
     gsap.delayedCall(0.5, () => {
       gsap.to(morphFactorRef.current, {
         value: 0,
@@ -123,21 +122,23 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const oy = Math.sin(angle) * p.ry;
         const depth = Math.sin(angle); // -1 (back) to 1 (front)
 
-        // Additive Offset Layer: Pull towards center (Focus) or stack (Leque)
-        // We leave 5% of the orbit even in focus to keep it "alive"
-        let tx = ox + (0 - ox) * (ff * 0.95);
-        let ty = oy + (0 - oy) * (ff * 0.95);
+        // Additive Offset Layer: Pull toward center (Focus) or stack (Leque)
+        // Corrected to eliminate residual orbital "leak" at values = 1
+        let tx = ox + (0 - ox) * ff;
+        let ty = oy + (0 - oy) * ff;
 
         // Stack displacement (Cascading offset)
         const sx = i * -15;
         const sy = i * -15;
-        tx = tx + (sx - tx) * (morph * 0.95);
-        ty = ty + (sy - ty) * (morph * 0.95);
+        tx = tx + (sx - tx) * morph;
+        ty = ty + (sy - ty) * morph;
 
         // Visual Properties
         const baseScale = 0.9 + (1 + depth) * 0.05; // 0.9 to 1.0 based on depth
-        // Focused is 1.4x (40% larger than 1.0 base)
-        const scale = baseScale + (1.4 - baseScale) * ff; 
+        const focalScale = 1.4;
+        const targetScale = baseScale + (focalScale - baseScale) * ff;
+        // In "Leque" (morph=1), everything goes to scale 1.0
+        const scale = targetScale + (1.0 - targetScale) * morph;
         
         // Z-Index: Depth sorting vs Stack sorting
         const zIndex = morph > 0.5 
@@ -147,11 +148,11 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const blur = (1 - ff) * (depth < 0 ? Math.abs(depth) * 4 : 0);
 
         // Direct Styles Update (High Performance)
-        // Using translate(-50%, -50%) as base ensures (0,0) is true center of item
+        // translate(-50%, -50%) is preserved here, matched with CSS initial style
         el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
-        el.style.opacity = '1'; // NO TRANSPARENCY - FORCED 100%
+        el.style.opacity = '1'; // NO TRANSPARENCY
       });
 
       requestRef = requestAnimationFrame(animate);
@@ -167,12 +168,11 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   }, [videos, orbitParams]);
 
   const handleMouseEnter = () => {
-    // Slower, gradual speed transition (lerp factor 0.02 handled by logic, but here using GSAP for simplicity)
-    gsap.to(currentSpeedRef, { current: 0.23, duration: 1.5, ease: 'sine.out' });
+    gsap.to(currentSpeedRef, { current: 0.23, duration: 2.0, ease: 'sine.out' });
   };
   
   const handleMouseLeave = () => {
-    gsap.to(currentSpeedRef, { current: 0.2, duration: 2.5, ease: 'sine.inOut' });
+    gsap.to(currentSpeedRef, { current: 0.2, duration: 3.0, ease: 'sine.inOut' });
   };
 
   return (
@@ -187,8 +187,11 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         <div 
           key={vid.id}
           ref={(el) => { itemRefs.current[i] = el; }}
-          className="absolute w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
-          style={{ opacity: 1 }} // Initial opacity safety
+          className="absolute top-1/2 left-1/2 w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
+          style={{ 
+            opacity: 1, 
+            transform: 'translate(-50%, -50%)' // BUG 1 FIX: Match initial anchor to JS anchor
+          }} 
         >
           <EditableVideo 
             src={vid.imageUrl} 
@@ -288,12 +291,12 @@ export default function PortfolioPage() {
       </header>
 
       <main>
-        {/* HERO SECTION - Set to overflow-visible to allow orbital path to breathe */}
+        {/* HERO SECTION */}
         <section className="relative flex pt-28 pb-8 overflow-visible min-h-screen">
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
               <div 
-                className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10"
+                className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10 justify-center"
               >
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
@@ -317,7 +320,7 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              <div className="relative w-full h-full flex items-center justify-center animate-image-reveal z-20">
+              <div className="relative w-full h-full flex items-center justify-center animate-image-reveal z-20 overflow-visible">
                 <FloatingVideoCluster videos={clusterVideos} />
               </div>
             </div>
@@ -449,3 +452,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
