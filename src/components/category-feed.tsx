@@ -163,7 +163,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       src={item.videoUrl || ""} 
                       storageKey={`feed-${category}-${item.id}`}
                       fill
-                      className="object-contain h-full w-full transition-transform duration-[2000ms] group-hover:scale-105"
+                      className="object-contain h-full w-full transition-transform group-hover:scale-105"
+                      style={{ transitionDuration: '2000ms' }}
                     />
                     
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />

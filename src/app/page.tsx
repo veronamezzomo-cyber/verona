@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -14,7 +13,6 @@ import {
   Mail, 
   ArrowRight
 } from 'lucide-react';
-import { gsap } from 'gsap';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -109,14 +107,14 @@ const FloatingImageCluster = () => {
             onMouseEnter={() => setIsHovered(idx)}
             onMouseLeave={() => setIsHovered(null)}
             className={cn(
-              "absolute transition-all ease-in-out cursor-pointer",
-              isGrouping ? "duration-1000" : "duration-[1200ms]"
+              "absolute transition-all ease-in-out cursor-pointer"
             )}
             style={{
               zIndex: isActive ? 150 : zIndex,
               width: isCenter ? '260px' : '180px',
               height: isCenter ? '260px' : '180px',
               transform: `translate3d(${finalTx}px, ${finalTy}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
+              transitionDuration: isGrouping ? '1000ms' : '1200ms',
             }}
           >
             <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
@@ -225,7 +223,7 @@ export default function PortfolioPage() {
       </header>
 
       <main>
-        {/* HERO SECTION - Now native continuous scroll */}
+        {/* HERO SECTION */}
         <section className="relative flex pt-28 pb-8 overflow-hidden min-h-screen">
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
