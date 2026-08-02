@@ -41,14 +41,15 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const currentSpeedRef = useRef(0.2); // Base Hypnotic Speed
   
   // Transition Factors (Updated via GSAP, read by rAF)
-  const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0))); // First item starts in focus
+  // Index 0 starts in focus immediately on load
+  const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0))); 
   const morphFactorRef = useRef({ value: 1 }); // Start stacked in leque
   const activeIndexRef = useRef(0);
   
-  // Orbital Parameters
+  // Orbital Parameters - Increased vertical radius (ry) for better fill
   const orbitParams = useMemo(() => videos.map((_, i) => ({
     rx: 240 + Math.sin(i * 1.5) * 60,
-    ry: 130 + Math.cos(i * 2.2) * 50,
+    ry: 180 + Math.cos(i * 2.2) * 60, // Increased vertical openness
     offset: (i * (Math.PI * 2)) / videos.length
   })), [videos]);
 
@@ -123,7 +124,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const depth = Math.sin(angle); // -1 (back) to 1 (front)
 
         // Additive Offset Layer: Pull towards center (Focus) or stack (Leque)
-        // target = ox + (target_offset - ox) * weight
         // We leave 5% of the orbit even in focus to keep it "alive"
         let tx = ox + (0 - ox) * (ff * 0.95);
         let ty = oy + (0 - oy) * (ff * 0.95);
@@ -136,7 +136,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
         // Visual Properties
         const baseScale = 0.9 + (1 + depth) * 0.05; // 0.9 to 1.0 based on depth
-        const scale = baseScale + (1.4 - baseScale) * ff; // Focused is 1.4x (40% larger)
+        // Focused is 1.4x (40% larger than 1.0 base)
+        const scale = baseScale + (1.4 - baseScale) * ff; 
         
         // Z-Index: Depth sorting vs Stack sorting
         const zIndex = morph > 0.5 
@@ -146,7 +147,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const blur = (1 - ff) * (depth < 0 ? Math.abs(depth) * 4 : 0);
 
         // Direct Styles Update (High Performance)
-        el.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
+        // Using translate(-50%, -50%) as base ensures (0,0) is true center of item
+        el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
         el.style.opacity = '1'; // NO TRANSPARENCY - FORCED 100%
@@ -165,6 +167,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   }, [videos, orbitParams]);
 
   const handleMouseEnter = () => {
+    // Slower, gradual speed transition (lerp factor 0.02 handled by logic, but here using GSAP for simplicity)
     gsap.to(currentSpeedRef, { current: 0.23, duration: 1.5, ease: 'sine.out' });
   };
   
@@ -175,7 +178,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[500px] flex items-center justify-center pointer-events-none"
+      className="relative w-full h-[650px] flex items-center justify-center pointer-events-none"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -285,8 +288,8 @@ export default function PortfolioPage() {
       </header>
 
       <main>
-        {/* HERO SECTION */}
-        <section className="relative flex pt-28 pb-8 overflow-hidden min-h-screen">
+        {/* HERO SECTION - Set to overflow-visible to allow orbital path to breathe */}
+        <section className="relative flex pt-28 pb-8 overflow-visible min-h-screen">
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
               <div 
