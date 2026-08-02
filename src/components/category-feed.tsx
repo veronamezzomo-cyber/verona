@@ -79,7 +79,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const currentItem = feedItems[activeIndex];
 
   return (
-    <section className="relative w-full bg-background animate-reveal border-t border-foreground/5 py-12 md:py-20">
+    <section className="relative w-full bg-muted/30 animate-reveal border-t border-foreground/10 shadow-inner py-12 md:py-20 transition-all duration-500">
       <div className="container mx-auto px-6">
         {/* Header inside the inline section */}
         <div className="flex items-center justify-between mb-12 border-b border-foreground/5 pb-6">
