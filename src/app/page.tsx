@@ -30,20 +30,18 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 const FloatingImageCluster = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [focalFactors, setFocalFactors] = useState<number[]>([1, 0, 0, 0, 0]);
+  const [morphFactor, setMorphFactor] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
+  
   const timeRef = useRef(0);
   const requestRef = useRef<number>(0);
+  const currentSpeedRef = useRef(0.2); // Hypnotic base speed
   
-  // Refs for direct DOM manipulation (Performance)
+  // Refs for direct DOM manipulation
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
   
-  // Interpolation params (mirrored state for rAF)
-  const paramsRef = useRef({
-    focalFactors: [1, 0, 0, 0, 0],
-    morphFactor: 1 // Start stacked
-  });
-
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
 
   // Continuous Orbital Physics via rAF (DOM DRIVEN)
@@ -57,57 +55,62 @@ const FloatingImageCluster = () => {
     ];
 
     const animate = () => {
-      // 1. Advance time
-      const baseSpeed = 0.8; 
-      const currentSpeed = baseSpeed * (isHovered ? 1.5 : 1);
-      timeRef.current += 0.01 * currentSpeed;
+      // 1. Advance time with smooth speed interpolation
+      const baseValue = 0.2; 
+      const targetSpeed = isHovered ? baseValue * 1.15 : baseValue;
+      
+      // Interpolate speed for silky transitions
+      currentSpeedRef.current += (targetSpeed - currentSpeedRef.current) * 0.02;
+      timeRef.current += 0.01 * currentSpeedRef.current;
 
-      // 2. Update DOM directly for each item
       clusterVideos.forEach((_, idx) => {
         const el = itemRefs.current[idx];
-        const container = containerRefs.current[idx];
-        if (!el || !container) return;
+        const content = contentRefs.current[idx];
+        if (!el || !content) return;
 
         const p = orbitParams[idx];
         const angle = timeRef.current + p.offset;
-        const ff = paramsRef.current.focalFactors[idx];
-        const morph = paramsRef.current.morphFactor;
+        const ff = focalFactors[idx];
+        const morph = morphFactor;
 
-        // Base Orbit Position
+        // Base Orbit Position (Continuous)
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
         const odepth = Math.sin(angle); // -1 to 1
 
-        // Position Logic: Orbit + Focal Pull + Morph Pull (Additive Offset)
-        // tx/ty follow ox/oy but are pulled towards 0 (focal) or sx (morph)
-        let tx = ox + (0 - ox) * (ff * 0.95); // Retain 5% orbit even in focus
-        let ty = oy + (0 - oy) * (ff * 0.95);
-
+        // Stacked Layout (Leque Cascata)
         const stackIdx = (idx - activeIndex + 5) % 5;
         const sx = -stackIdx * 15;
         const sy = -stackIdx * 15;
 
-        tx = tx + (sx - tx) * (morph * 0.95); // Retain 5% orbit even in stack
+        // FINAL POSITION: Orbit + Focal Attractor + Morph Attractor
+        // We use LERP to pull the orbital position toward the center or stack
+        let tx = ox + (0 - ox) * (ff * 0.95); // Pull to focal center (95% pull)
+        let ty = oy + (0 - oy) * (ff * 0.95);
+
+        tx = tx + (sx - tx) * (morph * 0.95); // Pull to stack position
         ty = ty + (sy - ty) * (morph * 0.95);
 
-        // Visuals
+        // Visual properties (Scale, Blur, Z-Index)
         const baseScale = (0.9 + odepth * 0.1);
-        const focalScale = 1.2;
+        const focalScale = 1.2; // Strict 20% increase
         const finalScale = baseScale + (focalScale - baseScale) * ff;
         
+        // Z-Index Sorting
         const zIndex = morph > 0.5 
-          ? (100 - stackIdx) 
-          : (ff > 0.5 ? 200 : Math.round(100 + odepth * 50));
+          ? (100 - stackIdx) // Stack priority
+          : (ff > 0.5 ? 200 : Math.round(100 + odepth * 50)); // Orbit/Focus priority
 
-        const baseBlur = (1 - odepth) * 2;
-        const finalBlur = baseBlur * (1 - ff); // Focus reduces blur to 0
+        // Blur Range (1px to 4px)
+        const baseBlur = (1 - odepth) * 2 + 1;
+        const finalBlur = baseBlur * (1 - ff);
 
-        // Apply styles directly
+        // Apply directly to DOM for 60fps
         el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
         el.style.zIndex = zIndex.toString();
         
-        container.style.transform = `scale(${finalScale})`;
-        container.style.filter = `blur(${finalBlur}px)`;
+        content.style.transform = `scale(${finalScale})`;
+        content.style.filter = `blur(${finalBlur}px)`;
       });
 
       requestRef.current = requestAnimationFrame(animate);
@@ -115,62 +118,58 @@ const FloatingImageCluster = () => {
 
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, [isHovered, activeIndex, clusterVideos]);
+  }, [isHovered, activeIndex, clusterVideos, focalFactors, morphFactor]);
 
-  // Initial State: Stacked for 0.5s then Explode
+  // INITIAL STATE: Stacked for 0.5s then Big Bang
   useEffect(() => {
     const initialTimer = setTimeout(() => {
-      gsap.to(paramsRef.current, {
-        morphFactor: 0,
+      gsap.to(setMorphFactor, {
         duration: 1.5,
-        ease: 'power2.inOut'
+        value: 0,
+        ease: 'sine.inOut'
       });
     }, 500);
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // Cycle 1: Focus Swap every 7s (Physical Glide)
+  // CYCLE 1: Focal Glide every 7s
   useEffect(() => {
     const focusInterval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % clusterVideos.length;
       
-      // Glide current focus back to orbit
-      gsap.to(paramsRef.current.focalFactors, {
+      const newFactors = [...focalFactors];
+      gsap.to(newFactors, {
         [activeIndex]: 0,
-        duration: 1.0,
-        ease: 'sine.inOut'
-      });
-      
-      // Glide next item into center focus
-      gsap.to(paramsRef.current.focalFactors, {
         [nextIndex]: 1,
         duration: 1.0,
-        ease: 'sine.inOut'
+        ease: 'sine.inOut',
+        onUpdate: () => setFocalFactors([...newFactors])
       });
       
       setActiveIndex(nextIndex);
     }, 7000);
     return () => clearInterval(focusInterval);
-  }, [activeIndex, clusterVideos.length]);
+  }, [activeIndex, clusterVideos.length, focalFactors]);
 
-  // Cycle 2: Leque Grouping every 30s
+  // CYCLE 2: Leque Grouping (30s)
   useEffect(() => {
     const lequeInterval = setInterval(() => {
       // 1. Converge to Stack
-      gsap.to(paramsRef.current, {
-        morphFactor: 1,
-        duration: 2.0,
+      gsap.to(setMorphFactor, {
+        value: 1,
+        duration: 2.5,
         ease: 'power2.inOut'
       });
 
-      // 2. Pause for 0.5s then Explode
+      // 2. Brief Pause (0.5s)
       setTimeout(() => {
-        gsap.to(paramsRef.current, {
-          morphFactor: 0,
-          duration: 2.0,
+        // 3. Explode back to Orbit
+        gsap.to(setMorphFactor, {
+          value: 0,
+          duration: 2.5,
           ease: 'power2.inOut'
         });
-      }, 2500);
+      }, 3000); // 2.5s converge + 0.5s pause
     }, 30000);
     return () => clearInterval(lequeInterval);
   }, []);
@@ -194,7 +193,7 @@ const FloatingImageCluster = () => {
             }}
           >
             <div 
-              ref={el => { containerRefs.current[idx] = el; }}
+              ref={el => { contentRefs.current[idx] = el; }}
               className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem] transition-none"
               style={{ willChange: 'transform, filter' }}
             >
