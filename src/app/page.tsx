@@ -7,6 +7,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { EditableImage } from '@/components/editable-image';
 import { CategoryFeed } from '@/components/category-feed';
+import { cn } from '@/lib/utils';
 import { 
   Mail, 
   ArrowRight
@@ -133,6 +134,8 @@ export default function PortfolioPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border border-foreground/5 bg-foreground/5 gap-[1px] relative overflow-hidden">
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
+                const isActive = activeCategory === cat.label;
+                
                 return (
                   <div 
                     key={cat.id} 
@@ -145,7 +148,10 @@ export default function PortfolioPage() {
                         setActiveCategory(cat.label);
                       }
                     }}
-                    className="group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all hover:ring-1 hover:ring-primary z-10 outline-none cursor-pointer"
+                    className={cn(
+                      "group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all duration-300 z-10 outline-none cursor-pointer",
+                      isActive ? "ring-2 ring-primary z-20" : "hover:ring-1 hover:ring-primary"
+                    )}
                   >
                     {img && (
                       <EditableImage 
@@ -158,9 +164,15 @@ export default function PortfolioPage() {
                         data-ai-hint={img.imageHint}
                       />
                     )}
-                    <div className="absolute inset-0 bg-black/60 group-hover:bg-black/40 transition-colors duration-300 z-10" />
+                    <div className={cn(
+                      "absolute inset-0 transition-colors duration-200 z-10",
+                      isActive ? "bg-primary/60" : "bg-black/60 group-hover:bg-black/40"
+                    )} />
                     <div className="absolute inset-0 halftone-overlay pointer-events-none z-20" />
-                    <span className="relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter text-center px-2 pointer-events-none">
+                    <span className={cn(
+                      "relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter text-center px-2 pointer-events-none transition-transform duration-300",
+                      isActive && "scale-110"
+                    )}>
                       {cat.label}
                     </span>
                   </div>
