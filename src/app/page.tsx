@@ -53,11 +53,11 @@ const FloatingImageCluster = () => {
   };
 
   const positions = [
-    { top: '5%', left: '10%', zIndex: 10, scale: 1.1, anim: 'animate-float-1' },
-    { top: '15%', left: '50%', zIndex: 20, scale: 1, anim: 'animate-float-2' },
-    { top: '45%', left: '5%', zIndex: 30, scale: 1.2, anim: 'animate-float-3' },
-    { top: '50%', left: '40%', zIndex: 25, scale: 0.9, anim: 'animate-float-1' },
-    { top: '25%', left: '25%', zIndex: 15, scale: 1.15, anim: 'animate-float-2' },
+    { top: '10%', left: '15%', zIndex: 10, scale: 1.0, anim: 'animate-float-1' },
+    { top: '20%', left: '55%', zIndex: 20, scale: 0.9, anim: 'animate-float-2' },
+    { top: '50%', left: '10%', zIndex: 30, scale: 1.1, anim: 'animate-float-3' },
+    { top: '55%', left: '45%', zIndex: 25, scale: 0.85, anim: 'animate-float-1' },
+    { top: '30%', left: '30%', zIndex: 15, scale: 1.05, anim: 'animate-float-2' },
   ];
 
   return (
@@ -70,7 +70,6 @@ const FloatingImageCluster = () => {
         const pos = positions[idx % positions.length];
         const isActive = isHovered === idx;
         
-        // Dynamic transform calculation
         const tx = isGrouping ? 0 : mousePos.x * (idx + 1) * 0.5;
         const ty = isGrouping ? 0 : mousePos.y * (idx + 1) * 0.5;
         const groupScale = isGrouping ? 0.8 : 1;
@@ -86,29 +85,27 @@ const FloatingImageCluster = () => {
               isGrouping && "duration-1000"
             )}
             style={{
-              top: isGrouping ? '30%' : pos.top,
-              left: isGrouping ? '30%' : pos.left,
+              top: isGrouping ? '35%' : pos.top,
+              left: isGrouping ? '35%' : pos.left,
               zIndex: pos.zIndex,
-              width: '260px',
-              height: '340px',
+              width: '240px',
+              height: '240px',
               transform: `translate3d(${tx}px, ${ty}px, 0) scale(${pos.scale * groupScale * (isActive ? 1.05 : 1)}) rotate(${isActive ? 0 : 0}deg)`,
-              filter: isActive ? 'none' : 'grayscale(30%)',
               transitionTimingFunction: isActive ? 'cubic-bezier(0.23, 1, 0.32, 1)' : 'cubic-bezier(0.165, 0.84, 0.44, 1)'
             }}
           >
-            <div className="relative w-full h-full border border-primary/20 bg-muted shadow-2xl overflow-hidden rounded-[2rem]">
+            <div className="relative w-full h-full border border-primary/10 bg-muted shadow-xl overflow-hidden rounded-[1.5rem]">
               <EditableImage 
                 src={img.imageUrl} 
                 alt={img.description}
                 storageKey={img.id}
                 fill
                 className={cn(
-                  "object-cover duotone-primary transition-all duration-[2000ms]",
-                  isActive ? "scale-105 saturate-150" : "scale-100"
+                  "object-cover transition-all duration-1000",
+                  isActive ? "scale-105" : "scale-100"
                 )}
                 data-ai-hint={img.imageHint}
               />
-              <div className="absolute inset-0 halftone-overlay pointer-events-none opacity-40" />
             </div>
           </div>
         );
@@ -200,7 +197,8 @@ export default function PortfolioPage() {
         <section className="relative flex pt-28 pb-8 overflow-hidden min-h-[clamp(600px,85vh,950px)]">
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
-              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-20">
+              {/* Layer 1: Base - Text column */}
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10">
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
                     Video Editor • Brazil
@@ -223,8 +221,8 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              {/* CLUSTER OF FLOATING IMAGES */}
-              <div className="relative h-[600px] lg:h-full animate-image-reveal z-10">
+              {/* Layer 2: Above - Cluster of floating images */}
+              <div className="relative h-[600px] lg:h-full animate-image-reveal z-20 pointer-events-none lg:pointer-events-auto">
                 <FloatingImageCluster />
               </div>
             </div>
