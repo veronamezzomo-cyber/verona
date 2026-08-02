@@ -9,6 +9,7 @@ import { EditableImage } from '@/components/editable-image';
 import { EditableVideo } from '@/components/editable-video';
 import { CategoryFeed } from '@/components/category-feed';
 import { cn } from '@/lib/utils';
+import gsap from 'gsap';
 import { 
   Mail, 
   ArrowRight
@@ -28,21 +29,57 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 const FloatingImageCluster = () => {
   const [time, setTime] = useState(0);
-  const [isHovered, setIsHovered] = useState<number | null>(null);
-  const [isGrouping, setIsGrouping] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [centerIndex, setCenterIndex] = useState(0);
+  const [morphFactor, setMorphFactor] = useState(0); // 0 = stacked, 1 = orbiting
+  const speedRef = useRef(1);
   const requestRef = useRef<number>(0);
   
   const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
 
   useEffect(() => {
+    // Phase Cycle Logic
+    // Stacked (3s) -> Orbiting (10s) -> Converging (2.5s) -> Repeat
+    const runCycle = async () => {
+      // 1. Initial Stacked State
+      setMorphFactor(0);
+      await new Promise(r => setTimeout(r, 3000));
+
+      // 2. Explode (Stacked -> Orbiting)
+      gsap.to({ val: 0 }, {
+        val: 1,
+        duration: 2.5,
+        ease: 'power2.inOut',
+        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+      });
+      await new Promise(r => setTimeout(r, 2500));
+
+      // 3. Orbiting Phase
+      await new Promise(r => setTimeout(r, 10000));
+
+      // 4. Converge (Orbiting -> Stacked)
+      gsap.to({ val: 1 }, {
+        val: 0,
+        duration: 2.5,
+        ease: 'power2.inOut',
+        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+      });
+      await new Promise(r => setTimeout(r, 2500));
+
+      runCycle();
+    };
+
+    runCycle();
+  }, []);
+
+  useEffect(() => {
     const animate = () => {
-      setTime(prev => prev + (isHovered !== null ? 0.005 : 0.01));
+      setTime(prev => prev + 0.01 * speedRef.current);
       requestRef.current = requestAnimationFrame(animate);
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, [isHovered]);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -51,77 +88,87 @@ const FloatingImageCluster = () => {
     return () => clearInterval(interval);
   }, [clusterVideos.length]);
 
-  const handleMouseLeave = () => {
-    setIsGrouping(true);
-    setTimeout(() => setIsGrouping(false), 800);
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    gsap.to(speedRef, { current: 1.5, duration: 1, ease: 'power2.out' });
   };
 
-  const getSlotData = (slotIdx: number) => {
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    gsap.to(speedRef, { current: 1, duration: 1, ease: 'power2.out' });
+  };
+
+  const getSlotData = (idx: number) => {
+    const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
     const isCenter = slotIdx === 0;
+
+    // Orbital Path Params
     const orbitParams = [
-      { radiusX: 0, radiusY: 0, speed: 0 },
-      { radiusX: 280, radiusY: 150, speed: 0.8 },
-      { radiusX: 320, radiusY: -180, speed: 0.6 },
-      { radiusX: 260, radiusY: 200, speed: 1.1 },
-      { radiusX: 300, radiusY: -160, speed: 0.9 },
+      { rx: 0, ry: 0, s: 0 },
+      { rx: 280, ry: 150, s: 0.8 },
+      { rx: 320, ry: -180, s: 0.6 },
+      { rx: 260, ry: 200, s: 1.1 },
+      { rx: 300, ry: -160, s: 0.9 },
     ];
 
     const p = orbitParams[slotIdx];
     const orbitingCount = clusterVideos.length - 1;
     const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
-    const angle = time * (p.speed || 1) + orbitOffset;
-    const depth = isCenter ? 1 : Math.sin(angle);
+    const angle = time * (p.s || 1) + orbitOffset;
     
+    // Orbital Coords
+    const ox = isCenter ? 0 : Math.cos(angle) * p.rx;
+    const oy = isCenter ? 0 : Math.sin(angle) * p.ry;
+    const odepth = isCenter ? 1 : Math.sin(angle);
+
+    // Stacked Coords (Fan/Leque Effect)
+    // Offset slightly top-left for each layer
+    const sx = -slotIdx * 15;
+    const sy = -slotIdx * 15;
+    const sdepth = 1 - (slotIdx * 0.1); // Top one is focal
+
+    // Morphing result
+    const tx = sx * (1 - morphFactor) + ox * morphFactor;
+    const ty = sy * (1 - morphFactor) + oy * morphFactor;
+    const depth = sdepth * (1 - morphFactor) + odepth * morphFactor;
+
     return {
-      tx: isCenter ? 0 : Math.cos(angle) * p.radiusX,
-      ty: isCenter ? 0 : Math.sin(angle) * p.radiusY,
+      tx,
+      ty,
       depth,
-      zIndex: isCenter ? 70 : (depth > 0 ? 80 : 60),
+      zIndex: isCenter ? 100 : (depth > 0 ? 80 : 60),
+      isCenter
     };
   };
 
   return (
     <div 
-      className="relative w-full h-full min-h-[600px] flex items-center justify-center pointer-events-auto transition-all duration-700"
+      className="relative w-full h-full min-h-[600px] flex items-center justify-center pointer-events-auto"
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {clusterVideos.map((vid, idx) => {
-        const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
-        const isCenter = slotIdx === 0;
-        const isActive = isHovered === idx;
-        const { tx, ty, depth, zIndex } = getSlotData(slotIdx);
+        const { tx, ty, depth, zIndex, isCenter } = getSlotData(idx);
         
-        const scaleBase = isCenter ? 1.1 : (0.9 + depth * 0.1);
-        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 3));
-
-        let finalTx = tx;
-        let finalTy = ty;
-        if (isGrouping) {
-          finalTx = 0;
-          finalTy = 0;
-        }
+        const scaleBase = isCenter ? 1.1 : (0.85 + depth * 0.1);
+        const blurAmount = isCenter ? 0 : Math.min(6, Math.max(0, (1 - depth) * 4));
 
         return (
           <div
             key={vid.id}
-            onMouseEnter={() => setIsHovered(idx)}
-            onMouseLeave={() => setIsHovered(null)}
-            className={cn(
-              "absolute transition-all ease-in-out cursor-pointer"
-            )}
+            className="absolute transition-all duration-300 ease-out cursor-pointer"
             style={{
-              zIndex: isActive ? 150 : zIndex,
-              width: isCenter ? '260px' : '180px',
-              height: isCenter ? '260px' : '180px',
-              transform: `translate3d(${finalTx}px, ${finalTy}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
-              transitionDuration: isGrouping ? '1000ms' : '1200ms',
+              zIndex,
+              width: '210px',
+              height: '210px',
+              transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scaleBase})`,
             }}
           >
             <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
               <div 
-                className="w-full h-full transition-all duration-700"
+                className="w-full h-full"
                 style={{
-                  filter: `blur(${isActive ? 0 : blurAmount}px)`
+                  filter: `blur(${blurAmount}px)`
                 }}
               >
                 <EditableVideo 
