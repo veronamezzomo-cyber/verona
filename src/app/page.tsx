@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -27,6 +27,8 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const categories = [
     { id: 'cat-all', label: 'all' },
@@ -44,14 +46,20 @@ export default function PortfolioPage() {
     { value: '45M', label: 'Total Views' }
   ];
 
-  const profileImage = PlaceHolderImages.find(i => i.id === 'hero-profile');
-  const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
+  useEffect(() => {
+    const handleScroll = () => {
+      if (gridRef.current) {
+        const rect = gridRef.current.getBoundingClientRect();
+        setIsScrolled(rect.top <= 80); // 80px is the header height
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleCategoryClick = (label: string) => {
-    // Toggle: if already active, set to null
     const newValue = activeCategory === label ? null : label;
 
-    // Progressive enhancement: View Transitions API
     if (typeof document !== 'undefined' && 'startViewTransition' in document) {
       (document as any).startViewTransition(() => {
         setActiveCategory(newValue);
@@ -71,10 +79,13 @@ export default function PortfolioPage() {
     }
   };
 
+  const profileImage = PlaceHolderImages.find(i => i.id === 'hero-profile');
+  const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
+
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-transparent">
       {/* 1. HEADER */}
-      <header className="fixed top-0 w-full z-50 border-b border-foreground/5 bg-background/80 backdrop-blur-md">
+      <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
@@ -149,10 +160,17 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 2.5 CATEGORY GRID */}
-        <section id="works" className="relative pt-12 pb-12 scroll-mt-24">
-          <div className="container mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 border border-foreground/5 bg-foreground/5 gap-[1px] relative overflow-hidden">
+        {/* 2.5 STICKY CATEGORY GRID */}
+        <section 
+          id="works" 
+          ref={gridRef}
+          className="sticky top-20 z-40 bg-background/95 backdrop-blur-xl border-y border-foreground/5 shadow-2xl transition-all duration-500"
+        >
+          <div className="container mx-auto px-6 py-2">
+            <div className={cn(
+              "grid gap-[1px] relative overflow-hidden transition-all duration-500",
+              isScrolled ? "grid-cols-6 h-12" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 aspect-auto"
+            )}>
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
                 const isActive = activeCategory === cat.label;
@@ -163,18 +181,13 @@ export default function PortfolioPage() {
                     role="button"
                     tabIndex={0}
                     onClick={() => handleCategoryClick(cat.label)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleCategoryClick(cat.label);
-                      }
-                    }}
                     className={cn(
-                      "group relative aspect-square lg:aspect-[1/1.2] overflow-hidden bg-background flex items-center justify-center transition-all duration-300 z-10 outline-none cursor-pointer",
-                      isActive ? "ring-2 ring-primary z-20" : "hover:ring-1 hover:ring-primary"
+                      "group relative overflow-hidden bg-background flex items-center justify-center transition-all duration-500 z-10 outline-none cursor-pointer",
+                      isScrolled ? "h-full border-x border-foreground/5" : "aspect-square lg:aspect-[1/1.2]",
+                      isActive ? "ring-2 ring-primary z-20" : "hover:bg-foreground/5"
                     )}
                   >
-                    {img && (
+                    {!isScrolled && img && (
                       <EditableImage 
                         src={img.imageUrl} 
                         alt={cat.label} 
@@ -187,19 +200,18 @@ export default function PortfolioPage() {
                     )}
                     <div className={cn(
                       "absolute inset-0 transition-colors duration-200 z-10",
-                      isActive ? "bg-primary/60" : "bg-black/60 group-hover:bg-black/40"
+                      isActive ? "bg-primary/60" : (!isScrolled ? "bg-black/60 group-hover:bg-black/40" : "bg-transparent")
                     )} />
-                    <div className="absolute inset-0 halftone-overlay pointer-events-none z-20" />
                     <span className={cn(
-                      "relative z-30 font-serif font-bold text-2xl lg:text-3xl text-white lowercase tracking-tighter text-center px-2 pointer-events-none transition-transform duration-300",
-                      isActive && "scale-110"
+                      "relative z-30 font-serif font-bold text-white lowercase tracking-tighter text-center px-2 pointer-events-none transition-all duration-300",
+                      isScrolled ? "text-[10px] uppercase font-mono tracking-widest text-foreground group-hover:text-primary" : "text-2xl lg:text-3xl",
+                      isActive && isScrolled && "text-white"
                     )}>
                       {cat.label}
                     </span>
                   </div>
                 );
               })}
-              <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none z-40 opacity-60" />
             </div>
           </div>
         </section>

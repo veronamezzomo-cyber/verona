@@ -58,9 +58,16 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   useEffect(() => {
     if (category && sectionRef.current) {
-      sectionRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+      // Offset by header height (80px) + shrunk grid height (48px)
+      const offset = 128;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = sectionRef.current.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
       });
     }
   }, [category]);
@@ -89,7 +96,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-6 transition-all duration-500 z-30 scroll-mt-20 overflow-hidden view-transition-feed"
+      className="relative w-full h-[calc(100vh-8rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-6 transition-all duration-500 z-30 view-transition-feed overflow-visible"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
         {/* Header inside the feed */}
@@ -102,12 +109,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             role="button"
             tabIndex={0}
             onClick={onClose}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClose();
-              }
-            }}
             className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 cursor-pointer flex items-center transition-colors"
           >
             Close Feed <X className="h-4 w-4" />
@@ -115,64 +116,66 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
 
         {/* Constrained Grid */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center min-h-0 overflow-hidden">
-          
-          {/* Left Column: Details */}
-          <div className="flex flex-col gap-6 justify-center h-full">
-            <div className="animate-reveal" key={currentItem.id}>
-              <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-3">
-                {currentItem.date}
-              </span>
-              <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-5 max-w-sm">
-                {currentItem.title}<span className="text-primary">.</span>
-              </h3>
-              <div className="space-y-4 max-w-xs">
-                <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed">
-                  {currentItem.notes}
-                </p>
-                <div className="pt-5 border-t border-foreground/10 flex items-center gap-4">
-                   <div className="h-1 flex-1 bg-foreground/5 relative">
-                      <div 
-                        className="absolute h-full bg-primary transition-all duration-500" 
-                        style={{ width: `${((activeIndex + 1) / feedItems.length) * 100}%` }}
-                      />
-                   </div>
-                   <span className="font-mono text-[10px] text-muted-foreground">
-                    0{activeIndex + 1} / 0{feedItems.length}
-                   </span>
+        <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center h-full max-h-[75vh]">
+            
+            {/* Left Column: Details */}
+            <div className="flex flex-col gap-6 justify-center h-full">
+              <div className="animate-reveal" key={currentItem.id}>
+                <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-3">
+                  {currentItem.date}
+                </span>
+                <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-5 max-w-sm">
+                  {currentItem.title}<span className="text-primary">.</span>
+                </h3>
+                <div className="space-y-4 max-w-xs">
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed">
+                    {currentItem.notes}
+                  </p>
+                  <div className="pt-5 border-t border-foreground/10 flex items-center gap-4">
+                     <div className="h-1 flex-1 bg-foreground/5 relative">
+                        <div 
+                          className="absolute h-full bg-primary transition-all duration-500" 
+                          style={{ width: `${((activeIndex + 1) / feedItems.length) * 100}%` }}
+                        />
+                     </div>
+                     <span className="font-mono text-[10px] text-muted-foreground">
+                      0{activeIndex + 1} / 0{feedItems.length}
+                     </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Column: Video Container */}
-          <div className="flex justify-center items-center h-full min-h-0 overflow-hidden">
-            <div 
-              ref={scrollRef}
-              className="relative h-full w-auto aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
-            >
-              {feedItems.map((item, idx) => (
-                <div 
-                  key={item.id} 
-                  data-index={idx}
-                  className="feed-item relative w-full h-full snap-start overflow-hidden group"
-                >
-                  <EditableVideo 
-                    src={item.videoUrl || ""} 
-                    storageKey={`feed-${category}-${item.id}`}
-                    fill
-                    className="object-contain h-full w-full transition-transform duration-[2000ms] group-hover:scale-105"
-                  />
-                  
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
+            {/* Right Column: Video Container */}
+            <div className="flex justify-center items-center h-full min-h-0 relative">
+              <div 
+                ref={scrollRef}
+                className="relative h-full aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
+              >
+                {feedItems.map((item, idx) => (
+                  <div 
+                    key={item.id} 
+                    data-index={idx}
+                    className="feed-item relative w-full h-full snap-start overflow-hidden group"
+                  >
+                    <EditableVideo 
+                      src={item.videoUrl || ""} 
+                      storageKey={`feed-${category}-${item.id}`}
+                      fill
+                      className="object-contain h-full w-full transition-transform duration-[2000ms] group-hover:scale-105"
+                    />
+                    
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
 
-                  {idx < feedItems.length - 1 && (
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
-                      <ChevronDown className="h-6 w-6" />
-                    </div>
-                  )}
-                </div>
-              ))}
+                    {idx < feedItems.length - 1 && (
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
+                        <ChevronDown className="h-6 w-6" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
