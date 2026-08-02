@@ -35,17 +35,18 @@ const FloatingImageCluster = () => {
   const requestRef = useRef<number>(0);
   const [morphFactor, setMorphFactor] = useState(1); // Start stacked (1)
   const [focalFactors, setFocalFactors] = useState([1, 0, 0, 0, 0]); // Item 0 starts in focus
-  const speedRef = useRef(0.4);
+  const speedRef = useRef(0.8); // Moderate initial speed
   
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
 
-  // Continuous Orbital Physics via rAF
+  // Continuous Orbital Physics via rAF (ALWAYS RUNNING)
   useEffect(() => {
     const animate = () => {
-      const delta = 0.01 * speedRef.current * (isHovered ? 1.5 : 1);
-      timeRef.current += delta;
+      // Calculate current cycle speed (deceleration logic)
+      const baseSpeed = 0.8; 
+      const currentSpeed = baseSpeed * (isHovered ? 1.5 : 1);
       
-      // We rely on state for morphFactors and focalFactors, which are updated via GSAP
+      timeRef.current += 0.01 * currentSpeed;
       requestRef.current = requestAnimationFrame(animate);
     };
     requestRef.current = requestAnimationFrame(animate);
@@ -65,7 +66,7 @@ const FloatingImageCluster = () => {
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // Cycle 1: Focus Swap every 10s
+  // Cycle 1: Focus Swap every 10s (Physical Glide)
   useEffect(() => {
     const focusInterval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % clusterVideos.length;
@@ -130,23 +131,20 @@ const FloatingImageCluster = () => {
     const angle = timeRef.current + p.offset;
     const ff = focalFactors[idx]; // 0 = orbit, 1 = center focus
     
-    // Orbital Position
+    // Orbital Position (Base)
     const ox = Math.cos(angle) * p.rx;
     const oy = Math.sin(angle) * p.ry;
     const odepth = Math.sin(angle); // -1 to 1
 
     // Stacked Position (Leque Displacement)
-    // The focal item is at the top of the stack
     const stackIdx = (idx - activeIndex + 5) % 5;
     const sx = -stackIdx * 15;
     const sy = -stackIdx * 15;
 
-    // Final Position Logic:
-    // We combine the continuous orbit with the focal glide (ff) and the global morph (morphFactor)
-    // MorphFactor 1 means we are stacked at sx, sy
-    // MorphFactor 0 means we are in the focal/orbital dance
-    
-    // Position of item relative to the cluster center
+    // FINAL POSITION LOGIC:
+    // We combine continuous orbit with the focal/stack glides.
+    // ff = 1 means we are pulled to (0,0) relative to orbit center.
+    // morphFactor = 1 means we are pulled to (sx, sy).
     const targetX = (ox * (1 - ff) + 0 * ff) * (1 - morphFactor) + sx * morphFactor;
     const targetY = (oy * (1 - ff) + 0 * ff) * (1 - morphFactor) + sy * morphFactor;
 
@@ -154,7 +152,7 @@ const FloatingImageCluster = () => {
     const isFocal = ff > 0.5;
     const baseScale = isFocal ? (1.0 + 0.2 * ff) : (0.9 + odepth * 0.1);
     const zIndex = morphFactor > 0.5 ? (100 - stackIdx) : (ff > 0.5 ? 200 : Math.round(100 + odepth * 50));
-    const blurAmount = isFocal ? (1 - ff) * 4 : (1 - odepth) * 2; // Focal gets 0 blur, back items get more
+    const blurAmount = isFocal ? (1 - ff) * 4 : (1 - odepth) * 2; 
 
     return {
       targetX,
@@ -189,13 +187,15 @@ const FloatingImageCluster = () => {
                 zIndex,
                 width: '210px',
                 height: '210px',
-                transform: `translate3d(${targetX}px, ${targetY}px, 0) scale(${baseScale})`,
+                transform: `translate3d(${targetX}px, ${targetY}px, 0)`,
               }}
             >
+              {/* Inner container handles scale/blur smooth transitions */}
               <div 
-                className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]"
+                className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem] transition-all duration-1000 ease-in-out"
                 style={{
                   filter: `blur(${blurAmount}px)`,
+                  transform: `scale(${baseScale})`,
                   opacity: 1
                 }}
               >
