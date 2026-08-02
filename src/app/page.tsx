@@ -43,9 +43,12 @@ const FloatingImageCluster = () => {
     const runCycle = async () => {
       // 1. Initial Stacked State
       setMorphFactor(0);
+      gsap.to(speedRef, { current: 1, duration: 1, ease: 'power2.out' });
       await new Promise(r => setTimeout(r, 3000));
 
       // 2. Explode (Stacked -> Orbiting)
+      // "Big Bang" starts fast
+      gsap.to(speedRef, { current: 3, duration: 1, ease: 'expo.out' });
       gsap.to({ val: 0 }, {
         val: 1,
         duration: 2.5,
@@ -54,7 +57,13 @@ const FloatingImageCluster = () => {
       });
       await new Promise(r => setTimeout(r, 2500));
 
-      // 3. Orbiting Phase
+      // 3. Orbiting / Deceleration Phase
+      // Progressive Slowdown
+      gsap.to(speedRef, { 
+        current: 0.2, 
+        duration: 10, 
+        ease: 'power1.inOut' 
+      });
       await new Promise(r => setTimeout(r, 10000));
 
       // 4. Converge (Orbiting -> Stacked)
@@ -74,12 +83,13 @@ const FloatingImageCluster = () => {
 
   useEffect(() => {
     const animate = () => {
-      setTime(prev => prev + 0.01 * speedRef.current);
+      // Use the shared speedRef for synchronized motion
+      setTime(prev => prev + 0.01 * speedRef.current * (isHovered ? 1.5 : 1));
       requestRef.current = requestAnimationFrame(animate);
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, []);
+  }, [isHovered]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -88,33 +98,24 @@ const FloatingImageCluster = () => {
     return () => clearInterval(interval);
   }, [clusterVideos.length]);
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    gsap.to(speedRef, { current: 1.5, duration: 1, ease: 'power2.out' });
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    gsap.to(speedRef, { current: 1, duration: 1, ease: 'power2.out' });
-  };
-
   const getSlotData = (idx: number) => {
+    // focal item logic
     const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
     const isCenter = slotIdx === 0;
 
-    // Orbital Path Params
+    // Orbital Path Params (Unified speeds)
     const orbitParams = [
-      { rx: 0, ry: 0, s: 0 },
-      { rx: 280, ry: 150, s: 0.8 },
-      { rx: 320, ry: -180, s: 0.6 },
-      { rx: 260, ry: 200, s: 1.1 },
-      { rx: 300, ry: -160, s: 0.9 },
+      { rx: 0, ry: 0 },
+      { rx: 280, ry: 150 },
+      { rx: 320, ry: -180 },
+      { rx: 260, ry: 200 },
+      { rx: 300, ry: -160 },
     ];
 
     const p = orbitParams[slotIdx];
     const orbitingCount = clusterVideos.length - 1;
     const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
-    const angle = time * (p.s || 1) + orbitOffset;
+    const angle = time + orbitOffset;
     
     // Orbital Coords
     const ox = isCenter ? 0 : Math.cos(angle) * p.rx;
@@ -122,21 +123,27 @@ const FloatingImageCluster = () => {
     const odepth = isCenter ? 1 : Math.sin(angle);
 
     // Stacked Coords (Fan/Leque Effect)
-    // Offset slightly top-left for each layer
+    // Offset slightly top-left for each layer: Item 0 = Top, Item 1 = behind it, etc.
     const sx = -slotIdx * 15;
     const sy = -slotIdx * 15;
-    const sdepth = 1 - (slotIdx * 0.1); // Top one is focal
+    const sdepth = 1 - (slotIdx * 0.1); 
 
     // Morphing result
     const tx = sx * (1 - morphFactor) + ox * morphFactor;
     const ty = sy * (1 - morphFactor) + oy * morphFactor;
     const depth = sdepth * (1 - morphFactor) + odepth * morphFactor;
 
+    // Z-index calculation for stacked phase (High to Low cascade)
+    // When stacked, we want slotIdx 0 to be on top.
+    const stackedZ = 100 - slotIdx;
+    const orbitalZ = isCenter ? 100 : (depth > 0 ? 80 : 60);
+    const zIndex = Math.round(stackedZ * (1 - morphFactor) + orbitalZ * morphFactor);
+
     return {
       tx,
       ty,
       depth,
-      zIndex: isCenter ? 100 : (depth > 0 ? 80 : 60),
+      zIndex,
       isCenter
     };
   };
@@ -144,14 +151,17 @@ const FloatingImageCluster = () => {
   return (
     <div 
       className="relative w-full h-full min-h-[600px] flex items-center justify-center pointer-events-auto"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {clusterVideos.map((vid, idx) => {
         const { tx, ty, depth, zIndex, isCenter } = getSlotData(idx);
         
-        const scaleBase = isCenter ? 1.1 : (0.85 + depth * 0.1);
-        const blurAmount = isCenter ? 0 : Math.min(6, Math.max(0, (1 - depth) * 4));
+        // Focal item is 20% larger than base (1.2 scale)
+        const scaleBase = isCenter ? 1.2 : (0.9 + depth * 0.1);
+        
+        // Depth-of-field: max blur 4px
+        const blurAmount = isCenter ? 0 : Math.min(4, Math.max(0, (1 - depth) * 4));
 
         return (
           <div
@@ -162,6 +172,7 @@ const FloatingImageCluster = () => {
               width: '210px',
               height: '210px',
               transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scaleBase})`,
+              opacity: 1 // Always 100% opacity as requested
             }}
           >
             <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
