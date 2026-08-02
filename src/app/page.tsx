@@ -31,11 +31,14 @@ const FloatingImageCluster = () => {
   const [isHovered, setIsHovered] = useState<number | null>(null);
   const [isGrouping, setIsGrouping] = useState(false);
   const [centerIndex, setCenterIndex] = useState(0);
+  const [formationIndex, setFormationIndex] = useState(0);
   const requestRef = useRef<number>(0);
   
   const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
+  const formations = ['orbit', 'vertical', 'diagonal'] as const;
+  const currentFormation = formations[formationIndex];
 
-  // Orbital engine
+  // Engine for time increment
   useEffect(() => {
     const animate = () => {
       setTime(prev => prev + (isHovered !== null ? 0.005 : 0.01));
@@ -45,7 +48,7 @@ const FloatingImageCluster = () => {
     return () => cancelAnimationFrame(requestRef.current);
   }, [isHovered]);
 
-  // Center rotation logic
+  // Center rotation timer (5s)
   useEffect(() => {
     const interval = setInterval(() => {
       setCenterIndex(prev => (prev + 1) % clusterVideos.length);
@@ -53,19 +56,78 @@ const FloatingImageCluster = () => {
     return () => clearInterval(interval);
   }, [clusterVideos.length]);
 
+  // Formation rotation timer (8s)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFormationIndex(prev => (prev + 1) % formations.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [formations.length]);
+
   const handleMouseLeave = () => {
     setIsGrouping(true);
     setTimeout(() => setIsGrouping(false), 800);
   };
 
-  // Orbital parameters per slot (Slot 0 is center, Slots 1-4 are orbiting)
-  const slots = [
-    { radiusX: 0, radiusY: 0, speed: 0 }, // Slot 0: Center
-    { radiusX: 280, radiusY: 150, speed: 0.8 }, // Slot 1
-    { radiusX: 320, radiusY: -180, speed: 0.6 }, // Slot 2
-    { radiusX: 260, radiusY: 200, speed: 1.1 }, // Slot 3
-    { radiusX: 300, radiusY: -160, speed: 0.9 }, // Slot 4
-  ];
+  // Orbital/Line parameters
+  const getSlotData = (slotIdx: number, formation: typeof formations[number]) => {
+    const isCenter = slotIdx === 0;
+    
+    if (formation === 'orbit') {
+      const orbitParams = [
+        { radiusX: 0, radiusY: 0, speed: 0 },
+        { radiusX: 280, radiusY: 150, speed: 0.8 },
+        { radiusX: 320, radiusY: -180, speed: 0.6 },
+        { radiusX: 260, radiusY: 200, speed: 1.1 },
+        { radiusX: 300, radiusY: -160, speed: 0.9 },
+      ];
+      const p = orbitParams[slotIdx];
+      const orbitingCount = clusterVideos.length - 1;
+      const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
+      const angle = time * (p.speed || 1) + orbitOffset;
+      
+      const depth = isCenter ? 1 : Math.sin(angle);
+      return {
+        tx: isCenter ? 0 : Math.cos(angle) * p.radiusX,
+        ty: isCenter ? 0 : Math.sin(angle) * p.radiusY,
+        depth,
+        zIndex: isCenter ? 70 : (depth > 0 ? 80 : 60),
+      };
+    }
+
+    if (formation === 'vertical') {
+      // Map slotIdx to positions relative to center
+      // Slot 0: center
+      // Slot 1: top 1
+      // Slot 2: bottom 1
+      // Slot 3: top 2
+      // Slot 4: bottom 2
+      const positions = [0, -220, 220, -440, 440];
+      const y = positions[slotIdx];
+      const depth = isCenter ? 1 : (1 - Math.abs(y) / 1000); // Further from center = "deeper" (smaller)
+      return {
+        tx: 0,
+        ty: y,
+        depth,
+        zIndex: isCenter ? 100 : 50,
+      };
+    }
+
+    if (formation === 'diagonal') {
+      const spacing = 180;
+      const pos = [0, -spacing, spacing, -spacing * 2, spacing * 2];
+      const offset = pos[slotIdx];
+      const depth = isCenter ? 1 : (1 - Math.abs(offset) / 1000);
+      return {
+        tx: offset,
+        ty: offset,
+        depth,
+        zIndex: isCenter ? 100 : 50,
+      };
+    }
+
+    return { tx: 0, ty: 0, depth: 1, zIndex: 100 };
+  };
 
   return (
     <div 
@@ -73,33 +135,23 @@ const FloatingImageCluster = () => {
       onMouseLeave={handleMouseLeave}
     >
       {clusterVideos.map((vid, idx) => {
-        // Calculate which slot this item currently occupies
         const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
-        const slot = slots[slotIdx];
         const isCenter = slotIdx === 0;
         const isActive = isHovered === idx;
         
-        // Calculate angle based on orbit slot to ensure uniform spacing (360 / orbiters)
-        const orbitingCount = clusterVideos.length - 1;
-        const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
-        const angle = time * (slot.speed || 1) + orbitOffset;
+        const { tx, ty, depth, zIndex } = getSlotData(slotIdx, currentFormation);
         
-        // Depth simulation
-        const depth = isCenter ? 1 : Math.sin(angle); 
-        const zIndex = isCenter ? 70 : (depth > 0 ? 80 : 60);
-        
-        // Horizontal/Vertical position
-        let tx = isCenter ? 0 : Math.cos(angle) * slot.radiusX;
-        let ty = isCenter ? 0 : Math.sin(angle) * slot.radiusY;
-        
-        // Depth-based scale and blur
-        const scaleBase = isCenter ? 1.3 : (1 + depth * 0.15);
-        const blurAmount = isCenter ? 0 : (Math.max(0, -depth * 4));
-        const opacity = isCenter ? 1 : (0.7 + (depth + 1) * 0.15);
+        // Depth-based visual parameters
+        const scaleBase = isCenter ? 1.3 : (0.9 + depth * 0.1);
+        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 10));
+        const opacity = isCenter ? 1 : (0.7 + (depth) * 0.2);
+
+        let finalTx = tx;
+        let finalTy = ty;
 
         if (isGrouping) {
-          tx = 0;
-          ty = 0;
+          finalTx = 0;
+          finalTy = 0;
         }
 
         return (
@@ -112,10 +164,10 @@ const FloatingImageCluster = () => {
               isGrouping ? "duration-1000" : "duration-[1200ms]"
             )}
             style={{
-              zIndex: isActive ? 100 : zIndex,
-              width: isCenter ? '280px' : '200px',
-              height: isCenter ? '280px' : '200px',
-              transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
+              zIndex: isActive ? 150 : zIndex,
+              width: isCenter ? '260px' : '180px',
+              height: isCenter ? '260px' : '180px',
+              transform: `translate3d(${finalTx}px, ${finalTy}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
               filter: `blur(${isActive ? 0 : blurAmount}px)`,
               opacity: isActive ? 1 : opacity,
             }}
