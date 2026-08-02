@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -13,6 +14,7 @@ import {
   Mail, 
   ArrowRight
 } from 'lucide-react';
+import { gsap } from 'gsap';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -26,7 +28,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const FloatingImageCluster = () => {
+const FloatingImageCluster = ({ stage }: { stage: number }) => {
   const [time, setTime] = useState(0);
   const [isHovered, setIsHovered] = useState<number | null>(null);
   const [isGrouping, setIsGrouping] = useState(false);
@@ -35,7 +37,6 @@ const FloatingImageCluster = () => {
   
   const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
 
-  // Engine for time increment
   useEffect(() => {
     const animate = () => {
       setTime(prev => prev + (isHovered !== null ? 0.005 : 0.01));
@@ -45,7 +46,6 @@ const FloatingImageCluster = () => {
     return () => cancelAnimationFrame(requestRef.current);
   }, [isHovered]);
 
-  // Center rotation timer (5s)
   useEffect(() => {
     const interval = setInterval(() => {
       setCenterIndex(prev => (prev + 1) % clusterVideos.length);
@@ -58,11 +58,8 @@ const FloatingImageCluster = () => {
     setTimeout(() => setIsGrouping(false), 800);
   };
 
-  // Orbital parameters logic
   const getSlotData = (slotIdx: number) => {
     const isCenter = slotIdx === 0;
-    
-    // Fixed parameters for orbits
     const orbitParams = [
       { radiusX: 0, radiusY: 0, speed: 0 },
       { radiusX: 280, radiusY: 150, speed: 0.8 },
@@ -73,11 +70,8 @@ const FloatingImageCluster = () => {
 
     const p = orbitParams[slotIdx];
     const orbitingCount = clusterVideos.length - 1;
-    
-    // Evenly distribute non-center items around the circle
     const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
     const angle = time * (p.speed || 1) + orbitOffset;
-    
     const depth = isCenter ? 1 : Math.sin(angle);
     
     return {
@@ -88,27 +82,32 @@ const FloatingImageCluster = () => {
     };
   };
 
+  // Stage-based modifications
+  const stageScale = Math.max(0.5, 1 - stage * 0.05);
+  const stageOpacity = Math.max(0, 1 - stage * 0.15);
+  const stageBlur = stage * 2;
+
   return (
     <div 
-      className="relative w-full h-full min-h-[600px] flex items-center justify-center pointer-events-auto"
+      className="relative w-full h-full min-h-[600px] flex items-center justify-center pointer-events-auto transition-all duration-700"
       onMouseLeave={handleMouseLeave}
+      style={{
+        opacity: stageOpacity,
+        filter: `blur(${stageBlur}px)`,
+        transform: `scale(${stageScale})`
+      }}
     >
       {clusterVideos.map((vid, idx) => {
-        // Find which slot this video currently belongs to based on center rotation
         const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
         const isCenter = slotIdx === 0;
         const isActive = isHovered === idx;
-        
         const { tx, ty, depth, zIndex } = getSlotData(slotIdx);
         
-        // Depth-based visual parameters
-        // Depth range is [-1, 1]. 1 is closest (front), -1 is furthest (back).
         const scaleBase = isCenter ? 1.1 : (0.9 + depth * 0.1);
-        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 3)); // Moderate blur (max ~6px)
+        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 3));
 
         let finalTx = tx;
         let finalTy = ty;
-
         if (isGrouping) {
           finalTx = 0;
           finalTy = 0;
@@ -128,12 +127,9 @@ const FloatingImageCluster = () => {
               width: isCenter ? '260px' : '180px',
               height: isCenter ? '260px' : '180px',
               transform: `translate3d(${finalTx}px, ${finalTy}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
-              opacity: 1,
             }}
           >
-            {/* The outer container has the border and border-radius, remaining sharp */}
             <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
-              {/* The internal wrapper applies the blur only to the video content */}
               <div 
                 className="w-full h-full transition-all duration-700"
                 style={{
@@ -165,7 +161,10 @@ const FloatingImageCluster = () => {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [heroStage, setHeroStage] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
+  const heroContentRef = useRef<HTMLDivElement>(null);
 
   const categories = [
     { id: 'cat-all', label: 'all' },
@@ -183,11 +182,57 @@ export default function PortfolioPage() {
     { value: '45M', label: 'Total Views' }
   ];
 
+  // Stepped Scroll Logic
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      // If we are at the top and scrolling, or if we are still in hero stages
+      const isAtTop = window.scrollY === 0;
+
+      if (isAtTop && !activeCategory) {
+        if (e.deltaY > 0 && heroStage < 10) {
+          e.preventDefault();
+          if (!isAnimating) {
+            triggerStageChange(heroStage + 1);
+          }
+          return;
+        }
+        
+        if (e.deltaY < 0 && heroStage > 0) {
+          e.preventDefault();
+          if (!isAnimating) {
+            triggerStageChange(heroStage - 1);
+          }
+          return;
+        }
+      }
+    };
+
+    const triggerStageChange = (nextStage: number) => {
+      setIsAnimating(true);
+      setHeroStage(nextStage);
+
+      // GSAP Visual Feedback
+      if (heroContentRef.current) {
+        gsap.to(heroContentRef.current, {
+          y: -nextStage * 25,
+          opacity: Math.max(0, 1 - (nextStage / 10)),
+          duration: 0.8,
+          ease: "back.out(1.2)",
+          onComplete: () => setIsAnimating(false)
+        });
+      } else {
+        setTimeout(() => setIsAnimating(false), 800);
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [heroStage, isAnimating, activeCategory]);
+
   useEffect(() => {
     const handleScroll = () => {
       if (gridRef.current) {
         const rect = gridRef.current.getBoundingClientRect();
-        // Trigger shrink when the grid reaches the header (80px)
         setIsScrolled(rect.top <= 80); 
       }
     };
@@ -197,7 +242,6 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     const newValue = activeCategory === label ? null : label;
-
     if (typeof document !== 'undefined' && 'startViewTransition' in document) {
       (document as any).startViewTransition(() => {
         setActiveCategory(newValue);
@@ -221,7 +265,6 @@ export default function PortfolioPage() {
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-transparent">
-      {/* 1. HEADER */}
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
@@ -242,12 +285,17 @@ export default function PortfolioPage() {
       </header>
 
       <main>
-        {/* 2. HERO */}
-        <section className="relative flex pt-28 pb-8 overflow-hidden min-h-[clamp(600px,85vh,950px)]">
+        {/* HERO SECTION with Stepped Scroll logic */}
+        <section className={cn(
+          "relative flex pt-28 pb-8 overflow-hidden transition-all duration-700",
+          heroStage < 10 ? "h-screen sticky top-0" : "min-h-[600px] relative"
+        )}>
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
-              {/* Layer 1: Base - Text column */}
-              <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10">
+              <div 
+                ref={heroContentRef}
+                className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10"
+              >
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
                     Video Editor • Brazil
@@ -270,15 +318,16 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              {/* Layer 2: Above - Cluster of floating videos */}
               <div className="relative h-[600px] lg:h-full animate-image-reveal z-20 overflow-visible">
-                <FloatingImageCluster />
+                <FloatingImageCluster stage={heroStage} />
               </div>
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
+          <div className={cn(
+            "absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-opacity duration-500",
+            heroStage > 0 ? "opacity-0" : "opacity-100 animate-reveal [animation-delay:800ms]"
+          )}>
             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
             <div className="w-[2px] h-8 bg-primary/20 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(139,30,46,0.5)]" />
@@ -286,7 +335,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 2.5 STICKY CATEGORY GRID */}
+        {/* WORK SECTION */}
         <section 
           id="works" 
           ref={gridRef}
@@ -342,7 +391,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 3. DYNAMIC CATEGORY FEED */}
         {activeCategory && (
           <CategoryFeed 
             category={activeCategory} 
@@ -350,7 +398,6 @@ export default function PortfolioPage() {
           />
         )}
 
-        {/* 4. STATS */}
         <section className="py-24 border-y border-foreground/5 bg-muted/20 animate-reveal">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
@@ -368,7 +415,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 5. CALL TO ACTION */}
         <section id="contact" className="py-32 relative overflow-hidden">
           <div className="container mx-auto px-6 text-center relative z-10">
             <h2 className="text-5xl md:text-7xl font-bold mb-8 italic font-serif text-foreground">Ready to tell your story?</h2>
@@ -396,11 +442,9 @@ export default function PortfolioPage() {
               <Mail className="h-5 w-5" />
             </Link>
           </div>
-          
           <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
             © 2024 Leonardo Verona.
           </div>
-          
           <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
             Built with <span className="text-primary italic">Next.js & Genkit</span>
           </div>
