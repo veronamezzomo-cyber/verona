@@ -33,7 +33,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <body className="font-sans antialiased selection:bg-primary selection:text-primary-foreground" suppressHydrationWarning>
+      <body className="font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden" suppressHydrationWarning>
+        {/* Cinematic Grain Overlay */}
+        <div className="fixed inset-0 pointer-events-none z-[9997] mix-blend-soft-light opacity-[0.03] bg-white hidden dark:block" />
         {children}
       </body>
     </html>
