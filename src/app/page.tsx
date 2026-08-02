@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -47,7 +48,7 @@ const FloatingImageCluster = () => {
       await new Promise(r => setTimeout(r, 500));
 
       // 2. Explode (Stacked -> Orbiting)
-      // "Big Bang" starts fast (Peak speed significantly reduced: 1.8 -> 0.8)
+      // "Big Bang" starts fast (Peak speed: 0.8)
       gsap.to(speedRef, { current: 0.8, duration: 1, ease: 'expo.out' });
       gsap.to({ val: 0 }, {
         val: 1,
@@ -157,16 +158,17 @@ const FloatingImageCluster = () => {
       {clusterVideos.map((vid, idx) => {
         const { tx, ty, depth, zIndex, isCenter } = getSlotData(idx);
         
-        // Focal item is 20% larger than base (1.2 scale)
+        // Focal item is exactly 20% larger than base (1.2 scale)
+        // Others scale between 0.8 and 1.0 depending on depth
         const scaleBase = isCenter ? 1.2 : (0.9 + depth * 0.1);
         
-        // Depth-of-field: max blur 4px
+        // Depth-of-field: max blur 4px. Central item has 0 blur.
         const blurAmount = isCenter ? 0 : Math.min(4, Math.max(0, (1 - depth) * 4));
 
         return (
           <div
             key={vid.id}
-            className="absolute transition-all duration-300 ease-out cursor-pointer"
+            className="absolute transition-all duration-1000 ease-in-out cursor-pointer"
             style={{
               zIndex,
               width: '210px',
@@ -177,7 +179,7 @@ const FloatingImageCluster = () => {
           >
             <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
               <div 
-                className="w-full h-full"
+                className="w-full h-full transition-all duration-1000 ease-in-out"
                 style={{
                   filter: `blur(${blurAmount}px)`
                 }}
@@ -442,3 +444,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
