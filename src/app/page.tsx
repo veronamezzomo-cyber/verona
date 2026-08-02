@@ -213,6 +213,7 @@ export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -236,6 +237,7 @@ export default function PortfolioPage() {
     const handleScroll = () => {
       if (gridRef.current) {
         const rect = gridRef.current.getBoundingClientRect();
+        // Trigger mini-menu when the big cards section reaches the top
         setIsScrolled(rect.top <= 80); 
       }
     };
@@ -287,9 +289,12 @@ export default function PortfolioPage() {
         </div>
       </header>
 
-      <main>
-        {/* HERO SECTION */}
-        <section className="relative flex pt-28 pb-8 overflow-visible min-h-screen">
+      <main className="relative">
+        {/* HERO SECTION - STICKY STACKING BASE */}
+        <section 
+          ref={heroRef}
+          className="sticky top-0 z-0 flex pt-28 pb-8 overflow-hidden h-screen bg-background"
+        >
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
               {/* Left Column (Text) */}
@@ -302,13 +307,13 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 
-                <h1 className="font-serif font-bold text-[clamp(2rem,5.5vw,4.75rem)] leading-[0.95] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
+                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.9] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
                   CRAFTING<br />
                   VISUAL<br />
                   STORYTELLING<span className="text-primary">.</span>
                 </h1>
 
-                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 pt-2 animate-slide-up [animation-delay:400ms]">
+                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 pt-4 animate-slide-up [animation-delay:400ms]">
                   <Button size="lg" className="rounded-none px-12 h-16 text-base font-bold bg-foreground text-background hover:opacity-90 transition-all duration-300 shadow-xl">
                     View Projects
                   </Button>
@@ -325,7 +330,7 @@ export default function PortfolioPage() {
             </div>
           </div>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
             <div className="w-[2px] h-8 bg-primary/20 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(139,30,46,0.5)]" />
@@ -333,16 +338,23 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* WORK SECTION */}
-        <section 
-          id="works" 
-          ref={gridRef}
-          className="sticky top-20 z-40 bg-background/95 backdrop-blur-xl border-y border-foreground/5 shadow-2xl transition-all duration-500"
-        >
-          <div className="container mx-auto px-6 py-2">
+        {/* WORKS & STATS LAYER - STACKING OVER HERO */}
+        <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
+          
+          {/* CATEGORY GRID / MINI MENU */}
+          <section 
+            id="works" 
+            ref={gridRef}
+            className={cn(
+              "z-40 transition-all duration-500",
+              isScrolled ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
+            )}
+          >
             <div className={cn(
-              "grid gap-[1px] relative overflow-hidden transition-all duration-500",
-              isScrolled ? "grid-cols-6 h-12" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 aspect-auto"
+              "grid gap-4 transition-all duration-500",
+              isScrolled 
+                ? "grid-cols-6 h-14 items-center px-6" 
+                : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
             )}>
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
@@ -355,29 +367,37 @@ export default function PortfolioPage() {
                     tabIndex={0}
                     onClick={() => handleCategoryClick(cat.label)}
                     className={cn(
-                      "group relative overflow-hidden bg-background flex items-center justify-center transition-all duration-500 z-10 outline-none cursor-pointer",
-                      isScrolled ? "h-full border-x border-foreground/5" : "aspect-square lg:aspect-[1/1.2]",
-                      isActive ? "ring-2 ring-primary z-20" : "hover:bg-foreground/5"
+                      "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-xl",
+                      isScrolled 
+                        ? "h-10 bg-transparent flex items-center justify-center border-x border-foreground/5 rounded-none" 
+                        : "aspect-[1/1.2] shadow-xl hover:shadow-2xl hover:-translate-y-1",
+                      isActive && !isScrolled && "ring-4 ring-primary ring-offset-4 ring-offset-background",
+                      isActive && isScrolled && "bg-primary text-white"
                     )}
                   >
                     {!isScrolled && img && (
-                      <EditableImage 
-                        src={img.imageUrl} 
-                        alt={cat.label} 
-                        storageKey={`cat-${cat.id}`}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        containerClassName="absolute inset-0"
-                        data-ai-hint={img.imageHint}
-                      />
+                      <>
+                        <EditableImage 
+                          src={img.imageUrl} 
+                          alt={cat.label} 
+                          storageKey={`cat-${cat.id}`}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                          containerClassName="absolute inset-0"
+                          data-ai-hint={img.imageHint}
+                        />
+                        <div className={cn(
+                          "absolute inset-0 transition-opacity duration-300 z-10",
+                          isActive ? "bg-primary/40" : "bg-black/40 group-hover:bg-black/20"
+                        )} />
+                      </>
                     )}
-                    <div className={cn(
-                      "absolute inset-0 transition-colors duration-200 z-10",
-                      isActive ? "bg-primary/60" : (!isScrolled ? "bg-black/60 group-hover:bg-black/40" : "bg-transparent")
-                    )} />
+                    
                     <span className={cn(
-                      "relative z-30 font-serif font-bold text-white lowercase tracking-tighter text-center px-2 pointer-events-none transition-all duration-300",
-                      isScrolled ? "text-[10px] uppercase font-mono tracking-widest text-foreground group-hover:text-primary" : "text-2xl lg:text-3xl",
+                      "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none",
+                      isScrolled 
+                        ? "text-[10px] uppercase font-mono tracking-widest text-foreground group-hover:text-primary" 
+                        : "text-2xl lg:text-3xl text-white bottom-6 left-1/2 -translate-x-1/2 absolute",
                       isActive && isScrolled && "text-white"
                     )}>
                       {cat.label}
@@ -386,65 +406,75 @@ export default function PortfolioPage() {
                 );
               })}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {activeCategory && (
-          <CategoryFeed 
-            category={activeCategory} 
-            onClose={handleCloseFeed} 
-          />
-        )}
+          {activeCategory && (
+            <CategoryFeed 
+              category={activeCategory} 
+              onClose={handleCloseFeed} 
+            />
+          )}
 
-        <section className="py-24 border-y border-foreground/5 bg-muted/20 animate-reveal">
-          <div className="container mx-auto px-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-              {stats.map((stat) => (
-                <div key={stat.label} className="flex flex-col items-center">
-                  <span className="text-5xl md:text-7xl font-bold mb-2 font-mono tracking-tighter text-foreground">
-                    {stat.value}
-                  </span>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground whitespace-nowrap">
-                    {stat.label}
-                  </span>
-                </div>
-              ))}
+          {/* STATS BLOCK */}
+          <section className="py-32 border-y border-foreground/5 bg-muted/5">
+            <div className="container mx-auto px-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="flex flex-col items-center group">
+                    <span className="text-6xl md:text-8xl font-bold mb-4 font-mono tracking-tighter text-foreground group-hover:text-primary transition-colors">
+                      {stat.value}
+                    </span>
+                    <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground whitespace-nowrap">
+                      {stat.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section id="contact" className="py-32 relative overflow-hidden">
-          <div className="container mx-auto px-6 text-center relative z-10">
-            <h2 className="text-5xl md:text-7xl font-bold mb-8 italic font-serif text-foreground">Ready to tell your story?</h2>
-            <p className="text-muted-foreground mb-12 max-w-xl mx-auto font-mono text-sm uppercase tracking-widest">
-              Available for freelance opportunities and long-term partnerships worldwide.
-            </p>
-            <Button size="lg" className="rounded-none px-12 h-16 text-lg font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300">
-              Let&apos;s Talk
-            </Button>
-          </div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] -z-10" />
-        </section>
+          {/* FINAL STACKING LAYER - CONTACT */}
+          <section id="contact" className="py-40 relative overflow-hidden z-20 bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
+            <div className="container mx-auto px-6 text-center relative z-10">
+              <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
+                Available for worldwide projects
+              </div>
+              <h2 className="text-6xl md:text-9xl font-bold mb-12 italic font-serif text-foreground leading-tight tracking-tighter">
+                Ready to tell<br />your story?
+              </h2>
+              <p className="text-muted-foreground mb-16 max-w-xl mx-auto font-mono text-sm uppercase tracking-widest leading-relaxed">
+                Transforming concepts into cinematic realities. <br />Available for freelance opportunities.
+              </p>
+              <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-2xl">
+                Let&apos;s Talk
+              </Button>
+            </div>
+            
+            {/* Background elements */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
+          </section>
+        </div>
       </main>
 
-      <footer className="py-12 border-t border-foreground/5">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-6">
+      <footer className="py-16 border-t border-foreground/5 relative z-30 bg-background">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
+          <div className="flex items-center gap-8">
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <DiscordIcon className="h-5 w-5" />
+              <DiscordIcon className="h-6 w-6" />
             </Link>
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <WhatsAppIcon className="h-5 w-5" />
+              <WhatsAppIcon className="h-6 w-6" />
             </Link>
             <Link href="mailto:contact@leonardoverona.com" className="text-muted-foreground hover:text-primary transition-colors">
-              <Mail className="h-5 w-5" />
+              <Mail className="h-6 w-6" />
             </Link>
           </div>
-          <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-            © 2024 Leonardo Verona.
+          <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+            © 2024 Leonardo Verona. All rights reserved.
           </div>
-          <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-            Built with <span className="text-primary italic">Next.js & Genkit</span>
+          <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+            Digital Craftsman <span className="text-primary italic ml-2">Next.js / Video</span>
           </div>
         </div>
       </footer>
