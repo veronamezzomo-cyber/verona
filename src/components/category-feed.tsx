@@ -92,11 +92,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col justify-center bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-16 md:py-24 transition-all duration-500 z-30 scroll-mt-20"
+      className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col justify-center bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-12 md:py-16 transition-all duration-500 z-30 scroll-mt-20 overflow-hidden"
     >
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 h-full flex flex-col">
         {/* Header inside the inline section */}
-        <div className="flex items-center justify-between mb-12 border-b border-foreground/5 pb-6">
+        <div className="flex items-center justify-between mb-8 border-b border-foreground/5 pb-6">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Selected Works</span>
             <h2 className="font-serif text-4xl italic font-bold text-foreground lowercase">{category}</h2>
@@ -117,8 +117,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 items-center">
+        {/* Two Column Layout centered vertically */}
+        <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 items-center flex-1">
           
           {/* Left Column: Details */}
           <div className="flex flex-col gap-8">
@@ -126,7 +126,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-4">
                 {currentItem.date}
               </span>
-              <h3 className="font-serif text-5xl md:text-6xl font-bold text-foreground leading-[0.9] tracking-tighter mb-8 max-w-sm">
+              <h3 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[0.9] tracking-tighter mb-8 max-w-sm">
                 {currentItem.title}<span className="text-primary">.</span>
               </h3>
               <div className="space-y-4 max-w-xs">
@@ -149,10 +149,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
 
           {/* Right Column: Centered Vertical Snap Feed */}
-          <div className="flex justify-center w-full">
+          <div className="flex justify-center items-center w-full h-full max-h-[75vh]">
             <div 
               ref={scrollRef}
-              className="relative h-[65vh] md:h-[75vh] max-h-[800px] aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
+              className="relative h-full w-auto aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
             >
               {feedItems.map((item, idx) => {
                 return (
@@ -184,7 +184,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
         
         {/* Footer info for feed */}
-        <div className="mt-12 text-center border-t border-foreground/5 pt-8">
+        <div className="mt-8 text-center border-t border-foreground/5 pt-6">
           <p className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground">
             Scroll vertically inside the black area to explore projects • Use keyboard arrows to snap
           </p>
