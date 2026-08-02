@@ -165,3 +165,14 @@
     100% { transform: scaleY(0); transform-origin: bottom; }
   }
 }
+
+/* View Transitions Optimization */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-transition-feed {
+  view-transition-name: category-feed;
+}

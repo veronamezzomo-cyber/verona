@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
+import { cn } from '@/lib/utils';
 
 interface CategoryFeedProps {
   category: string;
@@ -88,7 +89,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-5rem)] flex flex-col bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-6 transition-all duration-500 z-30 scroll-mt-20 overflow-hidden"
+      className="relative w-full h-[calc(100vh-5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-6 transition-all duration-500 z-30 scroll-mt-20 overflow-hidden view-transition-feed"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
         {/* Header inside the feed */}
@@ -113,7 +114,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
-        {/* Main Viewport-Constrained Grid */}
+        {/* Constrained Grid: Flex-1 to fill space */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center min-h-0 overflow-hidden">
           
           {/* Left Column: Details */}
@@ -144,7 +145,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          {/* Right Column: Full-Height Proportional Video */}
+          {/* Right Column: Video Container Maximized */}
           <div className="flex justify-center items-center h-full min-h-0 overflow-hidden">
             <div 
               ref={scrollRef}
@@ -160,7 +161,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     src={item.videoUrl || ""} 
                     storageKey={`feed-${category}-${item.id}`}
                     fill
-                    className="object-contain transition-transform duration-[2000ms] group-hover:scale-105"
+                    className="object-contain h-full w-full transition-transform duration-[2000ms] group-hover:scale-105"
                   />
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />

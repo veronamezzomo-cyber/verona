@@ -47,6 +47,27 @@ export default function PortfolioPage() {
   const profileImage = PlaceHolderImages.find(i => i.id === 'hero-profile');
   const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
 
+  const handleCategoryClick = (label: string) => {
+    // Progressive enhancement: View Transitions API
+    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
+      (document as any).startViewTransition(() => {
+        setActiveCategory(label);
+      });
+    } else {
+      setActiveCategory(label);
+    }
+  };
+
+  const handleCloseFeed = () => {
+    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
+      (document as any).startViewTransition(() => {
+        setActiveCategory(null);
+      });
+    } else {
+      setActiveCategory(null);
+    }
+  };
+
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-transparent">
       {/* 1. HEADER */}
@@ -141,11 +162,11 @@ export default function PortfolioPage() {
                     key={cat.id} 
                     role="button"
                     tabIndex={0}
-                    onClick={() => setActiveCategory(cat.label)}
+                    onClick={() => handleCategoryClick(cat.label)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        setActiveCategory(cat.label);
+                        handleCategoryClick(cat.label);
                       }
                     }}
                     className={cn(
@@ -188,7 +209,7 @@ export default function PortfolioPage() {
         {activeCategory && (
           <CategoryFeed 
             category={activeCategory} 
-            onClose={() => setActiveCategory(null)} 
+            onClose={handleCloseFeed} 
           />
         )}
 
