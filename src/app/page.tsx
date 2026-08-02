@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -123,7 +122,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const depth = Math.sin(angle); // -1 (back) to 1 (front)
 
         // Additive Offset Layer: Pull toward center (Focus) or stack (Leque)
-        // Corrected to eliminate residual orbital "leak" at values = 1
         let tx = ox + (0 - ox) * ff;
         let ty = oy + (0 - oy) * ff;
 
@@ -148,7 +146,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const blur = (1 - ff) * (depth < 0 ? Math.abs(depth) * 4 : 0);
 
         // Direct Styles Update (High Performance)
-        // translate(-50%, -50%) is preserved here, matched with CSS initial style
         el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
@@ -189,8 +186,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
           ref={(el) => { itemRefs.current[i] = el; }}
           className="absolute top-1/2 left-1/2 w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
           style={{ 
-            opacity: 1, 
-            transform: 'translate(-50%, -50%)' // BUG 1 FIX: Match initial anchor to JS anchor
+            opacity: 1,
+            transform: 'translate(-50%, -50%)' 
           }} 
         >
           <EditableVideo 
@@ -295,8 +292,9 @@ export default function PortfolioPage() {
         <section className="relative flex pt-28 pb-8 overflow-visible min-h-screen">
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
+              {/* Left Column (Text) */}
               <div 
-                className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10 justify-center"
+                className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10 justify-center lg:-translate-y-12"
               >
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
@@ -320,6 +318,7 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
+              {/* Right Column (Cluster) */}
               <div className="relative w-full h-full flex items-center justify-center animate-image-reveal z-20 overflow-visible">
                 <FloatingVideoCluster videos={clusterVideos} />
               </div>
@@ -452,4 +451,3 @@ export default function PortfolioPage() {
     </div>
   );
 }
-
