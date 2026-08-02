@@ -103,8 +103,8 @@ const FloatingImageCluster = () => {
         
         // Depth-based visual parameters
         // Depth range is [-1, 1]. 1 is closest (front), -1 is furthest (back).
-        const scaleBase = isCenter ? 1.3 : (0.9 + depth * 0.1);
-        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 10)); // Higher blur for items "further back"
+        const scaleBase = isCenter ? 1.1 : (0.9 + depth * 0.1);
+        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 3)); // Moderate blur (max ~6px)
 
         let finalTx = tx;
         let finalTy = ty;
@@ -128,24 +128,32 @@ const FloatingImageCluster = () => {
               width: isCenter ? '260px' : '180px',
               height: isCenter ? '260px' : '180px',
               transform: `translate3d(${finalTx}px, ${finalTy}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
-              filter: `blur(${isActive ? 0 : blurAmount}px)`,
-              opacity: 1, // Strictly 100% opacity as requested
+              opacity: 1,
             }}
           >
+            {/* The outer container has the border and border-radius, remaining sharp */}
             <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
-              <EditableVideo 
-                src={vid.imageUrl} 
-                storageKey={vid.id}
-                fill
-                className="object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                poster={`https://picsum.photos/seed/${vid.id}/400/400`}
-                hideControls
-              />
+              {/* The internal wrapper applies the blur only to the video content */}
+              <div 
+                className="w-full h-full transition-all duration-700"
+                style={{
+                  filter: `blur(${isActive ? 0 : blurAmount}px)`
+                }}
+              >
+                <EditableVideo 
+                  src={vid.imageUrl} 
+                  storageKey={vid.id}
+                  fill
+                  className="object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster={`https://picsum.photos/seed/${vid.id}/400/400`}
+                  hideControls
+                />
+              </div>
             </div>
           </div>
         );
