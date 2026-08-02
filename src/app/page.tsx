@@ -48,13 +48,16 @@ export default function PortfolioPage() {
   const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
 
   const handleCategoryClick = (label: string) => {
+    // Toggle: if already active, set to null
+    const newValue = activeCategory === label ? null : label;
+
     // Progressive enhancement: View Transitions API
     if (typeof document !== 'undefined' && 'startViewTransition' in document) {
       (document as any).startViewTransition(() => {
-        setActiveCategory(label);
+        setActiveCategory(newValue);
       });
     } else {
-      setActiveCategory(label);
+      setActiveCategory(newValue);
     }
   };
 
