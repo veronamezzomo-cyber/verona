@@ -79,7 +79,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const currentItem = feedItems[activeIndex];
 
   return (
-    <section className="relative w-full bg-muted/30 animate-reveal border-t border-foreground/10 shadow-inner py-12 md:py-20 transition-all duration-500">
+    <section 
+      className="relative w-full bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-12 md:py-20 transition-all duration-500 z-30"
+    >
       <div className="container mx-auto px-6">
         {/* Header inside the inline section */}
         <div className="flex items-center justify-between mb-12 border-b border-foreground/5 pb-6">
@@ -87,14 +89,20 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Selected Works</span>
             <h2 className="font-serif text-4xl italic font-bold text-foreground lowercase">{category}</h2>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <div 
+            role="button"
+            tabIndex={0}
             onClick={onClose}
-            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClose();
+              }
+            }}
+            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 cursor-pointer flex items-center transition-colors"
           >
             Close Feed <X className="h-4 w-4" />
-          </Button>
+          </div>
         </div>
 
         {/* Two Column Layout */}
