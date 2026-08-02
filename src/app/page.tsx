@@ -91,11 +91,10 @@ export default function PortfolioPage() {
       </header>
 
       <main>
-        {/* 2. SPLIT HERO */}
+        {/* 2. HERO */}
         <section className="relative flex pt-28 pb-8 overflow-hidden min-h-[clamp(500px,78vh,850px)]">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4 lg:gap-0 items-start">
-              {/* Left Content */}
               <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6">
                 <div className="animate-slide-up [animation-delay:100ms]">
                   <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
@@ -119,7 +118,6 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              {/* Right Image (Poster Style) */}
               <div className="px-6 lg:px-12 animate-image-reveal">
                 <div className="relative aspect-[3/4] lg:aspect-auto lg:h-[55vh] group overflow-hidden border border-primary/20 bg-muted shadow-2xl">
                   {profileImage && (
@@ -140,7 +138,6 @@ export default function PortfolioPage() {
             </div>
           </div>
 
-          {/* Scroll Indicator */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
             <div className="w-[2px] h-8 bg-primary/20 relative overflow-hidden">
@@ -199,13 +196,12 @@ export default function PortfolioPage() {
                   </div>
                 );
               })}
-              {/* Fade suggestion overlay */}
               <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-background to-transparent pointer-events-none z-40 opacity-60" />
             </div>
           </div>
         </section>
 
-        {/* 3. DYNAMIC CATEGORY FEED (INLINE) */}
+        {/* 3. DYNAMIC CATEGORY FEED */}
         {activeCategory && (
           <CategoryFeed 
             category={activeCategory} 
@@ -246,7 +242,6 @@ export default function PortfolioPage() {
         </section>
       </main>
 
-      {/* 6. FOOTER */}
       <footer className="py-12 border-t border-foreground/5">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-6">

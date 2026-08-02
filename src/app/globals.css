@@ -154,7 +154,7 @@
     }
     to {
       opacity: 1;
-      filter: none; /* Removed fixed grayscale end-state to allow duotone through */
+      filter: none;
     }
   }
 
@@ -166,7 +166,7 @@
   }
 }
 
-/* View Transitions Optimization */
+/* View Transitions API Core Styles */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.4s;

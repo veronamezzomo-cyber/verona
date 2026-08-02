@@ -114,7 +114,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
-        {/* Constrained Grid: Flex-1 to fill space */}
+        {/* Constrained Grid */}
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center min-h-0 overflow-hidden">
           
           {/* Left Column: Details */}
@@ -145,7 +145,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          {/* Right Column: Video Container Maximized */}
+          {/* Right Column: Video Container */}
           <div className="flex justify-center items-center h-full min-h-0 overflow-hidden">
             <div 
               ref={scrollRef}
@@ -177,7 +177,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
         
-        {/* Footer info for feed */}
+        {/* Footer info */}
         <div className="mt-4 text-center border-t border-foreground/5 pt-3 shrink-0">
           <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground">
             Scroll vertically inside the feed to explore projects
