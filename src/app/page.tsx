@@ -31,12 +31,9 @@ const FloatingImageCluster = () => {
   const [isHovered, setIsHovered] = useState<number | null>(null);
   const [isGrouping, setIsGrouping] = useState(false);
   const [centerIndex, setCenterIndex] = useState(0);
-  const [formationIndex, setFormationIndex] = useState(0);
   const requestRef = useRef<number>(0);
   
   const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
-  const formations = ['orbit', 'vertical', 'diagonal'] as const;
-  const currentFormation = formations[formationIndex];
 
   // Engine for time increment
   useEffect(() => {
@@ -56,77 +53,39 @@ const FloatingImageCluster = () => {
     return () => clearInterval(interval);
   }, [clusterVideos.length]);
 
-  // Formation rotation timer (8s)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFormationIndex(prev => (prev + 1) % formations.length);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, [formations.length]);
-
   const handleMouseLeave = () => {
     setIsGrouping(true);
     setTimeout(() => setIsGrouping(false), 800);
   };
 
-  // Orbital/Line parameters
-  const getSlotData = (slotIdx: number, formation: typeof formations[number]) => {
+  // Orbital parameters logic
+  const getSlotData = (slotIdx: number) => {
     const isCenter = slotIdx === 0;
     
-    if (formation === 'orbit') {
-      const orbitParams = [
-        { radiusX: 0, radiusY: 0, speed: 0 },
-        { radiusX: 280, radiusY: 150, speed: 0.8 },
-        { radiusX: 320, radiusY: -180, speed: 0.6 },
-        { radiusX: 260, radiusY: 200, speed: 1.1 },
-        { radiusX: 300, radiusY: -160, speed: 0.9 },
-      ];
-      const p = orbitParams[slotIdx];
-      const orbitingCount = clusterVideos.length - 1;
-      const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
-      const angle = time * (p.speed || 1) + orbitOffset;
-      
-      const depth = isCenter ? 1 : Math.sin(angle);
-      return {
-        tx: isCenter ? 0 : Math.cos(angle) * p.radiusX,
-        ty: isCenter ? 0 : Math.sin(angle) * p.radiusY,
-        depth,
-        zIndex: isCenter ? 70 : (depth > 0 ? 80 : 60),
-      };
-    }
+    // Fixed parameters for orbits
+    const orbitParams = [
+      { radiusX: 0, radiusY: 0, speed: 0 },
+      { radiusX: 280, radiusY: 150, speed: 0.8 },
+      { radiusX: 320, radiusY: -180, speed: 0.6 },
+      { radiusX: 260, radiusY: 200, speed: 1.1 },
+      { radiusX: 300, radiusY: -160, speed: 0.9 },
+    ];
 
-    if (formation === 'vertical') {
-      // Map slotIdx to positions relative to center
-      // Slot 0: center
-      // Slot 1: top 1
-      // Slot 2: bottom 1
-      // Slot 3: top 2
-      // Slot 4: bottom 2
-      const positions = [0, -220, 220, -440, 440];
-      const y = positions[slotIdx];
-      const depth = isCenter ? 1 : (1 - Math.abs(y) / 1000); // Further from center = "deeper" (smaller)
-      return {
-        tx: 0,
-        ty: y,
-        depth,
-        zIndex: isCenter ? 100 : 50,
-      };
-    }
-
-    if (formation === 'diagonal') {
-      const spacing = 180;
-      const pos = [0, -spacing, spacing, -spacing * 2, spacing * 2];
-      const offset = pos[slotIdx];
-      const depth = isCenter ? 1 : (1 - Math.abs(offset) / 1000);
-      return {
-        tx: offset,
-        ty: offset,
-        depth,
-        zIndex: isCenter ? 100 : 50,
-      };
-    }
-
-    return { tx: 0, ty: 0, depth: 1, zIndex: 100 };
+    const p = orbitParams[slotIdx];
+    const orbitingCount = clusterVideos.length - 1;
+    
+    // Evenly distribute non-center items around the circle
+    const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
+    const angle = time * (p.speed || 1) + orbitOffset;
+    
+    const depth = isCenter ? 1 : Math.sin(angle);
+    
+    return {
+      tx: isCenter ? 0 : Math.cos(angle) * p.radiusX,
+      ty: isCenter ? 0 : Math.sin(angle) * p.radiusY,
+      depth,
+      zIndex: isCenter ? 70 : (depth > 0 ? 80 : 60),
+    };
   };
 
   return (
@@ -135,16 +94,17 @@ const FloatingImageCluster = () => {
       onMouseLeave={handleMouseLeave}
     >
       {clusterVideos.map((vid, idx) => {
+        // Find which slot this video currently belongs to based on center rotation
         const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
         const isCenter = slotIdx === 0;
         const isActive = isHovered === idx;
         
-        const { tx, ty, depth, zIndex } = getSlotData(slotIdx, currentFormation);
+        const { tx, ty, depth, zIndex } = getSlotData(slotIdx);
         
         // Depth-based visual parameters
+        // Depth range is [-1, 1]. 1 is closest (front), -1 is furthest (back).
         const scaleBase = isCenter ? 1.3 : (0.9 + depth * 0.1);
-        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 10));
-        const opacity = isCenter ? 1 : (0.7 + (depth) * 0.2);
+        const blurAmount = isCenter ? 0 : (Math.max(0, (1 - depth) * 10)); // Higher blur for items "further back"
 
         let finalTx = tx;
         let finalTy = ty;
@@ -169,7 +129,7 @@ const FloatingImageCluster = () => {
               height: isCenter ? '260px' : '180px',
               transform: `translate3d(${finalTx}px, ${finalTy}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
               filter: `blur(${isActive ? 0 : blurAmount}px)`,
-              opacity: isActive ? 1 : opacity,
+              opacity: 1, // Strictly 100% opacity as requested
             }}
           >
             <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
@@ -219,6 +179,7 @@ export default function PortfolioPage() {
     const handleScroll = () => {
       if (gridRef.current) {
         const rect = gridRef.current.getBoundingClientRect();
+        // Trigger shrink when the grid reaches the header (80px)
         setIsScrolled(rect.top <= 80); 
       }
     };
@@ -308,6 +269,7 @@ export default function PortfolioPage() {
             </div>
           </div>
 
+          {/* Scroll Indicator */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
             <div className="w-[2px] h-8 bg-primary/20 relative overflow-hidden">
