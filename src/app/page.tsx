@@ -33,34 +33,97 @@ const FloatingImageCluster = () => {
   const [isHovered, setIsHovered] = useState(false);
   const timeRef = useRef(0);
   const requestRef = useRef<number>(0);
-  const [morphFactor, setMorphFactor] = useState(1); // Start stacked (1)
-  const [focalFactors, setFocalFactors] = useState([1, 0, 0, 0, 0]); // Item 0 starts in focus
-  const speedRef = useRef(0.8); // Moderate initial speed
   
+  // Refs for direct DOM manipulation (Performance)
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  // Interpolation params (mirrored state for rAF)
+  const paramsRef = useRef({
+    focalFactors: [1, 0, 0, 0, 0],
+    morphFactor: 1 // Start stacked
+  });
+
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
 
-  // Continuous Orbital Physics via rAF (ALWAYS RUNNING)
+  // Continuous Orbital Physics via rAF (DOM DRIVEN)
   useEffect(() => {
+    const orbitParams = [
+      { rx: 240, ry: 140, offset: 0 },
+      { rx: 280, ry: -160, offset: (2 * Math.PI) / 5 },
+      { rx: 220, ry: 180, offset: (4 * Math.PI) / 5 },
+      { rx: 300, ry: -120, offset: (6 * Math.PI) / 5 },
+      { rx: 260, ry: 150, offset: (8 * Math.PI) / 5 },
+    ];
+
     const animate = () => {
-      // Calculate current cycle speed (deceleration logic)
+      // 1. Advance time
       const baseSpeed = 0.8; 
       const currentSpeed = baseSpeed * (isHovered ? 1.5 : 1);
-      
       timeRef.current += 0.01 * currentSpeed;
+
+      // 2. Update DOM directly for each item
+      clusterVideos.forEach((_, idx) => {
+        const el = itemRefs.current[idx];
+        const container = containerRefs.current[idx];
+        if (!el || !container) return;
+
+        const p = orbitParams[idx];
+        const angle = timeRef.current + p.offset;
+        const ff = paramsRef.current.focalFactors[idx];
+        const morph = paramsRef.current.morphFactor;
+
+        // Base Orbit Position
+        const ox = Math.cos(angle) * p.rx;
+        const oy = Math.sin(angle) * p.ry;
+        const odepth = Math.sin(angle); // -1 to 1
+
+        // Position Logic: Orbit + Focal Pull + Morph Pull (Additive Offset)
+        // tx/ty follow ox/oy but are pulled towards 0 (focal) or sx (morph)
+        let tx = ox + (0 - ox) * (ff * 0.95); // Retain 5% orbit even in focus
+        let ty = oy + (0 - oy) * (ff * 0.95);
+
+        const stackIdx = (idx - activeIndex + 5) % 5;
+        const sx = -stackIdx * 15;
+        const sy = -stackIdx * 15;
+
+        tx = tx + (sx - tx) * (morph * 0.95); // Retain 5% orbit even in stack
+        ty = ty + (sy - ty) * (morph * 0.95);
+
+        // Visuals
+        const baseScale = (0.9 + odepth * 0.1);
+        const focalScale = 1.2;
+        const finalScale = baseScale + (focalScale - baseScale) * ff;
+        
+        const zIndex = morph > 0.5 
+          ? (100 - stackIdx) 
+          : (ff > 0.5 ? 200 : Math.round(100 + odepth * 50));
+
+        const baseBlur = (1 - odepth) * 2;
+        const finalBlur = baseBlur * (1 - ff); // Focus reduces blur to 0
+
+        // Apply styles directly
+        el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+        el.style.zIndex = zIndex.toString();
+        
+        container.style.transform = `scale(${finalScale})`;
+        container.style.filter = `blur(${finalBlur}px)`;
+      });
+
       requestRef.current = requestAnimationFrame(animate);
     };
+
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, [isHovered]);
+  }, [isHovered, activeIndex, clusterVideos]);
 
   // Initial State: Stacked for 0.5s then Explode
   useEffect(() => {
     const initialTimer = setTimeout(() => {
-      gsap.to({ val: 1 }, {
-        val: 0,
+      gsap.to(paramsRef.current, {
+        morphFactor: 0,
         duration: 1.5,
-        ease: 'power2.inOut',
-        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+        ease: 'power2.inOut'
       });
     }, 500);
     return () => clearTimeout(initialTimer);
@@ -71,97 +134,46 @@ const FloatingImageCluster = () => {
     const focusInterval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % clusterVideos.length;
       
-      const newFocalFactors = [...focalFactors];
-      
       // Glide current focus back to orbit
-      gsap.to(newFocalFactors, {
+      gsap.to(paramsRef.current.focalFactors, {
         [activeIndex]: 0,
         duration: 1.0,
-        ease: 'sine.inOut',
-        onUpdate: () => setFocalFactors([...newFocalFactors])
+        ease: 'sine.inOut'
       });
       
       // Glide next item into center focus
-      gsap.to(newFocalFactors, {
+      gsap.to(paramsRef.current.focalFactors, {
         [nextIndex]: 1,
         duration: 1.0,
-        ease: 'sine.inOut',
-        onUpdate: () => setFocalFactors([...newFocalFactors])
+        ease: 'sine.inOut'
       });
       
       setActiveIndex(nextIndex);
     }, 10000);
     return () => clearInterval(focusInterval);
-  }, [activeIndex, focalFactors, clusterVideos.length]);
+  }, [activeIndex, clusterVideos.length]);
 
   // Cycle 2: Leque Grouping every 30s
   useEffect(() => {
     const lequeInterval = setInterval(() => {
       // 1. Converge to Stack
-      gsap.to({ val: 0 }, {
-        val: 1,
+      gsap.to(paramsRef.current, {
+        morphFactor: 1,
         duration: 2.0,
-        ease: 'power2.inOut',
-        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+        ease: 'power2.inOut'
       });
 
       // 2. Pause for 0.5s then Explode
       setTimeout(() => {
-        gsap.to({ val: 1 }, {
-          val: 0,
+        gsap.to(paramsRef.current, {
+          morphFactor: 0,
           duration: 2.0,
-          ease: 'power2.inOut',
-          onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+          ease: 'power2.inOut'
         });
-      }, 2500); // 2.0s duration + 0.5s pause
+      }, 2500);
     }, 30000);
     return () => clearInterval(lequeInterval);
   }, []);
-
-  const getElementData = (idx: number) => {
-    const orbitParams = [
-      { rx: 240, ry: 140, offset: 0 },
-      { rx: 280, ry: -160, offset: (2 * Math.PI) / 5 },
-      { rx: 220, ry: 180, offset: (4 * Math.PI) / 5 },
-      { rx: 300, ry: -120, offset: (6 * Math.PI) / 5 },
-      { rx: 260, ry: 150, offset: (8 * Math.PI) / 5 },
-    ];
-
-    const p = orbitParams[idx];
-    const angle = timeRef.current + p.offset;
-    const ff = focalFactors[idx]; // 0 = orbit, 1 = center focus
-    
-    // Orbital Position (Base)
-    const ox = Math.cos(angle) * p.rx;
-    const oy = Math.sin(angle) * p.ry;
-    const odepth = Math.sin(angle); // -1 to 1
-
-    // Stacked Position (Leque Displacement)
-    const stackIdx = (idx - activeIndex + 5) % 5;
-    const sx = -stackIdx * 15;
-    const sy = -stackIdx * 15;
-
-    // FINAL POSITION LOGIC:
-    // We combine continuous orbit with the focal/stack glides.
-    // ff = 1 means we are pulled to (0,0) relative to orbit center.
-    // morphFactor = 1 means we are pulled to (sx, sy).
-    const targetX = (ox * (1 - ff) + 0 * ff) * (1 - morphFactor) + sx * morphFactor;
-    const targetY = (oy * (1 - ff) + 0 * ff) * (1 - morphFactor) + sy * morphFactor;
-
-    // Visuals
-    const isFocal = ff > 0.5;
-    const baseScale = isFocal ? (1.0 + 0.2 * ff) : (0.9 + odepth * 0.1);
-    const zIndex = morphFactor > 0.5 ? (100 - stackIdx) : (ff > 0.5 ? 200 : Math.round(100 + odepth * 50));
-    const blurAmount = isFocal ? (1 - ff) * 4 : (1 - odepth) * 2; 
-
-    return {
-      targetX,
-      targetY,
-      zIndex,
-      baseScale,
-      blurAmount
-    };
-  };
 
   return (
     <div 
@@ -170,52 +182,38 @@ const FloatingImageCluster = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative w-full h-full flex items-center justify-center">
-        {clusterVideos.map((vid, idx) => {
-          const { 
-            targetX, 
-            targetY, 
-            zIndex, 
-            baseScale, 
-            blurAmount 
-          } = getElementData(idx);
-
-          return (
-            <div
-              key={vid.id}
-              className="absolute transition-none"
-              style={{
-                zIndex,
-                width: '210px',
-                height: '210px',
-                transform: `translate3d(${targetX}px, ${targetY}px, 0)`,
-              }}
+        {clusterVideos.map((vid, idx) => (
+          <div
+            key={vid.id}
+            ref={el => { itemRefs.current[idx] = el; }}
+            className="absolute transition-none"
+            style={{
+              width: '210px',
+              height: '210px',
+              willChange: 'transform, z-index'
+            }}
+          >
+            <div 
+              ref={el => { containerRefs.current[idx] = el; }}
+              className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem] transition-none"
+              style={{ willChange: 'transform, filter' }}
             >
-              {/* Inner container handles scale/blur smooth transitions */}
-              <div 
-                className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem] transition-all duration-1000 ease-in-out"
-                style={{
-                  filter: `blur(${blurAmount}px)`,
-                  transform: `scale(${baseScale})`,
-                  opacity: 1
-                }}
-              >
-                <EditableVideo 
-                  src={vid.imageUrl} 
-                  storageKey={vid.id}
-                  fill
-                  className="object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  poster={`https://picsum.photos/seed/${vid.id}/400/400`}
-                  hideControls
-                />
-              </div>
+              <EditableVideo 
+                src={vid.imageUrl} 
+                storageKey={vid.id}
+                fill
+                className="object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster={`https://picsum.photos/seed/${vid.id}/400/400`}
+                hideControls
+              />
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
