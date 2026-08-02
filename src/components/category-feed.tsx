@@ -22,6 +22,7 @@ interface FeedItem {
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   // Mock data for the feed items based on category
   const feedItems: FeedItem[] = [
@@ -56,6 +57,16 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     },
   ];
 
+  // Automatic scroll to this section when category changes
+  useEffect(() => {
+    if (category && sectionRef.current) {
+      sectionRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  }, [category]);
+
   // Observer to track which item is active during scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -80,7 +91,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   return (
     <section 
-      className="relative w-full bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-12 md:py-20 transition-all duration-500 z-30"
+      ref={sectionRef}
+      className="relative w-full bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-12 md:py-20 transition-all duration-500 z-30 scroll-mt-20"
     >
       <div className="container mx-auto px-6">
         {/* Header inside the inline section */}
