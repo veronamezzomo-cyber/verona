@@ -29,19 +29,20 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 /**
- * FloatingVideoCluster - High performance orbital engine.
- * Decoupled from React render cycle.
+ * FloatingVideoCluster - Rebuilt High-Performance Engine.
+ * Features Decoupled Physics (rAF) and Structural Attractors (GSAP).
  */
 function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   
-  // Physics & Animation Refs
+  // Angle / Time Reference (Independent Physics)
   const timeRef = useRef(0);
-  const currentSpeedRef = useRef(0.2);
-  const isHoveredRef = useRef(false);
-  const focalFactorsRef = useRef(videos.map(() => ({ value: 0 })));
-  const morphFactorRef = useRef({ value: 1 }); // Start in leque (stack)
+  const currentSpeedRef = useRef(0.2); // Base Hypnotic Speed
+  
+  // Transition Factors (Updated via GSAP, read by rAF)
+  const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0))); // First item starts in focus
+  const morphFactorRef = useRef({ value: 1 }); // Start stacked in leque
   const activeIndexRef = useRef(0);
   
   // Orbital Parameters
@@ -52,7 +53,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   })), [videos]);
 
   useEffect(() => {
-    // 1. Initial "Explosion" Sequence
+    // 1. Initial State Handling: Item 0 starts in focus. 
+    // The "Explosion" sequence from stack to orbit occurs after 0.5s.
     gsap.delayedCall(0.5, () => {
       gsap.to(morphFactorRef.current, {
         value: 0,
@@ -61,27 +63,27 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       });
     });
 
-    // 2. Focus Cycle (7s)
+    // 2. Focus Rotation Logic (Every 7s)
     const focusInterval = setInterval(() => {
       const prev = activeIndexRef.current;
       const next = (prev + 1) % videos.length;
       activeIndexRef.current = next;
 
-      // Glide out
-      gsap.to(focalFactorsRef.current[prev], {
-        value: 0,
-        duration: 1,
+      // Glide out of focus
+      gsap.to(focalFactorsRef.current, {
+        [prev]: 0,
+        duration: 1.2,
         ease: 'sine.inOut'
       });
-      // Glide in
-      gsap.to(focalFactorsRef.current[next], {
-        value: 1,
-        duration: 1,
+      // Glide into focus
+      gsap.to(focalFactorsRef.current, {
+        [next]: 1,
+        duration: 1.2,
         ease: 'sine.inOut'
       });
     }, 7000);
 
-    // 3. Leque (Structural) Cycle (30s)
+    // 3. Structural "Leque" Grouping (Every 30s)
     const lequeInterval = setInterval(() => {
       // Group to stack
       gsap.to(morphFactorRef.current, {
@@ -89,7 +91,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         duration: 1.5,
         ease: 'power2.inOut',
         onComplete: () => {
-          // Stay stacked for 0.5s
           gsap.delayedCall(0.5, () => {
             // Explode back to orbit
             gsap.to(morphFactorRef.current, {
@@ -102,49 +103,53 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       });
     }, 30000);
 
-    // 4. Main Animation Motor (rAF)
+    // 4. Main Animation Loop (rAF - Direct DOM Access)
     let requestRef: number;
     const animate = () => {
-      // Gradual speed lerp for hover
-      const targetSpeed = isHoveredRef.current ? 0.35 : 0.2;
-      currentSpeedRef.current += (targetSpeed - currentSpeedRef.current) * 0.05;
-      
+      // Advance angle
       timeRef.current += 0.01 * currentSpeedRef.current;
 
       itemRefs.current.forEach((el, i) => {
         if (!el) return;
 
         const p = orbitParams[i];
-        const ff = focalFactorsRef.current[i].value;
+        const ff = focalFactorsRef.current[i];
         const morph = morphFactorRef.current.value;
         
-        // Base Orbit (Constant)
+        // Base Orbital Layer
         const angle = timeRef.current + p.offset;
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
-        const depth = Math.sin(angle); // -1 back to 1 front
+        const depth = Math.sin(angle); // -1 (back) to 1 (front)
 
-        // Additive Offset Logic: Glide to center (0,0) or Stack (-15 * i)
-        // tx = base + (target - base) * factor
+        // Additive Offset Layer: Pull towards center (Focus) or stack (Leque)
+        // target = ox + (target_offset - ox) * weight
+        // We leave 5% of the orbit even in focus to keep it "alive"
         let tx = ox + (0 - ox) * (ff * 0.95);
         let ty = oy + (0 - oy) * (ff * 0.95);
 
-        const stackX = i * -15;
-        const stackY = i * -15;
-        tx = tx + (stackX - tx) * (morph * 0.95);
-        ty = ty + (stackY - ty) * (morph * 0.95);
+        // Stack displacement (Cascading offset)
+        const sx = i * -15;
+        const sy = i * -15;
+        tx = tx + (sx - tx) * (morph * 0.95);
+        ty = ty + (sy - ty) * (morph * 0.95);
 
-        // Visual Hierarchy
-        const baseScale = 1.0 + depth * 0.05;
-        const scale = baseScale + (1.2 - baseScale) * ff;
-        const zIndex = morph > 0.5 ? (100 - i) : (ff > 0.5 ? 100 : Math.floor(50 + depth * 40));
+        // Visual Properties
+        const baseScale = 0.9 + (1 + depth) * 0.05; // 0.9 to 1.0 based on depth
+        const scale = baseScale + (1.4 - baseScale) * ff; // Focused is 1.4x (40% larger)
+        
+        // Z-Index: Depth sorting vs Stack sorting
+        const zIndex = morph > 0.5 
+          ? (100 - i) // Stack priority
+          : (ff > 0.5 ? 120 : Math.floor(50 + depth * 40)); // Depth priority
+        
         const blur = (1 - ff) * (depth < 0 ? Math.abs(depth) * 4 : 0);
 
-        // Direct DOM update (High Performance)
+        // Direct Styles Update (High Performance)
         el.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
-        el.style.opacity = (0.3 + (1 + depth) * 0.35 + ff * 0.4).toString();
+        el.style.opacity = '1'; // NO TRANSPARENCY - FORCED 100%
       });
 
       requestRef = requestAnimationFrame(animate);
@@ -159,19 +164,28 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     };
   }, [videos, orbitParams]);
 
+  const handleMouseEnter = () => {
+    gsap.to(currentSpeedRef, { current: 0.23, duration: 1.5, ease: 'sine.out' });
+  };
+  
+  const handleMouseLeave = () => {
+    gsap.to(currentSpeedRef, { current: 0.2, duration: 2.5, ease: 'sine.inOut' });
+  };
+
   return (
     <div 
       ref={containerRef}
       className="relative w-full h-[500px] flex items-center justify-center pointer-events-none"
-      onMouseEnter={() => (isHoveredRef.current = true)}
-      onMouseLeave={() => (isHoveredRef.current = false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="absolute inset-0 pointer-events-auto" />
       {videos.map((vid, i) => (
         <div 
           key={vid.id}
           ref={(el) => { itemRefs.current[i] = el; }}
-          className="absolute w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl transition-opacity duration-300"
+          className="absolute w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
+          style={{ opacity: 1 }} // Initial opacity safety
         >
           <EditableVideo 
             src={vid.imageUrl} 
