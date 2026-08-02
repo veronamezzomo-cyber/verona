@@ -33,23 +33,20 @@ const FloatingImageCluster = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [centerIndex, setCenterIndex] = useState(0);
   const [morphFactor, setMorphFactor] = useState(0); // 0 = stacked, 1 = orbiting
-  const speedRef = useRef(1);
+  const speedRef = useRef(0.8);
   const requestRef = useRef<number>(0);
   
   const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
 
   useEffect(() => {
-    // Phase Cycle Logic
-    // Stacked (0.5s) -> Orbiting (4s) -> Converging (1.5s) -> Repeat
     const runCycle = async () => {
-      // 1. Initial Stacked State
+      // 1. Initial Stacked State (Short Pause)
       setMorphFactor(0);
-      gsap.to(speedRef, { current: 1, duration: 0.5, ease: 'power2.out' });
+      gsap.to(speedRef, { current: 0.8, duration: 0.2 });
       await new Promise(r => setTimeout(r, 500));
 
-      // 2. Explode (Stacked -> Orbiting)
-      // "Big Bang" starts fast (Peak speed: 0.8)
-      gsap.to(speedRef, { current: 0.8, duration: 1, ease: 'expo.out' });
+      // 2. Explode Phase
+      gsap.to(speedRef, { current: 0.8, duration: 0.5, ease: 'power2.out' });
       gsap.to({ val: 0 }, {
         val: 1,
         duration: 1.5,
@@ -58,16 +55,16 @@ const FloatingImageCluster = () => {
       });
       await new Promise(r => setTimeout(r, 1500));
 
-      // 3. Orbiting / Deceleration Phase
-      // Progressive Slowdown
+      // 3. Orbiting & Deceleration Phase
+      // Shared speed decays globally for all items
       gsap.to(speedRef, { 
-        current: 0.1, 
-        duration: 4, 
+        current: 0.05, 
+        duration: 4.5, 
         ease: 'power1.inOut' 
       });
-      await new Promise(r => setTimeout(r, 4000));
+      await new Promise(r => setTimeout(r, 4500));
 
-      // 4. Converge (Orbiting -> Stacked)
+      // 4. Converge Phase
       gsap.to({ val: 1 }, {
         val: 0,
         duration: 1.5,
@@ -84,7 +81,7 @@ const FloatingImageCluster = () => {
 
   useEffect(() => {
     const animate = () => {
-      // Use the shared speedRef for synchronized motion
+      // Shared speed for all items to ensure synchronized movement
       setTime(prev => prev + 0.01 * speedRef.current * (isHovered ? 1.5 : 1));
       requestRef.current = requestAnimationFrame(animate);
     };
@@ -100,11 +97,10 @@ const FloatingImageCluster = () => {
   }, [clusterVideos.length]);
 
   const getSlotData = (idx: number) => {
-    // focal item logic
     const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
     const isCenter = slotIdx === 0;
 
-    // Orbital Path Params (Unified speeds)
+    // Varied trajectories (radii)
     const orbitParams = [
       { rx: 0, ry: 0 },
       { rx: 280, ry: 150 },
@@ -118,34 +114,36 @@ const FloatingImageCluster = () => {
     const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
     const angle = time + orbitOffset;
     
-    // Orbital Coords
+    // Position
     const ox = isCenter ? 0 : Math.cos(angle) * p.rx;
     const oy = isCenter ? 0 : Math.sin(angle) * p.ry;
     const odepth = isCenter ? 1 : Math.sin(angle);
 
-    // Stacked Coords (Fan/Leque Effect)
-    // Offset slightly top-left for each layer: Item 0 = Top, Item 1 = behind it, etc.
+    // Stack (Leque)
     const sx = -slotIdx * 15;
     const sy = -slotIdx * 15;
     const sdepth = 1 - (slotIdx * 0.1); 
 
-    // Morphing result
     const tx = sx * (1 - morphFactor) + ox * morphFactor;
     const ty = sy * (1 - morphFactor) + oy * morphFactor;
     const depth = sdepth * (1 - morphFactor) + odepth * morphFactor;
 
-    // Z-index calculation for stacked phase (High to Low cascade)
-    // When stacked, we want slotIdx 0 to be on top.
+    // Z-index Logic (Cascading Stack)
     const stackedZ = 100 - slotIdx;
     const orbitalZ = isCenter ? 100 : (depth > 0 ? 80 : 60);
     const zIndex = Math.round(stackedZ * (1 - morphFactor) + orbitalZ * morphFactor);
 
+    // Visuals (Eased in nested container)
+    const scaleBase = isCenter ? 1.2 : (0.9 + depth * 0.1);
+    const blurAmount = isCenter ? 0 : Math.min(4, Math.max(1, (1 - depth) * 4));
+
     return {
       tx,
       ty,
-      depth,
       zIndex,
-      isCenter
+      isCenter,
+      scaleBase,
+      blurAmount
     };
   };
 
@@ -156,48 +154,44 @@ const FloatingImageCluster = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {clusterVideos.map((vid, idx) => {
-        const { tx, ty, depth, zIndex, isCenter } = getSlotData(idx);
-        
-        // Focal item is exactly 20% larger than base (1.2 scale)
-        // Others scale between 0.8 and 1.0 depending on depth
-        const scaleBase = isCenter ? 1.2 : (0.9 + depth * 0.1);
-        
-        // Depth-of-field: max blur 4px. Central item has 0 blur.
-        const blurAmount = isCenter ? 0 : Math.min(4, Math.max(0, (1 - depth) * 4));
+        const { tx, ty, zIndex, isCenter, scaleBase, blurAmount } = getSlotData(idx);
 
         return (
           <div
             key={vid.id}
-            className="absolute transition-all duration-1000 ease-in-out cursor-pointer"
+            className="absolute"
             style={{
               zIndex,
               width: '210px',
               height: '210px',
-              transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scaleBase})`,
-              opacity: 1 // Always 100% opacity as requested
+              transform: `translate3d(${tx}px, ${ty}px, 0)`,
+              // Translate MUST NOT have a transition to keep orbit fluid
+              transition: 'none'
             }}
           >
-            <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
-              <div 
-                className="w-full h-full transition-all duration-1000 ease-in-out"
-                style={{
-                  filter: `blur(${blurAmount}px)`
-                }}
-              >
-                <EditableVideo 
-                  src={vid.imageUrl} 
-                  storageKey={vid.id}
-                  fill
-                  className="object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="metadata"
-                  poster={`https://picsum.photos/seed/${vid.id}/400/400`}
-                  hideControls
-                />
-              </div>
+            {/* Nested container handles scale/blur transitions */}
+            <div 
+              className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]"
+              style={{
+                transform: `scale(${scaleBase})`,
+                filter: `blur(${blurAmount}px)`,
+                transition: 'transform 1000ms ease-in-out, filter 1000ms ease-in-out',
+                opacity: 1
+              }}
+            >
+              <EditableVideo 
+                src={vid.imageUrl} 
+                storageKey={vid.id}
+                fill
+                className="object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster={`https://picsum.photos/seed/${vid.id}/400/400`}
+                hideControls
+              />
             </div>
           </div>
         );
@@ -444,4 +438,3 @@ export default function PortfolioPage() {
     </div>
   );
 }
-
