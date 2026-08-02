@@ -92,7 +92,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-12 md:py-20 transition-all duration-500 z-30 scroll-mt-20"
+      className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col justify-center bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-16 md:py-24 transition-all duration-500 z-30 scroll-mt-20"
     >
       <div className="container mx-auto px-6">
         {/* Header inside the inline section */}
@@ -118,10 +118,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 items-center">
           
-          {/* Left Column: Synchronized Details */}
-          <div className="sticky top-32 flex flex-col gap-8">
+          {/* Left Column: Details */}
+          <div className="flex flex-col gap-8">
             <div className="animate-reveal" key={currentItem.id}>
               <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-4">
                 {currentItem.date}
@@ -152,7 +152,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           <div className="flex justify-center w-full">
             <div 
               ref={scrollRef}
-              className="relative h-[80vh] max-h-[85vh] aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
+              className="relative h-[65vh] md:h-[75vh] max-h-[800px] aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
             >
               {feedItems.map((item, idx) => {
                 return (
@@ -168,7 +168,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       className="object-cover transition-transform duration-[2000ms] group-hover:scale-105"
                     />
                     
-                    {/* Overlay Textures - Grain/Duotone removed for video reproduction */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
 
                     {/* Scroll Indicator for Desktop */}
