@@ -47,8 +47,8 @@ const FloatingImageCluster = () => {
       await new Promise(r => setTimeout(r, 3000));
 
       // 2. Explode (Stacked -> Orbiting)
-      // "Big Bang" starts fast
-      gsap.to(speedRef, { current: 3, duration: 1, ease: 'expo.out' });
+      // "Big Bang" starts fast (Peak speed reduced by 40%: 3 -> 1.8)
+      gsap.to(speedRef, { current: 1.8, duration: 1, ease: 'expo.out' });
       gsap.to({ val: 0 }, {
         val: 1,
         duration: 2.5,
