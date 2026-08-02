@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -102,7 +103,6 @@
     animation: rolling-scanlines 10s linear infinite;
   }
 
-  /* Ensure main sections are above the background texture */
   main, header, footer, section {
     @apply relative z-10;
   }
@@ -142,9 +142,9 @@
 
   @keyframes jitter {
     0% { transform: translate(0,0); }
-    25% { transform: translate(-1%,-1%); }
-    50% { transform: translate(1%,1%); }
-    75% { transform: translate(-1%,1%); }
+    25% { transform: translate(-0.5%,-0.5%); }
+    50% { transform: translate(0.5%,0.5%); }
+    75% { transform: translate(-0.5%,0.5%); }
     100% { transform: translate(0,0); }
   }
 
@@ -152,6 +152,24 @@
     from { background-position: 0 0; }
     to { background-position: 0 100%; }
   }
+
+  /* Hero Image Floating Animations */
+  @keyframes float-hero-1 {
+    0%, 100% { transform: translate(0, 0) rotate(2deg); }
+    50% { transform: translate(10px, -15px) rotate(-1deg); }
+  }
+  @keyframes float-hero-2 {
+    0%, 100% { transform: translate(0, 0) rotate(-3deg); }
+    50% { transform: translate(-12px, 10px) rotate(2deg); }
+  }
+  @keyframes float-hero-3 {
+    0%, 100% { transform: translate(0, 0) rotate(1deg); }
+    50% { transform: translate(15px, 12px) rotate(-2deg); }
+  }
+
+  .animate-float-1 { animation: float-hero-1 8s ease-in-out infinite; }
+  .animate-float-2 { animation: float-hero-2 7s ease-in-out infinite; }
+  .animate-float-3 { animation: float-hero-3 9s ease-in-out infinite; }
 
   @media (prefers-reduced-motion: no-preference) {
     .animate-reveal {
