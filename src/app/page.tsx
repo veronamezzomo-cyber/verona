@@ -39,41 +39,41 @@ const FloatingImageCluster = () => {
 
   useEffect(() => {
     // Phase Cycle Logic
-    // Stacked (3s) -> Orbiting (10s) -> Converging (2.5s) -> Repeat
+    // Stacked (0.5s) -> Orbiting (4s) -> Converging (1.5s) -> Repeat
     const runCycle = async () => {
       // 1. Initial Stacked State
       setMorphFactor(0);
-      gsap.to(speedRef, { current: 1, duration: 1, ease: 'power2.out' });
-      await new Promise(r => setTimeout(r, 3000));
+      gsap.to(speedRef, { current: 1, duration: 0.5, ease: 'power2.out' });
+      await new Promise(r => setTimeout(r, 500));
 
       // 2. Explode (Stacked -> Orbiting)
-      // "Big Bang" starts fast (Peak speed reduced by 40%: 3 -> 1.8)
-      gsap.to(speedRef, { current: 1.8, duration: 1, ease: 'expo.out' });
+      // "Big Bang" starts fast (Peak speed significantly reduced: 1.8 -> 0.8)
+      gsap.to(speedRef, { current: 0.8, duration: 1, ease: 'expo.out' });
       gsap.to({ val: 0 }, {
         val: 1,
-        duration: 2.5,
+        duration: 1.5,
         ease: 'power2.inOut',
         onUpdate: function() { setMorphFactor(this.targets()[0].val); }
       });
-      await new Promise(r => setTimeout(r, 2500));
+      await new Promise(r => setTimeout(r, 1500));
 
       // 3. Orbiting / Deceleration Phase
       // Progressive Slowdown
       gsap.to(speedRef, { 
-        current: 0.2, 
-        duration: 10, 
+        current: 0.1, 
+        duration: 4, 
         ease: 'power1.inOut' 
       });
-      await new Promise(r => setTimeout(r, 10000));
+      await new Promise(r => setTimeout(r, 4000));
 
       // 4. Converge (Orbiting -> Stacked)
       gsap.to({ val: 1 }, {
         val: 0,
-        duration: 2.5,
+        duration: 1.5,
         ease: 'power2.inOut',
         onUpdate: function() { setMorphFactor(this.targets()[0].val); }
       });
-      await new Promise(r => setTimeout(r, 2500));
+      await new Promise(r => setTimeout(r, 1500));
 
       runCycle();
     };
