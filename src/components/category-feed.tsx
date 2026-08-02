@@ -149,10 +149,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
 
           {/* Right Column: Centered Vertical Snap Feed */}
-          <div className="flex justify-center items-center w-full h-full max-h-[85vh]">
+          <div className="flex justify-center items-center w-full">
             <div 
               ref={scrollRef}
-              className="relative h-full w-auto aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
+              className="relative h-[85vh] w-auto aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
             >
               {feedItems.map((item, idx) => {
                 return (
