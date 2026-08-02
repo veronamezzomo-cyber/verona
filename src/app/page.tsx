@@ -30,13 +30,14 @@ const FloatingImageCluster = () => {
   const [time, setTime] = useState(0);
   const [isHovered, setIsHovered] = useState<number | null>(null);
   const [isGrouping, setIsGrouping] = useState(false);
+  const [centerIndex, setCenterIndex] = useState(0);
   const requestRef = useRef<number>(0);
   
   const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
 
   // Orbital engine
   useEffect(() => {
-    const animate = (t: number) => {
+    const animate = () => {
       setTime(prev => prev + (isHovered !== null ? 0.005 : 0.01));
       requestRef.current = requestAnimationFrame(animate);
     };
@@ -44,18 +45,26 @@ const FloatingImageCluster = () => {
     return () => cancelAnimationFrame(requestRef.current);
   }, [isHovered]);
 
+  // Center rotation logic
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCenterIndex(prev => (prev + 1) % clusterVideos.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [clusterVideos.length]);
+
   const handleMouseLeave = () => {
     setIsGrouping(true);
     setTimeout(() => setIsGrouping(false), 800);
   };
 
-  // Orbital parameters per video
-  const orbits = [
-    { radiusX: 0, radiusY: 0, speed: 0, phase: 0 }, // Center video
-    { radiusX: 280, radiusY: 150, speed: 0.8, phase: 0 },
-    { radiusX: 320, radiusY: -180, speed: 0.6, phase: Math.PI / 2 },
-    { radiusX: -260, radiusY: 200, speed: 1.1, phase: Math.PI },
-    { radiusX: -300, radiusY: -160, speed: 0.9, phase: 3 * Math.PI / 2 },
+  // Orbital parameters per slot (Slot 0 is center, Slots 1-4 are orbiting)
+  const slots = [
+    { radiusX: 0, radiusY: 0, speed: 0 }, // Slot 0: Center
+    { radiusX: 280, radiusY: 150, speed: 0.8 }, // Slot 1
+    { radiusX: 320, radiusY: -180, speed: 0.6 }, // Slot 2
+    { radiusX: 260, radiusY: 200, speed: 1.1 }, // Slot 3
+    { radiusX: 300, radiusY: -160, speed: 0.9 }, // Slot 4
   ];
 
   return (
@@ -64,25 +73,29 @@ const FloatingImageCluster = () => {
       onMouseLeave={handleMouseLeave}
     >
       {clusterVideos.map((vid, idx) => {
-        const orbit = orbits[idx % orbits.length];
+        // Calculate which slot this item currently occupies
+        const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
+        const slot = slots[slotIdx];
+        const isCenter = slotIdx === 0;
         const isActive = isHovered === idx;
         
-        // Calculate position based on orbit
-        const angle = time * orbit.speed + orbit.phase;
+        // Calculate angle based on orbit slot to ensure uniform spacing (360 / orbiters)
+        const orbitingCount = clusterVideos.length - 1;
+        const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
+        const angle = time * (slot.speed || 1) + orbitOffset;
         
-        // Depth simulation (front/back)
-        const depth = Math.sin(angle); // -1 to 1
-        const zIndex = orbit.radiusX === 0 ? 50 : (depth > 0 ? 60 : 40);
+        // Depth simulation
+        const depth = isCenter ? 1 : Math.sin(angle); 
+        const zIndex = isCenter ? 70 : (depth > 0 ? 80 : 60);
         
         // Horizontal/Vertical position
-        let tx = Math.cos(angle) * orbit.radiusX;
-        let ty = Math.sin(angle) * orbit.radiusY;
+        let tx = isCenter ? 0 : Math.cos(angle) * slot.radiusX;
+        let ty = isCenter ? 0 : Math.sin(angle) * slot.radiusY;
         
         // Depth-based scale and blur
-        // Center video is always focused and large
-        const scaleBase = orbit.radiusX === 0 ? 1.2 : (1 + depth * 0.15);
-        const blurAmount = orbit.radiusX === 0 ? 0 : (Math.max(0, -depth * 4));
-        const opacity = orbit.radiusX === 0 ? 1 : (0.7 + (depth + 1) * 0.15);
+        const scaleBase = isCenter ? 1.3 : (1 + depth * 0.15);
+        const blurAmount = isCenter ? 0 : (Math.max(0, -depth * 4));
+        const opacity = isCenter ? 1 : (0.7 + (depth + 1) * 0.15);
 
         if (isGrouping) {
           tx = 0;
@@ -95,13 +108,13 @@ const FloatingImageCluster = () => {
             onMouseEnter={() => setIsHovered(idx)}
             onMouseLeave={() => setIsHovered(null)}
             className={cn(
-              "absolute transition-all ease-out cursor-pointer",
-              isGrouping ? "duration-1000" : "duration-500"
+              "absolute transition-all ease-in-out cursor-pointer",
+              isGrouping ? "duration-1000" : "duration-[1200ms]"
             )}
             style={{
               zIndex: isActive ? 100 : zIndex,
-              width: orbit.radiusX === 0 ? '280px' : '200px',
-              height: orbit.radiusX === 0 ? '280px' : '200px',
+              width: isCenter ? '280px' : '200px',
+              height: isCenter ? '280px' : '200px',
               transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
               filter: `blur(${isActive ? 0 : blurAmount}px)`,
               opacity: isActive ? 1 : opacity,
