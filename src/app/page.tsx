@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -29,127 +29,138 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 const FloatingImageCluster = () => {
-  const [time, setTime] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [centerIndex, setCenterIndex] = useState(0);
-  const [morphFactor, setMorphFactor] = useState(0); // 0 = stacked, 1 = orbiting
-  const speedRef = useRef(0.8);
+  const timeRef = useRef(0);
   const requestRef = useRef<number>(0);
+  const [morphFactor, setMorphFactor] = useState(1); // Start stacked (1)
+  const [focalFactors, setFocalFactors] = useState([1, 0, 0, 0, 0]); // Item 0 starts in focus
+  const speedRef = useRef(0.4);
   
-  const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
+  const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
 
-  useEffect(() => {
-    const runCycle = async () => {
-      // 1. Initial Stacked State (Brief 0.5s pause)
-      setMorphFactor(0);
-      gsap.to(speedRef, { current: 0.8, duration: 0.2 });
-      await new Promise(r => setTimeout(r, 500));
-
-      // 2. Explode Phase
-      gsap.to(speedRef, { current: 0.8, duration: 0.5, ease: 'power2.out' });
-      gsap.to({ val: 0 }, {
-        val: 1,
-        duration: 1.5,
-        ease: 'power2.inOut',
-        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
-      });
-      await new Promise(r => setTimeout(r, 1500));
-
-      // 3. Orbiting & Deceleration Phase
-      gsap.to(speedRef, { 
-        current: 0.05, 
-        duration: 4.5, 
-        ease: 'power1.inOut' 
-      });
-      await new Promise(r => setTimeout(r, 4500));
-
-      // 4. Converge Phase
-      gsap.to({ val: 1 }, {
-        val: 0,
-        duration: 1.5,
-        ease: 'power2.inOut',
-        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
-      });
-      await new Promise(r => setTimeout(r, 1500));
-
-      runCycle();
-    };
-
-    runCycle();
-  }, []);
-
+  // Continuous Orbital Physics via rAF
   useEffect(() => {
     const animate = () => {
-      setTime(prev => prev + 0.01 * speedRef.current * (isHovered ? 1.5 : 1));
+      const delta = 0.01 * speedRef.current * (isHovered ? 1.5 : 1);
+      timeRef.current += delta;
+      
+      // We rely on state for morphFactors and focalFactors, which are updated via GSAP
       requestRef.current = requestAnimationFrame(animate);
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
   }, [isHovered]);
 
+  // Initial State: Stacked for 0.5s then Explode
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCenterIndex(prev => (prev + 1) % clusterVideos.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [clusterVideos.length]);
+    const initialTimer = setTimeout(() => {
+      gsap.to({ val: 1 }, {
+        val: 0,
+        duration: 1.5,
+        ease: 'power2.inOut',
+        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+      });
+    }, 500);
+    return () => clearTimeout(initialTimer);
+  }, []);
 
-  const getSlotData = (idx: number) => {
-    const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
-    const isCenter = slotIdx === 0;
+  // Cycle 1: Focus Swap every 10s
+  useEffect(() => {
+    const focusInterval = setInterval(() => {
+      const nextIndex = (activeIndex + 1) % clusterVideos.length;
+      
+      const newFocalFactors = [...focalFactors];
+      
+      // Glide current focus back to orbit
+      gsap.to(newFocalFactors, {
+        [activeIndex]: 0,
+        duration: 1.0,
+        ease: 'sine.inOut',
+        onUpdate: () => setFocalFactors([...newFocalFactors])
+      });
+      
+      // Glide next item into center focus
+      gsap.to(newFocalFactors, {
+        [nextIndex]: 1,
+        duration: 1.0,
+        ease: 'sine.inOut',
+        onUpdate: () => setFocalFactors([...newFocalFactors])
+      });
+      
+      setActiveIndex(nextIndex);
+    }, 10000);
+    return () => clearInterval(focusInterval);
+  }, [activeIndex, focalFactors, clusterVideos.length]);
 
-    // Varied trajectories
+  // Cycle 2: Leque Grouping every 30s
+  useEffect(() => {
+    const lequeInterval = setInterval(() => {
+      // 1. Converge to Stack
+      gsap.to({ val: 0 }, {
+        val: 1,
+        duration: 2.0,
+        ease: 'power2.inOut',
+        onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+      });
+
+      // 2. Pause for 0.5s then Explode
+      setTimeout(() => {
+        gsap.to({ val: 1 }, {
+          val: 0,
+          duration: 2.0,
+          ease: 'power2.inOut',
+          onUpdate: function() { setMorphFactor(this.targets()[0].val); }
+        });
+      }, 2500); // 2.0s duration + 0.5s pause
+    }, 30000);
+    return () => clearInterval(lequeInterval);
+  }, []);
+
+  const getElementData = (idx: number) => {
     const orbitParams = [
-      { rx: 0, ry: 0 },
-      { rx: 280, ry: 150 },
-      { rx: 320, ry: -180 },
-      { rx: 260, ry: 200 },
-      { rx: 300, ry: -160 },
+      { rx: 240, ry: 140, offset: 0 },
+      { rx: 280, ry: -160, offset: (2 * Math.PI) / 5 },
+      { rx: 220, ry: 180, offset: (4 * Math.PI) / 5 },
+      { rx: 300, ry: -120, offset: (6 * Math.PI) / 5 },
+      { rx: 260, ry: 150, offset: (8 * Math.PI) / 5 },
     ];
 
-    const p = orbitParams[slotIdx];
-    const orbitingCount = clusterVideos.length - 1;
-    const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
-    const angle = time + orbitOffset;
+    const p = orbitParams[idx];
+    const angle = timeRef.current + p.offset;
+    const ff = focalFactors[idx]; // 0 = orbit, 1 = center focus
     
-    // Orbital coordinates (Continuous motion)
-    const ox = isCenter ? 0 : Math.cos(angle) * p.rx;
-    const oy = isCenter ? 0 : Math.sin(angle) * p.ry;
-    const odepth = isCenter ? 1 : Math.sin(angle);
+    // Orbital Position
+    const ox = Math.cos(angle) * p.rx;
+    const oy = Math.sin(angle) * p.ry;
+    const odepth = Math.sin(angle); // -1 to 1
 
-    // Stacked coordinates
-    const sx = -slotIdx * 15;
-    const sy = -slotIdx * 15;
-    const sdepth = 1 - (slotIdx * 0.1); 
+    // Stacked Position (Leque Displacement)
+    // The focal item is at the top of the stack
+    const stackIdx = (idx - activeIndex + 5) % 5;
+    const sx = -stackIdx * 15;
+    const sy = -stackIdx * 15;
 
-    // Target positions based on morph state
-    const targetX = sx * (1 - morphFactor) + ox * morphFactor;
-    const targetY = sy * (1 - morphFactor) + oy * morphFactor;
-    const depth = sdepth * (1 - morphFactor) + odepth * morphFactor;
-
-    // Physical Gliding Logic:
-    // If we are focal, we glide to center by negating the orbital offset.
-    // If not focal, we stay on the orbit.
-    const focalGlideX = isCenter ? -targetX : 0;
-    const focalGlideY = isCenter ? -targetY : 0;
-
-    // Z-index Logic (Cascading priority)
-    const stackedZ = 100 - slotIdx;
-    const orbitalZ = isCenter ? 100 : (depth > 0 ? 80 : 60);
-    const zIndex = Math.round(stackedZ * (1 - morphFactor) + orbitalZ * morphFactor);
+    // Final Position Logic:
+    // We combine the continuous orbit with the focal glide (ff) and the global morph (morphFactor)
+    // MorphFactor 1 means we are stacked at sx, sy
+    // MorphFactor 0 means we are in the focal/orbital dance
+    
+    // Position of item relative to the cluster center
+    const targetX = (ox * (1 - ff) + 0 * ff) * (1 - morphFactor) + sx * morphFactor;
+    const targetY = (oy * (1 - ff) + 0 * ff) * (1 - morphFactor) + sy * morphFactor;
 
     // Visuals
-    const scaleBase = isCenter ? 1.2 : (0.9 + depth * 0.1);
-    const blurAmount = isCenter ? 0 : Math.min(4, Math.max(1, (1 - depth) * 4));
+    const isFocal = ff > 0.5;
+    const baseScale = isFocal ? (1.0 + 0.2 * ff) : (0.9 + odepth * 0.1);
+    const zIndex = morphFactor > 0.5 ? (100 - stackIdx) : (ff > 0.5 ? 200 : Math.round(100 + odepth * 50));
+    const blurAmount = isFocal ? (1 - ff) * 4 : (1 - odepth) * 2; // Focal gets 0 blur, back items get more
 
     return {
       targetX,
       targetY,
-      focalGlideX,
-      focalGlideY,
       zIndex,
-      isCenter,
-      scaleBase,
+      baseScale,
       blurAmount
     };
   };
@@ -160,58 +171,52 @@ const FloatingImageCluster = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {clusterVideos.map((vid, idx) => {
-        const { 
-          targetX, 
-          targetY, 
-          focalGlideX, 
-          focalGlideY, 
-          zIndex, 
-          scaleBase, 
-          blurAmount 
-        } = getSlotData(idx);
+      <div className="relative w-full h-full flex items-center justify-center">
+        {clusterVideos.map((vid, idx) => {
+          const { 
+            targetX, 
+            targetY, 
+            zIndex, 
+            baseScale, 
+            blurAmount 
+          } = getElementData(idx);
 
-        return (
-          <div
-            key={vid.id}
-            className="absolute"
-            style={{
-              zIndex,
-              width: '210px',
-              height: '210px',
-              // Base transform handles continuous orbital movement
-              transform: `translate3d(${targetX}px, ${targetY}px, 0)`,
-              transition: 'none'
-            }}
-          >
-            {/* Focal Glide Container: handles physical movement to/from center, scale and blur */}
-            <div 
-              className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]"
+          return (
+            <div
+              key={vid.id}
+              className="absolute transition-none"
               style={{
-                transform: `translate3d(${focalGlideX}px, ${focalGlideY}px, 0) scale(${scaleBase})`,
-                filter: `blur(${blurAmount}px)`,
-                // This transition applies strictly to the glide, scale and blur shifts
-                transition: 'transform 1000ms ease-in-out, filter 1000ms ease-in-out',
-                opacity: 1
+                zIndex,
+                width: '210px',
+                height: '210px',
+                transform: `translate3d(${targetX}px, ${targetY}px, 0) scale(${baseScale})`,
               }}
             >
-              <EditableVideo 
-                src={vid.imageUrl} 
-                storageKey={vid.id}
-                fill
-                className="object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                poster={`https://picsum.photos/seed/${vid.id}/400/400`}
-                hideControls
-              />
+              <div 
+                className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]"
+                style={{
+                  filter: `blur(${blurAmount}px)`,
+                  opacity: 1
+                }}
+              >
+                <EditableVideo 
+                  src={vid.imageUrl} 
+                  storageKey={vid.id}
+                  fill
+                  className="object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster={`https://picsum.photos/seed/${vid.id}/400/400`}
+                  hideControls
+                />
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -221,21 +226,21 @@ export default function PortfolioPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const categories = [
+  const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
     { id: 'cat-shorts', label: 'shorts' },
     { id: 'cat-podcast', label: 'podcast' },
     { id: 'cat-motion', label: 'motion' },
     { id: 'cat-talking', label: 'talking' },
     { id: 'cat-vlogs', label: 'vlogs' }
-  ];
+  ], []);
   
-  const stats = [
+  const stats = useMemo(() => [
     { value: '08+', label: 'Years of Experience' },
     { value: '150+', label: 'Clients Worldwide' },
     { value: '1.2k', label: 'Projects Delivered' },
     { value: '45M', label: 'Total Views' }
-  ];
+  ], []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -269,7 +274,7 @@ export default function PortfolioPage() {
     }
   };
 
-  const catImages = PlaceHolderImages.filter(i => i.id.startsWith('cat-'));
+  const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-transparent">
