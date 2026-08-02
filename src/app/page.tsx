@@ -40,7 +40,7 @@ const FloatingImageCluster = () => {
 
   useEffect(() => {
     const runCycle = async () => {
-      // 1. Initial Stacked State (Short Pause)
+      // 1. Initial Stacked State (Brief 0.5s pause)
       setMorphFactor(0);
       gsap.to(speedRef, { current: 0.8, duration: 0.2 });
       await new Promise(r => setTimeout(r, 500));
@@ -56,7 +56,6 @@ const FloatingImageCluster = () => {
       await new Promise(r => setTimeout(r, 1500));
 
       // 3. Orbiting & Deceleration Phase
-      // Shared speed decays globally for all items
       gsap.to(speedRef, { 
         current: 0.05, 
         duration: 4.5, 
@@ -81,7 +80,6 @@ const FloatingImageCluster = () => {
 
   useEffect(() => {
     const animate = () => {
-      // Shared speed for all items to ensure synchronized movement
       setTime(prev => prev + 0.01 * speedRef.current * (isHovered ? 1.5 : 1));
       requestRef.current = requestAnimationFrame(animate);
     };
@@ -100,7 +98,7 @@ const FloatingImageCluster = () => {
     const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
     const isCenter = slotIdx === 0;
 
-    // Varied trajectories (radii)
+    // Varied trajectories
     const orbitParams = [
       { rx: 0, ry: 0 },
       { rx: 280, ry: 150 },
@@ -114,32 +112,41 @@ const FloatingImageCluster = () => {
     const orbitOffset = !isCenter ? ((slotIdx - 1) * (2 * Math.PI / orbitingCount)) : 0;
     const angle = time + orbitOffset;
     
-    // Position
+    // Orbital coordinates (Continuous motion)
     const ox = isCenter ? 0 : Math.cos(angle) * p.rx;
     const oy = isCenter ? 0 : Math.sin(angle) * p.ry;
     const odepth = isCenter ? 1 : Math.sin(angle);
 
-    // Stack (Leque)
+    // Stacked coordinates
     const sx = -slotIdx * 15;
     const sy = -slotIdx * 15;
     const sdepth = 1 - (slotIdx * 0.1); 
 
-    const tx = sx * (1 - morphFactor) + ox * morphFactor;
-    const ty = sy * (1 - morphFactor) + oy * morphFactor;
+    // Target positions based on morph state
+    const targetX = sx * (1 - morphFactor) + ox * morphFactor;
+    const targetY = sy * (1 - morphFactor) + oy * morphFactor;
     const depth = sdepth * (1 - morphFactor) + odepth * morphFactor;
 
-    // Z-index Logic (Cascading Stack)
+    // Physical Gliding Logic:
+    // If we are focal, we glide to center by negating the orbital offset.
+    // If not focal, we stay on the orbit.
+    const focalGlideX = isCenter ? -targetX : 0;
+    const focalGlideY = isCenter ? -targetY : 0;
+
+    // Z-index Logic (Cascading priority)
     const stackedZ = 100 - slotIdx;
     const orbitalZ = isCenter ? 100 : (depth > 0 ? 80 : 60);
     const zIndex = Math.round(stackedZ * (1 - morphFactor) + orbitalZ * morphFactor);
 
-    // Visuals (Eased in nested container)
+    // Visuals
     const scaleBase = isCenter ? 1.2 : (0.9 + depth * 0.1);
     const blurAmount = isCenter ? 0 : Math.min(4, Math.max(1, (1 - depth) * 4));
 
     return {
-      tx,
-      ty,
+      targetX,
+      targetY,
+      focalGlideX,
+      focalGlideY,
       zIndex,
       isCenter,
       scaleBase,
@@ -154,7 +161,15 @@ const FloatingImageCluster = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       {clusterVideos.map((vid, idx) => {
-        const { tx, ty, zIndex, isCenter, scaleBase, blurAmount } = getSlotData(idx);
+        const { 
+          targetX, 
+          targetY, 
+          focalGlideX, 
+          focalGlideY, 
+          zIndex, 
+          scaleBase, 
+          blurAmount 
+        } = getSlotData(idx);
 
         return (
           <div
@@ -164,17 +179,18 @@ const FloatingImageCluster = () => {
               zIndex,
               width: '210px',
               height: '210px',
-              transform: `translate3d(${tx}px, ${ty}px, 0)`,
-              // Translate MUST NOT have a transition to keep orbit fluid
+              // Base transform handles continuous orbital movement
+              transform: `translate3d(${targetX}px, ${targetY}px, 0)`,
               transition: 'none'
             }}
           >
-            {/* Nested container handles scale/blur transitions */}
+            {/* Focal Glide Container: handles physical movement to/from center, scale and blur */}
             <div 
               className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]"
               style={{
-                transform: `scale(${scaleBase})`,
+                transform: `translate3d(${focalGlideX}px, ${focalGlideY}px, 0) scale(${scaleBase})`,
                 filter: `blur(${blurAmount}px)`,
+                // This transition applies strictly to the glide, scale and blur shifts
                 transition: 'transform 1000ms ease-in-out, filter 1000ms ease-in-out',
                 opacity: 1
               }}
