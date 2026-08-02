@@ -46,6 +46,7 @@ const FloatingImageCluster = () => {
 
   // Continuous Orbital Physics via rAF (DOM DRIVEN)
   useEffect(() => {
+    // INCREASED RADIUS PARAMS: 240-300px width, 140-180px height
     const orbitParams = [
       { rx: 240, ry: 140, offset: 0 },
       { rx: 280, ry: -160, offset: (2 * Math.PI) / 5 },
@@ -55,7 +56,7 @@ const FloatingImageCluster = () => {
     ];
 
     const animate = () => {
-      // 1. Advance time with smooth speed interpolation
+      // 1. Advance time with smooth speed interpolation (Ease-Out decay)
       const baseValue = 0.2; 
       const targetSpeed = isHovered ? baseValue * 1.15 : baseValue;
       
@@ -120,19 +121,19 @@ const FloatingImageCluster = () => {
     return () => cancelAnimationFrame(requestRef.current);
   }, [isHovered, activeIndex, clusterVideos, focalFactors, morphFactor]);
 
-  // INITIAL STATE: Stacked for 0.5s then Big Bang
+  // INITIAL STATE: Stacked for 0.5s then Big Bang (power2.inOut)
   useEffect(() => {
     const initialTimer = setTimeout(() => {
       gsap.to(setMorphFactor, {
         duration: 1.5,
         value: 0,
-        ease: 'sine.inOut'
+        ease: 'power2.inOut'
       });
     }, 500);
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // CYCLE 1: Focal Glide every 7s
+  // CYCLE 1: Focal Glide every 7s (sine.inOut)
   useEffect(() => {
     const focusInterval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % clusterVideos.length;
@@ -151,7 +152,7 @@ const FloatingImageCluster = () => {
     return () => clearInterval(focusInterval);
   }, [activeIndex, clusterVideos.length, focalFactors]);
 
-  // CYCLE 2: Leque Grouping (30s)
+  // CYCLE 2: Leque Grouping (30s) (power2.inOut)
   useEffect(() => {
     const lequeInterval = setInterval(() => {
       // 1. Converge to Stack
