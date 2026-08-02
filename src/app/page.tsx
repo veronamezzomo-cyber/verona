@@ -18,7 +18,7 @@ import { gsap } from 'gsap';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.078.078 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
   </svg>
 );
 
@@ -28,7 +28,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const FloatingImageCluster = ({ stage }: { stage: number }) => {
+const FloatingImageCluster = () => {
   const [time, setTime] = useState(0);
   const [isHovered, setIsHovered] = useState<number | null>(null);
   const [isGrouping, setIsGrouping] = useState(false);
@@ -82,20 +82,10 @@ const FloatingImageCluster = ({ stage }: { stage: number }) => {
     };
   };
 
-  // Stage-based modifications
-  const stageScale = Math.max(0.5, 1 - stage * 0.05);
-  const stageOpacity = Math.max(0, 1 - stage * 0.15);
-  const stageBlur = stage * 2;
-
   return (
     <div 
       className="relative w-full h-full min-h-[600px] flex items-center justify-center pointer-events-auto transition-all duration-700"
       onMouseLeave={handleMouseLeave}
-      style={{
-        opacity: stageOpacity,
-        filter: `blur(${stageBlur}px)`,
-        transform: `scale(${stageScale})`
-      }}
     >
       {clusterVideos.map((vid, idx) => {
         const slotIdx = (idx - centerIndex + clusterVideos.length) % clusterVideos.length;
@@ -161,10 +151,7 @@ const FloatingImageCluster = ({ stage }: { stage: number }) => {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [heroStage, setHeroStage] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
-  const heroContentRef = useRef<HTMLDivElement>(null);
 
   const categories = [
     { id: 'cat-all', label: 'all' },
@@ -181,53 +168,6 @@ export default function PortfolioPage() {
     { value: '1.2k', label: 'Projects Delivered' },
     { value: '45M', label: 'Total Views' }
   ];
-
-  // Stepped Scroll Logic
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      // If we are at the top and scrolling, or if we are still in hero stages
-      const isAtTop = window.scrollY === 0;
-
-      if (isAtTop && !activeCategory) {
-        if (e.deltaY > 0 && heroStage < 10) {
-          e.preventDefault();
-          if (!isAnimating) {
-            triggerStageChange(heroStage + 1);
-          }
-          return;
-        }
-        
-        if (e.deltaY < 0 && heroStage > 0) {
-          e.preventDefault();
-          if (!isAnimating) {
-            triggerStageChange(heroStage - 1);
-          }
-          return;
-        }
-      }
-    };
-
-    const triggerStageChange = (nextStage: number) => {
-      setIsAnimating(true);
-      setHeroStage(nextStage);
-
-      // GSAP Visual Feedback
-      if (heroContentRef.current) {
-        gsap.to(heroContentRef.current, {
-          y: -nextStage * 25,
-          opacity: Math.max(0, 1 - (nextStage / 10)),
-          duration: 0.8,
-          ease: "back.out(1.2)",
-          onComplete: () => setIsAnimating(false)
-        });
-      } else {
-        setTimeout(() => setIsAnimating(false), 800);
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [heroStage, isAnimating, activeCategory]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -285,15 +225,11 @@ export default function PortfolioPage() {
       </header>
 
       <main>
-        {/* HERO SECTION with Stepped Scroll logic */}
-        <section className={cn(
-          "relative flex pt-28 pb-8 overflow-hidden transition-all duration-700",
-          heroStage < 10 ? "h-screen sticky top-0" : "min-h-[600px] relative"
-        )}>
+        {/* HERO SECTION - Now native continuous scroll */}
+        <section className="relative flex pt-28 pb-8 overflow-hidden min-h-screen">
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
               <div 
-                ref={heroContentRef}
                 className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10"
               >
                 <div className="animate-slide-up [animation-delay:100ms]">
@@ -319,15 +255,12 @@ export default function PortfolioPage() {
               </div>
 
               <div className="relative h-[600px] lg:h-full animate-image-reveal z-20 overflow-visible">
-                <FloatingImageCluster stage={heroStage} />
+                <FloatingImageCluster />
               </div>
             </div>
           </div>
 
-          <div className={cn(
-            "absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-opacity duration-500",
-            heroStage > 0 ? "opacity-0" : "opacity-100 animate-reveal [animation-delay:800ms]"
-          )}>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
             <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
             <div className="w-[2px] h-8 bg-primary/20 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(139,30,46,0.5)]" />
