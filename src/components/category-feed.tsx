@@ -23,7 +23,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Mock data for the feed items based on category
   const feedItems: FeedItem[] = [
     { 
       id: '1', 
@@ -31,7 +30,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       date: 'OCT 2023',
       notes: 'Exploration of high-contrast visual rhythm and experimental color grading techniques for high-end digital media.',
       imgId: 'feed-1',
-      videoUrl: category === 'shorts' ? 'https://i.imgur.com/6lrRPzC.mp4' : undefined
+      videoUrl: 'https://i.imgur.com/6lrRPzC.mp4'
     },
     { 
       id: '2', 
@@ -56,7 +55,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     },
   ];
 
-  // Automatic scroll to this section when category changes
   useEffect(() => {
     if (category && sectionRef.current) {
       sectionRef.current.scrollIntoView({ 
@@ -66,7 +64,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     }
   }, [category]);
 
-  // Observer to track which item is active during scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -91,11 +88,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-5rem)] flex flex-col bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-8 transition-all duration-500 z-30 scroll-mt-20 overflow-hidden"
+      className="relative w-full h-[calc(100vh-5rem)] flex flex-col bg-[hsl(var(--feed-bg))] animate-reveal border-y border-foreground/10 shadow-2xl py-6 transition-all duration-500 z-30 scroll-mt-20 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
-        {/* Header inside the feed: Stays at the top */}
-        <div className="flex items-center justify-between mb-6 border-b border-foreground/5 pb-4 shrink-0">
+        {/* Header inside the feed */}
+        <div className="flex items-center justify-between mb-4 border-b border-foreground/5 pb-4 shrink-0">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Selected Works</span>
             <h2 className="font-serif text-3xl italic font-bold text-foreground lowercase">{category}</h2>
@@ -116,23 +113,23 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
-        {/* Main Content: Takes remaining space and centers items */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-12 items-center min-h-0 overflow-hidden">
+        {/* Main Viewport-Constrained Grid */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center min-h-0 overflow-hidden">
           
           {/* Left Column: Details */}
-          <div className="flex flex-col gap-8 justify-center h-full">
+          <div className="flex flex-col gap-6 justify-center h-full">
             <div className="animate-reveal" key={currentItem.id}>
-              <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-4">
+              <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-3">
                 {currentItem.date}
               </span>
-              <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-6 max-w-sm">
+              <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-5 max-w-sm">
                 {currentItem.title}<span className="text-primary">.</span>
               </h3>
               <div className="space-y-4 max-w-xs">
                 <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed">
                   {currentItem.notes}
                 </p>
-                <div className="pt-6 border-t border-foreground/10 flex items-center gap-4">
+                <div className="pt-5 border-t border-foreground/10 flex items-center gap-4">
                    <div className="h-1 flex-1 bg-foreground/5 relative">
                       <div 
                         className="absolute h-full bg-primary transition-all duration-500" 
@@ -147,45 +144,42 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          {/* Right Column: Video Snap Feed scaled to available height */}
-          <div className="flex justify-center items-center h-full min-h-0 overflow-hidden py-4">
+          {/* Right Column: Full-Height Proportional Video */}
+          <div className="flex justify-center items-center h-full min-h-0 overflow-hidden">
             <div 
               ref={scrollRef}
               className="relative h-full w-auto aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
             >
-              {feedItems.map((item, idx) => {
-                return (
-                  <div 
-                    key={item.id} 
-                    data-index={idx}
-                    className="feed-item relative w-full h-full snap-start overflow-hidden group"
-                  >
-                    <EditableVideo 
-                      src={item.videoUrl || ""} 
-                      storageKey={`feed-${category}-${item.id}`}
-                      fill
-                      className="object-cover transition-transform duration-[2000ms] group-hover:scale-105"
-                    />
-                    
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
+              {feedItems.map((item, idx) => (
+                <div 
+                  key={item.id} 
+                  data-index={idx}
+                  className="feed-item relative w-full h-full snap-start overflow-hidden group"
+                >
+                  <EditableVideo 
+                    src={item.videoUrl || ""} 
+                    storageKey={`feed-${category}-${item.id}`}
+                    fill
+                    className="object-contain transition-transform duration-[2000ms] group-hover:scale-105"
+                  />
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
 
-                    {/* Scroll Indicator for Desktop */}
-                    {idx < feedItems.length - 1 && (
-                      <div className="absolute bottom-6 right-6 z-30 animate-bounce text-primary/80">
-                        <ChevronDown className="h-6 w-6" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                  {idx < feedItems.length - 1 && (
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
+                      <ChevronDown className="h-6 w-6" />
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
         
-        {/* Footer info for feed: Stays at the bottom */}
-        <div className="mt-4 text-center border-t border-foreground/5 pt-4 shrink-0">
+        {/* Footer info for feed */}
+        <div className="mt-4 text-center border-t border-foreground/5 pt-3 shrink-0">
           <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground">
-            Scroll vertically inside the black area to explore projects • Use keyboard arrows to snap
+            Scroll vertically inside the feed to explore projects
           </p>
         </div>
       </div>
