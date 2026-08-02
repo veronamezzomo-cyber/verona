@@ -129,7 +129,7 @@ const FloatingImageCluster = () => {
     return () => clearTimeout(initialTimer);
   }, []);
 
-  // Cycle 1: Focus Swap every 10s (Physical Glide)
+  // Cycle 1: Focus Swap every 7s (Physical Glide)
   useEffect(() => {
     const focusInterval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % clusterVideos.length;
@@ -149,7 +149,7 @@ const FloatingImageCluster = () => {
       });
       
       setActiveIndex(nextIndex);
-    }, 10000);
+    }, 7000);
     return () => clearInterval(focusInterval);
   }, [activeIndex, clusterVideos.length]);
 
