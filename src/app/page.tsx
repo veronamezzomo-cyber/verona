@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -28,52 +27,67 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 const FloatingImageCluster = () => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [time, setTime] = useState(0);
   const [isHovered, setIsHovered] = useState<number | null>(null);
   const [isGrouping, setIsGrouping] = useState(false);
-  const clusterRef = useRef<HTMLDivElement>(null);
+  const requestRef = useRef<number>(0);
   
   const clusterVideos = PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-'));
 
+  // Orbital engine
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!clusterRef.current) return;
-      const rect = clusterRef.current.getBoundingClientRect();
-      setMousePos({
-        x: (e.clientX - rect.left - rect.width / 2) / 25,
-        y: (e.clientY - rect.top - rect.height / 2) / 25,
-      });
+    const animate = (t: number) => {
+      setTime(prev => prev + (isHovered !== null ? 0.005 : 0.01));
+      requestRef.current = requestAnimationFrame(animate);
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [isHovered]);
 
   const handleMouseLeave = () => {
     setIsGrouping(true);
     setTimeout(() => setIsGrouping(false), 800);
   };
 
-  const positions = [
-    { top: '10%', left: '15%', zIndex: 10, scale: 1.0, anim: 'animate-float-1' },
-    { top: '20%', left: '55%', zIndex: 20, scale: 0.9, anim: 'animate-float-2' },
-    { top: '50%', left: '10%', zIndex: 30, scale: 1.1, anim: 'animate-float-3' },
-    { top: '55%', left: '45%', zIndex: 25, scale: 0.85, anim: 'animate-float-1' },
-    { top: '30%', left: '30%', zIndex: 15, scale: 1.05, anim: 'animate-float-2' },
+  // Orbital parameters per video
+  const orbits = [
+    { radiusX: 0, radiusY: 0, speed: 0, phase: 0 }, // Center video
+    { radiusX: 280, radiusY: 150, speed: 0.8, phase: 0 },
+    { radiusX: 320, radiusY: -180, speed: 0.6, phase: Math.PI / 2 },
+    { radiusX: -260, radiusY: 200, speed: 1.1, phase: Math.PI },
+    { radiusX: -300, radiusY: -160, speed: 0.9, phase: 3 * Math.PI / 2 },
   ];
 
   return (
     <div 
-      ref={clusterRef}
-      className="relative w-full h-full min-h-[500px] cursor-none"
+      className="relative w-full h-full min-h-[600px] flex items-center justify-center pointer-events-auto"
       onMouseLeave={handleMouseLeave}
     >
       {clusterVideos.map((vid, idx) => {
-        const pos = positions[idx % positions.length];
+        const orbit = orbits[idx % orbits.length];
         const isActive = isHovered === idx;
         
-        const tx = isGrouping ? 0 : mousePos.x * (idx + 1) * 0.5;
-        const ty = isGrouping ? 0 : mousePos.y * (idx + 1) * 0.5;
-        const groupScale = isGrouping ? 0.8 : 1;
+        // Calculate position based on orbit
+        const angle = time * orbit.speed + orbit.phase;
+        
+        // Depth simulation (front/back)
+        const depth = Math.sin(angle); // -1 to 1
+        const zIndex = orbit.radiusX === 0 ? 50 : (depth > 0 ? 60 : 40);
+        
+        // Horizontal/Vertical position
+        let tx = Math.cos(angle) * orbit.radiusX;
+        let ty = Math.sin(angle) * orbit.radiusY;
+        
+        // Depth-based scale and blur
+        // Center video is always focused and large
+        const scaleBase = orbit.radiusX === 0 ? 1.2 : (1 + depth * 0.15);
+        const blurAmount = orbit.radiusX === 0 ? 0 : (Math.max(0, -depth * 4));
+        const opacity = orbit.radiusX === 0 ? 1 : (0.7 + (depth + 1) * 0.15);
+
+        if (isGrouping) {
+          tx = 0;
+          ty = 0;
+        }
 
         return (
           <div
@@ -81,33 +95,31 @@ const FloatingImageCluster = () => {
             onMouseEnter={() => setIsHovered(idx)}
             onMouseLeave={() => setIsHovered(null)}
             className={cn(
-              "absolute transition-all duration-700 ease-out will-change-transform group",
-              !isActive && !isGrouping && pos.anim,
-              isGrouping && "duration-1000"
+              "absolute transition-all ease-out cursor-pointer",
+              isGrouping ? "duration-1000" : "duration-500"
             )}
             style={{
-              top: isGrouping ? '35%' : pos.top,
-              left: isGrouping ? '35%' : pos.left,
-              zIndex: pos.zIndex,
-              width: '240px',
-              height: '240px',
-              transform: `translate3d(${tx}px, ${ty}px, 0) scale(${pos.scale * groupScale * (isActive ? 1.05 : 1)}) rotate(0deg)`,
-              transitionTimingFunction: isActive ? 'cubic-bezier(0.23, 1, 0.32, 1)' : 'cubic-bezier(0.165, 0.84, 0.44, 1)'
+              zIndex: isActive ? 100 : zIndex,
+              width: orbit.radiusX === 0 ? '280px' : '200px',
+              height: orbit.radiusX === 0 ? '280px' : '200px',
+              transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scaleBase * (isActive ? 1.1 : 1)})`,
+              filter: `blur(${isActive ? 0 : blurAmount}px)`,
+              opacity: isActive ? 1 : opacity,
             }}
           >
-            <div className="relative w-full h-full border border-primary/10 bg-black shadow-xl overflow-hidden rounded-[1.5rem]">
+            <div className="relative w-full h-full border border-primary/20 bg-black shadow-2xl overflow-hidden rounded-[2rem]">
               <EditableVideo 
                 src={vid.imageUrl} 
                 storageKey={vid.id}
                 fill
-                className={cn(
-                  "object-cover transition-all duration-1000",
-                  isActive ? "scale-105" : "scale-100"
-                )}
+                className="object-cover"
                 autoPlay
                 muted
                 loop
                 playsInline
+                preload="metadata"
+                poster={`https://picsum.photos/seed/${vid.id}/400/400`}
+                hideControls
               />
             </div>
           </div>
@@ -225,7 +237,7 @@ export default function PortfolioPage() {
               </div>
 
               {/* Layer 2: Above - Cluster of floating videos */}
-              <div className="relative h-[600px] lg:h-full animate-image-reveal z-20 pointer-events-none lg:pointer-events-auto">
+              <div className="relative h-[600px] lg:h-full animate-image-reveal z-20 overflow-visible">
                 <FloatingImageCluster />
               </div>
             </div>
@@ -272,7 +284,7 @@ export default function PortfolioPage() {
                         alt={cat.label} 
                         storageKey={`cat-${cat.id}`}
                         fill
-                        className="object-cover duotone-primary opacity-90 transition-transform duration-500 group-hover:scale-110"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                         containerClassName="absolute inset-0"
                         data-ai-hint={img.imageHint}
                       />
