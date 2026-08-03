@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -227,7 +228,6 @@ export default function PortfolioPage() {
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   
   const experienceRef = useRef<HTMLDivElement>(null);
-  const isSecretVisibleRef = useRef(false);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -252,12 +252,9 @@ export default function PortfolioPage() {
       const winHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
       
-      const isAtBottom = (scrollY + winHeight) >= (docHeight - 10);
-      
-      if (isAtBottom !== isSecretVisibleRef.current) {
-        isSecretVisibleRef.current = isAtBottom;
-        setIsSecretVisible(isAtBottom);
-      }
+      // Easter Egg detection logic - simple overscroll check
+      const isAtBottom = (scrollY + winHeight) >= (docHeight - 50);
+      setIsSecretVisible(isAtBottom);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -364,10 +361,22 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
-          <section id="contact" className="min-h-screen flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 py-20" suppressHydrationWarning>
+          <section id="contact" className="min-h-screen flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 pt-20" suppressHydrationWarning>
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12" suppressHydrationWarning>Ready to tell<br />your story?</h2>
             <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground mb-12">Let&apos;s Talk</Button>
             
+            {/* Easter Egg Container - Integrated In-Between */}
+            <div 
+              className={cn(
+                "w-full transition-all duration-700 ease-in-out overflow-hidden flex flex-col items-center",
+                isSecretVisible ? "max-h-[300px] opacity-100 my-12" : "max-h-0 opacity-0 my-0"
+              )}
+              suppressHydrationWarning
+            >
+              <LEDTicker text="VERONA STUDIO" />
+            </div>
+
+            {/* Footer - Always Visible and At the Bottom */}
             <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 py-12 pb-8" suppressHydrationWarning>
               <div className="flex gap-8" suppressHydrationWarning>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
@@ -379,17 +388,7 @@ export default function PortfolioPage() {
           </section>
         </div>
       </main>
-
-      {/* Easter Egg Overlay - Fixed, Non-Blocking Flow */}
-      <div 
-        className={cn(
-          "fixed bottom-0 left-0 w-full z-[150] pointer-events-none transition-all duration-700 ease-in-out transform",
-          isSecretVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
-        )}
-        suppressHydrationWarning
-      >
-        <LEDTicker text="VERONA STUDIO" />
-      </div>
     </div>
   );
 }
+
