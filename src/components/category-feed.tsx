@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
@@ -215,7 +214,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
 
             <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
               <ProjectVideo item={feedItems[2]} type="up" />
-              <ProjectText item={feedItems[3]} />
+              <ProjectText item={feedItems[3]} type="down" />
             </div>
 
             <div className="w-[30vw]" />

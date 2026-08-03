@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -239,32 +238,34 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Morphing Category Grid Animation with Sticky Pining
+  // Morphing Category Grid Animation with Precise Sticky Pinning
   useEffect(() => {
     if (!experienceRef.current) return;
     
     const cards = gsap.utils.toArray('.category-card');
-    const worksContainer = document.querySelector('#works');
+    const worksContainer = experienceRef.current.querySelector('#works');
     
+    // Create a timeline that handles the shrink exactly when the section hits top-20
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: experienceRef.current,
         start: "top top+=80", // Flush with 80px header
-        end: "+=400",
+        end: "+=120", // Fast, precise transition
         scrub: true,
         pin: true,
         pinSpacing: true,
+        invalidateOnRefresh: true,
       }
     });
 
-    // Morph cards to compact horizontal bars (~56px)
+    // Animate cards to exactly 56px and HOLD
     tl.to(cards, {
       height: 56, 
       duration: 1,
       ease: "none"
     });
 
-    // Minimize container padding to make it flush with boundaries
+    // Reduce padding to flush gaps
     if (worksContainer) {
       tl.to(worksContainer, {
         paddingTop: 8,
@@ -376,7 +377,7 @@ export default function PortfolioPage() {
                         />
                       )}
                       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none">
+                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none text-center px-2">
                         {cat.label}
                       </span>
                     </div>
