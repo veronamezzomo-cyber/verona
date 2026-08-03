@@ -90,7 +90,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100dvh-8.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl z-30 overflow-hidden"
+      className="relative w-full h-[calc(100dvh-7.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
         {/* Header inside the feed - Ultra Compact */}
@@ -110,7 +110,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
 
         {/* Immersive Grid - Maximized height filling */}
-        <div className="flex-1 flex flex-col h-full py-4 min-h-0">
+        <div className="flex-1 flex flex-col h-full min-h-0">
           <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-8 items-stretch flex-1 h-full min-h-0">
             
             {/* Left Column: Details */}
