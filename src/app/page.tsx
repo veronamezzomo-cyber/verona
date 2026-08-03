@@ -214,6 +214,8 @@ export default function PortfolioPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const experienceRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -235,13 +237,14 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (gridRef.current) {
-        const rect = gridRef.current.getBoundingClientRect();
-        // Trigger mini-menu when the big cards section reaches the top
-        setIsScrolled(rect.top <= 80); 
+      if (experienceRef.current && contactRef.current) {
+        const expTop = experienceRef.current.getBoundingClientRect().top;
+        const contactTop = contactRef.current.getBoundingClientRect().top;
+        setIsScrolled(expTop <= 80 && contactTop > 80);
       }
     };
     window.addEventListener('scroll', handleScroll);
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -341,80 +344,6 @@ export default function PortfolioPage() {
         {/* WORKS & STATS LAYER - STACKING OVER HERO */}
         <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
           
-          {/* CATEGORY GRID / MINI MENU */}
-          <section 
-            id="works" 
-            ref={gridRef}
-            className={cn(
-              "z-40 transition-all duration-500",
-              isScrolled ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
-            )}
-          >
-            <div className={cn(
-              "grid gap-4 transition-all duration-500",
-              isScrolled 
-                ? "grid-cols-6 h-14 items-center px-6" 
-                : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
-            )}>
-              {categories.map((cat) => {
-                const img = catImages.find(i => i.id === cat.id);
-                const isActive = activeCategory === cat.label;
-                
-                return (
-                  <div 
-                    key={cat.id} 
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleCategoryClick(cat.label)}
-                    className={cn(
-                      "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-xl",
-                      isScrolled 
-                        ? "h-10 bg-transparent flex items-center justify-center border-x border-foreground/5 rounded-none" 
-                        : "aspect-[1/1.2] shadow-xl hover:shadow-2xl hover:-translate-y-1",
-                      isActive && !isScrolled && "ring-4 ring-primary ring-offset-4 ring-offset-background",
-                      isActive && isScrolled && "bg-primary text-white"
-                    )}
-                  >
-                    {!isScrolled && img && (
-                      <>
-                        <EditableImage 
-                          src={img.imageUrl} 
-                          alt={cat.label} 
-                          storageKey={`cat-${cat.id}`}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          containerClassName="absolute inset-0"
-                          data-ai-hint={img.imageHint}
-                        />
-                        <div className={cn(
-                          "absolute inset-0 transition-opacity duration-300 z-10",
-                          isActive ? "bg-primary/40" : "bg-black/40 group-hover:bg-black/20"
-                        )} />
-                      </>
-                    )}
-                    
-                    <span className={cn(
-                      "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none",
-                      isScrolled 
-                        ? "text-[10px] uppercase font-mono tracking-widest text-foreground group-hover:text-primary" 
-                        : "text-2xl lg:text-3xl text-white bottom-6 left-1/2 -translate-x-1/2 absolute",
-                      isActive && isScrolled && "text-white"
-                    )}>
-                      {cat.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {activeCategory && (
-            <CategoryFeed 
-              category={activeCategory} 
-              onClose={handleCloseFeed} 
-            />
-          )}
-
           {/* STATS BLOCK */}
           <section className="py-32 border-y border-foreground/5 bg-muted/5">
             <div className="container mx-auto px-6">
@@ -433,8 +362,85 @@ export default function PortfolioPage() {
             </div>
           </section>
 
+          {/* EXPERIENCE SECTION WRAPPER */}
+          <div ref={experienceRef} className="relative min-h-screen">
+            {/* CATEGORY GRID / MINI MENU */}
+            <section 
+              id="works" 
+              ref={gridRef}
+              className={cn(
+                "z-40 transition-all duration-500",
+                isScrolled ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
+              )}
+            >
+              <div className={cn(
+                "grid gap-4 transition-all duration-500",
+                isScrolled 
+                  ? "grid-cols-6 h-14 items-center px-6" 
+                  : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
+              )}>
+                {categories.map((cat) => {
+                  const img = catImages.find(i => i.id === cat.id);
+                  const isActive = activeCategory === cat.label;
+                  
+                  return (
+                    <div 
+                      key={cat.id} 
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleCategoryClick(cat.label)}
+                      className={cn(
+                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-xl",
+                        isScrolled 
+                          ? "h-10 bg-transparent flex items-center justify-center border-x border-foreground/5 rounded-none" 
+                          : "aspect-[1/1.2] shadow-xl hover:shadow-2xl hover:-translate-y-1",
+                        isActive && !isScrolled && "ring-4 ring-primary ring-offset-4 ring-offset-background",
+                        isActive && isScrolled && "bg-primary text-white"
+                      )}
+                    >
+                      {!isScrolled && img && (
+                        <>
+                          <EditableImage 
+                            src={img.imageUrl} 
+                            alt={cat.label} 
+                            storageKey={`cat-${cat.id}`}
+                            fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            containerClassName="absolute inset-0"
+                            data-ai-hint={img.imageHint}
+                          />
+                          <div className={cn(
+                            "absolute inset-0 transition-opacity duration-300 z-10",
+                            isActive ? "bg-primary/40" : "bg-black/40 group-hover:bg-black/20"
+                          )} />
+                        </>
+                      )}
+                      
+                      <span className={cn(
+                        "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none",
+                        isScrolled 
+                          ? "text-[10px] uppercase font-mono tracking-widest text-foreground group-hover:text-primary" 
+                          : "text-2xl lg:text-3xl text-white bottom-6 left-1/2 -translate-x-1/2 absolute",
+                        isActive && isScrolled && "text-white"
+                      )}>
+                        {cat.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {activeCategory && (
+              <CategoryFeed 
+                category={activeCategory} 
+                onClose={handleCloseFeed} 
+              />
+            )}
+          </div>
+
           {/* FINAL STACKING LAYER - CONTACT */}
-          <section id="contact" className="py-40 relative overflow-hidden z-20 bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
+          <section id="contact" ref={contactRef} className="py-40 relative overflow-hidden z-20 bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
             <div className="container mx-auto px-6 text-center relative z-10">
               <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
                 Available for worldwide projects
