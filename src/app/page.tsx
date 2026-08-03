@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -239,33 +238,33 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Square Morphing Logic with GSAP
+  // Category Morphing Logic
   useEffect(() => {
     const cards = gsap.utils.toArray('.category-card');
     const worksSection = document.querySelector('#works');
     
     if (!worksSection) return;
 
+    // We animate height and padding based on scroll progress
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
         start: "top top+=80", 
-        end: "+=200",         
+        end: "bottom top+=80",         
         scrub: true,
       }
     });
 
-    // Morph to squares in a bar
-    tl.to(cards, {
-      height: 64, 
-      width: 64,
-      duration: 1,
-      ease: "power2.inOut"
-    });
-
+    // Animate padding and height independently of width
     tl.to(worksSection, {
       paddingTop: 8,
       paddingBottom: 8,
+      duration: 1,
+      ease: "power2.inOut"
+    }, 0);
+
+    tl.to(cards, {
+      height: 56, 
       duration: 1,
       ease: "power2.inOut"
     }, 0);
@@ -294,7 +293,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative overflow-x-visible">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
         <div className="container mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
@@ -333,8 +332,8 @@ export default function PortfolioPage() {
         <div className="relative z-10 bg-background min-h-screen">
           <div ref={experienceRef} className="relative min-h-screen flex flex-col bg-background">
             
-            {/* Morphing Mini-Menu Trigger Area */}
-            <div id="works-trigger" className="h-[200px] w-full pointer-events-none" />
+            {/* Morphing Mini-Menu Trigger Area - Minimized Gap */}
+            <div id="works-trigger" className="h-[1px] w-full pointer-events-none" />
 
             {/* Sticky Category Section */}
             <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
@@ -347,7 +346,7 @@ export default function PortfolioPage() {
                       key={cat.label} 
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "category-card group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1",
+                        "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-[140px] md:h-auto md:aspect-square",
                         isActive && "ring-2 ring-primary"
                       )}
                     >
