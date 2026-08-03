@@ -57,22 +57,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   ];
 
   useEffect(() => {
-    if (category && sectionRef.current) {
-      // Offset by header height (80px) + shrunk grid height (48px)
-      const offset = 128;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = sectionRef.current.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-    }
-  }, [category]);
-
-  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
