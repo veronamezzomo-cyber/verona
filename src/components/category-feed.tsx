@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, ChevronDown } from 'lucide-react';
+import { X } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -22,7 +22,6 @@ interface FeedItem {
 
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
   const feedItems: FeedItem[] = [
@@ -39,21 +38,24 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       title: `${category.toUpperCase()} PROJECT 02`, 
       date: 'AUG 2023',
       notes: 'Technical breakdown of motion graphics integration within raw footage, focusing on seamless transitions.',
-      imgId: 'feed-2' 
+      imgId: 'feed-2',
+      videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4'
     },
     { 
       id: '3', 
       title: `${category.toUpperCase()} PROJECT 03`, 
       date: 'MAY 2023',
       notes: 'Sound-driven editorial piece where every cut responds to auditory frequencies and sub-bass impacts.',
-      imgId: 'feed-3' 
+      imgId: 'feed-3',
+      videoUrl: 'https://i.imgur.com/3r8dNuR_lq.mp4'
     },
     { 
       id: '4', 
       title: `${category.toUpperCase()} PROJECT 04`, 
       date: 'JAN 2023',
       notes: 'Narrative-heavy short form content designed for maximum engagement within the first 3 seconds.',
-      imgId: 'feed-4' 
+      imgId: 'feed-4',
+      videoUrl: 'https://i.imgur.com/p23vehx_lq.mp4'
     },
   ];
 
@@ -64,23 +66,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         { opacity: 1, duration: 0.5, ease: 'power3.out' }
       );
     }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = parseInt(entry.target.getAttribute('data-index') || '0');
-            setActiveIndex(index);
-          }
-        });
-      },
-      { threshold: 0.6, root: scrollRef.current }
-    );
-
-    const items = scrollRef.current?.querySelectorAll('.feed-item');
-    items?.forEach((item) => observer.observe(item));
-
-    return () => observer.disconnect();
   }, [category]);
 
   const currentItem = feedItems[activeIndex];
@@ -91,7 +76,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       className="relative w-full h-[calc(100dvh-7.5rem)] flex flex-col bg-background z-30 overflow-hidden"
     >
       {/* Header - Fixed to minimal space */}
-      <div className="flex items-center justify-between py-2 px-6 border-b border-foreground/5 shrink-0">
+      <div className="flex items-center justify-between py-2 px-6 border-b border-foreground/5 shrink-0 bg-background">
         <div className="flex items-center gap-4">
           <span className="font-mono text-[8px] uppercase tracking-widest text-primary font-bold">Archive</span>
           <h2 className="font-serif text-lg italic font-bold text-foreground lowercase">{category}</h2>
@@ -108,11 +93,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
       {/* Content - Full Viewport Width */}
       <div className="flex-1 flex min-h-0">
-        <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] w-full h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] w-full h-full">
           
           {/* Left Col: Details */}
-          <div className="flex flex-col justify-center px-8 lg:px-12 py-8 bg-background border-r border-foreground/5">
-            <div className="animate-slide-up">
+          <div className="flex flex-col justify-center px-8 lg:px-12 py-8 bg-background border-r border-foreground/5 z-20">
+            <div className="animate-slide-up key={activeIndex}">
               <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                 {currentItem.date}
               </span>
@@ -134,47 +119,56 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     0{activeIndex + 1} / 0{feedItems.length}
                    </span>
                 </div>
+                <p className="font-mono text-[8px] uppercase tracking-[0.2em] text-primary/60 pt-2">
+                  Hover over the grid to explore projects
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Right Col: Immersive Video Player - Horizontal Fill */}
-          <div className="relative h-full w-full bg-black overflow-hidden flex items-stretch">
-            <div 
-              ref={scrollRef}
-              className="relative w-full h-full overflow-y-scroll snap-y snap-mandatory scrollbar-hide"
-            >
-              {feedItems.map((item, idx) => (
-                <div 
-                  key={item.id} 
-                  data-index={idx}
-                  className="feed-item relative w-full h-full snap-start overflow-hidden"
-                >
-                  <EditableVideo 
-                    src={item.videoUrl || undefined} 
-                    storageKey={`feed-${category}-${item.id}`}
-                    fill
-                    className="object-cover w-full h-full"
-                    style={{ transitionDuration: '1000ms' }}
-                  />
-                  
-                  {/* Cinematic Overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none z-20" />
+          {/* Right Col: Immersive 2x2 Grid Visualization */}
+          <div className="relative h-full w-full bg-black overflow-hidden grid grid-cols-2 grid-rows-2">
+            {feedItems.map((item, idx) => (
+              <div 
+                key={item.id} 
+                onMouseEnter={() => setActiveIndex(idx)}
+                className={cn(
+                  "relative w-full h-full overflow-hidden border-[0.5px] border-white/5 transition-all duration-700 ease-out cursor-crosshair",
+                  activeIndex === idx ? "opacity-100 z-10" : "opacity-40 grayscale-[50%] hover:opacity-70"
+                )}
+              >
+                <EditableVideo 
+                  src={item.videoUrl || undefined} 
+                  storageKey={`feed-${category}-${item.id}`}
+                  fill
+                  className={cn(
+                    "object-cover w-full h-full transition-transform duration-1000",
+                    activeIndex === idx ? "scale-105" : "scale-100"
+                  )}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  hideControls
+                />
+                
+                {/* Cinematic Overlay per Cell */}
+                <div className={cn(
+                  "absolute inset-0 transition-opacity duration-500 pointer-events-none",
+                  activeIndex === idx ? "bg-primary/5" : "bg-black/20"
+                )} />
 
-                  {/* Vertical Scroll Hint Overlay */}
-                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 text-center pointer-events-none">
-                    <div className="flex flex-col items-center gap-2">
-                      <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-white/60">
-                        {idx < feedItems.length - 1 ? "Scroll down to next project" : "End of archive"}
-                      </p>
-                      {idx < feedItems.length - 1 && (
-                        <ChevronDown className="h-4 w-4 text-primary animate-bounce" />
-                      )}
-                    </div>
-                  </div>
+                {/* Corner Index Label */}
+                <div className="absolute top-4 left-4 z-20">
+                  <span className={cn(
+                    "font-mono text-[8px] transition-colors duration-500",
+                    activeIndex === idx ? "text-primary font-bold" : "text-white/40"
+                  )}>
+                    PRJ_0{idx + 1}
+                  </span>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
