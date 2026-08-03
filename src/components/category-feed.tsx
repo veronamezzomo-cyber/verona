@@ -80,7 +80,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-12rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-4 transition-all duration-500 z-30 overflow-hidden"
+      className="relative w-full h-[calc(100vh-8.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-4 transition-all duration-500 z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
         {/* Header inside the feed - Compact */}
@@ -101,7 +101,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
         {/* Constrained Grid - Fits Viewport */}
         <div className="flex-1 flex items-center justify-center min-h-0">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 items-center h-full max-h-full">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center h-full max-h-full">
             
             {/* Left Column: Details */}
             <div className="flex flex-col gap-4 justify-center h-full overflow-hidden">
