@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -23,6 +23,8 @@ interface FeedItem {
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const feedItems: FeedItem[] = [
     { 
@@ -31,7 +33,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       date: 'OCT 2023',
       notes: 'Exploration of high-contrast visual rhythm and experimental color grading techniques for high-end digital media.',
       imgId: 'feed-1',
-      videoUrl: 'https://i.imgur.com/6lrRPzC.mp4'
+      videoUrl: 'https://i.imgur.com/i33VokI.mp4'
     },
     { 
       id: '2', 
@@ -68,6 +70,30 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     }
   }, [category]);
 
+  // Handle scroll to update active index
+  useEffect(() => {
+    const observerOptions = {
+      root: scrollContainerRef.current,
+      threshold: 0.6,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = itemRefs.current.findIndex((ref) => ref === entry.target);
+          if (index !== -1) setActiveIndex(index);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    itemRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const currentItem = feedItems[activeIndex];
 
   return (
@@ -75,7 +101,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       ref={sectionRef}
       className="relative w-full h-[calc(100dvh-7.5rem)] flex flex-col bg-background z-30 overflow-hidden"
     >
-      {/* Header - Fixed to minimal space */}
+      {/* Header - Minimal height */}
       <div className="flex items-center justify-between py-2 px-6 border-b border-foreground/5 shrink-0 bg-background">
         <div className="flex items-center gap-4">
           <span className="font-mono text-[8px] uppercase tracking-widest text-primary font-bold">Archive</span>
@@ -91,12 +117,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
       </div>
 
-      {/* Content - Full Viewport Width */}
-      <div className="flex-1 flex min-h-0">
-        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] w-full h-full">
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] w-full h-full">
           
-          {/* Left Col: Details */}
-          <div className="flex flex-col justify-center px-8 lg:px-12 py-8 bg-background border-r border-foreground/5 z-20">
+          {/* Left Col: Details - Fixed position in the grid */}
+          <div className="flex flex-col justify-center px-12 py-8 bg-background border-r border-foreground/5 z-20 overflow-hidden relative">
             <div className="animate-slide-up" key={activeIndex}>
               <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                 {currentItem.date}
@@ -119,28 +144,31 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     0{activeIndex + 1} / 0{feedItems.length}
                    </span>
                 </div>
-                <p className="font-mono text-[8px] uppercase tracking-[0.2em] text-primary/60 pt-2">
-                  Explore the 9:16 mobile-first grid
-                </p>
               </div>
+            </div>
+
+            {/* Hint Overlay */}
+            <div className="absolute bottom-8 left-12 right-12 flex items-center gap-3 animate-pulse opacity-50 pointer-events-none">
+              <ChevronDown className="h-4 w-4 text-primary" />
+              <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-foreground">Scroll vertically to explore</span>
             </div>
           </div>
 
-          {/* Right Col: Immersive 2x2 Mobile Grid Visualization */}
-          <div className="relative h-full w-full bg-black/95 overflow-hidden grid grid-cols-2 grid-rows-2 p-6 gap-6">
+          {/* Right Col: Vertical Snap Feed (9:16) */}
+          <div 
+            ref={scrollContainerRef}
+            className="relative h-full w-full bg-black/95 overflow-y-auto snap-y snap-mandatory scrollbar-hide"
+          >
             {feedItems.map((item, idx) => (
               <div 
                 key={item.id} 
-                onMouseEnter={() => setActiveIndex(idx)}
-                className={cn(
-                  "relative w-full h-full flex items-center justify-center transition-all duration-700 ease-out cursor-crosshair",
-                  activeIndex === idx ? "opacity-100 z-10" : "opacity-40 grayscale-[50%] hover:opacity-70"
-                )}
+                ref={(el) => { itemRefs.current[idx] = el; }}
+                className="w-full h-full snap-start flex items-center justify-center p-8"
               >
-                {/* 9:16 "Phone" Container */}
+                {/* 9:16 Mobile-style container */}
                 <div className={cn(
-                  "relative aspect-[9/16] h-full max-h-full rounded-[2.5rem] overflow-hidden border-4 border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 bg-black",
-                  activeIndex === idx ? "ring-4 ring-primary/20 scale-[1.02]" : "scale-100"
+                  "relative aspect-[9/16] h-full max-h-[85%] rounded-[2.5rem] overflow-hidden border-4 border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] transition-all duration-700 bg-black group",
+                  activeIndex === idx ? "ring-4 ring-primary/20 scale-100" : "scale-[0.95] opacity-40 blur-[2px]"
                 )}>
                   <EditableVideo 
                     src={item.videoUrl || undefined} 
@@ -148,7 +176,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     fill
                     className={cn(
                       "object-cover w-full h-full transition-transform duration-1000",
-                      activeIndex === idx ? "scale-105" : "scale-100"
+                      activeIndex === idx ? "scale-100" : "scale-105"
                     )}
                     autoPlay
                     muted
@@ -157,21 +185,20 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     hideControls
                   />
                   
-                  {/* Cinematic Overlay per "Phone" */}
+                  {/* Cinematic Overlay */}
                   <div className={cn(
                     "absolute inset-0 transition-opacity duration-500 pointer-events-none",
-                    activeIndex === idx ? "bg-primary/5" : "bg-black/30"
+                    activeIndex === idx ? "bg-primary/5" : "bg-black/40"
                   )} />
-                </div>
 
-                {/* Index Indicator */}
-                <div className="absolute top-0 left-0 p-2">
-                  <span className={cn(
-                    "font-mono text-[8px] transition-colors duration-500",
-                    activeIndex === idx ? "text-primary font-bold" : "text-white/20"
-                  )}>
-                    PRJ_0{idx + 1}
-                  </span>
+                  {/* Mobile Status Bar Hint */}
+                  <div className="absolute top-0 left-0 right-0 h-8 flex items-center justify-between px-8 text-[8px] font-mono text-white/40 z-20 pointer-events-none">
+                    <span>9:41</span>
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-2 rounded-[1px] border border-white/20" />
+                      <div className="w-2 h-2 rounded-full border border-white/20" />
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
