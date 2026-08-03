@@ -64,23 +64,26 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       
       const rect = containerRef.current.getBoundingClientRect();
       const scrollHeight = rect.height - window.innerHeight;
+      
+      // Calculate progress with higher sensitivity due to smaller scrollHeight (250vh instead of 400vh)
       const progress = Math.min(Math.max(-rect.top / scrollHeight, 0), 1);
       
       const trackWidth = trackRef.current.scrollWidth;
       const windowWidth = window.innerWidth;
       const maxMove = trackWidth - windowWidth;
       
+      // Reduced duration for snappier, more sensitive feel
       gsap.to(trackRef.current, {
         x: -(progress * maxMove),
-        duration: 0.8,
-        ease: 'power2.out',
+        duration: 0.4,
+        ease: 'none',
         overwrite: 'auto'
       });
 
       gsap.to(bgLinesRef.current, {
         x: -(progress * maxMove * 0.4),
-        duration: 1.2,
-        ease: 'power2.out',
+        duration: 0.6,
+        ease: 'none',
         overwrite: 'auto'
       });
     };
@@ -122,8 +125,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       onClick={handleInteraction}
       className={cn(
         "w-[350px] md:w-[450px] h-[70vh] relative bg-neutral-200 overflow-hidden group cursor-pointer transition-all z-10",
-        // Masking logic: Ponta pontiaguda (Geometric Mask)
-        // 'up' aponta para o topo, 'down' aponta para a base, criando o zigue-zague visual
         type === 'up' 
           ? "[clip-path:polygon(0%_100%,0%_0%,85%_0%,100%_15%,100%_100%)]" 
           : "[clip-path:polygon(0%_15%,15%_0%,100%_0%,100%_100%,0%_100%)]",
@@ -153,7 +154,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={containerRef}
-      className="relative w-full h-[400vh] bg-white z-30"
+      className="relative w-full h-[250vh] bg-white z-30"
     >
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
         
