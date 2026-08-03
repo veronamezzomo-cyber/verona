@@ -240,46 +240,50 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
+  // Main scroll listener to track end of page and direction
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const winHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
       
-      const isAtBottom = (currentScrollY + winHeight) >= docHeight - 10;
-      const isScrollingUp = currentScrollY < lastScrollY;
+      const isAtBottom = (currentScrollY + winHeight) >= docHeight - 20;
 
-      if (isScrollingUp) {
-        setIsSecretVisible(false);
-      } else if (isAtBottom) {
-        setIsSecretVisible(true);
-      }
+      // Use functional state updates to avoid closures/dependency loop
+      setLastScrollY(prev => {
+        const isScrollingUp = currentScrollY < prev;
+        
+        setIsSecretVisible(currentVisible => {
+          // If scrolling up while egg is visible, hide it
+          if (isScrollingUp && currentVisible) return false;
+          // If reached bottom and egg is hidden, show it
+          if (isAtBottom && !currentVisible) return true;
+          return currentVisible;
+        });
 
-      setLastScrollY(currentScrollY);
+        return currentScrollY;
+      });
     };
 
-    // New logic to intercept scroll up and close the easter egg
-    const handleInterceptScroll = (e: any) => {
-      if (!isSecretVisible) return;
-      
-      const isScrollingUp = e.type === 'wheel' ? e.deltaY < 0 : false;
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []); // Empty dependency array to attach once
 
-      if (isScrollingUp) {
+  // Intercept scroll up when egg is visible
+  useEffect(() => {
+    if (!isSecretVisible) return;
+
+    const handleInterceptScroll = (e: WheelEvent) => {
+      // If egg is visible and scrolling up, prevent and hide
+      if (e.deltaY < 0) {
         e.preventDefault();
         setIsSecretVisible(false);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    if (isSecretVisible) {
-      window.addEventListener('wheel', handleInterceptScroll, { passive: false });
-    }
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('wheel', handleInterceptScroll);
-    };
-  }, [lastScrollY, isSecretVisible]);
+    window.addEventListener('wheel', handleInterceptScroll, { passive: false });
+    return () => window.removeEventListener('wheel', handleInterceptScroll);
+  }, [isSecretVisible]);
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
