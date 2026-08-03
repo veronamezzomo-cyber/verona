@@ -37,7 +37,9 @@ const LED_BITMAPS: Record<string, number[][]> = {
 };
 
 function LEDTicker({ text }: { text: string }) {
-  const characters = text.toUpperCase().split('');
+  // Adicionamos um espaço ao final do texto para garantir que o loop do marquee 
+  // tenha o mesmo espaçamento entre o fim e o início da mensagem.
+  const characters = (text.toUpperCase() + " ").split('');
   
   return (
     <div className="w-full bg-background py-2 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" suppressHydrationWarning>
