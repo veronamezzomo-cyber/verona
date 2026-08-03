@@ -74,7 +74,7 @@ export function EditableVideo({
       <video 
         {...props} 
         ref={videoRef}
-        src={currentSrc} 
+        src={currentSrc || undefined} 
         className={cn(
           className,
           fill && "absolute inset-0 w-full h-full object-cover"
