@@ -109,11 +109,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
 
         {/* Immersive Grid - Redistributed for better vertical usage */}
-        <div className="flex-1 flex items-center justify-center min-h-0 py-4">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-8 items-center h-full max-h-full">
+        <div className="flex-1 flex flex-col min-h-0 py-4">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-8 items-stretch flex-1 min-h-0">
             
             {/* Left Column: Details */}
-            <div className="flex flex-col gap-4 justify-center h-full overflow-hidden animate-reveal">
+            <div className="flex flex-col gap-4 justify-center min-h-0 overflow-hidden animate-reveal">
               <div>
                 <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                   {currentItem.date}
