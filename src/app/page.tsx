@@ -288,7 +288,8 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        <section className="flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto">
+        {/* Hero Section: Sticky for stacking overlap effect */}
+        <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
@@ -306,9 +307,10 @@ export default function PortfolioPage() {
           </div>
         </section>
 
+        {/* Content Wrapper: Higher z-index to cover Hero */}
         <div className="relative z-10 bg-background">
-          <div ref={experienceRef} className="relative min-h-screen flex flex-col">
-            <section id="works" className="z-40 transition-all duration-500 w-full py-12">
+          <div ref={experienceRef} className="relative min-h-screen flex flex-col bg-background">
+            <section id="works" className="transition-all duration-500 w-full py-12">
               <div className="grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
@@ -344,7 +346,8 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
-          <section id="contact" className="relative min-h-screen flex flex-col border-t border-foreground/5">
+          {/* Contact Section: Sticky z-20 to cover everything else */}
+          <section id="contact" className="sticky top-0 z-20 bg-background min-h-screen flex flex-col border-t border-foreground/5">
             <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
               <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
               <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
