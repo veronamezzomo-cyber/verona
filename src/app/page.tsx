@@ -208,6 +208,7 @@ export default function PortfolioPage() {
     const handleScroll = () => {
       if (experienceRef.current) {
         const expRect = experienceRef.current.getBoundingClientRect();
+        // Header height is 80px (h-20)
         const headerHeight = 80;
         setIsPinned(expRect.top <= headerHeight);
       }
@@ -223,6 +224,7 @@ export default function PortfolioPage() {
     
     if (newValue) {
       setTimeout(() => {
+        // Scroll to experienceRef top, which aligns the sticky menu correctly
         experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
@@ -371,7 +373,7 @@ export default function PortfolioPage() {
           <section 
             id="contact" 
             ref={contactRef} 
-            className="min-h-screen flex flex-col relative overflow-hidden bg-background border-t border-foreground/5 px-6 pt-24"
+            className="h-screen flex flex-col relative overflow-hidden bg-background border-t border-foreground/5 px-6 pt-24"
           >
             {/* Background elements */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />

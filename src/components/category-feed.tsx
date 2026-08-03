@@ -80,43 +80,43 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-8rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-6 transition-all duration-500 z-30 view-transition-feed overflow-visible"
+      className="relative w-full h-[calc(100vh-12rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-4 transition-all duration-500 z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
-        {/* Header inside the feed */}
-        <div className="flex items-center justify-between mb-4 border-b border-foreground/5 pb-4 shrink-0">
+        {/* Header inside the feed - Compact */}
+        <div className="flex items-center justify-between mb-2 border-b border-foreground/5 pb-2 shrink-0">
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Selected Works</span>
-            <h2 className="font-serif text-3xl italic font-bold text-foreground lowercase">{category}</h2>
+            <span className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold">Selected Works</span>
+            <h2 className="font-serif text-2xl italic font-bold text-foreground lowercase">{category}</h2>
           </div>
           <div 
             role="button"
             tabIndex={0}
             onClick={onClose}
-            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 cursor-pointer flex items-center transition-colors"
+            className="font-mono text-[9px] uppercase tracking-widest hover:text-primary gap-2 cursor-pointer flex items-center transition-colors"
           >
             Close Feed <X className="h-4 w-4" />
           </div>
         </div>
 
-        {/* Constrained Grid */}
-        <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center h-full max-h-[75vh]">
+        {/* Constrained Grid - Fits Viewport */}
+        <div className="flex-1 flex items-center justify-center min-h-0">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 items-center h-full max-h-full">
             
             {/* Left Column: Details */}
-            <div className="flex flex-col gap-6 justify-center h-full">
+            <div className="flex flex-col gap-4 justify-center h-full overflow-hidden">
               <div className="animate-reveal" key={currentItem.id}>
-                <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary font-bold block mb-3">
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold block mb-2">
                   {currentItem.date}
                 </span>
-                <h3 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-5 max-w-sm">
+                <h3 className="font-serif text-3xl md:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-4 max-w-sm">
                   {currentItem.title}<span className="text-primary">.</span>
                 </h3>
-                <div className="space-y-4 max-w-xs">
+                <div className="space-y-4 max-w-sm">
                   <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed">
                     {currentItem.notes}
                   </p>
-                  <div className="pt-5 border-t border-foreground/10 flex items-center gap-4">
+                  <div className="pt-4 border-t border-foreground/10 flex items-center gap-4">
                      <div className="h-1 flex-1 bg-foreground/5 relative">
                         <div 
                           className="absolute h-full bg-primary transition-all duration-500" 
@@ -131,11 +131,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Right Column: Video Container */}
-            <div className="flex justify-center items-center h-full min-h-0 relative">
+            {/* Right Column: Video Container - Maximized Height */}
+            <div className="flex justify-center items-center h-full min-h-0 relative py-2">
               <div 
                 ref={scrollRef}
-                className="relative h-full aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl"
+                className="relative h-full aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl rounded-sm"
               >
                 {feedItems.map((item, idx) => (
                   <div 
@@ -155,7 +155,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
                     {idx < feedItems.length - 1 && (
                       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
-                        <ChevronDown className="h-6 w-6" />
+                        <ChevronDown className="h-5 w-5" />
                       </div>
                     )}
                   </div>
@@ -165,10 +165,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
         
-        {/* Footer info */}
-        <div className="mt-4 text-center border-t border-foreground/5 pt-3 shrink-0">
+        {/* Footer info - Minimal */}
+        <div className="mt-2 text-center border-t border-foreground/5 pt-2 shrink-0">
           <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground">
-            Scroll vertically inside the feed to explore projects
+            Scroll vertically inside the panel to explore projects
           </p>
         </div>
       </div>
