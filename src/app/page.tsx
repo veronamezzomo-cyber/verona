@@ -371,31 +371,31 @@ export default function PortfolioPage() {
           <section 
             id="contact" 
             ref={contactRef} 
-            className="h-screen flex flex-col relative overflow-hidden bg-background border-t border-foreground/5 px-6"
+            className="min-h-screen flex flex-col relative overflow-hidden bg-background border-t border-foreground/5 px-6 pt-24"
           >
             {/* Background elements */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
 
             {/* Main Contact Content */}
-            <div className="flex-1 flex flex-col items-center justify-center container mx-auto text-center relative z-10">
-              <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
+            <div className="flex-1 flex flex-col items-center justify-center container mx-auto text-center relative z-10 py-8">
+              <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-6 font-mono text-[10px] uppercase tracking-widest text-primary bg-background/50 backdrop-blur-sm">
                 Available for worldwide projects
               </div>
-              <h2 className="text-6xl md:text-9xl font-bold mb-12 italic font-serif text-foreground leading-tight tracking-tighter">
+              <h2 className="text-5xl md:text-7xl lg:text-9xl font-bold mb-8 italic font-serif text-foreground leading-tight tracking-tighter">
                 Ready to tell<br />your story?
               </h2>
-              <p className="text-muted-foreground mb-16 max-w-xl mx-auto font-mono text-sm uppercase tracking-widest leading-relaxed">
-                Transforming concepts into cinematic realities. <br />Available for freelance opportunities.
+              <p className="text-muted-foreground mb-12 max-w-xl mx-auto font-mono text-xs md:text-sm uppercase tracking-widest leading-relaxed">
+                Transforming concepts into cinematic realities. <br className="hidden md:block" />Available for freelance opportunities.
               </p>
-              <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-2xl">
+              <Button size="lg" className="rounded-none px-12 md:px-16 h-16 md:h-20 text-lg md:text-xl font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-2xl">
                 Let&apos;s Talk
               </Button>
             </div>
             
             {/* Integrated Footer content at the bottom of the contact section */}
-            <div className="py-12 w-full border-t border-foreground/5 relative z-10 bg-transparent">
-              <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="py-8 w-full border-t border-foreground/5 relative z-10 bg-transparent mt-auto">
+              <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="flex items-center gap-8">
                   <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
                     <DiscordIcon className="h-5 w-5" />
@@ -407,10 +407,10 @@ export default function PortfolioPage() {
                     <Mail className="h-5 w-5" />
                   </Link>
                 </div>
-                <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+                <div className="font-mono text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
                   © 2024 Leonardo Verona. All rights reserved.
                 </div>
-                <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+                <div className="font-mono text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
                   Digital Craftsman <span className="text-primary italic ml-2">Next.js / Video</span>
                 </div>
               </div>
