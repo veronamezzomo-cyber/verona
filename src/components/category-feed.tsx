@@ -1,6 +1,3 @@
-/**
- * @fileOverview Visualizador de projetos para o portfólio de Leonardo Verona.
- */
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';

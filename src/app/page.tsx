@@ -225,6 +225,7 @@ export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
   
   const experienceRef = useRef<HTMLDivElement>(null);
 
@@ -240,34 +241,30 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
-  // Main scroll listener to track end of page and direction
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const winHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
-      
       const isAtBottom = (currentScrollY + winHeight) >= docHeight - 20;
+      const isScrollingUp = currentScrollY < lastScrollYRef.current;
+      
+      // Independent updates to prevent infinite loops
+      setLastScrollY(currentScrollY);
+      lastScrollYRef.current = currentScrollY;
 
-      // Use functional state updates to avoid closures/dependency loop
-      setLastScrollY(prev => {
-        const isScrollingUp = currentScrollY < prev;
-        
-        setIsSecretVisible(currentVisible => {
-          // If scrolling up while egg is visible, hide it
-          if (isScrollingUp && currentVisible) return false;
-          // If reached bottom and egg is hidden, show it
-          if (isAtBottom && !currentVisible) return true;
-          return currentVisible;
-        });
-
-        return currentScrollY;
+      setIsSecretVisible(prevVisible => {
+        // If reached bottom and scrolling down/still, show
+        if (isAtBottom && !isScrollingUp) return true;
+        // If scrolling up, hide immediately
+        if (isScrollingUp) return false;
+        return prevVisible;
       });
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []); // Empty dependency array to attach once
+  }, []);
 
   // Intercept scroll up when egg is visible
   useEffect(() => {
