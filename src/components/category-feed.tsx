@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { X, ChevronDown } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -16,15 +16,12 @@ interface FeedItem {
   title: string;
   date: string;
   notes: string;
-  imgId: string;
   videoUrl?: string;
 }
 
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const sectionRef = useRef<HTMLElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const feedItems: FeedItem[] = [
     { 
@@ -32,7 +29,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       title: `${category.toUpperCase()} PROJECT 01`, 
       date: 'OCT 2023',
       notes: 'Exploration of high-contrast visual rhythm and experimental color grading techniques for high-end digital media.',
-      imgId: 'feed-1',
       videoUrl: 'https://i.imgur.com/i33VokI.mp4'
     },
     { 
@@ -40,7 +36,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       title: `${category.toUpperCase()} PROJECT 02`, 
       date: 'AUG 2023',
       notes: 'Technical breakdown of motion graphics integration within raw footage, focusing on seamless transitions.',
-      imgId: 'feed-2',
       videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4'
     },
     { 
@@ -48,7 +43,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       title: `${category.toUpperCase()} PROJECT 03`, 
       date: 'MAY 2023',
       notes: 'Sound-driven editorial piece where every cut responds to auditory frequencies and sub-bass impacts.',
-      imgId: 'feed-3',
       videoUrl: 'https://i.imgur.com/3r8dNuR_lq.mp4'
     },
     { 
@@ -56,151 +50,149 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       title: `${category.toUpperCase()} PROJECT 04`, 
       date: 'JAN 2023',
       notes: 'Narrative-heavy short form content designed for maximum engagement within the first 3 seconds.',
-      imgId: 'feed-4',
       videoUrl: 'https://i.imgur.com/p23vehx_lq.mp4'
     },
   ];
 
   useEffect(() => {
-    if (sectionRef.current) {
-      gsap.fromTo(sectionRef.current, 
-        { opacity: 0 },
-        { opacity: 1, duration: 0.5, ease: 'power3.out' }
-      );
-    }
-  }, [category]);
-
-  // Handle scroll to update active index
-  useEffect(() => {
-    const observerOptions = {
-      root: scrollContainerRef.current,
-      threshold: 0.6,
-    };
-
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const index = itemRefs.current.findIndex((ref) => ref === entry.target);
-          if (index !== -1) setActiveIndex(index);
-        }
+    const handleScroll = () => {
+      if (!containerRef.current || !trackRef.current) return;
+      
+      const rect = containerRef.current.getBoundingClientRect();
+      const scrollHeight = rect.height - window.innerHeight;
+      const progress = Math.min(Math.max(-rect.top / scrollHeight, 0), 1);
+      
+      const trackWidth = trackRef.current.scrollWidth;
+      const windowWidth = window.innerWidth;
+      const maxMove = trackWidth - windowWidth;
+      
+      gsap.to(trackRef.current, {
+        x: -(progress * maxMove),
+        duration: 0.8,
+        ease: 'power2.out',
+        overwrite: 'auto'
       });
     };
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    itemRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const currentItem = feedItems[activeIndex];
+  const ProjectText = ({ item }: { item: FeedItem }) => (
+    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8">
+      <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold mb-2">
+        {item.date}
+      </span>
+      <h3 className="font-serif text-3xl md:text-5xl font-bold text-black leading-[0.9] tracking-tighter mb-4">
+        {item.title}<span className="text-primary">.</span>
+      </h3>
+      <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 leading-relaxed max-w-[280px]">
+        {item.notes}
+      </p>
+    </div>
+  );
+
+  const ProjectVideo = ({ item }: { item: FeedItem }) => (
+    <div className="w-[300px] md:w-[350px] aspect-[9/16] relative bg-neutral-100 rounded-sm overflow-hidden shadow-2xl border border-neutral-200 group">
+      <EditableVideo 
+        src={item.videoUrl || undefined} 
+        storageKey={`feed-${category}-${item.id}`}
+        fill
+        className="object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        hideControls
+      />
+      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+    </div>
+  );
 
   return (
     <section 
-      ref={sectionRef}
-      className="relative w-full h-[calc(100dvh-7.5rem)] flex flex-col bg-background z-30 overflow-hidden"
+      ref={containerRef}
+      className="relative w-full h-[400vh] bg-white z-30"
     >
-      {/* Header - Minimal height */}
-      <div className="flex items-center justify-between py-2 px-6 border-b border-foreground/5 shrink-0 bg-background">
-        <div className="flex items-center gap-4">
-          <span className="font-mono text-[8px] uppercase tracking-widest text-primary font-bold">Archive</span>
-          <h2 className="font-serif text-lg italic font-bold text-foreground lowercase">{category}</h2>
-        </div>
-        <div 
-          role="button"
-          tabIndex={0}
-          onClick={onClose}
-          className="font-mono text-[8px] uppercase tracking-widest hover:text-primary gap-1.5 cursor-pointer flex items-center transition-colors"
-        >
-          Close <X className="h-3 w-3" />
-        </div>
-      </div>
-
-      <div className="flex-1 flex min-h-0 overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] w-full h-full">
-          
-          {/* Left Col: Details - Fixed position in the grid */}
-          <div className="flex flex-col justify-center px-12 py-8 bg-background border-r border-foreground/5 z-20 overflow-hidden relative">
-            <div className="animate-slide-up" key={activeIndex}>
-              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
-                {currentItem.date}
-              </span>
-              <h3 className="font-serif text-3xl md:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-4">
-                {currentItem.title}<span className="text-primary">.</span>
-              </h3>
-              <div className="space-y-4">
-                <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed">
-                  {currentItem.notes}
-                </p>
-                <div className="pt-4 border-t border-foreground/10 flex items-center gap-4">
-                   <div className="h-0.5 flex-1 bg-foreground/5 relative">
-                      <div 
-                        className="absolute h-full bg-primary transition-all duration-500" 
-                        style={{ width: `${((activeIndex + 1) / feedItems.length) * 100}%` }}
-                      />
-                   </div>
-                   <span className="font-mono text-[10px] text-muted-foreground">
-                    0{activeIndex + 1} / 0{feedItems.length}
-                   </span>
-                </div>
-              </div>
+      {/* Sticky Content Wrapper */}
+      <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
+        
+        {/* Decorative Background Art */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20">
+          {[...Array(10)].map((_, i) => (
+            <div key={i} className="h-full w-px bg-black relative">
+              <span className="absolute top-24 left-2 font-mono text-[10px] font-bold">0{i + 1}</span>
             </div>
+          ))}
+        </div>
 
-            {/* Hint Overlay */}
-            <div className="absolute bottom-8 left-12 right-12 flex items-center gap-3 animate-pulse opacity-50 pointer-events-none">
-              <ChevronDown className="h-4 w-4 text-primary" />
-              <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-foreground">Scroll vertically to explore</span>
-            </div>
+        {/* Header - Remains Fixed at top of sticky container */}
+        <div className="flex items-center justify-between py-6 px-12 border-b border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50">
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
+            <div className="h-px w-12 bg-primary/20" />
+            <h2 className="font-serif text-2xl italic font-bold text-black lowercase">{category}</h2>
           </div>
-
-          {/* Right Col: Vertical Snap Feed (9:16) */}
-          <div 
-            ref={scrollContainerRef}
-            className="relative h-full w-full bg-black/95 overflow-y-auto snap-y snap-mandatory scrollbar-hide"
+          <button 
+            onClick={onClose}
+            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-1.5 flex items-center transition-colors group"
           >
-            {feedItems.map((item, idx) => (
-              <div 
-                key={item.id} 
-                ref={(el) => { itemRefs.current[idx] = el; }}
-                className="w-full h-full snap-start flex items-center justify-center p-8"
-              >
-                {/* 9:16 Mobile-style container */}
-                <div className={cn(
-                  "relative aspect-[9/16] h-full max-h-[85%] rounded-[2.5rem] overflow-hidden border-4 border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)] transition-all duration-700 bg-black group",
-                  activeIndex === idx ? "ring-4 ring-primary/20 scale-100" : "scale-[0.95] opacity-40 blur-[2px]"
-                )}>
-                  <EditableVideo 
-                    src={item.videoUrl || undefined} 
-                    storageKey={`feed-${category}-${item.id}`}
-                    fill
-                    className={cn(
-                      "object-cover w-full h-full transition-transform duration-1000",
-                      activeIndex === idx ? "scale-100" : "scale-105"
-                    )}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    hideControls
-                  />
-                  
-                  {/* Cinematic Overlay */}
-                  <div className={cn(
-                    "absolute inset-0 transition-opacity duration-500 pointer-events-none",
-                    activeIndex === idx ? "bg-primary/5" : "bg-black/40"
-                  )} />
+            Close Archive <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
+          </button>
+        </div>
 
-                  {/* Mobile Status Bar Hint */}
-                  <div className="absolute top-0 left-0 right-0 h-8 flex items-center justify-between px-8 text-[8px] font-mono text-white/40 z-20 pointer-events-none">
-                    <span>9:41</span>
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-2 rounded-[1px] border border-white/20" />
-                      <div className="w-2 h-2 rounded-full border border-white/20" />
-                    </div>
-                  </div>
-                </div>
+        {/* Horizontal Moving Track */}
+        <div 
+          ref={trackRef}
+          className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
+        >
+          <div className="flex gap-20 items-center h-full py-20">
+            {/* Column 1: P1 Text / P2 Video */}
+            <div className="flex flex-col gap-32">
+              <ProjectText item={feedItems[0]} />
+              <div className="mt-12">
+                <ProjectVideo item={feedItems[1]} />
               </div>
+            </div>
+
+            {/* Column 2: P1 Video / P2 Text */}
+            <div className="flex flex-col gap-32">
+              <ProjectVideo item={feedItems[0]} />
+              <div className="mt-12">
+                <ProjectText item={feedItems[1]} />
+              </div>
+            </div>
+
+            {/* Column 3: P3 Text / P4 Video */}
+            <div className="flex flex-col gap-32">
+              <ProjectText item={feedItems[2]} />
+              <div className="mt-12">
+                <ProjectVideo item={feedItems[3]} />
+              </div>
+            </div>
+
+            {/* Column 4: P3 Video / P4 Text */}
+            <div className="flex flex-col gap-32">
+              <ProjectVideo item={feedItems[2]} />
+              <div className="mt-12">
+                <ProjectText item={feedItems[3]} />
+              </div>
+            </div>
+
+            {/* Final Spacer */}
+            <div className="w-[20vw]" />
+          </div>
+        </div>
+
+        {/* Bottom Progress Indicator */}
+        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400">
+          <div className="flex items-center gap-4">
+            <span>Scroll vertically to navigate</span>
+            <div className="w-12 h-px bg-neutral-200" />
+          </div>
+          <div className="flex gap-2">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className={cn("w-1.5 h-1.5 rounded-full border border-neutral-300", i === 0 && "bg-primary border-primary")} />
             ))}
           </div>
         </div>
