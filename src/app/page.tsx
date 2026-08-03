@@ -238,42 +238,36 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Morphing Category Grid Animation with Precise Sticky Pinning
+  // Morphing Category Grid Animation with Precise CSS Sticky
   useEffect(() => {
-    if (!experienceRef.current) return;
-    
     const cards = gsap.utils.toArray('.category-card');
-    const worksContainer = experienceRef.current.querySelector('#works');
+    const worksSection = document.querySelector('#works');
     
-    // Create a timeline that handles the shrink exactly when the section hits top-20
+    if (!worksSection) return;
+
+    // Morph animation driven by scroll relative to viewport
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: experienceRef.current,
-        start: "top top+=80", // Flush with 80px header
-        end: "+=120", // Fast, precise transition
+        trigger: worksSection,
+        start: "top top+=80", // Starts exactly when hitting header boundary
+        end: "+=150",         // Completes quickly over 150px of scroll
         scrub: true,
-        pin: true,
-        pinSpacing: true,
         invalidateOnRefresh: true,
       }
     });
 
-    // Animate cards to exactly 56px and HOLD
     tl.to(cards, {
       height: 56, 
       duration: 1,
       ease: "none"
     });
 
-    // Reduce padding to flush gaps
-    if (worksContainer) {
-      tl.to(worksContainer, {
-        paddingTop: 8,
-        paddingBottom: 8,
-        duration: 1,
-        ease: "none"
-      }, 0);
-    }
+    tl.to(worksSection, {
+      paddingTop: 8,
+      paddingBottom: 8,
+      duration: 1,
+      ease: "none"
+    }, 0);
 
     return () => {
       ScrollTrigger.getAll().forEach(t => t.kill());
@@ -352,7 +346,7 @@ export default function PortfolioPage() {
         {/* Content Wrapper: Higher z-index to cover Hero */}
         <div className="relative z-10 bg-background">
           <div ref={experienceRef} className="relative bg-background min-h-screen flex flex-col">
-            {/* Works Section: Pins as Mini-Menu at top-20 */}
+            {/* Works Section: Pins as Mini-Menu at top-20 (80px) flush with header */}
             <section id="works" className="w-full py-12 sticky top-20 z-10 bg-background border-b border-foreground/5">
               <div className="grid container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {categories.map((cat) => {
