@@ -223,7 +223,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [isPinned, setIsPinned] = useState(false);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   
@@ -247,14 +246,6 @@ export default function PortfolioPage() {
       const winHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
       
-      // Traditional pinning logic for the works grid
-      if (experienceRef.current) {
-        const expRect = experienceRef.current.getBoundingClientRect();
-        setIsPinned(expRect.top <= 80);
-      }
-
-      // Secret Reveal Logic:
-      // Trigger when reaching the actual bottom of the page
       const isAtBottom = (currentScrollY + winHeight) >= docHeight - 10;
       const isScrollingUp = currentScrollY < lastScrollY;
 
@@ -325,17 +316,8 @@ export default function PortfolioPage() {
 
         <div className="relative z-10 bg-background" suppressHydrationWarning>
           <div ref={experienceRef} className="relative min-h-screen flex flex-col" suppressHydrationWarning>
-            <section 
-              id="works" 
-              className={cn(
-                "z-40 transition-all duration-500 w-full",
-                isPinned ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12"
-              )}
-              suppressHydrationWarning
-            >
-              <div className={cn(
-                "grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
-              )} suppressHydrationWarning>
+            <section id="works" className="z-40 transition-all duration-500 w-full py-12" suppressHydrationWarning>
+              <div className="grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" suppressHydrationWarning>
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
@@ -371,34 +353,36 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
-          {/* Contact Section - Normal Flow */}
-          <section id="contact" className="relative min-h-screen flex flex-col justify-center items-center container mx-auto text-center px-6 border-t border-foreground/5" suppressHydrationWarning>
-            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
-            <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
-          </section>
-
-          {/* Easter Egg Panel - Collapsible Accordion-style in Normal Flow */}
-          <div 
-            className={cn(
-              "overflow-hidden transition-all duration-700 ease-in-out bg-background",
-              isSecretVisible ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-            )}
-            suppressHydrationWarning
-          >
-            <LEDTicker text="VERONA STUDIO" />
-          </div>
-          
-          {/* Footer - Normal Flow, last element in the content area */}
-          <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5" suppressHydrationWarning>
-            <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6" suppressHydrationWarning>
-              <div className="flex gap-8" suppressHydrationWarning>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
-              </div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" suppressHydrationWarning>© 2024 Leonardo Verona. Digital Craftsman</p>
+          <section id="contact" className="relative min-h-screen flex flex-col border-t border-foreground/5" suppressHydrationWarning>
+            <div className="flex-1 flex flex-col justify-center items-center text-center px-6" suppressHydrationWarning>
+              <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
+              <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
             </div>
-          </footer>
+            
+            <div className="relative overflow-hidden" suppressHydrationWarning>
+               {/* Easter Egg panel expanding UPWARD from the footer */}
+               <div 
+                  className={cn(
+                    "overflow-hidden transition-all duration-700 ease-in-out bg-background",
+                    isSecretVisible ? "h-[300px] opacity-100" : "h-0 opacity-0"
+                  )}
+                  suppressHydrationWarning
+                >
+                  <LEDTicker text="VERONA STUDIO" />
+                </div>
+
+                <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0" suppressHydrationWarning>
+                  <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6" suppressHydrationWarning>
+                    <div className="flex gap-8" suppressHydrationWarning>
+                      <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
+                      <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
+                      <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
+                    </div>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" suppressHydrationWarning>© 2024 Leonardo Verona. Digital Craftsman</p>
+                  </div>
+                </footer>
+            </div>
+          </section>
         </div>
       </main>
     </div>
