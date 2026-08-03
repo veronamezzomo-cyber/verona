@@ -52,7 +52,6 @@ function LEDTicker({ text }: { text: string }) {
                   row.map((cell, colIndex) => (
                     <div
                       key={`${rowIndex}-${colIndex}`}
-                      suppressHydrationWarning
                       className={cn(
                         "w-[4px] h-[8px] md:w-[6px] md:h-[12px] rounded-full transition-all duration-300",
                         cell 
@@ -245,6 +244,7 @@ export default function PortfolioPage() {
     if (!experienceRef.current) return;
     
     const cards = gsap.utils.toArray('.category-card');
+    const worksContainer = document.querySelector('#works');
     
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -257,20 +257,22 @@ export default function PortfolioPage() {
       }
     });
 
-    // Morph cards to compact bars
+    // Morph cards to compact horizontal bars (~56px)
     tl.to(cards, {
-      height: 48, 
+      height: 56, 
       duration: 1,
       ease: "none"
     });
 
-    // Tighten the section padding during the morph
-    tl.to('#works', {
-      paddingTop: 8,
-      paddingBottom: 8,
-      duration: 1,
-      ease: "none"
-    }, 0);
+    // Minimize container padding to make it flush with boundaries
+    if (worksContainer) {
+      tl.to(worksContainer, {
+        paddingTop: 8,
+        paddingBottom: 8,
+        duration: 1,
+        ease: "none"
+      }, 0);
+    }
 
     return () => {
       ScrollTrigger.getAll().forEach(t => t.kill());
