@@ -202,13 +202,6 @@ export default function PortfolioPage() {
     { id: 'cat-talking', label: 'talking' },
     { id: 'cat-vlogs', label: 'vlogs' }
   ], []);
-  
-  const stats = useMemo(() => [
-    { value: '08+', label: 'Years of Experience' },
-    { value: '150+', label: 'Clients Worldwide' },
-    { value: '1.2k', label: 'Projects Delivered' },
-    { value: '45M', label: 'Total Views' }
-  ], []);
 
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
 
@@ -318,24 +311,6 @@ export default function PortfolioPage() {
 
         {/* LAYER Z-10: Cobre o Hero */}
         <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
-          {/* STATS SECTION */}
-          <section className="py-32 border-y border-foreground/5 bg-muted/5">
-            <div className="container mx-auto px-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="flex flex-col items-center group">
-                    <span className="text-6xl md:text-8xl font-bold mb-4 font-mono tracking-tighter text-foreground group-hover:text-primary transition-colors">
-                      {stat.value}
-                    </span>
-                    <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground whitespace-nowrap">
-                      {stat.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
           {/* EXPERIENCE WRAPPER */}
           <div ref={experienceRef} className="relative min-h-screen flex flex-col">
             <section 
@@ -350,7 +325,7 @@ export default function PortfolioPage() {
                 "grid gap-4 transition-all duration-500",
                 isMini 
                   ? "grid-cols-6 h-14 items-center px-6" 
-                  : "grid-cols-3 md:grid-cols-6 gap-4"
+                  : "grid-cols-3 md:grid-cols-6 gap-4 py-4"
               )}>
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
