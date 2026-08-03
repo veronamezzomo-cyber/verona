@@ -80,14 +80,14 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-7.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-4 transition-all duration-500 z-30 overflow-hidden"
+      className="relative w-full h-[calc(100vh-8.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl transition-all duration-500 z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
-        {/* Header inside the feed - Compact */}
-        <div className="flex items-center justify-between mb-2 border-b border-foreground/5 pb-2 shrink-0">
+        {/* Header inside the feed - Very Compact */}
+        <div className="flex items-center justify-between py-2 border-b border-foreground/5 shrink-0">
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold">Selected Works</span>
-            <h2 className="font-serif text-2xl italic font-bold text-foreground lowercase">{category}</h2>
+            <span className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
+            <h2 className="font-serif text-xl italic font-bold text-foreground lowercase">{category}</h2>
           </div>
           <div 
             role="button"
@@ -99,14 +99,14 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
-        {/* Constrained Grid - Fits Viewport */}
-        <div className="flex-1 flex items-center justify-center min-h-0">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center h-full max-h-full">
+        {/* Maximized Grid */}
+        <div className="flex-1 flex items-center justify-center min-h-0 py-2">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6 items-center h-full max-h-full">
             
             {/* Left Column: Details */}
             <div className="flex flex-col gap-4 justify-center h-full overflow-hidden">
               <div className="animate-reveal" key={currentItem.id}>
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold block mb-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                   {currentItem.date}
                 </span>
                 <h3 className="font-serif text-3xl md:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-4 max-w-sm">
@@ -131,8 +131,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Right Column: Video Container - Maximized Height */}
-            <div className="flex justify-center items-center h-full min-h-0 relative py-2">
+            {/* Right Column: Video Container - Full Height Available */}
+            <div className="flex justify-center items-center h-full min-h-0 relative">
               <div 
                 ref={scrollRef}
                 className="relative h-full aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl rounded-sm"
@@ -165,10 +165,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
         
-        {/* Footer info - Minimal */}
-        <div className="mt-2 text-center border-t border-foreground/5 pt-2 shrink-0">
+        {/* Minimal Scroll Hint */}
+        <div className="py-2 text-center border-t border-foreground/5 shrink-0">
           <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground">
-            Scroll vertically inside the panel to explore projects
+            Swipe or scroll to navigate works
           </p>
         </div>
       </div>

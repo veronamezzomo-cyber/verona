@@ -208,7 +208,6 @@ export default function PortfolioPage() {
     const handleScroll = () => {
       if (experienceRef.current) {
         const expRect = experienceRef.current.getBoundingClientRect();
-        // Header height is 80px (h-20)
         const headerHeight = 80;
         setIsPinned(expRect.top <= headerHeight);
       }
@@ -224,7 +223,6 @@ export default function PortfolioPage() {
     
     if (newValue) {
       setTimeout(() => {
-        // Scroll to experienceRef top, which aligns the sticky menu correctly
         experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 100);
     }
@@ -317,10 +315,10 @@ export default function PortfolioPage() {
               )}
             >
               <div className={cn(
-                "grid transition-all duration-500 max-w-7xl mx-auto w-full px-6",
+                "grid transition-all duration-500 max-w-7xl mx-auto w-full",
                 isMini 
-                  ? "grid-cols-6 h-10 items-center gap-2" 
-                  : "grid-cols-3 md:grid-cols-6 gap-4 py-4"
+                  ? "grid-cols-6 h-14 items-center gap-3 px-6" 
+                  : "grid-cols-3 md:grid-cols-6 gap-4 py-4 px-6"
               )}>
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
@@ -334,7 +332,7 @@ export default function PortfolioPage() {
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
                         "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-sm flex items-center justify-center",
-                        isMini ? "h-6 w-full" : "aspect-square w-full",
+                        isMini ? "h-10 w-full" : "aspect-square w-full",
                         isActive && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                       )}
                     >
@@ -356,14 +354,15 @@ export default function PortfolioPage() {
                         </>
                       )}
                       
-                      {!isMini && (
-                        <span className={cn(
-                          "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white text-xs md:text-sm lg:text-base absolute bottom-2 left-1/2 -translate-x-1/2",
-                          isActive && "text-white"
-                        )}>
-                          {cat.label}
-                        </span>
-                      )}
+                      <span className={cn(
+                        "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white absolute",
+                        isMini 
+                          ? "text-[8px] md:text-[10px] uppercase tracking-widest bottom-1" 
+                          : "text-xs md:text-sm lg:text-base bottom-2 left-1/2 -translate-x-1/2",
+                        isActive && "text-white"
+                      )}>
+                        {cat.label}
+                      </span>
                     </div>
                   );
                 })}
