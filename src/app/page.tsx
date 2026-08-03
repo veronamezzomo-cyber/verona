@@ -52,6 +52,7 @@ function LEDTicker({ text }: { text: string }) {
                   row.map((cell, colIndex) => (
                     <div
                       key={`${rowIndex}-${colIndex}`}
+                      suppressHydrationWarning
                       className={cn(
                         "w-[4px] h-[8px] md:w-[6px] md:h-[12px] rounded-full transition-all duration-300",
                         cell 
@@ -239,7 +240,7 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Morphing Category Grid Animation
+  // Morphing Category Grid Animation with Sticky Pining
   useEffect(() => {
     if (!experienceRef.current) return;
     
@@ -248,7 +249,7 @@ export default function PortfolioPage() {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: experienceRef.current,
-        start: "top top+=80",
+        start: "top top+=80", // Flush with 80px header
         end: "+=400",
         scrub: true,
         pin: true,
@@ -257,7 +258,7 @@ export default function PortfolioPage() {
     });
 
     tl.to(cards, {
-      height: 56,
+      height: 56, // Mini-menu bar size
       duration: 1,
       ease: "none"
     });
@@ -301,9 +302,9 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background">
-      <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
+      <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
+        <div className="container mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
@@ -317,7 +318,7 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        {/* Hero Section: Sticky for stacking overlap effect */}
+        {/* Hero Section: Base Sticky Layer */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
@@ -339,7 +340,8 @@ export default function PortfolioPage() {
         {/* Content Wrapper: Higher z-index to cover Hero */}
         <div className="relative z-10 bg-background">
           <div ref={experienceRef} className="relative bg-background min-h-screen">
-            <section id="works" className="w-full py-12">
+            {/* Works Section: Pins as Mini-Menu at top-20 */}
+            <section id="works" className="w-full py-12 sticky top-20 z-40 bg-background border-b border-foreground/5">
               <div className="grid container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
@@ -375,7 +377,7 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
-          {/* Contact Section: Sticky z-20 to cover everything else */}
+          {/* Contact Section: Final Sticky Layer */}
           <section id="contact" className="sticky top-0 z-20 min-h-screen flex flex-col border-t border-foreground/5 bg-background">
             <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
               <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
