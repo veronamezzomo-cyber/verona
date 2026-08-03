@@ -1,3 +1,6 @@
+/**
+ * @fileOverview Visualizador de projetos para o portfólio de Leonardo Verona.
+ */
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
@@ -10,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 interface CategoryFeedProps {
   category: string;
   onClose: () => void;
+  onCategoryClick?: (label: string) => void;
 }
 
 interface FeedItem {
@@ -20,7 +24,7 @@ interface FeedItem {
   videoUrl?: string;
 }
 
-export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
+export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFeedProps) {
   const containerRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const bgLinesRef = useRef<HTMLDivElement>(null);
@@ -72,6 +76,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       const windowWidth = window.innerWidth;
       const maxMove = trackWidth - windowWidth;
       
+      // Auto-close logic when scrolling back up above the project archive
+      if (rect.top > 80 && onClose) {
+        onClose();
+        return;
+      }
+
       // Extremely low duration (0.2s) for instant reaction to scroll
       gsap.to(trackRef.current, {
         x: -(progress * maxMove),
@@ -92,7 +102,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     handleScroll();
     
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [onClose]);
 
   const handleInteraction = () => {
     if (clickCount >= 3) {
@@ -158,7 +168,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     >
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
         
-        {/* Header */}
+        {/* Header (Mirroring Main Nav for Seamless Transition) */}
         <div className="flex items-center justify-between py-6 px-12 border-b border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>

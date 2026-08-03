@@ -31,7 +31,7 @@ const ASCII_VERONA_STUDIO = `
 ▒▒       ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
 ▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
     ▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
-▒▒▒▒▒▒   ▒▒   ▒▒▓▓▓▓ ▒▒▓▓▓▓ ▒▒▓▓▓▓ ▒▒▓▓▓▓
+▒▒▒▒▒▒   ▒▒    ▒▒▒▒  ▒▒▒▒▒▒   ▒▒   ▒▒▒▒▒▒ 
 `;
 
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -189,7 +189,6 @@ export default function PortfolioPage() {
   const [isPinned, setIsPinned] = useState(false);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   
-  const gridRef = useRef<HTMLDivElement>(null);
   const experienceRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => [
@@ -213,7 +212,7 @@ export default function PortfolioPage() {
 
       // Secret reveal logic: Check if scrolled past the very end
       const scrollPos = window.innerHeight + window.scrollY;
-      const threshold = document.body.offsetHeight - 5;
+      const threshold = (document.documentElement.scrollHeight || document.body.scrollHeight) - 10;
       setIsSecretVisible(scrollPos >= threshold);
     };
     window.addEventListener('scroll', handleScroll);
@@ -222,13 +221,16 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
-    if (experienceRef.current) {
-      gsap.to(window, {
-        duration: 1.2,
-        scrollTo: experienceRef.current.offsetTop - 80,
-        ease: 'power3.inOut'
-      });
-    }
+    // Use a small timeout to allow state update and then scroll to the project area
+    setTimeout(() => {
+      if (experienceRef.current) {
+        gsap.to(window, {
+          duration: 1.2,
+          scrollTo: { y: experienceRef.current, offsetY: 80 },
+          ease: 'power3.inOut'
+        });
+      }
+    }, 50);
   };
 
   const handleCloseFeed = () => {
@@ -238,7 +240,7 @@ export default function PortfolioPage() {
   const isMini = activeCategory !== null;
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-hidden">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-hidden" suppressHydrationWarning>
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
@@ -262,7 +264,7 @@ export default function PortfolioPage() {
                 CRAFTING<br />VISUAL<br />STORYTELLING<span className="text-primary">.</span>
               </h1>
               <div className="flex gap-6 mt-4">
-                <Button size="lg" className="rounded-none px-12 h-16 bg-foreground text-background">View Projects</Button>
+                <Button size="lg" className="rounded-none px-12 h-16 bg-foreground text-background" onClick={() => handleCategoryClick('all')}>View Projects</Button>
                 <Link href="#contact" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest">Contact Me <ArrowRight className="h-3 w-3" /></Link>
               </div>
             </div>
@@ -317,14 +319,14 @@ export default function PortfolioPage() {
               </div>
             </section>
 
-            {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />}
+            {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
           <section id="contact" className="min-h-screen flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 py-20">
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
             <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
             
-            <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 pt-12 pb-8">
+            <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 py-12 pb-8">
               <div className="flex gap-8">
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
@@ -340,10 +342,11 @@ export default function PortfolioPage() {
               "transition-all duration-1000 ease-in-out bg-black text-primary overflow-hidden",
               isSecretVisible ? "h-[300px] py-12 opacity-100" : "h-0 py-0 opacity-0"
             )}
+            suppressHydrationWarning
           >
             <div className="container mx-auto px-6">
               <pre className="font-mono text-[8px] md:text-[10px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide">
-                {ASCII_VERONA_STUDIO}
+                {ASCII_VERONA_STUDIO.trim()}
               </pre>
               <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50">
                 // System Breach // Crafting the Void
