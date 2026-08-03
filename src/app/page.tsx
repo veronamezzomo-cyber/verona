@@ -276,7 +276,7 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 
-                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] masonry leading-[0.9] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
+                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.9] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
                   CRAFTING<br />
                   VISUAL<br />
                   STORYTELLING<span className="text-primary">.</span>
@@ -309,7 +309,7 @@ export default function PortfolioPage() {
         {/* LAYER Z-10: Cobre o Hero */}
         <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
           {/* EXPERIENCE WRAPPER */}
-          <div ref={experienceRef} className="relative min-h-screen flex flex-col">
+          <div ref={experienceRef} className="relative h-fit flex flex-col">
             <section 
               id="works" 
               ref={gridRef}
