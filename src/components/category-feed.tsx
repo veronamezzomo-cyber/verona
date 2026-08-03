@@ -141,7 +141,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       suppressHydrationWarning
     >
       <EditableVideo 
-        src={item.videoUrl || undefined} 
+        src={item.videoUrl || ""} 
         storageKey={`feed-${category}-${item.id}`}
         fill
         className="object-cover object-center scale-110 group-hover:scale-100 transition-transform duration-[2s]"
