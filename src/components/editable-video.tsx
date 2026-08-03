@@ -70,7 +70,7 @@ export function EditableVideo({
   };
 
   return (
-    <div className={cn("group relative w-full h-full", containerClassName)}>
+    <div className={cn("group relative w-full h-full", containerClassName)} suppressHydrationWarning>
       <video 
         {...props} 
         ref={videoRef}
@@ -129,7 +129,7 @@ export function EditableVideo({
               </div>
             </PopoverTrigger>
             <PopoverContent align="end" className="w-80 p-3 bg-background border-foreground/10 shadow-2xl backdrop-blur-xl">
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3" suppressHydrationWarning>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Edit Video Source</span>
                   <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>

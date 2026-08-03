@@ -255,7 +255,7 @@ export default function PortfolioPage() {
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
+          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest" suppressHydrationWarning>
             <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
             <Link href="#about" className="text-foreground/70 hover:text-foreground">About</Link>
             <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
@@ -332,10 +332,9 @@ export default function PortfolioPage() {
           </div>
 
           <section id="contact" className="min-h-screen flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 py-20" suppressHydrationWarning>
-            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
+            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12" suppressHydrationWarning>Ready to tell<br />your story?</h2>
             <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground mb-12">Let&apos;s Talk</Button>
             
-            {/* Relocated Secret ASCII Section */}
             <div 
               className={cn(
                 "transition-all duration-1000 ease-in-out bg-black text-primary overflow-hidden w-full",
@@ -344,7 +343,7 @@ export default function PortfolioPage() {
               suppressHydrationWarning
             >
               <div className="container mx-auto px-6" suppressHydrationWarning>
-                <pre className="font-mono text-[6px] md:text-[9px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide">
+                <pre className="font-mono text-[6px] md:text-[9px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide" suppressHydrationWarning>
                   {ASCII_VERONA_STUDIO.trim()}
                 </pre>
                 <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50" suppressHydrationWarning>
@@ -359,7 +358,7 @@ export default function PortfolioPage() {
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
               </div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© 2024 Leonardo Verona. Digital Craftsman</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" suppressHydrationWarning>© 2024 Leonardo Verona. Digital Craftsman</p>
             </div>
           </section>
         </div>
