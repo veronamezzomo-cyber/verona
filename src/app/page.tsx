@@ -121,7 +121,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const depth = Math.sin(angle); // -1 (back) to 1 (front)
 
         // Additive Offset Layer: Pull toward center (Focus) or stack (Leque)
-        // Clean interpolation: ox/oy are canceled when ff=1 or morph=1
         let tx = ox * (1 - ff);
         let ty = oy * (1 - ff);
 
@@ -211,7 +210,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
+  const [isMini, setIsMini] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const experienceRef = useRef<HTMLDivElement>(null);
@@ -238,9 +238,15 @@ export default function PortfolioPage() {
   useEffect(() => {
     const handleScroll = () => {
       if (experienceRef.current && contactRef.current) {
-        const expTop = experienceRef.current.getBoundingClientRect().top;
-        const contactTop = contactRef.current.getBoundingClientRect().top;
-        setIsScrolled(expTop <= 80 && contactTop > 80);
+        const expRect = experienceRef.current.getBoundingClientRect();
+        const contactRect = contactRef.current.getBoundingClientRect();
+        const headerHeight = 80;
+
+        // Pinned when top of experience reaches header
+        setIsPinned(expRect.top <= headerHeight);
+
+        // Mini when contact section is about to overlap the pinned menu
+        setIsMini(contactRect.top <= headerHeight + 100);
       }
     };
     window.addEventListener('scroll', handleScroll);
@@ -252,7 +258,7 @@ export default function PortfolioPage() {
     const newValue = activeCategory === label ? null : label;
     
     if (newValue) {
-      setIsScrolled(true);
+      setIsPinned(true);
       experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
@@ -347,7 +353,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* WORKS & STATS LAYER - STACKING OVER HERO */}
+        {/* STACKING LAYER - COVERS HERO */}
         <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
           
           {/* STATS BLOCK */}
@@ -370,18 +376,18 @@ export default function PortfolioPage() {
 
           {/* EXPERIENCE SECTION WRAPPER */}
           <div ref={experienceRef} className="relative min-h-screen">
-            {/* CATEGORY GRID / MINI MENU */}
+            {/* CATEGORY GRID / MENU */}
             <section 
               id="works" 
               ref={gridRef}
               className={cn(
                 "z-40 transition-all duration-500",
-                isScrolled ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
+                isPinned ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
               )}
             >
               <div className={cn(
                 "grid gap-4 transition-all duration-500",
-                isScrolled 
+                isMini 
                   ? "grid-cols-6 h-14 items-center px-6" 
                   : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
               )}>
@@ -397,14 +403,14 @@ export default function PortfolioPage() {
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
                         "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer",
-                        isScrolled 
+                        isMini 
                           ? "w-10 h-10 aspect-square rounded-sm bg-transparent flex items-center justify-center border-x border-foreground/5" 
                           : "aspect-[1/1.2] rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1",
-                        isActive && !isScrolled && "ring-4 ring-primary ring-offset-4 ring-offset-background",
-                        isActive && isScrolled && "bg-primary text-white"
+                        isActive && !isMini && "ring-4 ring-primary ring-offset-4 ring-offset-background",
+                        isActive && isMini && "bg-primary text-white"
                       )}
                     >
-                      {!isScrolled && img && (
+                      {!isMini && img && (
                         <>
                           <EditableImage 
                             src={img.imageUrl} 
@@ -424,10 +430,10 @@ export default function PortfolioPage() {
                       
                       <span className={cn(
                         "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none",
-                        isScrolled 
+                        isMini 
                           ? "text-[10px] uppercase font-mono tracking-widest text-foreground group-hover:text-primary" 
                           : "text-2xl lg:text-3xl text-white bottom-6 left-1/2 -translate-x-1/2 absolute",
-                        isActive && isScrolled && "text-white"
+                        isActive && isMini && "text-white"
                       )}>
                         {cat.label}
                       </span>
