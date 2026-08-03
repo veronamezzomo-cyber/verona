@@ -27,9 +27,6 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-/**
- * FloatingVideoCluster - Rebuilt High-Performance Engine.
- */
 function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -240,7 +237,6 @@ export default function PortfolioPage() {
       experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
-    // Removido startViewTransition para testar a ordem visual dos elementos
     setActiveCategory(newValue);
   };
 
@@ -452,4 +448,3 @@ export default function PortfolioPage() {
     </div>
   );
 }
-
