@@ -43,13 +43,14 @@ function LEDTicker({ text }: { text: string }) {
     <div className="w-full bg-background py-2 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" suppressHydrationWarning>
       <div className="animate-marquee whitespace-nowrap flex w-max shrink-0" suppressHydrationWarning>
         {[0, 1].map((setIndex) => (
-          <div key={setIndex} className="flex gap-16 md:gap-24 px-8 md:px-12 items-center shrink-0" suppressHydrationWarning>
+          <div key={setIndex} className="flex gap-4 md:gap-8 px-2 md:px-4 items-center shrink-0" suppressHydrationWarning>
             {characters.map((char, charIndex) => (
               <div key={`${setIndex}-${charIndex}`} className="grid grid-cols-5 gap-[2px] md:gap-[4px] shrink-0" suppressHydrationWarning>
                 {(LED_BITMAPS[char] || LED_BITMAPS[' ']).map((row, rowIndex) => (
                   row.map((cell, colIndex) => (
                     <div
                       key={`${rowIndex}-${colIndex}`}
+                      suppressHydrationWarning
                       className={cn(
                         "w-[4px] h-[8px] md:w-[6px] md:h-[12px] rounded-full transition-all duration-300",
                         cell 
