@@ -39,7 +39,7 @@ export default function RootLayout({
         <SmoothScroll />
         
         {/* Cinematic Grain Overlay */}
-        <div className="fixed inset-0 pointer-events-none z-[9997] mix-blend-soft-light opacity-[0.03] bg-white hidden dark:block" />
+        <div className="fixed inset-0 pointer-events-none z-[9997] mix-blend-soft-light opacity-[0.03] bg-white hidden dark:block" suppressHydrationWarning />
         {children}
       </body>
     </html>

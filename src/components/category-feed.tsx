@@ -69,20 +69,17 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       const rect = containerRef.current.getBoundingClientRect();
       const scrollHeight = rect.height - window.innerHeight;
       
-      // High sensitivity scroll mapping (150vh makes vertical-to-horizontal ratio very fast)
       const progress = Math.min(Math.max(-rect.top / scrollHeight, 0), 1);
       
       const trackWidth = trackRef.current.scrollWidth;
       const windowWidth = window.innerWidth;
       const maxMove = trackWidth - windowWidth;
       
-      // Auto-close logic when scrolling back up above the project archive
       if (rect.top > 80 && onClose) {
         onClose();
         return;
       }
 
-      // Extremely low duration (0.2s) for instant reaction to scroll
       gsap.to(trackRef.current, {
         x: -(progress * maxMove),
         duration: 0.2,
@@ -117,7 +114,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
   };
 
   const ProjectText = ({ item }: { item: FeedItem }) => (
-    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8 z-20">
+    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8 z-20" suppressHydrationWarning>
       <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold mb-2">
         {item.date}
       </span>
@@ -140,6 +137,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           : "[clip-path:polygon(0%_15%,15%_0%,100%_0%,100%_100%,0%_100%)]",
         clickCount >= 3 && "grayscale opacity-80 cursor-not-allowed"
       )}
+      suppressHydrationWarning
     >
       <EditableVideo 
         src={item.videoUrl || undefined} 
@@ -153,11 +151,11 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
         hideControls
       />
       {clickCount >= 3 && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]" suppressHydrationWarning>
           <Lock className="w-8 h-8 text-white opacity-50" />
         </div>
       )}
-      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" suppressHydrationWarning />
     </div>
   );
 
@@ -165,16 +163,17 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
     <section 
       ref={containerRef}
       className="relative w-full h-[150vh] bg-white z-30"
+      suppressHydrationWarning
     >
-      <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
+      <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col" suppressHydrationWarning>
         
-        {/* Header (Mirroring Main Nav for Seamless Transition) */}
-        <div className="flex items-center justify-between py-6 px-12 border-b border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50">
-          <div className="flex items-center gap-4">
+        {/* Header */}
+        <div className="flex items-center justify-between py-6 px-12 border-b border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50" suppressHydrationWarning>
+          <div className="flex items-center gap-4" suppressHydrationWarning>
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
             <div className="h-px w-12 bg-primary/20" />
             <h2 className="font-serif text-2xl italic font-bold text-black lowercase">{category}</h2>
-            <div className="ml-4 px-2 py-0.5 rounded-full border border-neutral-200 font-mono text-[8px] uppercase tracking-tighter">
+            <div className="ml-4 px-2 py-0.5 rounded-full border border-neutral-200 font-mono text-[8px] uppercase tracking-tighter" suppressHydrationWarning>
               Credits: {3 - clickCount}/3
             </div>
           </div>
@@ -190,9 +189,10 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
         <div 
           ref={bgLinesRef}
           className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20 z-10 will-change-transform"
+          suppressHydrationWarning
         >
           {[...Array(30)].map((_, i) => (
-            <div key={i} className="h-full w-px bg-black relative flex-shrink-0 mx-[250px]">
+            <div key={i} className="h-full w-px bg-black relative flex-shrink-0 mx-[250px]" suppressHydrationWarning>
               <span className="absolute top-24 left-2 font-mono text-[10px] font-bold">L-{i + 1}</span>
             </div>
           ))}
@@ -202,50 +202,47 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
         <div 
           ref={trackRef}
           className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
+          suppressHydrationWarning
         >
-          <div className="flex gap-0 items-center h-full py-0">
-            {/* Col 1 */}
-            <div className="flex flex-col justify-between h-[80vh] py-10">
+          <div className="flex gap-0 items-center h-full py-0" suppressHydrationWarning>
+            <div className="flex flex-col justify-between h-[80vh] py-10" suppressHydrationWarning>
               <ProjectText item={feedItems[0]} />
               <ProjectVideo item={feedItems[1]} type="down" />
             </div>
 
-            {/* Col 2 */}
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20" suppressHydrationWarning>
               <ProjectVideo item={feedItems[0]} type="up" />
               <ProjectText item={feedItems[1]} />
             </div>
 
-            {/* Col 3 */}
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20" suppressHydrationWarning>
               <ProjectText item={feedItems[2]} />
               <ProjectVideo item={feedItems[3]} type="down" />
             </div>
 
-            {/* Col 4 */}
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20" suppressHydrationWarning>
               <ProjectVideo item={feedItems[2]} type="up" />
               <ProjectText item={feedItems[3]} />
             </div>
 
-            <div className="w-[30vw]" />
+            <div className="w-[30vw]" suppressHydrationWarning />
           </div>
         </div>
 
         {/* Progress Indicator */}
-        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400 z-50">
-          <div className="flex items-center gap-4">
+        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400 z-50" suppressHydrationWarning>
+          <div className="flex items-center gap-4" suppressHydrationWarning>
             <span>Geometric Masking Active</span>
             <div className="w-12 h-px bg-neutral-200" />
             <span>01 / 04</span>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center" suppressHydrationWarning>
             <span className="mr-2">Scroll vertically to reveal masks</span>
             {[0, 1, 2].map(i => (
               <div key={i} className={cn(
                 "w-1.5 h-1.5 rounded-full border transition-colors", 
                 i < clickCount ? "bg-primary border-primary" : "border-neutral-300"
-              )} />
+              )} suppressHydrationWarning />
             ))}
           </div>
         </div>

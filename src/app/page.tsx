@@ -27,11 +27,11 @@ const ASCII_VERONA_STUDIO = `
   ▒▒   ▒▒     ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒ 
   ▒▒   ▒▒▒▒▒▒ ▒▒   ▒▒ ▒▒▒▒▒▒  ▒▒  ▒▒  ▒▒  ▒▒ 
 
-▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒  ▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒ 
+▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒  ▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒  ▒▒ 
 ▒▒       ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
 ▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
     ▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
-▒▒▒▒▒▒   ▒▒    ▒▒▒▒  ▒▒▒▒▒▒   ▒▒   ▒▒▒▒▒▒ 
+▒▒▒▒▒▒   ▒▒    ▒▒▒▒  ▒▒▒▒▒▒   ▒▒    ▒▒▒▒  
 `;
 
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -145,8 +145,9 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     <div 
       ref={containerRef}
       className="relative w-full h-[650px] flex items-center justify-center pointer-events-none"
+      suppressHydrationWarning
     >
-      <div className="absolute inset-0 pointer-events-auto" />
+      <div className="absolute inset-0 pointer-events-auto" suppressHydrationWarning />
       {videos.map((vid, i) => (
         <div 
           key={vid.id}
@@ -155,7 +156,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
           style={{ 
             opacity: 1,
             transform: 'translate(-50%, -50%)' 
-          }} 
+          }}
+          suppressHydrationWarning
         >
           {vid.imageUrl.endsWith('.mp4') ? (
             <EditableVideo 
@@ -190,6 +192,7 @@ export default function PortfolioPage() {
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   
   const experienceRef = useRef<HTMLDivElement>(null);
+  const isSecretVisibleRef = useRef(false);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -210,10 +213,19 @@ export default function PortfolioPage() {
         setIsPinned(expRect.top <= 80);
       }
 
-      // Secret reveal logic: Check if scrolled past the very end
-      const scrollPos = window.innerHeight + window.scrollY;
-      const threshold = (document.documentElement.scrollHeight || document.body.scrollHeight) - 10;
-      setIsSecretVisible(scrollPos >= threshold);
+      // Secret reveal logic: Stable detection
+      const scrollY = window.scrollY;
+      const winHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      
+      // Calculate height excluding the secret section if it's already shown
+      const baseDocHeight = docHeight - (isSecretVisibleRef.current ? 300 : 0);
+      const isAtBottom = (scrollY + winHeight) >= (baseDocHeight - 5);
+      
+      if (isAtBottom !== isSecretVisibleRef.current) {
+        isSecretVisibleRef.current = isAtBottom;
+        setIsSecretVisible(isAtBottom);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -221,7 +233,6 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
-    // Use a small timeout to allow state update and then scroll to the project area
     setTimeout(() => {
       if (experienceRef.current) {
         gsap.to(window, {
@@ -237,12 +248,10 @@ export default function PortfolioPage() {
     setActiveCategory(null);
   };
 
-  const isMini = activeCategory !== null;
-
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-hidden" suppressHydrationWarning>
-      <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+      <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md" suppressHydrationWarning>
+        <div className="container mx-auto px-6 h-20 flex items-center justify-between" suppressHydrationWarning>
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
@@ -255,27 +264,27 @@ export default function PortfolioPage() {
         </div>
       </header>
 
-      <main className="relative">
+      <main className="relative" suppressHydrationWarning>
         <section className="flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
-            <div className="flex flex-col gap-6 animate-slide-up">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full" suppressHydrationWarning>
+            <div className="flex flex-col gap-6 animate-slide-up" suppressHydrationWarning>
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
               <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-tight tracking-tighter text-foreground">
                 CRAFTING<br />VISUAL<br />STORYTELLING<span className="text-primary">.</span>
               </h1>
-              <div className="flex gap-6 mt-4">
+              <div className="flex gap-6 mt-4" suppressHydrationWarning>
                 <Button size="lg" className="rounded-none px-12 h-16 bg-foreground text-background" onClick={() => handleCategoryClick('all')}>View Projects</Button>
                 <Link href="#contact" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest">Contact Me <ArrowRight className="h-3 w-3" /></Link>
               </div>
             </div>
-            <div className="relative animate-image-reveal">
+            <div className="relative animate-image-reveal" suppressHydrationWarning>
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
           </div>
         </section>
 
-        <div className="relative z-10 bg-background">
-          <div ref={experienceRef} className="relative min-h-screen flex flex-col">
+        <div className="relative z-10 bg-background" suppressHydrationWarning>
+          <div ref={experienceRef} className="relative min-h-screen flex flex-col" suppressHydrationWarning>
             <section 
               id="works" 
               className={cn(
@@ -284,9 +293,8 @@ export default function PortfolioPage() {
               )}
             >
               <div className={cn(
-                "grid transition-all duration-500 container mx-auto px-6",
-                isMini ? "grid-cols-6 h-12 items-center gap-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
-              )}>
+                "grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
+              )} suppressHydrationWarning>
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
@@ -296,9 +304,9 @@ export default function PortfolioPage() {
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
                         "group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300",
-                        isMini && "aspect-auto h-8",
                         isActive && "ring-2 ring-primary"
                       )}
+                      suppressHydrationWarning
                     >
                       {img && (
                         <EditableImage 
@@ -309,7 +317,7 @@ export default function PortfolioPage() {
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       )}
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" suppressHydrationWarning />
                       <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-xs md:text-sm uppercase tracking-widest z-20 pointer-events-none">
                         {cat.label}
                       </span>
@@ -326,8 +334,8 @@ export default function PortfolioPage() {
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
             <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
             
-            <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 py-12 pb-8">
-              <div className="flex gap-8">
+            <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 py-12 pb-8" suppressHydrationWarning>
+              <div className="flex gap-8" suppressHydrationWarning>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
@@ -344,11 +352,11 @@ export default function PortfolioPage() {
             )}
             suppressHydrationWarning
           >
-            <div className="container mx-auto px-6">
+            <div className="container mx-auto px-6" suppressHydrationWarning>
               <pre className="font-mono text-[8px] md:text-[10px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide">
                 {ASCII_VERONA_STUDIO.trim()}
               </pre>
-              <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50">
+              <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50" suppressHydrationWarning>
                 // System Breach // Crafting the Void
               </div>
             </div>
