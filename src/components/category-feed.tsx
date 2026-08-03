@@ -115,7 +115,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             
             {/* Left Column: Details */}
             <div className="flex flex-col gap-4 justify-center h-full min-h-0 overflow-hidden animate-reveal">
-              <div>
+              <div className="py-2">
                 <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                   {currentItem.date}
                 </span>
@@ -176,7 +176,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
         
         {/* Floating Minimal Scroll Hint */}
-        <div className="absolute bottom-4 left-8 hidden lg:block z-40">
+        <div className="absolute bottom-2 left-8 hidden lg:block z-40">
           <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground opacity-60">
             Scroll vertically inside the feed to explore projects
           </p>
