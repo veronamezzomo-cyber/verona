@@ -219,12 +219,13 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     const newValue = activeCategory === label ? null : label;
+    setActiveCategory(newValue);
     
     if (newValue) {
-      experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
-    
-    setActiveCategory(newValue);
   };
 
   const handleCloseFeed = () => {
@@ -366,9 +367,18 @@ export default function PortfolioPage() {
             )}
           </div>
 
-          {/* CONTACT SECTION (FULL SCREEN AT END) */}
-          <section id="contact" ref={contactRef} className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background border-t border-foreground/5 px-6 py-20">
-            <div className="container mx-auto text-center relative z-10">
+          {/* CONTACT SECTION (FULL SCREEN AT END WITH INTEGRATED FOOTER) */}
+          <section 
+            id="contact" 
+            ref={contactRef} 
+            className="h-screen flex flex-col relative overflow-hidden bg-background border-t border-foreground/5 px-6"
+          >
+            {/* Background elements */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
+
+            {/* Main Contact Content */}
+            <div className="flex-1 flex flex-col items-center justify-center container mx-auto text-center relative z-10">
               <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
                 Available for worldwide projects
               </div>
@@ -383,31 +393,29 @@ export default function PortfolioPage() {
               </Button>
             </div>
             
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
-          </section>
-
-          <footer className="py-16 border-t border-foreground/5 relative z-[60] bg-background">
-            <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
-              <div className="flex items-center gap-8">
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <DiscordIcon className="h-6 w-6" />
-                </Link>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <WhatsAppIcon className="h-6 w-6" />
-                </Link>
-                <Link href="mailto:contact@leonardoverona.com" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Mail className="h-6 w-6" />
-                </Link>
-              </div>
-              <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                © 2024 Leonardo Verona. All rights reserved.
-              </div>
-              <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-                Digital Craftsman <span className="text-primary italic ml-2">Next.js / Video</span>
+            {/* Integrated Footer content at the bottom of the contact section */}
+            <div className="py-12 w-full border-t border-foreground/5 relative z-10 bg-transparent">
+              <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="flex items-center gap-8">
+                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                    <DiscordIcon className="h-5 w-5" />
+                  </Link>
+                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                    <WhatsAppIcon className="h-5 w-5" />
+                  </Link>
+                  <Link href="mailto:contact@leonardoverona.com" className="text-muted-foreground hover:text-primary transition-colors">
+                    <Mail className="h-5 w-5" />
+                  </Link>
+                </div>
+                <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+                  © 2024 Leonardo Verona. All rights reserved.
+                </div>
+                <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+                  Digital Craftsman <span className="text-primary italic ml-2">Next.js / Video</span>
+                </div>
               </div>
             </div>
-          </footer>
+          </section>
         </div>
       </main>
     </div>
