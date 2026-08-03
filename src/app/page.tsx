@@ -40,7 +40,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const currentSpeedRef = useRef(0.2); // Hypnotic Base Speed
   
   // Attractor Factors (Updated via GSAP, read by rAF)
-  // Initial state: Item 0 starts in focus (1) and stack (1)
   const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0)));
   const morphFactorRef = useRef({ value: 1 }); // Start in "Leque" (Stack)
   const activeIndexRef = useRef(0);
@@ -122,21 +121,22 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const depth = Math.sin(angle); // -1 (back) to 1 (front)
 
         // Additive Offset Layer: Pull toward center (Focus) or stack (Leque)
-        let tx = ox + (0 - ox) * ff;
-        let ty = oy + (0 - oy) * ff;
+        // Clean interpolation: ox/oy are canceled when ff=1 or morph=1
+        let tx = ox * (1 - ff);
+        let ty = oy * (1 - ff);
 
         // Stack displacement (Cascading offset)
         const sx = i * -15;
         const sy = i * -15;
-        tx = tx + (sx - tx) * morph;
-        ty = ty + (sy - ty) * morph;
+        tx = tx * (1 - morph) + sx * morph;
+        ty = ty * (1 - morph) + sy * morph;
 
         // Visual Properties
         const baseScale = 0.9 + (1 + depth) * 0.05; // 0.9 to 1.0 based on depth
         const focalScale = 1.4;
         const targetScale = baseScale + (focalScale - baseScale) * ff;
         // In "Leque" (morph=1), everything goes to scale 1.0
-        const scale = targetScale + (1.0 - targetScale) * morph;
+        const scale = targetScale * (1 - morph) + 1.0 * morph;
         
         // Z-Index: Depth sorting vs Stack sorting
         const zIndex = morph > 0.5 
@@ -149,7 +149,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
-        el.style.opacity = '1'; // NO TRANSPARENCY
+        el.style.opacity = '1';
       });
 
       requestRef = requestAnimationFrame(animate);
@@ -250,6 +250,12 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     const newValue = activeCategory === label ? null : label;
+    
+    if (newValue) {
+      setIsScrolled(true);
+      experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
     if (typeof document !== 'undefined' && 'startViewTransition' in document) {
       (document as any).startViewTransition(() => {
         setActiveCategory(newValue);
@@ -342,7 +348,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* WORKS & STATS LAYER - STACKING OVER HERO */}
-        <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
+        <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)] overflow-hidden">
           
           {/* STATS BLOCK */}
           <section className="py-32 border-y border-foreground/5 bg-muted/5">
@@ -440,7 +446,7 @@ export default function PortfolioPage() {
           </div>
 
           {/* FINAL STACKING LAYER - CONTACT */}
-          <section id="contact" ref={contactRef} className="py-40 relative overflow-hidden z-20 bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
+          <section id="contact" ref={contactRef} className="sticky top-0 h-screen z-50 flex items-center justify-center relative overflow-hidden bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
             <div className="container mx-auto px-6 text-center relative z-10">
               <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
                 Available for worldwide projects
@@ -463,7 +469,7 @@ export default function PortfolioPage() {
         </div>
       </main>
 
-      <footer className="py-16 border-t border-foreground/5 relative z-30 bg-background">
+      <footer className="py-16 border-t border-foreground/5 relative z-[60] bg-background">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex items-center gap-8">
             <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
