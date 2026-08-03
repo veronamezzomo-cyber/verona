@@ -224,7 +224,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const lastScrollYRef = useRef(0);
   
   const experienceRef = useRef<HTMLDivElement>(null);
@@ -242,24 +241,29 @@ export default function PortfolioPage() {
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const winHeight = window.innerHeight;
-      const docHeight = document.documentElement.scrollHeight;
-      const isAtBottom = (currentScrollY + winHeight) >= docHeight - 20;
-      const isScrollingUp = currentScrollY < lastScrollYRef.current;
-      
-      // Independent updates to prevent infinite loops
-      setLastScrollY(currentScrollY);
-      lastScrollYRef.current = currentScrollY;
+    let ticking = false;
 
-      setIsSecretVisible(prevVisible => {
-        // If reached bottom and scrolling down/still, show
-        if (isAtBottom && !isScrollingUp) return true;
-        // If scrolling up, hide immediately
-        if (isScrollingUp) return false;
-        return prevVisible;
-      });
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const winHeight = window.innerHeight;
+          const docHeight = document.documentElement.scrollHeight;
+          const isAtBottom = (currentScrollY + winHeight) >= docHeight - 20;
+          const isScrollingUp = currentScrollY < lastScrollYRef.current;
+          
+          lastScrollYRef.current = currentScrollY;
+
+          setIsSecretVisible(prev => {
+            const shouldBeVisible = isAtBottom && !isScrollingUp;
+            if (shouldBeVisible === prev) return prev;
+            return shouldBeVisible;
+          });
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -268,19 +272,20 @@ export default function PortfolioPage() {
 
   // Intercept scroll up when egg is visible
   useEffect(() => {
-    if (!isSecretVisible) return;
-
     const handleInterceptScroll = (e: WheelEvent) => {
-      // If egg is visible and scrolling up, prevent and hide
-      if (e.deltaY < 0) {
-        e.preventDefault();
-        setIsSecretVisible(false);
-      }
+      // Functional check to avoid closure traps
+      setIsSecretVisible(visible => {
+        if (visible && e.deltaY < 0) {
+          e.preventDefault();
+          return false;
+        }
+        return visible;
+      });
     };
 
     window.addEventListener('wheel', handleInterceptScroll, { passive: false });
     return () => window.removeEventListener('wheel', handleInterceptScroll);
-  }, [isSecretVisible]);
+  }, []);
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
