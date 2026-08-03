@@ -37,15 +37,15 @@ const LED_BITMAPS: Record<string, number[][]> = {
 };
 
 function LEDTicker({ text }: { text: string }) {
-  // Adicionamos um espaço ao final do texto para garantir que o loop do marquee 
-  // tenha o mesmo espaçamento entre o fim e o início da mensagem.
-  const characters = (text.toUpperCase() + " ").split('');
+  // Aumentamos o número de espaços finais para garantir um loop limpo e sem sobreposição
+  const characters = (text.toUpperCase() + "      ").split('');
   
   return (
     <div className="w-full bg-background py-2 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" suppressHydrationWarning>
-      <div className="animate-marquee whitespace-nowrap flex" suppressHydrationWarning>
+      {/* w-max e flex-nowrap são cruciais para evitar que o flexbox tente comprimir as letras (overlap) */}
+      <div className="animate-marquee whitespace-nowrap flex w-max shrink-0" suppressHydrationWarning>
         {[0, 1].map((setIndex) => (
-          <div key={setIndex} className="flex gap-16 md:gap-24 px-8 md:px-12 items-center" suppressHydrationWarning>
+          <div key={setIndex} className="flex gap-16 md:gap-24 px-8 md:px-12 items-center shrink-0" suppressHydrationWarning>
             {characters.map((char, charIndex) => (
               <div key={`${setIndex}-${charIndex}`} className="grid grid-cols-5 gap-[2px] md:gap-[4px] shrink-0" suppressHydrationWarning>
                 {(LED_BITMAPS[char] || LED_BITMAPS[' ']).map((row, rowIndex) => (
