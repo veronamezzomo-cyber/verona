@@ -301,7 +301,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-clip">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
@@ -349,7 +349,7 @@ export default function PortfolioPage() {
                       key={cat.label} 
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "category-card group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300",
+                        "category-card group relative overflow-hidden cursor-pointer transition-all duration-300",
                         isActive && "ring-2 ring-primary"
                       )}
                     >
