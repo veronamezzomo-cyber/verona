@@ -108,31 +108,31 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
-        {/* Immersive Grid - Maximized */}
-        <div className="flex-1 flex items-center justify-center min-h-0 py-0">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-4 items-center h-full max-h-full">
+        {/* Immersive Grid - Redistributed for better vertical usage */}
+        <div className="flex-1 flex items-center justify-center min-h-0 py-4">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-8 items-center h-full max-h-full">
             
             {/* Left Column: Details */}
-            <div className="flex flex-col gap-3 justify-center h-full overflow-hidden">
-              <div key={currentItem.id} className="animate-reveal">
-                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-0.5">
+            <div className="flex flex-col gap-4 justify-center h-full overflow-hidden animate-reveal">
+              <div>
+                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                   {currentItem.date}
                 </span>
-                <h3 className="font-serif text-2xl md:text-4xl font-bold text-foreground leading-[0.9] tracking-tighter mb-3 max-w-sm">
+                <h3 className="font-serif text-3xl md:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-4 max-w-sm">
                   {currentItem.title}<span className="text-primary">.</span>
                 </h3>
-                <div className="space-y-3 max-w-sm">
-                  <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground leading-relaxed">
+                <div className="space-y-4 max-w-sm">
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed">
                     {currentItem.notes}
                   </p>
-                  <div className="pt-3 border-t border-foreground/10 flex items-center gap-3">
+                  <div className="pt-4 border-t border-foreground/10 flex items-center gap-4">
                      <div className="h-0.5 flex-1 bg-foreground/5 relative">
                         <div 
                           className="absolute h-full bg-primary transition-all duration-500" 
                           style={{ width: `${((activeIndex + 1) / feedItems.length) * 100}%` }}
                         />
                      </div>
-                     <span className="font-mono text-[9px] text-muted-foreground">
+                     <span className="font-mono text-[10px] text-muted-foreground">
                       0{activeIndex + 1} / 0{feedItems.length}
                      </span>
                   </div>
@@ -140,7 +140,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Right Column: Video Container - Absolute 100% Height */}
+            {/* Right Column: Video Container - Maximized to fill height */}
             <div className="flex justify-center items-center h-full min-h-0 relative">
               <div 
                 ref={scrollRef}
@@ -163,8 +163,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none z-20" />
 
                     {idx < feedItems.length - 1 && (
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
-                        <ChevronDown className="h-4 w-4" />
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
+                        <ChevronDown className="h-5 w-5" />
                       </div>
                     )}
                   </div>
@@ -174,10 +174,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
         
-        {/* Absolute Minimal Scroll Hint (Floating/Overlay style) */}
-        <div className="absolute bottom-4 left-6 hidden lg:block z-40">
-          <p className="font-mono text-[7px] uppercase tracking-[0.3em] text-muted-foreground opacity-50">
-            Scroll to navigate
+        {/* Floating Minimal Scroll Hint */}
+        <div className="absolute bottom-6 left-8 hidden lg:block z-40">
+          <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground opacity-60">
+            Scroll vertically inside the feed to explore projects
           </p>
         </div>
       </div>
