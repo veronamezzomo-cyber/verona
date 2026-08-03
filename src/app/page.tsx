@@ -322,10 +322,12 @@ export default function PortfolioPage() {
               )}
             >
               <div className={cn(
-                "grid gap-4 transition-all duration-500",
+                "grid transition-all duration-500 mx-auto px-6",
                 isMini 
-                  ? "grid-cols-6 h-14 items-center px-6" 
-                  : "grid-cols-3 md:grid-cols-6 gap-4 py-4"
+                  ? "grid-cols-6 h-12 items-center max-w-screen-sm gap-2" 
+                  : isPinned 
+                    ? "grid-cols-6 gap-4 py-4 max-w-4xl"
+                    : "grid-cols-3 md:grid-cols-6 gap-6 py-4"
               )}>
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
@@ -339,7 +341,6 @@ export default function PortfolioPage() {
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
                         "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer aspect-square w-full rounded-sm flex items-center justify-center",
-                        isMini && "w-10 h-10",
                         isActive && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                       )}
                     >
@@ -361,14 +362,14 @@ export default function PortfolioPage() {
                         </>
                       )}
                       
-                      {!isMini && (
-                        <span className={cn(
-                          "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white text-xs md:text-sm lg:text-base absolute bottom-2 left-1/2 -translate-x-1/2",
+                      {(!isMini && !isPinned) || (!isMini && isPinned) ? (
+                         <span className={cn(
+                          "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white text-[10px] md:text-xs absolute bottom-2 left-1/2 -translate-x-1/2",
                           isActive && "text-white"
                         )}>
                           {cat.label}
                         </span>
-                      )}
+                      ) : null}
                     </div>
                   );
                 })}
