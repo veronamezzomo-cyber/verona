@@ -29,22 +29,18 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 /**
  * FloatingVideoCluster - Rebuilt High-Performance Engine.
- * Features Decoupled Physics (rAF) and Structural Attractors (GSAP).
  */
 function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   
-  // Angle / Time Reference (Independent Physics)
   const timeRef = useRef(0);
-  const currentSpeedRef = useRef(0.2); // Hypnotic Base Speed
+  const currentSpeedRef = useRef(0.2);
   
-  // Attractor Factors (Updated via GSAP, read by rAF)
   const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0)));
-  const morphFactorRef = useRef({ value: 1 }); // Start in "Leque" (Stack)
+  const morphFactorRef = useRef({ value: 1 });
   const activeIndexRef = useRef(0);
   
-  // Orbital Parameters
   const orbitParams = useMemo(() => videos.map((_, i) => ({
     rx: 240 + Math.sin(i * 1.5) * 60,
     ry: 180 + Math.cos(i * 2.2) * 40,
@@ -52,7 +48,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   })), [videos]);
 
   useEffect(() => {
-    // 1. Initial State Handling: Start in Stack for 0.5s, then explode.
     gsap.delayedCall(0.5, () => {
       gsap.to(morphFactorRef.current, {
         value: 0,
@@ -61,19 +56,16 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       });
     });
 
-    // 2. Focus Rotation Logic (Every 7s)
     const focusInterval = setInterval(() => {
       const prev = activeIndexRef.current;
       const next = (prev + 1) % videos.length;
       activeIndexRef.current = next;
 
-      // Glide out of focus
       gsap.to(focalFactorsRef.current, {
         [prev]: 0,
         duration: 1.2,
         ease: 'sine.inOut'
       });
-      // Glide into focus
       gsap.to(focalFactorsRef.current, {
         [next]: 1,
         duration: 1.2,
@@ -81,16 +73,13 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       });
     }, 7000);
 
-    // 3. Structural "Leque" Grouping (Every 30s)
     const lequeInterval = setInterval(() => {
-      // Group to stack
       gsap.to(morphFactorRef.current, {
         value: 1,
         duration: 1.5,
         ease: 'power2.inOut',
         onComplete: () => {
           gsap.delayedCall(0.5, () => {
-            // Explode back to orbit
             gsap.to(morphFactorRef.current, {
               value: 0,
               duration: 1.5,
@@ -101,10 +90,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       });
     }, 30000);
 
-    // 4. Main Animation Loop (rAF - Direct DOM Access)
     let requestRef: number;
     const animate = () => {
-      // Advance angle
       timeRef.current += 0.01 * currentSpeedRef.current;
 
       itemRefs.current.forEach((el, i) => {
@@ -114,37 +101,30 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const ff = focalFactorsRef.current[i];
         const morph = morphFactorRef.current.value;
         
-        // Base Orbital Layer
         const angle = timeRef.current + p.offset;
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
-        const depth = Math.sin(angle); // -1 (back) to 1 (front)
+        const depth = Math.sin(angle);
 
-        // Additive Offset Layer: Pull toward center (Focus) or stack (Leque)
         let tx = ox * (1 - ff);
         let ty = oy * (1 - ff);
 
-        // Stack displacement (Cascading offset)
         const sx = i * -15;
         const sy = i * -15;
         tx = tx * (1 - morph) + sx * morph;
         ty = ty * (1 - morph) + sy * morph;
 
-        // Visual Properties
-        const baseScale = 0.9 + (1 + depth) * 0.05; // 0.9 to 1.0 based on depth
+        const baseScale = 0.9 + (1 + depth) * 0.05;
         const focalScale = 1.4;
         const targetScale = baseScale + (focalScale - baseScale) * ff;
-        // In "Leque" (morph=1), everything goes to scale 1.0
         const scale = targetScale * (1 - morph) + 1.0 * morph;
         
-        // Z-Index: Depth sorting vs Stack sorting
         const zIndex = morph > 0.5 
-          ? (100 - i) // Stack priority
-          : (ff > 0.5 ? 120 : Math.floor(50 + depth * 40)); // Depth priority
+          ? (100 - i)
+          : (ff > 0.5 ? 120 : Math.floor(50 + depth * 40));
         
         const blur = (1 - ff) * (depth < 0 ? Math.abs(depth) * 4 : 0);
 
-        // Direct Styles Update (High Performance)
         el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
@@ -242,10 +222,7 @@ export default function PortfolioPage() {
         const contactRect = contactRef.current.getBoundingClientRect();
         const headerHeight = 80;
 
-        // Pinned when top of experience reaches header
         setIsPinned(expRect.top <= headerHeight);
-
-        // Mini when contact section is about to overlap the pinned menu
         setIsMini(contactRect.top <= headerHeight + 100);
       }
     };
@@ -258,6 +235,7 @@ export default function PortfolioPage() {
     const newValue = activeCategory === label ? null : label;
     
     if (newValue) {
+      setIsMini(false); // Ensure it's not mini if we're jumping to it
       setIsPinned(true);
       experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -305,14 +283,12 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        {/* HERO SECTION - STICKY STACKING BASE */}
         <section 
           ref={heroRef}
           className="sticky top-0 z-0 flex pt-28 pb-8 overflow-hidden h-screen bg-background"
         >
           <div className="container mx-auto px-6 h-full">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
-              {/* Left Column (Text) */}
               <div 
                 className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10 justify-center lg:-translate-y-12"
               >
@@ -338,7 +314,6 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              {/* Right Column (Cluster) */}
               <div className="relative w-full h-full flex items-center justify-center animate-image-reveal z-20 overflow-visible">
                 <FloatingVideoCluster videos={clusterVideos} />
               </div>
@@ -353,10 +328,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* STACKING LAYER - COVERS HERO */}
         <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
-          
-          {/* STATS BLOCK */}
           <section className="py-32 border-y border-foreground/5 bg-muted/5">
             <div className="container mx-auto px-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
@@ -374,9 +346,7 @@ export default function PortfolioPage() {
             </div>
           </section>
 
-          {/* EXPERIENCE SECTION WRAPPER */}
           <div ref={experienceRef} className="relative min-h-screen">
-            {/* CATEGORY GRID / MENU */}
             <section 
               id="works" 
               ref={gridRef}
@@ -385,32 +355,23 @@ export default function PortfolioPage() {
                 isPinned ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
               )}
             >
-              <div className={cn(
-                "grid gap-4 transition-all duration-500",
-                isMini 
-                  ? "grid-cols-6 h-14 items-center px-6" 
-                  : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
-              )}>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
                   
                   return (
                     <div 
-                      key={cat.id} 
+                      key={cat.label} 
                       role="button"
                       tabIndex={0}
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer",
-                        isMini 
-                          ? "w-10 h-10 aspect-square rounded-sm bg-transparent flex items-center justify-center border-x border-foreground/5" 
-                          : "aspect-[1/1.2] rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1",
-                        isActive && !isMini && "ring-4 ring-primary ring-offset-4 ring-offset-background",
-                        isActive && isMini && "bg-primary text-white"
+                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer aspect-square w-full rounded-sm",
+                        isActive && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                       )}
                     >
-                      {!isMini && img && (
+                      {img && (
                         <>
                           <EditableImage 
                             src={img.imageUrl} 
@@ -429,11 +390,8 @@ export default function PortfolioPage() {
                       )}
                       
                       <span className={cn(
-                        "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none",
-                        isMini 
-                          ? "text-[10px] uppercase font-mono tracking-widest text-foreground group-hover:text-primary" 
-                          : "text-2xl lg:text-3xl text-white bottom-6 left-1/2 -translate-x-1/2 absolute",
-                        isActive && isMini && "text-white"
+                        "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white text-xs md:text-sm lg:text-base absolute bottom-2 left-1/2 -translate-x-1/2",
+                        isActive && "text-white"
                       )}>
                         {cat.label}
                       </span>
@@ -451,7 +409,6 @@ export default function PortfolioPage() {
             )}
           </div>
 
-          {/* FINAL STACKING LAYER - CONTACT */}
           <section id="contact" ref={contactRef} className="sticky top-0 h-screen z-50 flex items-center justify-center relative overflow-hidden bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
             <div className="container mx-auto px-6 text-center relative z-10">
               <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
@@ -468,7 +425,6 @@ export default function PortfolioPage() {
               </Button>
             </div>
             
-            {/* Background elements */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
           </section>
