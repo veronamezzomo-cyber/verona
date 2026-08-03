@@ -331,7 +331,7 @@ export default function PortfolioPage() {
             </div>
           </section>
 
-          <div ref={experienceRef} className="relative min-h-screen">
+          <div ref={experienceRef} className="relative min-h-screen flex flex-col">
             <section 
               id="works" 
               ref={gridRef}
@@ -357,8 +357,8 @@ export default function PortfolioPage() {
                       tabIndex={0}
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-sm flex items-center justify-center",
-                        isMini ? "w-10 h-10 aspect-square" : "aspect-square w-full",
+                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer aspect-square w-full rounded-sm flex items-center justify-center",
+                        isMini && "w-10 h-10",
                         isActive && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                       )}
                     >
