@@ -148,11 +148,11 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
         hideControls
       />
       {clickCount >= 3 && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]" suppressHydrationWarning>
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
           <Lock className="w-8 h-8 text-white opacity-50" />
         </div>
       )}
-      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" suppressHydrationWarning />
+      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </div>
   );
 
@@ -165,12 +165,12 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col" suppressHydrationWarning>
         
         {/* Header */}
-        <div className="flex items-center justify-between py-6 px-12 border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50" suppressHydrationWarning>
-          <div className="flex items-center gap-4" suppressHydrationWarning>
+        <div className="flex items-center justify-between py-6 px-12 border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50">
+          <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
             <div className="h-px w-12 bg-primary/20" />
             <h2 className="font-serif text-2xl italic font-bold text-black lowercase">{category}</h2>
-            <div className="ml-4 px-2 py-0.5 rounded-full border border-neutral-200 font-mono text-[8px] uppercase tracking-tighter" suppressHydrationWarning>
+            <div className="ml-4 px-2 py-0.5 rounded-full border border-neutral-200 font-mono text-[8px] uppercase tracking-tighter">
               Credits: {3 - clickCount}/3
             </div>
           </div>
@@ -189,7 +189,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           suppressHydrationWarning
         >
           {[...Array(30)].map((_, i) => (
-            <div key={i} className="h-full w-px bg-black relative flex-shrink-0 mx-[250px]" suppressHydrationWarning>
+            <div key={i} className="h-full w-px bg-black relative flex-shrink-0 mx-[250px]">
               <span className="absolute top-24 left-2 font-mono text-[10px] font-bold">L-{i + 1}</span>
             </div>
           ))}
@@ -201,45 +201,45 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
           suppressHydrationWarning
         >
-          <div className="flex gap-0 items-center h-full py-0" suppressHydrationWarning>
-            <div className="flex flex-col justify-between h-[80vh] py-10" suppressHydrationWarning>
+          <div className="flex gap-0 items-center h-full py-0">
+            <div className="flex flex-col justify-between h-[80vh] py-10">
               <ProjectText item={feedItems[0]} />
               <ProjectVideo item={feedItems[1]} type="down" />
             </div>
 
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20" suppressHydrationWarning>
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
               <ProjectVideo item={feedItems[0]} type="up" />
               <ProjectText item={feedItems[1]} />
             </div>
 
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20" suppressHydrationWarning>
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
               <ProjectText item={feedItems[2]} />
               <ProjectVideo item={feedItems[3]} type="down" />
             </div>
 
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20" suppressHydrationWarning>
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
               <ProjectVideo item={feedItems[2]} type="up" />
               <ProjectText item={feedItems[3]} />
             </div>
 
-            <div className="w-[30vw]" suppressHydrationWarning />
+            <div className="w-[30vw]" />
           </div>
         </div>
 
         {/* Progress Indicator */}
-        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400 z-50" suppressHydrationWarning>
-          <div className="flex items-center gap-4" suppressHydrationWarning>
+        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400 z-50">
+          <div className="flex items-center gap-4">
             <span>Geometric Masking Active</span>
             <div className="w-12 h-px bg-neutral-200" />
             <span>01 / 04</span>
           </div>
-          <div className="flex gap-2 items-center" suppressHydrationWarning>
+          <div className="flex gap-2 items-center">
             <span className="mr-2">Scroll vertically to reveal masks</span>
             {[0, 1, 2].map(i => (
               <div key={i} className={cn(
                 "w-1.5 h-1.5 rounded-full border transition-colors", 
                 i < clickCount ? "bg-primary border-primary" : "border-neutral-300"
-              )} suppressHydrationWarning />
+              )} />
             ))}
           </div>
         </div>

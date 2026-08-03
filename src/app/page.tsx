@@ -56,7 +56,6 @@ function LEDTicker({ text }: { text: string }) {
                           ? "bg-foreground shadow-[0_0_12px_rgba(var(--foreground),0.4)]" 
                           : "bg-foreground/5"
                       )}
-                      suppressHydrationWarning
                     />
                   ))
                 ))}
@@ -182,7 +181,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       className="relative w-full h-[650px] flex items-center justify-center pointer-events-none"
       suppressHydrationWarning
     >
-      <div className="absolute inset-0 pointer-events-auto" suppressHydrationWarning />
+      <div className="absolute inset-0 pointer-events-auto" />
       {videos.map((vid, i) => (
         <div 
           key={vid.id}
@@ -192,7 +191,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
             opacity: 1,
             transform: 'translate(-50%, -50%)' 
           }}
-          suppressHydrationWarning
         >
           {vid.imageUrl.endsWith('.mp4') ? (
             <EditableVideo 
@@ -308,11 +306,11 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-hidden" suppressHydrationWarning>
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md" suppressHydrationWarning>
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between" suppressHydrationWarning>
-          <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground" suppressHydrationWarning>
+        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest" suppressHydrationWarning>
+          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
             <Link href="#about" className="text-foreground/70 hover:text-foreground">About</Link>
             <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
@@ -323,27 +321,27 @@ export default function PortfolioPage() {
 
       <main className="relative" suppressHydrationWarning>
         <section className="flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto" suppressHydrationWarning>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full" suppressHydrationWarning>
-            <div className="flex flex-col gap-6 animate-slide-up" suppressHydrationWarning>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+            <div className="flex flex-col gap-6 animate-slide-up">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
               <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-tight tracking-tighter text-foreground">
                 CRAFTING<br />VISUAL<br />STORYTELLING<span className="text-primary">.</span>
               </h1>
-              <div className="flex gap-6 mt-4" suppressHydrationWarning>
+              <div className="flex gap-6 mt-4">
                 <Button size="lg" className="rounded-none px-12 h-16 bg-foreground text-background" onClick={() => handleCategoryClick('all')}>View Projects</Button>
                 <Link href="#contact" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest">Contact Me <ArrowRight className="h-3 w-3" /></Link>
               </div>
             </div>
-            <div className="relative animate-image-reveal" suppressHydrationWarning>
+            <div className="relative animate-image-reveal">
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
           </div>
         </section>
 
         <div className="relative z-10 bg-background" suppressHydrationWarning>
-          <div ref={experienceRef} className="relative min-h-screen flex flex-col" suppressHydrationWarning>
-            <section id="works" className="z-40 transition-all duration-500 w-full py-12" suppressHydrationWarning>
-              <div className="grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" suppressHydrationWarning>
+          <div ref={experienceRef} className="relative min-h-screen flex flex-col">
+            <section id="works" className="z-40 transition-all duration-500 w-full py-12">
+              <div className="grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
@@ -355,7 +353,6 @@ export default function PortfolioPage() {
                         "group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300",
                         isActive && "ring-2 ring-primary"
                       )}
-                      suppressHydrationWarning
                     >
                       {img && (
                         <EditableImage 
@@ -366,7 +363,7 @@ export default function PortfolioPage() {
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       )}
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" suppressHydrationWarning />
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
                       <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-xs md:text-sm uppercase tracking-widest z-20 pointer-events-none">
                         {cat.label}
                       </span>
@@ -380,31 +377,30 @@ export default function PortfolioPage() {
           </div>
 
           <section id="contact" className="relative min-h-screen flex flex-col border-t border-foreground/5" suppressHydrationWarning>
-            <div className="flex-1 flex flex-col justify-center items-center text-center px-6" suppressHydrationWarning>
+            <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
               <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
               <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
             </div>
             
-            <div className="relative overflow-hidden" suppressHydrationWarning>
+            <div className="relative overflow-hidden">
                {/* Easter Egg panel expanding UPWARD from the footer */}
                <div 
                   className={cn(
                     "overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center",
                     isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0"
                   )}
-                  suppressHydrationWarning
                 >
                   <LEDTicker text="VERONA STUDIO" />
                 </div>
 
                 <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0" suppressHydrationWarning>
-                  <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6" suppressHydrationWarning>
-                    <div className="flex gap-8" suppressHydrationWarning>
+                  <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="flex gap-8">
                       <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
                       <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
                       <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
                     </div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" suppressHydrationWarning>© 2024 Leonardo Verona. Digital Craftsman</p>
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© 2024 Leonardo Verona. Digital Craftsman</p>
                   </div>
                 </footer>
             </div>
