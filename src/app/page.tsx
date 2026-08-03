@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -238,7 +239,7 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Morphing Category Grid Animation with Precise Sticky Locking
+  // Square Morphing Logic with GSAP
   useEffect(() => {
     const cards = gsap.utils.toArray('.category-card');
     const worksSection = document.querySelector('#works');
@@ -247,45 +248,31 @@ export default function PortfolioPage() {
 
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: worksSection,
-        start: "top top+=80", // Aligns exactly with header bottom
-        end: "+=150",         // Duration of the shrink morph
+        trigger: '#works-trigger',
+        start: "top top+=80", 
+        end: "+=200",         
         scrub: true,
-        invalidateOnRefresh: true,
       }
     });
 
+    // Morph to squares in a bar
     tl.to(cards, {
-      height: 56, 
+      height: 64, 
+      width: 64,
       duration: 1,
-      ease: "none"
+      ease: "power2.inOut"
     });
 
     tl.to(worksSection, {
       paddingTop: 8,
       paddingBottom: 8,
       duration: 1,
-      ease: "none"
+      ease: "power2.inOut"
     }, 0);
 
     return () => {
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
-  }, []);
-
-  useEffect(() => {
-    const handleInterceptScroll = (e: WheelEvent) => {
-      setIsSecretVisible(visible => {
-        if (visible && e.deltaY < 0) {
-          e.preventDefault();
-          return false;
-        }
-        return visible;
-      });
-    };
-
-    window.addEventListener('wheel', handleInterceptScroll, { passive: false });
-    return () => window.removeEventListener('wheel', handleInterceptScroll);
   }, []);
 
   const handleCategoryClick = (label: string) => {
@@ -307,7 +294,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative overflow-x-visible">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
         <div className="container mx-auto px-6 h-full flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
@@ -323,7 +310,7 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        {/* Layer 0: Hero Section (Sticky Base) */}
+        {/* Layer 0: Hero (Sticky Base) */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
@@ -343,11 +330,15 @@ export default function PortfolioPage() {
         </section>
 
         {/* Layer 1: Works/Experience Wrapper (Slides Over Hero) */}
-        <div className="relative z-10 bg-background">
+        <div className="relative z-10 bg-background min-h-screen">
           <div ref={experienceRef} className="relative min-h-screen flex flex-col bg-background">
-            {/* Morphing Mini-Menu Section */}
-            <section id="works" className="w-full py-12 sticky top-20 z-10 bg-background border-b border-foreground/5">
-              <div className="grid container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            
+            {/* Morphing Mini-Menu Trigger Area */}
+            <div id="works-trigger" className="h-[200px] w-full pointer-events-none" />
+
+            {/* Sticky Category Section */}
+            <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
+              <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-12">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
@@ -356,7 +347,7 @@ export default function PortfolioPage() {
                       key={cat.label} 
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "category-card group relative overflow-hidden cursor-pointer transition-all duration-300",
+                        "category-card group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1",
                         isActive && "ring-2 ring-primary"
                       )}
                     >
@@ -370,7 +361,7 @@ export default function PortfolioPage() {
                         />
                       )}
                       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none text-center px-2">
+                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none text-center px-1">
                         {cat.label}
                       </span>
                     </div>
@@ -379,11 +370,20 @@ export default function PortfolioPage() {
               </div>
             </section>
 
+            {/* Content Feed */}
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
+            
+            {!activeCategory && (
+              <div className="flex-1 container mx-auto px-6 py-20">
+                <div className="h-[80vh] flex items-center justify-center border border-dashed border-foreground/10 rounded-3xl">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Select a category above to browse projects</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Layer 2: Contact Section (Slides Over Everything) */}
-          <section id="contact" className="sticky top-0 z-20 min-h-screen flex flex-col border-t border-foreground/5 bg-background">
+          <section id="contact" className="sticky top-0 z-[110] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
             <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
               <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
               <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
