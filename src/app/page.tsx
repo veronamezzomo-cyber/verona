@@ -20,19 +20,55 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollToPlugin);
 }
 
-const ASCII_VERONA_STUDIO = `
-▒▒  ▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒  ▒▒  ▒▒▒▒▒▒ 
-▒▒  ▒▒ ▒▒     ▒▒   ▒▒ ▒▒  ▒▒  ▒▒▒ ▒▒  ▒▒  ▒▒ 
- ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒  ▒▒  ▒▒ ▒▒▒  ▒▒▒▒▒▒ 
-  ▒▒   ▒▒     ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒ 
-  ▒▒   ▒▒▒▒▒▒ ▒▒   ▒▒ ▒▒▒▒▒▒  ▒▒  ▒▒  ▒▒  ▒▒ 
+// LED Bitmap Library for 5x7 Grid
+const LED_BITMAPS: Record<string, number[][]> = {
+  'V': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
+  'E': [[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
+  'R': [[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,1,0],[1,0,0,0,1],[1,0,0,0,1]],
+  'O': [[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
+  'N': [[1,0,0,0,1],[1,1,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1]],
+  'A': [[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+  'S': [[0,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[0,1,1,1,0],[0,0,0,0,1],[0,0,0,0,1],[1,1,1,1,0]],
+  'T': [[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
+  'U': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
+  'D': [[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0]],
+  'I': [[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1]],
+  ' ': [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]],
+};
 
-▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒  ▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒  ▒▒ 
-▒▒       ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
-▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
-    ▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
-▒▒▒▒▒▒   ▒▒    ▒▒▒▒  ▒▒▒▒▒▒   ▒▒    ▒▒▒▒  
-`;
+function LEDTicker({ text }: { text: string }) {
+  const characters = text.toUpperCase().split('');
+  
+  return (
+    <div className="w-full bg-black py-12 overflow-hidden flex items-center" suppressHydrationWarning>
+      <div className="animate-marquee whitespace-nowrap flex" suppressHydrationWarning>
+        {/* Render twice for seamless loop */}
+        {[0, 1].map((setIndex) => (
+          <div key={setIndex} className="flex gap-16 md:gap-24 px-8 md:px-12 items-center" suppressHydrationWarning>
+            {characters.map((char, charIndex) => (
+              <div key={`${setIndex}-${charIndex}`} className="grid grid-cols-5 gap-[2px] md:gap-[4px] shrink-0" suppressHydrationWarning>
+                {(LED_BITMAPS[char] || LED_BITMAPS[' ']).map((row, rowIndex) => (
+                  row.map((cell, colIndex) => (
+                    <div
+                      key={`${rowIndex}-${colIndex}`}
+                      className={cn(
+                        "w-[4px] h-[8px] md:w-[6px] md:h-[12px] rounded-full transition-all duration-300",
+                        cell 
+                          ? "bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]" 
+                          : "bg-white/[0.03]"
+                      )}
+                      suppressHydrationWarning
+                    />
+                  ))
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -335,21 +371,15 @@ export default function PortfolioPage() {
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12" suppressHydrationWarning>Ready to tell<br />your story?</h2>
             <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground mb-12">Let&apos;s Talk</Button>
             
+            {/* LED Ticker Easter Egg */}
             <div 
               className={cn(
-                "transition-all duration-1000 ease-in-out bg-black text-primary overflow-hidden w-full",
-                isSecretVisible ? "h-[200px] my-12 opacity-100" : "h-0 my-0 opacity-0"
+                "transition-all duration-1000 ease-in-out border-y border-white/5 overflow-hidden w-full",
+                isSecretVisible ? "h-[180px] my-12 opacity-100" : "h-0 my-0 opacity-0"
               )}
               suppressHydrationWarning
             >
-              <div className="container mx-auto px-6" suppressHydrationWarning>
-                <pre className="font-mono text-[6px] md:text-[9px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide" suppressHydrationWarning>
-                  {ASCII_VERONA_STUDIO.trim()}
-                </pre>
-                <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50" suppressHydrationWarning>
-                  // System Breach // Crafting the Void
-                </div>
-              </div>
+              <LEDTicker text="VERONA STUDIO" />
             </div>
 
             <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 py-12 pb-8" suppressHydrationWarning>
