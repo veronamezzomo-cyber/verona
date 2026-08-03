@@ -12,8 +12,7 @@ import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { 
   Mail, 
-  ArrowRight,
-  ChevronRight
+  ArrowRight
 } from 'lucide-react';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -277,7 +276,7 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 
-                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.9] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
+                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] masonry leading-[0.9] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
                   CRAFTING<br />
                   VISUAL<br />
                   STORYTELLING<span className="text-primary">.</span>
@@ -322,7 +321,7 @@ export default function PortfolioPage() {
               <div className={cn(
                 "grid transition-all duration-500 max-w-7xl mx-auto w-full",
                 isMini 
-                  ? "grid-cols-6 h-14 items-center gap-3 px-6" 
+                  ? "grid-cols-6 h-10 items-center gap-2 px-6" 
                   : "grid-cols-3 md:grid-cols-6 gap-4 py-4 px-6"
               )}>
                 {categories.map((cat) => {
@@ -337,8 +336,8 @@ export default function PortfolioPage() {
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
                         "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-sm flex items-center justify-center",
-                        isMini ? "h-10 w-full" : "aspect-square w-full",
-                        isActive && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                        isMini ? "h-8 w-full" : "aspect-square w-full",
+                        isActive && "ring-1 ring-primary ring-offset-1 ring-offset-background"
                       )}
                     >
                       {img && (
@@ -362,7 +361,7 @@ export default function PortfolioPage() {
                       <span className={cn(
                         "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white absolute",
                         isMini 
-                          ? "text-[8px] md:text-[10px] uppercase tracking-widest bottom-1" 
+                          ? "text-[7px] md:text-[8px] uppercase tracking-widest bottom-1" 
                           : "text-xs md:text-sm lg:text-base bottom-2 left-1/2 -translate-x-1/2",
                         isActive && "text-white"
                       )}>

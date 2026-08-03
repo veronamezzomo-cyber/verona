@@ -61,8 +61,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     // Entrance animation
     if (sectionRef.current) {
       gsap.fromTo(sectionRef.current, 
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
       );
     }
 
@@ -89,50 +89,50 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-8.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl z-30 overflow-hidden"
+      className="relative w-full h-[calc(100vh-7.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
-        {/* Header inside the feed - Very Compact */}
-        <div className="flex items-center justify-between py-2 border-b border-foreground/5 shrink-0">
+        {/* Header inside the feed - Ultra Compact */}
+        <div className="flex items-center justify-between py-1.5 border-b border-foreground/5 shrink-0">
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
-            <h2 className="font-serif text-xl italic font-bold text-foreground lowercase">{category}</h2>
+            <span className="font-mono text-[8px] uppercase tracking-widest text-primary font-bold">Archive</span>
+            <h2 className="font-serif text-lg italic font-bold text-foreground lowercase">{category}</h2>
           </div>
           <div 
             role="button"
             tabIndex={0}
             onClick={onClose}
-            className="font-mono text-[9px] uppercase tracking-widest hover:text-primary gap-2 cursor-pointer flex items-center transition-colors"
+            className="font-mono text-[8px] uppercase tracking-widest hover:text-primary gap-1.5 cursor-pointer flex items-center transition-colors"
           >
-            Close Feed <X className="h-4 w-4" />
+            Close <X className="h-3 w-3" />
           </div>
         </div>
 
-        {/* Maximized Grid */}
-        <div className="flex-1 flex items-center justify-center min-h-0 py-2">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6 items-center h-full max-h-full">
+        {/* Immersive Grid - Maximized */}
+        <div className="flex-1 flex items-center justify-center min-h-0 py-0">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-4 items-center h-full max-h-full">
             
             {/* Left Column: Details */}
-            <div className="flex flex-col gap-4 justify-center h-full overflow-hidden">
+            <div className="flex flex-col gap-3 justify-center h-full overflow-hidden">
               <div key={currentItem.id} className="animate-reveal">
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
+                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-0.5">
                   {currentItem.date}
                 </span>
-                <h3 className="font-serif text-3xl md:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-4 max-w-sm">
+                <h3 className="font-serif text-2xl md:text-4xl font-bold text-foreground leading-[0.9] tracking-tighter mb-3 max-w-sm">
                   {currentItem.title}<span className="text-primary">.</span>
                 </h3>
-                <div className="space-y-4 max-w-sm">
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed">
+                <div className="space-y-3 max-w-sm">
+                  <p className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground leading-relaxed">
                     {currentItem.notes}
                   </p>
-                  <div className="pt-4 border-t border-foreground/10 flex items-center gap-4">
-                     <div className="h-1 flex-1 bg-foreground/5 relative">
+                  <div className="pt-3 border-t border-foreground/10 flex items-center gap-3">
+                     <div className="h-0.5 flex-1 bg-foreground/5 relative">
                         <div 
                           className="absolute h-full bg-primary transition-all duration-500" 
                           style={{ width: `${((activeIndex + 1) / feedItems.length) * 100}%` }}
                         />
                      </div>
-                     <span className="font-mono text-[10px] text-muted-foreground">
+                     <span className="font-mono text-[9px] text-muted-foreground">
                       0{activeIndex + 1} / 0{feedItems.length}
                      </span>
                   </div>
@@ -140,11 +140,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Right Column: Video Container - Full Height Available */}
+            {/* Right Column: Video Container - Absolute 100% Height */}
             <div className="flex justify-center items-center h-full min-h-0 relative">
               <div 
                 ref={scrollRef}
-                className="relative h-full aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border border-foreground/10 shadow-2xl rounded-sm"
+                className="relative h-full aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border-x border-foreground/10 shadow-2xl"
               >
                 {feedItems.map((item, idx) => (
                   <div 
@@ -156,15 +156,15 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       src={item.videoUrl || ""} 
                       storageKey={`feed-${category}-${item.id}`}
                       fill
-                      className="object-contain h-full w-full transition-transform group-hover:scale-105"
+                      className="object-contain h-full w-full transition-transform group-hover:scale-102"
                       style={{ transitionDuration: '2000ms' }}
                     />
                     
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-20" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none z-20" />
 
                     {idx < feedItems.length - 1 && (
-                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
-                        <ChevronDown className="h-5 w-5" />
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 animate-bounce text-primary/80">
+                        <ChevronDown className="h-4 w-4" />
                       </div>
                     )}
                   </div>
@@ -174,10 +174,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
         
-        {/* Minimal Scroll Hint */}
-        <div className="py-2 text-center border-t border-foreground/5 shrink-0">
-          <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground">
-            Swipe or scroll to navigate works
+        {/* Absolute Minimal Scroll Hint (Floating/Overlay style) */}
+        <div className="absolute bottom-4 left-6 hidden lg:block z-40">
+          <p className="font-mono text-[7px] uppercase tracking-[0.3em] text-muted-foreground opacity-50">
+            Scroll to navigate
           </p>
         </div>
       </div>
