@@ -219,7 +219,10 @@ export default function PortfolioPage() {
         const contactRect = contactRef.current.getBoundingClientRect();
         const headerHeight = 80;
 
+        // Pinned when experience reaches header
         setIsPinned(expRect.top <= headerHeight);
+        
+        // Mini when contact is about to appear
         setIsMini(contactRect.top <= headerHeight + 100);
       }
     };
@@ -313,7 +316,9 @@ export default function PortfolioPage() {
           </div>
         </section>
 
+        {/* LAYER Z-10: Cobre o Hero */}
         <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
+          {/* STATS SECTION */}
           <section className="py-32 border-y border-foreground/5 bg-muted/5">
             <div className="container mx-auto px-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
@@ -331,6 +336,7 @@ export default function PortfolioPage() {
             </div>
           </section>
 
+          {/* EXPERIENCE WRAPPER */}
           <div ref={experienceRef} className="relative min-h-screen flex flex-col">
             <section 
               id="works" 
@@ -402,6 +408,7 @@ export default function PortfolioPage() {
             )}
           </div>
 
+          {/* CONTACT SECTION (STICKY H-SCREEN) */}
           <section id="contact" ref={contactRef} className="sticky top-0 h-screen z-50 flex items-center justify-center relative overflow-hidden bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
             <div className="container mx-auto px-6 text-center relative z-10">
               <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
