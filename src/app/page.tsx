@@ -188,7 +188,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isPinned, setIsPinned] = useState(false);
-  const [isMini, setIsMini] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const experienceRef = useRef<HTMLDivElement>(null);
@@ -207,16 +206,10 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (experienceRef.current && contactRef.current) {
+      if (experienceRef.current) {
         const expRect = experienceRef.current.getBoundingClientRect();
-        const contactRect = contactRef.current.getBoundingClientRect();
         const headerHeight = 80;
-
-        // Pinned when experience reaches header
         setIsPinned(expRect.top <= headerHeight);
-        
-        // Mini state when contact is about to appear
-        setIsMini(contactRect.top <= headerHeight + 100);
       }
     };
     window.addEventListener('scroll', handleScroll);
@@ -228,8 +221,6 @@ export default function PortfolioPage() {
     const newValue = activeCategory === label ? null : label;
     
     if (newValue) {
-      setIsMini(false);
-      setIsPinned(true);
       experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
@@ -321,10 +312,7 @@ export default function PortfolioPage() {
                 isPinned ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
               )}
             >
-              <div className={cn(
-                "grid transition-all duration-500 mx-auto",
-                isPinned ? "container px-6 grid-cols-6 gap-4 py-4" : "grid-cols-3 md:grid-cols-6 gap-4 py-4"
-              )}>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-4 py-4 px-6 max-w-7xl mx-auto w-full">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
@@ -378,9 +366,9 @@ export default function PortfolioPage() {
             )}
           </div>
 
-          {/* CONTACT SECTION (STICKY H-SCREEN) */}
-          <section id="contact" ref={contactRef} className="sticky top-0 h-screen z-50 flex items-center justify-center relative overflow-hidden bg-background border-t border-foreground/5 shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.05)]">
-            <div className="container mx-auto px-6 text-center relative z-10">
+          {/* CONTACT SECTION (FULL SCREEN AT END) */}
+          <section id="contact" ref={contactRef} className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background border-t border-foreground/5 px-6 py-20">
+            <div className="container mx-auto text-center relative z-10">
               <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-8 font-mono text-[10px] uppercase tracking-widest text-primary">
                 Available for worldwide projects
               </div>
@@ -398,30 +386,30 @@ export default function PortfolioPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
           </section>
+
+          <footer className="py-16 border-t border-foreground/5 relative z-[60] bg-background">
+            <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
+              <div className="flex items-center gap-8">
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <DiscordIcon className="h-6 w-6" />
+                </Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                  <WhatsAppIcon className="h-6 w-6" />
+                </Link>
+                <Link href="mailto:contact@leonardoverona.com" className="text-muted-foreground hover:text-primary transition-colors">
+                  <Mail className="h-6 w-6" />
+                </Link>
+              </div>
+              <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                © 2024 Leonardo Verona. All rights reserved.
+              </div>
+              <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
+                Digital Craftsman <span className="text-primary italic ml-2">Next.js / Video</span>
+              </div>
+            </div>
+          </footer>
         </div>
       </main>
-
-      <footer className="py-16 border-t border-foreground/5 relative z-[60] bg-background">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex items-center gap-8">
-            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <DiscordIcon className="h-6 w-6" />
-            </Link>
-            <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-              <WhatsAppIcon className="h-6 w-6" />
-            </Link>
-            <Link href="mailto:contact@leonardoverona.com" className="text-muted-foreground hover:text-primary transition-colors">
-              <Mail className="h-6 w-6" />
-            </Link>
-          </div>
-          <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            © 2024 Leonardo Verona. All rights reserved.
-          </div>
-          <div className="font-mono text-[11px] text-muted-foreground uppercase tracking-[0.2em]">
-            Digital Craftsman <span className="text-primary italic ml-2">Next.js / Video</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
