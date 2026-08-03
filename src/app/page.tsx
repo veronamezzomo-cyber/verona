@@ -257,11 +257,20 @@ export default function PortfolioPage() {
       }
     });
 
+    // Morph cards to compact bars
     tl.to(cards, {
-      height: 56, // Mini-menu bar size
+      height: 48, 
       duration: 1,
       ease: "none"
     });
+
+    // Tighten the section padding during the morph
+    tl.to('#works', {
+      paddingTop: 8,
+      paddingBottom: 8,
+      duration: 1,
+      ease: "none"
+    }, 0);
 
     return () => {
       ScrollTrigger.getAll().forEach(t => t.kill());
@@ -339,9 +348,9 @@ export default function PortfolioPage() {
 
         {/* Content Wrapper: Higher z-index to cover Hero */}
         <div className="relative z-10 bg-background">
-          <div ref={experienceRef} className="relative bg-background min-h-screen">
+          <div ref={experienceRef} className="relative bg-background min-h-screen flex flex-col">
             {/* Works Section: Pins as Mini-Menu at top-20 */}
-            <section id="works" className="w-full py-12 sticky top-20 z-40 bg-background border-b border-foreground/5">
+            <section id="works" className="w-full py-12 sticky top-20 z-10 bg-background border-b border-foreground/5">
               <div className="grid container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
@@ -361,11 +370,11 @@ export default function PortfolioPage() {
                           alt={cat.label} 
                           storageKey={`cat-${cat.id}`}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
                         />
                       )}
                       <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-xs md:text-sm uppercase tracking-widest z-20 pointer-events-none">
+                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none">
                         {cat.label}
                       </span>
                     </div>
