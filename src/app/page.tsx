@@ -37,7 +37,6 @@ const LED_BITMAPS: Record<string, number[][]> = {
 };
 
 function LEDTicker({ text }: { text: string }) {
-  // Ajustado para 1 espaço para um fluxo mais denso e rítmico
   const characters = (text.toUpperCase() + " ").split('');
   
   return (
@@ -258,9 +257,29 @@ export default function PortfolioPage() {
 
       setLastScrollY(currentScrollY);
     };
+
+    // New logic to intercept scroll up and close the easter egg
+    const handleInterceptScroll = (e: any) => {
+      if (!isSecretVisible) return;
+      
+      const isScrollingUp = e.type === 'wheel' ? e.deltaY < 0 : false;
+
+      if (isScrollingUp) {
+        e.preventDefault();
+        setIsSecretVisible(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+    if (isSecretVisible) {
+      window.addEventListener('wheel', handleInterceptScroll, { passive: false });
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('wheel', handleInterceptScroll);
+    };
+  }, [lastScrollY, isSecretVisible]);
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
