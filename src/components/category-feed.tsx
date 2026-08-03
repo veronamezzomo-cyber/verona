@@ -70,7 +70,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       const windowWidth = window.innerWidth;
       const maxMove = trackWidth - windowWidth;
       
-      // CAMADA 1: Conteúdo Principal (Movimento Standard)
       gsap.to(trackRef.current, {
         x: -(progress * maxMove),
         duration: 0.8,
@@ -78,7 +77,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         overwrite: 'auto'
       });
 
-      // CAMADA 2: Efeito PARALLAX (Linhas de Fundo movem-se mais devagar para criar profundidade)
       gsap.to(bgLinesRef.current, {
         x: -(progress * maxMove * 0.4),
         duration: 1.2,
@@ -106,7 +104,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   };
 
   const ProjectText = ({ item }: { item: FeedItem }) => (
-    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8">
+    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8 z-20">
       <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold mb-2">
         {item.date}
       </span>
@@ -119,11 +117,16 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     </div>
   );
 
-  const ProjectVideo = ({ item }: { item: FeedItem }) => (
+  const ProjectVideo = ({ item, type }: { item: FeedItem, type: 'up' | 'down' }) => (
     <div 
       onClick={handleInteraction}
       className={cn(
-        "w-[300px] md:w-[350px] aspect-[9/16] relative bg-neutral-100 rounded-sm overflow-hidden shadow-2xl border border-neutral-200 group cursor-pointer transition-all",
+        "w-[350px] md:w-[450px] h-[70vh] relative bg-neutral-200 overflow-hidden group cursor-pointer transition-all z-10",
+        // Masking logic: Ponta pontiaguda (Geometric Mask)
+        // 'up' aponta para o topo, 'down' aponta para a base, criando o zigue-zague visual
+        type === 'up' 
+          ? "[clip-path:polygon(0%_100%,0%_0%,85%_0%,100%_15%,100%_100%)]" 
+          : "[clip-path:polygon(0%_15%,15%_0%,100%_0%,100%_100%,0%_100%)]",
         clickCount >= 3 && "grayscale opacity-80 cursor-not-allowed"
       )}
     >
@@ -131,7 +134,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         src={item.videoUrl || undefined} 
         storageKey={`feed-${category}-${item.id}`}
         fill
-        className="object-cover"
+        className="object-cover object-center scale-110 group-hover:scale-100 transition-transform duration-[2s]"
         autoPlay
         muted
         loop
@@ -143,7 +146,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           <Lock className="w-8 h-8 text-white opacity-50" />
         </div>
       )}
-      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </div>
   );
 
@@ -189,51 +192,44 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           ref={trackRef}
           className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
         >
-          <div className="flex gap-20 items-center h-full py-20">
-            {/* Column 1 */}
-            <div className="flex flex-col gap-32">
+          <div className="flex gap-0 items-center h-full py-0">
+            {/* Col 1 */}
+            <div className="flex flex-col justify-between h-[80vh] py-10">
               <ProjectText item={feedItems[0]} />
-              <div className="mt-12">
-                <ProjectVideo item={feedItems[1]} />
-              </div>
+              <ProjectVideo item={feedItems[1]} type="down" />
             </div>
 
-            {/* Column 2 */}
-            <div className="flex flex-col gap-32">
-              <ProjectVideo item={feedItems[0]} />
-              <div className="mt-12">
-                <ProjectText item={feedItems[1]} />
-              </div>
+            {/* Col 2 */}
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
+              <ProjectVideo item={feedItems[0]} type="up" />
+              <ProjectText item={feedItems[1]} />
             </div>
 
-            {/* Column 3 */}
-            <div className="flex flex-col gap-32">
+            {/* Col 3 */}
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
               <ProjectText item={feedItems[2]} />
-              <div className="mt-12">
-                <ProjectVideo item={feedItems[3]} />
-              </div>
+              <ProjectVideo item={feedItems[3]} type="down" />
             </div>
 
-            {/* Column 4 */}
-            <div className="flex flex-col gap-32">
-              <ProjectVideo item={feedItems[2]} />
-              <div className="mt-12">
-                <ProjectText item={feedItems[3]} />
-              </div>
+            {/* Col 4 */}
+            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
+              <ProjectVideo item={feedItems[2]} type="up" />
+              <ProjectText item={feedItems[3]} />
             </div>
 
-            <div className="w-[20vw]" />
+            <div className="w-[30vw]" />
           </div>
         </div>
 
         {/* Progress Indicator */}
-        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400">
+        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400 z-50">
           <div className="flex items-center gap-4">
-            <span>Side-scrolling Parallax Active</span>
+            <span>Geometric Masking Active</span>
             <div className="w-12 h-px bg-neutral-200" />
+            <span>01 / 04</span>
           </div>
           <div className="flex gap-2 items-center">
-            <span className="mr-2">Interaction Quota</span>
+            <span className="mr-2">Scroll vertically to reveal masks</span>
             {[0, 1, 2].map(i => (
               <div key={i} className={cn(
                 "w-1.5 h-1.5 rounded-full border transition-colors", 
