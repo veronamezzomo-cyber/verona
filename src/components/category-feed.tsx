@@ -59,7 +59,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   ];
 
   useEffect(() => {
-    // Entrance animation
     if (sectionRef.current) {
       gsap.fromTo(sectionRef.current, 
         { opacity: 0, y: 10 },
@@ -90,11 +89,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100dvh-7.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl z-30 overflow-hidden"
+      className="relative w-full h-[calc(100dvh-7.5rem)] flex flex-col bg-background border-y border-foreground/10 shadow-2xl z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
-        {/* Header inside the feed - Ultra Compact */}
-        <div className="flex items-center justify-between py-1.5 border-b border-foreground/5 shrink-0">
+        {/* Header - Compact */}
+        <div className="flex items-center justify-between py-2 border-b border-foreground/5 shrink-0">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[8px] uppercase tracking-widest text-primary font-bold">Archive</span>
             <h2 className="font-serif text-lg italic font-bold text-foreground lowercase">{category}</h2>
@@ -109,12 +108,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
-        {/* Immersive Grid - Maximized height filling */}
+        {/* Content - Max Height Utilization */}
         <div className="flex-1 flex flex-col h-full min-h-0">
           <div className="w-full grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-8 items-stretch flex-1 h-full min-h-0">
             
-            {/* Left Column: Details */}
-            <div className="flex flex-col gap-4 justify-center h-full min-h-0 overflow-hidden animate-reveal">
+            {/* Left Col: Details */}
+            <div className="flex flex-col gap-4 justify-center h-full min-h-0 overflow-hidden">
               <div className="py-2">
                 <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                   {currentItem.date}
@@ -141,8 +140,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Right Column: Video Container - Maximized to fill height */}
-            <div className="flex justify-center items-center h-full min-h-0 relative overflow-hidden">
+            {/* Right Col: Immersive Video Player */}
+            <div className="flex justify-center items-center h-full min-h-0 relative">
               <div 
                 ref={scrollRef}
                 className="relative h-full aspect-[9/16] overflow-y-scroll snap-y snap-mandatory scrollbar-hide bg-black border-x border-foreground/10 shadow-2xl"
@@ -176,7 +175,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
         
         {/* Floating Minimal Scroll Hint */}
-        <div className="absolute bottom-2 left-8 hidden lg:block z-40">
+        <div className="absolute bottom-4 left-8 hidden lg:block z-40">
           <p className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground opacity-60">
             Scroll vertically inside the feed to explore projects
           </p>

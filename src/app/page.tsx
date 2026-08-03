@@ -382,7 +382,7 @@ export default function PortfolioPage() {
             )}
           </div>
 
-          {/* CONTACT SECTION (FULL SCREEN AT END WITH INTEGRATED FOOTER) */}
+          {/* CONTACT SECTION */}
           <section 
             id="contact" 
             ref={contactRef} 
@@ -392,9 +392,9 @@ export default function PortfolioPage() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] -z-10" />
 
-            {/* Main Contact Content */}
-            <div className="flex-1 flex flex-col items-center justify-center container mx-auto text-center relative z-10 py-4">
-              <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-6 font-mono text-[10px] uppercase tracking-widest text-primary bg-background/50 backdrop-blur-sm">
+            {/* Main Contact Content - justify-start to remove gap between feed and seal */}
+            <div className="flex-1 flex flex-col items-center justify-start container mx-auto text-center relative z-10 pt-20">
+              <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-4 font-mono text-[10px] uppercase tracking-widest text-primary bg-background/50 backdrop-blur-sm">
                 Available for worldwide projects
               </div>
               <h2 className="text-5xl md:text-7xl lg:text-9xl font-bold mb-6 italic font-serif text-foreground leading-tight tracking-tighter">
