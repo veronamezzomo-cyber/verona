@@ -245,7 +245,6 @@ export default function PortfolioPage() {
     
     if (!worksSection) return;
 
-    // We animate height and padding together as the section hits the header
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: worksSection,
@@ -324,7 +323,7 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        {/* Layer 0 (Base Sticky): Hero Section */}
+        {/* Layer 0: Hero Section (Sticky Base) */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
@@ -343,10 +342,10 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Layer 1 (Covers Layer 0): Works/Experience Wrapper */}
+        {/* Layer 1: Works/Experience Wrapper (Slides Over Hero) */}
         <div className="relative z-10 bg-background">
           <div ref={experienceRef} className="relative min-h-screen flex flex-col bg-background">
-            {/* Morphing Mini-Menu Section: Sticky at header boundary */}
+            {/* Morphing Mini-Menu Section */}
             <section id="works" className="w-full py-12 sticky top-20 z-10 bg-background border-b border-foreground/5">
               <div className="grid container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {categories.map((cat) => {
@@ -383,7 +382,7 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
-          {/* Layer 2 (Covers Layers 0 & 1): Contact Section */}
+          {/* Layer 2: Contact Section (Slides Over Everything) */}
           <section id="contact" className="sticky top-0 z-20 min-h-screen flex flex-col border-t border-foreground/5 bg-background">
             <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
               <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
