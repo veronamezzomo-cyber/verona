@@ -348,7 +348,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* WORKS & STATS LAYER - STACKING OVER HERO */}
-        <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)] overflow-hidden">
+        <div className="relative z-10 bg-background shadow-[0_-20px_50px_-12px_rgba(0,0,0,0.1)]">
           
           {/* STATS BLOCK */}
           <section className="py-32 border-y border-foreground/5 bg-muted/5">
@@ -396,10 +396,10 @@ export default function PortfolioPage() {
                       tabIndex={0}
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-xl",
+                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer",
                         isScrolled 
-                          ? "h-10 bg-transparent flex items-center justify-center border-x border-foreground/5 rounded-none" 
-                          : "aspect-[1/1.2] shadow-xl hover:shadow-2xl hover:-translate-y-1",
+                          ? "w-10 h-10 aspect-square rounded-sm bg-transparent flex items-center justify-center border-x border-foreground/5" 
+                          : "aspect-[1/1.2] rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1",
                         isActive && !isScrolled && "ring-4 ring-primary ring-offset-4 ring-offset-background",
                         isActive && isScrolled && "bg-primary text-white"
                       )}

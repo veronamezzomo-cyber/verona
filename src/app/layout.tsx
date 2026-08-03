@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import { SmoothScroll } from '@/components/smooth-scroll';
@@ -35,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <body className="font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-hidden" suppressHydrationWarning>
+      <body className="font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-clip" suppressHydrationWarning>
         {/* Smooth Scroll layer */}
         <SmoothScroll />
         
