@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -255,11 +254,8 @@ export default function PortfolioPage() {
       }
 
       // Secret Reveal Logic:
-      // Trigger when scrolling deep into the spacer area (natural end + 50px)
-      // Hide immediately on scroll up
-      const extraSpacerHeight = window.innerHeight * 0.5;
-      const naturalEnd = docHeight - extraSpacerHeight;
-      const isAtBottom = (currentScrollY + winHeight) > (naturalEnd + 50);
+      // Trigger when reaching the actual bottom of the page
+      const isAtBottom = (currentScrollY + winHeight) >= docHeight - 10;
       const isScrollingUp = currentScrollY < lastScrollY;
 
       if (isScrollingUp) {
@@ -404,9 +400,6 @@ export default function PortfolioPage() {
             </div>
           </footer>
         </div>
-
-        {/* Bottom Spacer - Allows "over-scrolling" past the footer to trigger the panel */}
-        <div className="h-[50vh] bg-background" suppressHydrationWarning />
       </main>
     </div>
   );
