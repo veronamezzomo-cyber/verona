@@ -215,7 +215,7 @@ export default function PortfolioPage() {
         // Pinned when experience reaches header
         setIsPinned(expRect.top <= headerHeight);
         
-        // Mini when contact is about to appear
+        // Mini state when contact is about to appear
         setIsMini(contactRect.top <= headerHeight + 100);
       }
     };
@@ -322,12 +322,8 @@ export default function PortfolioPage() {
               )}
             >
               <div className={cn(
-                "grid transition-all duration-500 mx-auto px-6",
-                isMini 
-                  ? "grid-cols-6 h-12 items-center max-w-screen-sm gap-2" 
-                  : isPinned 
-                    ? "grid-cols-6 gap-4 py-4 max-w-4xl"
-                    : "grid-cols-3 md:grid-cols-6 gap-6 py-4"
+                "grid transition-all duration-500 mx-auto",
+                isPinned ? "container px-6 grid-cols-6 gap-4 py-4" : "grid-cols-3 md:grid-cols-6 gap-4 py-4"
               )}>
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
@@ -362,14 +358,12 @@ export default function PortfolioPage() {
                         </>
                       )}
                       
-                      {(!isMini && !isPinned) || (!isMini && isPinned) ? (
-                         <span className={cn(
-                          "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white text-[10px] md:text-xs absolute bottom-2 left-1/2 -translate-x-1/2",
-                          isActive && "text-white"
-                        )}>
-                          {cat.label}
-                        </span>
-                      ) : null}
+                      <span className={cn(
+                        "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white text-xs md:text-sm lg:text-base absolute bottom-2 left-1/2 -translate-x-1/2",
+                        isActive && "text-white"
+                      )}>
+                        {cat.label}
+                      </span>
                     </div>
                   );
                 })}
