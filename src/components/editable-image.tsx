@@ -30,7 +30,6 @@ export function EditableImage({
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize from session storage if available
   useEffect(() => {
     const saved = sessionStorage.getItem(`img_${storageKey}`);
     if (saved) setCurrentSrc(saved);
@@ -43,10 +42,7 @@ export function EditableImage({
     setError(null);
 
     try {
-      // Basic URL validation
       new URL(newUrl);
-      
-      // Attempt to load the image to verify it's valid
       const img = new window.Image();
       img.src = newUrl;
       
@@ -67,13 +63,17 @@ export function EditableImage({
   };
 
   return (
-    <div className={cn("group relative w-full h-full", containerClassName)}>
+    <div className={cn(
+      "group relative", 
+      fill ? "absolute inset-0 w-full h-full" : "w-full h-full",
+      containerClassName
+    )}>
       <img 
         {...props} 
         src={currentSrc} 
         className={cn(
           className,
-          fill && "absolute inset-0 w-full h-full object-cover"
+          fill ? "absolute inset-0 w-full h-full object-cover" : "w-full h-full object-cover"
         )}
         loading={priority ? "eager" : "lazy"}
       />
@@ -90,13 +90,6 @@ export function EditableImage({
               )}
               onClick={(e) => {
                 e.stopPropagation();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsOpen(true);
-                }
               }}
             >
               <Pencil className="h-3.5 w-3.5 text-white" />
