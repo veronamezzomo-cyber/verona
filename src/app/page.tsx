@@ -272,7 +272,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-hidden">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
@@ -289,7 +289,7 @@ export default function PortfolioPage() {
 
       <main className="relative">
         {/* Hero Section: Sticky for stacking overlap effect */}
-        <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto">
+        <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
@@ -347,7 +347,7 @@ export default function PortfolioPage() {
           </div>
 
           {/* Contact Section: Sticky z-20 to cover everything else */}
-          <section id="contact" className="sticky top-0 z-20 bg-background min-h-screen flex flex-col border-t border-foreground/5">
+          <section id="contact" className="sticky top-0 z-20 min-h-screen flex flex-col border-t border-foreground/5 bg-background">
             <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
               <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
               <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
