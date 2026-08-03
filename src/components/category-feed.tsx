@@ -59,6 +59,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       if (!containerRef.current || !trackRef.current) return;
       
       const rect = containerRef.current.getBoundingClientRect();
+      // Calculate how far we have scrolled through the parent's total height (400vh)
       const scrollHeight = rect.height - window.innerHeight;
       const progress = Math.min(Math.max(-rect.top / scrollHeight, 0), 1);
       
@@ -75,6 +76,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     };
 
     window.addEventListener('scroll', handleScroll);
+    // Trigger once to position correctly
+    handleScroll();
+    
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -117,15 +121,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       {/* Sticky Content Wrapper */}
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
         
-        {/* Decorative Background Art */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20">
-          {[...Array(10)].map((_, i) => (
-            <div key={i} className="h-full w-px bg-black relative">
-              <span className="absolute top-24 left-2 font-mono text-[10px] font-bold">0{i + 1}</span>
-            </div>
-          ))}
-        </div>
-
         {/* Header - Remains Fixed at top of sticky container */}
         <div className="flex items-center justify-between py-6 px-12 border-b border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50">
           <div className="flex items-center gap-4">
@@ -146,8 +141,18 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           ref={trackRef}
           className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
         >
+          {/* Moving Background Art - Integrated into track to move with content */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20 -z-10">
+            {[...Array(20)].map((_, i) => (
+              <div key={i} className="h-full w-px bg-black relative flex-shrink-0 mx-[200px]">
+                <span className="absolute top-24 left-2 font-mono text-[10px] font-bold">0{i + 1}</span>
+              </div>
+            ))}
+          </div>
+
           <div className="flex gap-20 items-center h-full py-20">
-            {/* Column 1: P1 Text / P2 Video */}
+            {/* zigzag mapping logic */}
+            {/* Column 1: P1 Text (Top) / P2 Video (Bottom) */}
             <div className="flex flex-col gap-32">
               <ProjectText item={feedItems[0]} />
               <div className="mt-12">
@@ -155,7 +160,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Column 2: P1 Video / P2 Text */}
+            {/* Column 2: P1 Video (Top) / P2 Text (Bottom) */}
             <div className="flex flex-col gap-32">
               <ProjectVideo item={feedItems[0]} />
               <div className="mt-12">
@@ -163,7 +168,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Column 3: P3 Text / P4 Video */}
+            {/* Column 3: P3 Text (Top) / P4 Video (Bottom) */}
             <div className="flex flex-col gap-32">
               <ProjectText item={feedItems[2]} />
               <div className="mt-12">
@@ -171,7 +176,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               </div>
             </div>
 
-            {/* Column 4: P3 Video / P4 Text */}
+            {/* Column 4: P3 Video (Top) / P4 Text (Bottom) */}
             <div className="flex flex-col gap-32">
               <ProjectVideo item={feedItems[2]} />
               <div className="mt-12">
