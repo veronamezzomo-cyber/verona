@@ -80,7 +80,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-8.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-4 transition-all duration-500 z-30 overflow-hidden"
+      className="relative w-full h-[calc(100vh-7.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl py-4 transition-all duration-500 z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
         {/* Header inside the feed - Compact */}
