@@ -111,7 +111,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
   };
 
   const ProjectText = ({ item }: { item: FeedItem }) => (
-    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8 z-20" suppressHydrationWarning>
+    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8 z-20">
       <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold mb-2">
         {item.date}
       </span>
@@ -134,7 +134,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           : "[clip-path:polygon(0%_15%,15%_0%,100%_0%,100%_100%,0%_100%)]",
         clickCount >= 3 && "grayscale opacity-80 cursor-not-allowed"
       )}
-      suppressHydrationWarning
     >
       <EditableVideo 
         src={item.videoUrl || ""} 
@@ -160,9 +159,8 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
     <section 
       ref={containerRef}
       className="relative w-full h-[150vh] bg-white z-30"
-      suppressHydrationWarning
     >
-      <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col" suppressHydrationWarning>
+      <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
         
         {/* Header */}
         <div className="flex items-center justify-between py-6 px-12 border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50">
@@ -186,7 +184,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
         <div 
           ref={bgLinesRef}
           className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20 z-10 will-change-transform"
-          suppressHydrationWarning
         >
           {[...Array(30)].map((_, i) => (
             <div key={i} className="h-full w-px bg-black relative flex-shrink-0 mx-[250px]">
@@ -199,7 +196,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
         <div 
           ref={trackRef}
           className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
-          suppressHydrationWarning
         >
           <div className="flex gap-0 items-center h-full py-0">
             <div className="flex flex-col justify-between h-[80vh] py-10">
