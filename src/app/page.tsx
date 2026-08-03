@@ -12,7 +12,8 @@ import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { 
   Mail, 
-  ArrowRight
+  ArrowRight,
+  ChevronRight
 } from 'lucide-react';
 
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -219,12 +220,16 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     const newValue = activeCategory === label ? null : label;
-    setActiveCategory(newValue);
     
+    // Smooth transition logic
     if (newValue) {
+      setActiveCategory(newValue);
+      // Wait for DOM to adjust then scroll smoothly
       setTimeout(() => {
         experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      }, 50);
+    } else {
+      setActiveCategory(null);
     }
   };
 

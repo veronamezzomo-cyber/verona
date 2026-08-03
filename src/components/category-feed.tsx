@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
+import gsap from 'gsap';
 
 interface CategoryFeedProps {
   category: string;
@@ -57,6 +58,14 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   ];
 
   useEffect(() => {
+    // Entrance animation
+    if (sectionRef.current) {
+      gsap.fromTo(sectionRef.current, 
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+      );
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -80,7 +89,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={sectionRef}
-      className="relative w-full h-[calc(100vh-8.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl transition-all duration-500 z-30 overflow-hidden"
+      className="relative w-full h-[calc(100vh-8.5rem)] flex flex-col bg-[hsl(var(--feed-bg))] border-y border-foreground/10 shadow-2xl z-30 overflow-hidden"
     >
       <div className="container mx-auto px-6 h-full flex flex-col">
         {/* Header inside the feed - Very Compact */}
@@ -105,7 +114,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             
             {/* Left Column: Details */}
             <div className="flex flex-col gap-4 justify-center h-full overflow-hidden">
-              <div className="animate-reveal" key={currentItem.id}>
+              <div key={currentItem.id} className="animate-reveal">
                 <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                   {currentItem.date}
                 </span>
