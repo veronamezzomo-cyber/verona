@@ -226,6 +226,7 @@ export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isPinned, setIsPinned] = useState(false);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
   
   const experienceRef = useRef<HTMLDivElement>(null);
 
@@ -243,26 +244,35 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const winHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      
+      // Traditional pinning logic for the works grid
       if (experienceRef.current) {
         const expRect = experienceRef.current.getBoundingClientRect();
         setIsPinned(expRect.top <= 80);
       }
 
-      const scrollY = window.scrollY;
-      const winHeight = window.innerHeight;
-      const docHeight = document.documentElement.scrollHeight;
-      
-      // Easter Egg Trigger: Only reveal if user scrolls past the natural end of the document
-      // Natural end is docHeight - extra_spacer (50vh)
+      // Secret Reveal Logic:
+      // Trigger when scrolling deep into the spacer area (natural end + 50px)
+      // Hide immediately on scroll up
       const extraSpacerHeight = window.innerHeight * 0.5;
       const naturalEnd = docHeight - extraSpacerHeight;
-      
-      // We reveal the secret when we scroll significantly into the extra space
-      setIsSecretVisible((scrollY + winHeight) > (naturalEnd + 50));
+      const isAtBottom = (currentScrollY + winHeight) > (naturalEnd + 50);
+      const isScrollingUp = currentScrollY < lastScrollY;
+
+      if (isScrollingUp) {
+        setIsSecretVisible(false);
+      } else if (isAtBottom) {
+        setIsSecretVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [lastScrollY]);
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
@@ -365,48 +375,38 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
-          <section id="contact" className="relative min-h-screen flex flex-col pt-32" suppressHydrationWarning>
-            <div 
-              className={cn(
-                "flex-1 flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 transition-transform duration-700 ease-in-out",
-                isSecretVisible && "translate-y-[-300px]"
-              )} 
-              suppressHydrationWarning
-            >
-              <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
-              <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground mb-12">Let&apos;s Talk</Button>
-            </div>
-
-            {/* Easter Egg Container - Expands upward from bottom */}
-            <div 
-              className={cn(
-                "transition-all duration-700 ease-in-out bg-background text-foreground overflow-hidden flex flex-col items-center",
-                isSecretVisible ? "h-[300px] opacity-100" : "h-0 opacity-0"
-              )}
-              suppressHydrationWarning
-            >
-              <LEDTicker text="VERONA STUDIO" />
-            </div>
-            
-            {/* Spacer for Fixed Footer */}
-            <div className="h-40 shrink-0" suppressHydrationWarning />
+          {/* Contact Section - Normal Flow */}
+          <section id="contact" className="relative min-h-screen flex flex-col justify-center items-center container mx-auto text-center px-6 border-t border-foreground/5" suppressHydrationWarning>
+            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
+            <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
           </section>
+
+          {/* Easter Egg Panel - Collapsible Accordion-style in Normal Flow */}
+          <div 
+            className={cn(
+              "overflow-hidden transition-all duration-700 ease-in-out bg-background",
+              isSecretVisible ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+            )}
+            suppressHydrationWarning
+          >
+            <LEDTicker text="VERONA STUDIO" />
+          </div>
+          
+          {/* Footer - Normal Flow, last element in the content area */}
+          <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5" suppressHydrationWarning>
+            <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6" suppressHydrationWarning>
+              <div className="flex gap-8" suppressHydrationWarning>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
+              </div>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" suppressHydrationWarning>© 2024 Leonardo Verona. Digital Craftsman</p>
+            </div>
+          </footer>
         </div>
 
-        {/* Extra height to allow scrolling past the natural end */}
+        {/* Bottom Spacer - Allows "over-scrolling" past the footer to trigger the panel */}
         <div className="h-[50vh] bg-background" suppressHydrationWarning />
-
-        {/* Footer - Pinned to bottom of the viewport at all times */}
-        <footer className="fixed bottom-0 w-full z-[150] bg-background/95 backdrop-blur-md border-t border-foreground/5 py-12 px-6" suppressHydrationWarning>
-          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6" suppressHydrationWarning>
-            <div className="flex gap-8" suppressHydrationWarning>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
-            </div>
-            <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" suppressHydrationWarning>© 2024 Leonardo Verona. Digital Craftsman</p>
-          </div>
-        </footer>
       </main>
     </div>
   );
