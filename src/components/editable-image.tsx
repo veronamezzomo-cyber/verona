@@ -67,7 +67,7 @@ export function EditableImage({
       "group relative overflow-hidden", 
       fill ? "absolute inset-0 w-full h-full" : "w-full h-full",
       containerClassName
-    )}>
+    )} suppressHydrationWarning>
       <img 
         {...props} 
         src={currentSrc} 
@@ -78,7 +78,7 @@ export function EditableImage({
         loading={priority ? "eager" : "lazy"}
       />
       
-      <div className="absolute top-2 right-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className="absolute top-2 right-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" suppressHydrationWarning>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <div 

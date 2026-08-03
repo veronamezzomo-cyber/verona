@@ -213,13 +213,12 @@ export default function PortfolioPage() {
         setIsPinned(expRect.top <= 80);
       }
 
-      // Secret reveal logic: Stable detection
       const scrollY = window.scrollY;
       const winHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
       
-      // Calculate height excluding the secret section if it's already shown
-      const baseDocHeight = docHeight - (isSecretVisibleRef.current ? 300 : 0);
+      const secretHeight = 200;
+      const baseDocHeight = docHeight - (isSecretVisibleRef.current ? secretHeight : 0);
       const isAtBottom = (scrollY + winHeight) >= (baseDocHeight - 5);
       
       if (isAtBottom !== isSecretVisibleRef.current) {
@@ -235,9 +234,10 @@ export default function PortfolioPage() {
     setActiveCategory(label);
     setTimeout(() => {
       if (experienceRef.current) {
+        const target = experienceRef.current.getBoundingClientRect().top + window.scrollY;
         gsap.to(window, {
           duration: 1.2,
-          scrollTo: { y: experienceRef.current, offsetY: 80 },
+          scrollTo: { y: target, offsetY: 80 },
           ease: 'power3.inOut'
         });
       }
@@ -265,7 +265,7 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative" suppressHydrationWarning>
-        <section className="flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto">
+        <section className="flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto" suppressHydrationWarning>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full" suppressHydrationWarning>
             <div className="flex flex-col gap-6 animate-slide-up" suppressHydrationWarning>
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
@@ -291,6 +291,7 @@ export default function PortfolioPage() {
                 "z-40 transition-all duration-500 w-full",
                 isPinned ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12"
               )}
+              suppressHydrationWarning
             >
               <div className={cn(
                 "grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
@@ -330,10 +331,28 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
           </div>
 
-          <section id="contact" className="min-h-screen flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 py-20">
+          <section id="contact" className="min-h-screen flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 py-20" suppressHydrationWarning>
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
-            <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
+            <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground mb-12">Let&apos;s Talk</Button>
             
+            {/* Relocated Secret ASCII Section */}
+            <div 
+              className={cn(
+                "transition-all duration-1000 ease-in-out bg-black text-primary overflow-hidden w-full",
+                isSecretVisible ? "h-[200px] my-12 opacity-100" : "h-0 my-0 opacity-0"
+              )}
+              suppressHydrationWarning
+            >
+              <div className="container mx-auto px-6" suppressHydrationWarning>
+                <pre className="font-mono text-[6px] md:text-[9px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide">
+                  {ASCII_VERONA_STUDIO.trim()}
+                </pre>
+                <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50" suppressHydrationWarning>
+                  // System Breach // Crafting the Void
+                </div>
+              </div>
+            </div>
+
             <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 py-12 pb-8" suppressHydrationWarning>
               <div className="flex gap-8" suppressHydrationWarning>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
@@ -343,24 +362,6 @@ export default function PortfolioPage() {
               <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© 2024 Leonardo Verona. Digital Craftsman</p>
             </div>
           </section>
-          
-          {/* Secret ASCII Section */}
-          <div 
-            className={cn(
-              "transition-all duration-1000 ease-in-out bg-black text-primary overflow-hidden",
-              isSecretVisible ? "h-[300px] py-12 opacity-100" : "h-0 py-0 opacity-0"
-            )}
-            suppressHydrationWarning
-          >
-            <div className="container mx-auto px-6" suppressHydrationWarning>
-              <pre className="font-mono text-[8px] md:text-[10px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide">
-                {ASCII_VERONA_STUDIO.trim()}
-              </pre>
-              <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50" suppressHydrationWarning>
-                // System Breach // Crafting the Void
-              </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>
