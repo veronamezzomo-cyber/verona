@@ -10,10 +10,29 @@ import { EditableVideo } from '@/components/editable-video';
 import { CategoryFeed } from '@/components/category-feed';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { 
   Mail, 
   ArrowRight
 } from 'lucide-react';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollToPlugin);
+}
+
+const ASCII_VERONA_STUDIO = `
+▒▒  ▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒  ▒▒  ▒▒▒▒▒▒ 
+▒▒  ▒▒ ▒▒     ▒▒   ▒▒ ▒▒  ▒▒  ▒▒▒ ▒▒  ▒▒  ▒▒ 
+ ▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒  ▒▒  ▒▒ ▒▒▒  ▒▒▒▒▒▒ 
+  ▒▒   ▒▒     ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒  ▒▒ 
+  ▒▒   ▒▒▒▒▒▒ ▒▒   ▒▒ ▒▒▒▒▒▒  ▒▒  ▒▒  ▒▒  ▒▒ 
+
+▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒  ▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒ ▒▒▒▒▒▒ 
+▒▒       ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
+▒▒▒▒▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
+    ▒▒   ▒▒   ▒▒  ▒▒ ▒▒  ▒▒   ▒▒   ▒▒  ▒▒ 
+▒▒▒▒▒▒   ▒▒   ▒▒▓▓▓▓ ▒▒▓▓▓▓ ▒▒▓▓▓▓ ▒▒▓▓▓▓
+`;
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -70,23 +89,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       });
     }, 7000);
 
-    const lequeInterval = setInterval(() => {
-      gsap.to(morphFactorRef.current, {
-        value: 1,
-        duration: 1.5,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          gsap.delayedCall(0.5, () => {
-            gsap.to(morphFactorRef.current, {
-              value: 0,
-              duration: 1.5,
-              ease: 'power2.out'
-            });
-          });
-        }
-      });
-    }, 30000);
-
     let requestRef: number;
     const animate = () => {
       timeRef.current += 0.01 * currentSpeedRef.current;
@@ -136,24 +138,13 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => {
       cancelAnimationFrame(requestRef);
       clearInterval(focusInterval);
-      clearInterval(lequeInterval);
     };
   }, [videos, orbitParams]);
-
-  const handleMouseEnter = () => {
-    gsap.to(currentSpeedRef, { current: 0.23, duration: 2.0, ease: 'sine.out' });
-  };
-  
-  const handleMouseLeave = () => {
-    gsap.to(currentSpeedRef, { current: 0.2, duration: 3.0, ease: 'sine.inOut' });
-  };
 
   return (
     <div 
       ref={containerRef}
       className="relative w-full h-[650px] flex items-center justify-center pointer-events-none"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <div className="absolute inset-0 pointer-events-auto" />
       {videos.map((vid, i) => (
@@ -166,19 +157,27 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
             transform: 'translate(-50%, -50%)' 
           }} 
         >
-          <EditableVideo 
-            src={vid.imageUrl} 
-            storageKey={vid.id}
-            fill
-            className="object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={`https://picsum.photos/seed/${vid.id}/400/400`}
-            hideControls
-          />
+          {vid.imageUrl.endsWith('.mp4') ? (
+            <EditableVideo 
+              src={vid.imageUrl} 
+              storageKey={vid.id}
+              fill
+              className="object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              hideControls
+            />
+          ) : (
+             <EditableImage 
+              src={vid.imageUrl} 
+              storageKey={vid.id}
+              fill
+              className="object-cover"
+              data-ai-hint={vid.imageHint}
+            />
+          )}
         </div>
       ))}
     </div>
@@ -188,10 +187,10 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isPinned, setIsPinned] = useState(false);
+  const [isSecretVisible, setIsSecretVisible] = useState(false);
+  
   const gridRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
   const experienceRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLElement>(null);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -203,28 +202,32 @@ export default function PortfolioPage() {
   ], []);
 
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
+  const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
   useEffect(() => {
     const handleScroll = () => {
       if (experienceRef.current) {
         const expRect = experienceRef.current.getBoundingClientRect();
-        const headerHeight = 80;
-        setIsPinned(expRect.top <= headerHeight);
+        setIsPinned(expRect.top <= 80);
       }
+
+      // Secret reveal logic: Check if scrolled past the very end
+      const scrollPos = window.innerHeight + window.scrollY;
+      const threshold = document.body.offsetHeight - 5;
+      setIsSecretVisible(scrollPos >= threshold);
     };
     window.addEventListener('scroll', handleScroll);
-    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleCategoryClick = (label: string) => {
-    const newValue = activeCategory === label ? null : label;
-    setActiveCategory(newValue);
-    
-    if (newValue) {
-      setTimeout(() => {
-        experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
+    setActiveCategory(label);
+    if (experienceRef.current) {
+      gsap.to(window, {
+        duration: 1.2,
+        scrollTo: experienceRef.current.offsetTop - 80,
+        ease: 'power3.inOut'
+      });
     }
   };
 
@@ -232,133 +235,80 @@ export default function PortfolioPage() {
     setActiveCategory(null);
   };
 
-  const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   const isMini = activeCategory !== null;
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-transparent">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-hidden">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
             LV<span className="text-primary">.</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
-            <Link href="#works" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">Works</Link>
-            <Link href="#about" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">About</Link>
-            <Link href="#contact" className="text-foreground/70 hover:text-foreground transition-all duration-300 border-b-2 border-transparent hover:border-primary">Contact</Link>
-            <div className="flex items-center gap-4 border-l border-foreground/10 pl-8">
-              <ThemeToggle />
-            </div>
+            <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
+            <Link href="#about" className="text-foreground/70 hover:text-foreground">About</Link>
+            <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
+            <ThemeToggle />
           </nav>
-          <div className="md:hidden">
-            <Button variant="ghost" size="sm" className="font-mono text-[10px]">MENU</Button>
-          </div>
         </div>
       </header>
 
       <main className="relative">
-        <section 
-          ref={heroRef}
-          className="sticky top-0 z-0 flex pt-28 pb-8 overflow-hidden h-screen bg-background"
-        >
-          <div className="container mx-auto px-6 h-full">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-4 items-center h-full">
-              <div 
-                className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4 lg:gap-5 lg:pr-12 lg:py-0 py-6 z-10 justify-center lg:-translate-y-12"
-              >
-                <div className="animate-slide-up [animation-delay:100ms]">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">
-                    Video Editor • Brazil
-                  </span>
-                </div>
-                
-                <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.9] tracking-tighter text-foreground animate-slide-up [animation-delay:200ms]">
-                  CRAFTING<br />
-                  VISUAL<br />
-                  STORYTELLING<span className="text-primary">.</span>
-                </h1>
-
-                <div className="flex flex-wrap justify-center lg:justify-start items-center gap-8 pt-4 animate-slide-up [animation-delay:400ms]">
-                  <Button size="lg" className="rounded-none px-12 h-16 text-base font-bold bg-foreground text-background hover:opacity-90 transition-all duration-300 shadow-xl">
-                    View Projects
-                  </Button>
-                  <Link href="#contact" className="group flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] font-bold text-foreground hover:text-primary transition-colors">
-                    Contact Me <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </div>
-              </div>
-
-              <div className="relative w-full h-full flex items-center justify-center animate-image-reveal z-20 overflow-visible">
-                <FloatingVideoCluster videos={clusterVideos} />
+        <section className="flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+            <div className="flex flex-col gap-6 animate-slide-up">
+              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
+              <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-tight tracking-tighter text-foreground">
+                CRAFTING<br />VISUAL<br />STORYTELLING<span className="text-primary">.</span>
+              </h1>
+              <div className="flex gap-6 mt-4">
+                <Button size="lg" className="rounded-none px-12 h-16 bg-foreground text-background">View Projects</Button>
+                <Link href="#contact" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest">Contact Me <ArrowRight className="h-3 w-3" /></Link>
               </div>
             </div>
-          </div>
-
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-reveal [animation-delay:800ms]">
-            <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">Scroll</span>
-            <div className="w-[2px] h-8 bg-primary/20 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-full bg-primary animate-scroll-line shadow-[0_0_10px_rgba(139,30,46,0.5)]" />
+            <div className="relative animate-image-reveal">
+              <FloatingVideoCluster videos={clusterVideos} />
             </div>
           </div>
         </section>
 
         <div className="relative z-10 bg-background">
-          <div ref={experienceRef} className="relative h-fit flex flex-col">
+          <div ref={experienceRef} className="relative min-h-screen flex flex-col">
             <section 
               id="works" 
-              ref={gridRef}
               className={cn(
-                "z-40 transition-all duration-500",
-                isPinned ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12 px-6 container mx-auto"
+                "z-40 transition-all duration-500 w-full",
+                isPinned ? "sticky top-20 bg-background/95 backdrop-blur-xl border-y border-foreground/5" : "py-12"
               )}
             >
               <div className={cn(
-                "grid transition-all duration-500 max-w-7xl mx-auto w-full",
-                isMini 
-                  ? "grid-cols-6 h-10 items-center gap-2 px-6" 
-                  : "grid-cols-3 md:grid-cols-6 gap-4 py-4 px-6"
+                "grid transition-all duration-500 container mx-auto px-6",
+                isMini ? "grid-cols-6 h-12 items-center gap-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6"
               )}>
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
-                  
                   return (
                     <div 
                       key={cat.label} 
-                      role="button"
-                      tabIndex={0}
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "group relative overflow-hidden transition-all duration-500 outline-none cursor-pointer rounded-sm flex items-center justify-center",
-                        isMini ? "h-8 w-full" : "aspect-square w-full",
-                        isActive && "ring-1 ring-primary ring-offset-1 ring-offset-background"
+                        "group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300",
+                        isMini && "aspect-auto h-8",
+                        isActive && "ring-2 ring-primary"
                       )}
                     >
                       {img && (
-                        <>
-                          <EditableImage 
-                            src={img.imageUrl} 
-                            alt={cat.label} 
-                            storageKey={`cat-${cat.id}`}
-                            fill
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
-                            containerClassName="absolute inset-0"
-                            data-ai-hint={img.imageHint}
-                          />
-                          <div className={cn(
-                            "absolute inset-0 transition-opacity duration-300 z-10",
-                            isActive ? "bg-primary/40" : "bg-black/40 group-hover:bg-black/20"
-                          )} />
-                        </>
+                        <EditableImage 
+                          src={img.imageUrl} 
+                          alt={cat.label} 
+                          storageKey={`cat-${cat.id}`}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       )}
-                      
-                      <span className={cn(
-                        "relative z-30 font-serif font-bold transition-all duration-300 text-center pointer-events-none text-white absolute",
-                        isMini 
-                          ? "text-[7px] md:text-[8px] uppercase tracking-widest bottom-1" 
-                          : "text-xs md:text-sm lg:text-base bottom-2 left-1/2 -translate-x-1/2",
-                        isActive && "text-white"
-                      )}>
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-xs md:text-sm uppercase tracking-widest z-20 pointer-events-none">
                         {cat.label}
                       </span>
                     </div>
@@ -367,58 +317,39 @@ export default function PortfolioPage() {
               </div>
             </section>
 
-            {activeCategory && (
-              <CategoryFeed 
-                category={activeCategory} 
-                onClose={handleCloseFeed} 
-              />
-            )}
+            {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />}
           </div>
 
-          <section 
-            id="contact" 
-            ref={contactRef} 
-            className="min-h-screen flex flex-col relative overflow-hidden bg-background border-t border-foreground/5"
-          >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[150px] -z-10" />
+          <section id="contact" className="min-h-screen flex flex-col items-center justify-center container mx-auto text-center px-6 border-t border-foreground/5 py-20">
+            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
+            <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
             
-            <div className="flex-1 flex flex-col items-center justify-start container mx-auto text-center relative z-10 pt-20 px-6">
-              <div className="inline-block px-4 py-2 border border-primary/20 rounded-full mb-4 font-mono text-[10px] uppercase tracking-widest text-primary bg-background/50 backdrop-blur-sm">
-                Available for worldwide projects
+            <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 pt-12 pb-8">
+              <div className="flex gap-8">
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
               </div>
-              <h2 className="text-5xl md:text-7xl lg:text-9xl font-bold mb-6 italic font-serif text-foreground leading-tight tracking-tighter">
-                Ready to tell<br />your story?
-              </h2>
-              <p className="text-muted-foreground mb-8 max-w-xl mx-auto font-mono text-xs md:text-sm uppercase tracking-widest leading-relaxed">
-                Transforming concepts into cinematic realities. <br className="hidden md:block" />Available for freelance opportunities.
-              </p>
-              <Button size="lg" className="rounded-none px-12 md:px-16 h-16 md:h-20 text-lg md:text-xl font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all duration-300 shadow-2xl">
-                Let&apos;s Talk
-              </Button>
-            </div>
-            
-            <div className="py-6 w-full border-t border-foreground/5 relative z-10 bg-transparent mt-auto px-6">
-              <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="flex items-center gap-8">
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <DiscordIcon className="h-5 w-5" />
-                  </Link>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <WhatsAppIcon className="h-5 w-5" />
-                  </Link>
-                  <Link href="mailto:contact@leonardoverona.com" className="text-muted-foreground hover:text-primary transition-colors">
-                    <Mail className="h-5 w-5" />
-                  </Link>
-                </div>
-                <div className="font-mono text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-                  © 2024 Leonardo Verona. All rights reserved.
-                </div>
-                <div className="font-mono text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
-                  Digital Craftsman <span className="text-primary italic ml-2">Next.js / Video</span>
-                </div>
-              </div>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© 2024 Leonardo Verona. Digital Craftsman</p>
             </div>
           </section>
+          
+          {/* Secret ASCII Section */}
+          <div 
+            className={cn(
+              "transition-all duration-1000 ease-in-out bg-black text-primary overflow-hidden",
+              isSecretVisible ? "h-[300px] py-12 opacity-100" : "h-0 py-0 opacity-0"
+            )}
+          >
+            <div className="container mx-auto px-6">
+              <pre className="font-mono text-[8px] md:text-[10px] leading-[1] text-center whitespace-pre overflow-x-auto scrollbar-hide">
+                {ASCII_VERONA_STUDIO}
+              </pre>
+              <div className="mt-8 text-center font-mono text-[9px] uppercase tracking-[0.5em] opacity-50">
+                // System Breach // Crafting the Void
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>

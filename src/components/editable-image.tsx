@@ -64,7 +64,7 @@ export function EditableImage({
 
   return (
     <div className={cn(
-      "group relative", 
+      "group relative overflow-hidden", 
       fill ? "absolute inset-0 w-full h-full" : "w-full h-full",
       containerClassName
     )}>
