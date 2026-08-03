@@ -97,7 +97,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           
           {/* Left Col: Details */}
           <div className="flex flex-col justify-center px-8 lg:px-12 py-8 bg-background border-r border-foreground/5 z-20">
-            <div className="animate-slide-up key={activeIndex}">
+            <div className="animate-slide-up" key={activeIndex}>
               <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold block mb-1">
                 {currentItem.date}
               </span>
@@ -120,49 +120,55 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                    </span>
                 </div>
                 <p className="font-mono text-[8px] uppercase tracking-[0.2em] text-primary/60 pt-2">
-                  Hover over the grid to explore projects
+                  Explore the 9:16 mobile-first grid
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Col: Immersive 2x2 Grid Visualization */}
-          <div className="relative h-full w-full bg-black overflow-hidden grid grid-cols-2 grid-rows-2">
+          {/* Right Col: Immersive 2x2 Mobile Grid Visualization */}
+          <div className="relative h-full w-full bg-black/95 overflow-hidden grid grid-cols-2 grid-rows-2 p-6 gap-6">
             {feedItems.map((item, idx) => (
               <div 
                 key={item.id} 
                 onMouseEnter={() => setActiveIndex(idx)}
                 className={cn(
-                  "relative w-full h-full overflow-hidden border-[0.5px] border-white/5 transition-all duration-700 ease-out cursor-crosshair",
+                  "relative w-full h-full flex items-center justify-center transition-all duration-700 ease-out cursor-crosshair",
                   activeIndex === idx ? "opacity-100 z-10" : "opacity-40 grayscale-[50%] hover:opacity-70"
                 )}
               >
-                <EditableVideo 
-                  src={item.videoUrl || undefined} 
-                  storageKey={`feed-${category}-${item.id}`}
-                  fill
-                  className={cn(
-                    "object-cover w-full h-full transition-transform duration-1000",
-                    activeIndex === idx ? "scale-105" : "scale-100"
-                  )}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  hideControls
-                />
-                
-                {/* Cinematic Overlay per Cell */}
+                {/* 9:16 "Phone" Container */}
                 <div className={cn(
-                  "absolute inset-0 transition-opacity duration-500 pointer-events-none",
-                  activeIndex === idx ? "bg-primary/5" : "bg-black/20"
-                )} />
+                  "relative aspect-[9/16] h-full max-h-full rounded-[2.5rem] overflow-hidden border-4 border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-500 bg-black",
+                  activeIndex === idx ? "ring-4 ring-primary/20 scale-[1.02]" : "scale-100"
+                )}>
+                  <EditableVideo 
+                    src={item.videoUrl || undefined} 
+                    storageKey={`feed-${category}-${item.id}`}
+                    fill
+                    className={cn(
+                      "object-cover w-full h-full transition-transform duration-1000",
+                      activeIndex === idx ? "scale-105" : "scale-100"
+                    )}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    hideControls
+                  />
+                  
+                  {/* Cinematic Overlay per "Phone" */}
+                  <div className={cn(
+                    "absolute inset-0 transition-opacity duration-500 pointer-events-none",
+                    activeIndex === idx ? "bg-primary/5" : "bg-black/30"
+                  )} />
+                </div>
 
-                {/* Corner Index Label */}
-                <div className="absolute top-4 left-4 z-20">
+                {/* Index Indicator */}
+                <div className="absolute top-0 left-0 p-2">
                   <span className={cn(
                     "font-mono text-[8px] transition-colors duration-500",
-                    activeIndex === idx ? "text-primary font-bold" : "text-white/40"
+                    activeIndex === idx ? "text-primary font-bold" : "text-white/20"
                   )}>
                     PRJ_0{idx + 1}
                   </span>
