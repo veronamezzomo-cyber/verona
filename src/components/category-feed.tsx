@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
@@ -65,7 +66,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       
       const rect = containerRef.current.getBoundingClientRect();
       const scrollHeight = rect.height - window.innerHeight;
-      
       const progress = Math.min(Math.max(-rect.top / scrollHeight, 0), 1);
       
       const trackWidth = trackRef.current.scrollWidth;
