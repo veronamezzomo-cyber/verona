@@ -40,7 +40,7 @@ function LEDTicker({ text }: { text: string }) {
   const characters = text.toUpperCase().split('');
   
   return (
-    <div className="w-full bg-background py-12 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" suppressHydrationWarning>
+    <div className="w-full bg-background py-2 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" suppressHydrationWarning>
       <div className="animate-marquee whitespace-nowrap flex" suppressHydrationWarning>
         {[0, 1].map((setIndex) => (
           <div key={setIndex} className="flex gap-16 md:gap-24 px-8 md:px-12 items-center" suppressHydrationWarning>
@@ -363,8 +363,8 @@ export default function PortfolioPage() {
                {/* Easter Egg panel expanding UPWARD from the footer */}
                <div 
                   className={cn(
-                    "overflow-hidden transition-all duration-700 ease-in-out bg-background",
-                    isSecretVisible ? "h-[300px] opacity-100" : "h-0 opacity-0"
+                    "overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center",
+                    isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0"
                   )}
                   suppressHydrationWarning
                 >

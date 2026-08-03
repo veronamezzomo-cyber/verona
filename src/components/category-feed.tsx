@@ -168,7 +168,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col" suppressHydrationWarning>
         
         {/* Header */}
-        <div className="flex items-center justify-between py-6 px-12 border-b border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50" suppressHydrationWarning>
+        <div className="flex items-center justify-between py-6 px-12 border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50" suppressHydrationWarning>
           <div className="flex items-center gap-4" suppressHydrationWarning>
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
             <div className="h-px w-12 bg-primary/20" />
