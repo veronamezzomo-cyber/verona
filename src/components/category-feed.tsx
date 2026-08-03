@@ -65,24 +65,24 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       const rect = containerRef.current.getBoundingClientRect();
       const scrollHeight = rect.height - window.innerHeight;
       
-      // Calculate progress with higher sensitivity due to smaller scrollHeight (250vh instead of 400vh)
+      // High sensitivity scroll mapping (150vh makes vertical-to-horizontal ratio very fast)
       const progress = Math.min(Math.max(-rect.top / scrollHeight, 0), 1);
       
       const trackWidth = trackRef.current.scrollWidth;
       const windowWidth = window.innerWidth;
       const maxMove = trackWidth - windowWidth;
       
-      // Reduced duration for snappier, more sensitive feel
+      // Extremely low duration (0.2s) for instant reaction to scroll
       gsap.to(trackRef.current, {
         x: -(progress * maxMove),
-        duration: 0.4,
+        duration: 0.2,
         ease: 'none',
         overwrite: 'auto'
       });
 
       gsap.to(bgLinesRef.current, {
         x: -(progress * maxMove * 0.4),
-        duration: 0.6,
+        duration: 0.3,
         ease: 'none',
         overwrite: 'auto'
       });
@@ -154,7 +154,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   return (
     <section 
       ref={containerRef}
-      className="relative w-full h-[250vh] bg-white z-30"
+      className="relative w-full h-[150vh] bg-white z-30"
     >
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
         
