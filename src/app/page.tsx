@@ -12,13 +12,14 @@ import { CategoryFeed } from '@/components/category-feed';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { 
   Mail, 
   ArrowRight
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollToPlugin);
+  gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 }
 
 // LED Bitmap Library for 5x7 Grid
@@ -238,6 +239,34 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Morphing Category Grid Animation
+  useEffect(() => {
+    if (!experienceRef.current) return;
+    
+    const cards = gsap.utils.toArray('.category-card');
+    
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: experienceRef.current,
+        start: "top top+=80",
+        end: "+=400",
+        scrub: true,
+        pin: true,
+        pinSpacing: true,
+      }
+    });
+
+    tl.to(cards, {
+      height: 56,
+      duration: 1,
+      ease: "none"
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, []);
+
   useEffect(() => {
     const handleInterceptScroll = (e: WheelEvent) => {
       setIsSecretVisible(visible => {
@@ -272,7 +301,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background overflow-x-clip">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
@@ -309,9 +338,9 @@ export default function PortfolioPage() {
 
         {/* Content Wrapper: Higher z-index to cover Hero */}
         <div className="relative z-10 bg-background">
-          <div ref={experienceRef} className="relative min-h-screen flex flex-col bg-background">
-            <section id="works" className="transition-all duration-500 w-full py-12">
-              <div className="grid transition-all duration-500 container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div ref={experienceRef} className="relative bg-background min-h-screen">
+            <section id="works" className="w-full py-12">
+              <div className="grid container mx-auto px-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
                 {categories.map((cat) => {
                   const img = catImages.find(i => i.id === cat.id);
                   const isActive = activeCategory === cat.label;
@@ -320,7 +349,7 @@ export default function PortfolioPage() {
                       key={cat.label} 
                       onClick={() => handleCategoryClick(cat.label)}
                       className={cn(
-                        "group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300",
+                        "category-card group relative aspect-square overflow-hidden cursor-pointer transition-all duration-300",
                         isActive && "ring-2 ring-primary"
                       )}
                     >
