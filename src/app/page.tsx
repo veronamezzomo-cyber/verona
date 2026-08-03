@@ -40,9 +40,8 @@ function LEDTicker({ text }: { text: string }) {
   const characters = text.toUpperCase().split('');
   
   return (
-    <div className="w-full bg-black py-12 overflow-hidden flex items-center" suppressHydrationWarning>
+    <div className="w-full bg-background py-12 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" suppressHydrationWarning>
       <div className="animate-marquee whitespace-nowrap flex" suppressHydrationWarning>
-        {/* Render twice for seamless loop */}
         {[0, 1].map((setIndex) => (
           <div key={setIndex} className="flex gap-16 md:gap-24 px-8 md:px-12 items-center" suppressHydrationWarning>
             {characters.map((char, charIndex) => (
@@ -54,8 +53,8 @@ function LEDTicker({ text }: { text: string }) {
                       className={cn(
                         "w-[4px] h-[8px] md:w-[6px] md:h-[12px] rounded-full transition-all duration-300",
                         cell 
-                          ? "bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]" 
-                          : "bg-white/[0.03]"
+                          ? "bg-foreground shadow-[0_0_12px_rgba(var(--foreground),0.4)]" 
+                          : "bg-foreground/5"
                       )}
                       suppressHydrationWarning
                     />
@@ -253,9 +252,7 @@ export default function PortfolioPage() {
       const winHeight = window.innerHeight;
       const docHeight = document.documentElement.scrollHeight;
       
-      const secretHeight = 200;
-      const baseDocHeight = docHeight - (isSecretVisibleRef.current ? secretHeight : 0);
-      const isAtBottom = (scrollY + winHeight) >= (baseDocHeight - 5);
+      const isAtBottom = (scrollY + winHeight) >= (docHeight - 10);
       
       if (isAtBottom !== isSecretVisibleRef.current) {
         isSecretVisibleRef.current = isAtBottom;
@@ -371,17 +368,6 @@ export default function PortfolioPage() {
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12" suppressHydrationWarning>Ready to tell<br />your story?</h2>
             <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground mb-12">Let&apos;s Talk</Button>
             
-            {/* LED Ticker Easter Egg */}
-            <div 
-              className={cn(
-                "transition-all duration-1000 ease-in-out border-y border-white/5 overflow-hidden w-full",
-                isSecretVisible ? "h-[180px] my-12 opacity-100" : "h-0 my-0 opacity-0"
-              )}
-              suppressHydrationWarning
-            >
-              <LEDTicker text="VERONA STUDIO" />
-            </div>
-
             <div className="mt-auto pt-20 w-full flex flex-col md:flex-row justify-between items-center gap-6 border-t border-foreground/5 py-12 pb-8" suppressHydrationWarning>
               <div className="flex gap-8" suppressHydrationWarning>
                 <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
@@ -393,6 +379,17 @@ export default function PortfolioPage() {
           </section>
         </div>
       </main>
+
+      {/* Easter Egg Overlay - Fixed, Non-Blocking Flow */}
+      <div 
+        className={cn(
+          "fixed bottom-0 left-0 w-full z-[150] pointer-events-none transition-all duration-700 ease-in-out transform",
+          isSecretVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+        )}
+        suppressHydrationWarning
+      >
+        <LEDTicker text="VERONA STUDIO" />
+      </div>
     </div>
   );
 }
