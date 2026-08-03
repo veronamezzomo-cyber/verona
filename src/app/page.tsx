@@ -235,28 +235,17 @@ export default function PortfolioPage() {
     const newValue = activeCategory === label ? null : label;
     
     if (newValue) {
-      setIsMini(false); // Ensure it's not mini if we're jumping to it
+      setIsMini(false);
       setIsPinned(true);
       experienceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
-    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
-        setActiveCategory(newValue);
-      });
-    } else {
-      setActiveCategory(newValue);
-    }
+    // Removido startViewTransition para testar a ordem visual dos elementos
+    setActiveCategory(newValue);
   };
 
   const handleCloseFeed = () => {
-    if (typeof document !== 'undefined' && 'startViewTransition' in document) {
-      (document as any).startViewTransition(() => {
-        setActiveCategory(null);
-      });
-    } else {
-      setActiveCategory(null);
-    }
+    setActiveCategory(null);
   };
 
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
@@ -463,3 +452,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
