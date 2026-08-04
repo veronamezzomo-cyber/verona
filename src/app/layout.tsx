@@ -14,6 +14,7 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
   style: ['normal', 'italic'],
+  preload: false,
 });
 
 const jetbrains = JetBrains_Mono({
