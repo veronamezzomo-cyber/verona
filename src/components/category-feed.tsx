@@ -60,6 +60,14 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
   ];
 
   useEffect(() => {
+    // Entrance animation - reveal slowly
+    if (containerRef.current) {
+      gsap.fromTo(containerRef.current, 
+        { opacity: 0, y: 100 },
+        { opacity: 1, y: 0, duration: 1.8, ease: "power4.out" }
+      );
+    }
+
     const handleScroll = () => {
       if (!containerRef.current || !trackRef.current || !bgLinesRef.current) return;
       

@@ -276,12 +276,14 @@ export default function PortfolioPage() {
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
     
+    // Smooth pull to the "works" area
     setTimeout(() => {
       const trigger = document.querySelector('#works-trigger');
       if (trigger) {
+        // Target is slightly above the trigger to ensure mini-menu pins correctly
         const target = trigger.getBoundingClientRect().top + window.scrollY + 10;
         gsap.to(window, {
-          duration: 1.2,
+          duration: 1.8,
           scrollTo: { y: target },
           ease: 'power3.inOut'
         });
@@ -329,7 +331,7 @@ export default function PortfolioPage() {
         </section>
 
         <div className="relative z-10 bg-background">
-          {/* Layer 1: Experience Wrapper. min-h-[300px] ensures enough sticky track for transformation when archive is closed */}
+          {/* Experience Wrapper */}
           <div ref={experienceRef} className={cn(
             "relative flex flex-col bg-background transition-all duration-500",
             activeCategory ? "min-h-screen" : "min-h-[300px]"
