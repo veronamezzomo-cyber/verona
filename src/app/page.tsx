@@ -329,7 +329,7 @@ export default function PortfolioPage() {
         </section>
 
         <div className="relative z-10 bg-background">
-          {/* Layer 1: Experience Wrapper. min-h-[300px] ensures enough sticky track for transformation */}
+          {/* Layer 1: Experience Wrapper. min-h-[300px] ensures enough sticky track for transformation when archive is closed */}
           <div ref={experienceRef} className={cn(
             "relative flex flex-col bg-background transition-all duration-500",
             activeCategory ? "min-h-screen" : "min-h-[300px]"
