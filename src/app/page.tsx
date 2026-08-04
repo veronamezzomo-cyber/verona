@@ -330,8 +330,8 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        <div className="relative z-10 bg-background min-h-screen">
-          <div ref={experienceRef} className="relative min-h-screen flex flex-col bg-background">
+        <div className="relative z-10 bg-background">
+          <div ref={experienceRef} className="relative flex flex-col bg-background">
             
             <div id="works-trigger" className="h-[1px] w-full pointer-events-none" />
 
@@ -371,7 +371,7 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
             
             {!activeCategory && (
-              <div className="container mx-auto px-6 py-12 flex justify-center">
+              <div className="container mx-auto px-6 py-4 flex justify-center">
                 <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">Select a category above to browse projects</span>
               </div>
             )}
