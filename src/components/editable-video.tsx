@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -84,6 +83,8 @@ export function EditableVideo({
         muted={isMuted}
         loop
         playsInline
+        preload="metadata"
+        aria-hidden="true"
       />
       
       {!hideControls && (
@@ -92,6 +93,7 @@ export function EditableVideo({
             role="button"
             tabIndex={0}
             onClick={toggleMute}
+            aria-label={isMuted ? "Unmute video" : "Mute video"}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -111,6 +113,7 @@ export function EditableVideo({
               <div 
                 role="button"
                 tabIndex={0}
+                aria-label="Edit video source"
                 className={cn(
                   buttonVariants({ variant: "secondary", size: "icon" }),
                   "h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl cursor-pointer"
@@ -133,7 +136,7 @@ export function EditableVideo({
               <div className="flex flex-col gap-3" suppressHydrationWarning>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Edit Video Source</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)} aria-label="Close popover">
                     <X className="h-3 w-3" />
                   </Button>
                 </div>

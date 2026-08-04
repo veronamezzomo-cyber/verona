@@ -23,8 +23,22 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Portfolio | Leonardo Verona',
-  description: 'Selected works and professional portfolio.',
+  title: 'Portfolio | Leonardo Verona - Video Editor',
+  description: 'Selected works and professional portfolio of Leonardo Verona, a Brazilian Video Editor specialized in cinematic storytelling, motion design, and high-end color grading.',
+  keywords: ['Video Editor', 'Motion Design', 'Color Grading', 'Portfolio', 'Leonardo Verona', 'Cinematic', 'Visual Storytelling'],
+  authors: [{ name: 'Leonardo Verona' }],
+  openGraph: {
+    title: 'Leonardo Verona | Video Editor Portfolio',
+    description: 'Cinematic visual storytelling and high-end video editing.',
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Leonardo Verona Portfolio',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Leonardo Verona | Video Editor',
+    description: 'Expert video editing and motion design portfolio.',
+  },
 };
 
 export default function RootLayout({
@@ -39,7 +53,7 @@ export default function RootLayout({
         <SmoothScroll />
         
         {/* Cinematic Grain Overlay */}
-        <div className="fixed inset-0 pointer-events-none z-[9997] mix-blend-soft-light opacity-[0.03] bg-white hidden dark:block" suppressHydrationWarning />
+        <div className="fixed inset-0 pointer-events-none z-[9997] mix-blend-soft-light opacity-[0.03] bg-white hidden dark:block" suppressHydrationWarning aria-hidden="true" />
         {children}
       </body>
     </html>

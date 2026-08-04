@@ -1,7 +1,7 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Pencil, Check, X, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ export function EditableImage({
   fill, 
   priority,
   className,
+  alt,
   ...props 
 }: EditableImageProps) {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
@@ -69,14 +70,19 @@ export function EditableImage({
       fill ? "absolute inset-0 w-full h-full" : "w-full h-full",
       containerClassName
     )} suppressHydrationWarning>
-      <img 
-        {...props} 
+      <Image 
         src={currentSrc} 
+        alt={alt || "Portfolio visual"}
+        fill={fill}
+        width={!fill ? Number(props.width) || 800 : undefined}
+        height={!fill ? Number(props.height) || 600 : undefined}
         className={cn(
           className,
-          fill ? "absolute inset-0 w-full h-full object-cover" : "w-full h-full object-cover"
+          fill ? "object-cover" : "object-cover"
         )}
-        loading={priority ? "eager" : "lazy"}
+        priority={priority}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        data-ai-hint={props['data-ai-hint']}
       />
       
       <div className="absolute top-2 right-2 z-40 opacity-0 group-hover:opacity-100 transition-opacity duration-300" suppressHydrationWarning>
@@ -85,6 +91,7 @@ export function EditableImage({
             <div 
               role="button"
               tabIndex={0}
+              aria-label="Edit image source"
               className={cn(
                 buttonVariants({ variant: "secondary", size: "icon" }),
                 "h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl cursor-pointer"
@@ -100,7 +107,7 @@ export function EditableImage({
             <div className="flex flex-col gap-3" suppressHydrationWarning>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Edit Image Source</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)} aria-label="Close popover">
                   <X className="h-3 w-3" />
                 </Button>
               </div>

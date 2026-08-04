@@ -41,7 +41,7 @@ function LEDTicker({ text }: { text: string }) {
   const characters = (text.toUpperCase() + " ").split('');
   
   return (
-    <div className="w-full bg-background py-2 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl">
+    <div className="w-full bg-background py-2 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" aria-hidden="true">
       <div className="animate-marquee whitespace-nowrap flex w-max shrink-0">
         {[0, 1].map((setIndex) => (
           <div key={setIndex} className="flex gap-4 md:gap-8 px-2 md:px-4 items-center shrink-0">
@@ -193,6 +193,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
+  const [year, setYear] = useState(2024);
   const lastScrollYRef = useRef(0);
 
   const categories = useMemo(() => [
@@ -208,6 +209,8 @@ export default function PortfolioPage() {
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
   useEffect(() => {
+    setYear(new Date().getFullYear());
+    
     let ticking = false;
 
     const handleScroll = () => {
@@ -341,9 +344,10 @@ export default function PortfolioPage() {
                 const img = catImages.find(i => i.id === cat.id);
                 const isActive = activeCategory === cat.label;
                 return (
-                  <div 
+                  <button 
                     key={cat.label} 
                     onClick={() => handleCategoryClick(cat.label)}
+                    aria-label={`View projects in ${cat.label}`}
                     className={cn(
                       "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-[140px] md:h-auto md:aspect-square",
                       isActive && "ring-2 ring-primary"
@@ -362,7 +366,7 @@ export default function PortfolioPage() {
                     <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none text-center px-1">
                       {cat.label}
                     </span>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -406,11 +410,11 @@ export default function PortfolioPage() {
               <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0">
                 <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex gap-8">
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Discord"><DiscordIcon className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="WhatsApp"><WhatsAppIcon className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Email"><Mail className="h-5 w-5" /></Link>
                   </div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© 2024 Leonardo Verona. Digital Craftsman</p>
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© {year} Leonardo Verona. Digital Craftsman</p>
                 </div>
               </footer>
           </div>
