@@ -194,7 +194,6 @@ export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const lastScrollYRef = useRef(0);
-  const experienceRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -276,11 +275,9 @@ export default function PortfolioPage() {
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
     
-    // Smooth pull to the "works" area
     setTimeout(() => {
       const trigger = document.querySelector('#works-trigger');
       if (trigger) {
-        // Target is slightly above the trigger to ensure mini-menu pins correctly
         const target = trigger.getBoundingClientRect().top + window.scrollY + 10;
         gsap.to(window, {
           duration: 1.8,
@@ -312,6 +309,7 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
+        {/* Layer 0: Hero Section */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
@@ -330,84 +328,93 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        <div className="relative z-10 bg-background">
-          {/* Experience Wrapper */}
-          <div ref={experienceRef} className={cn(
-            "relative flex flex-col bg-background transition-all duration-500",
-            activeCategory ? "min-h-screen" : "min-h-[300px]"
-          )}>
-            
-            <div id="works-trigger" className="h-[1px] w-full pointer-events-none" />
+        {/* Layer 1: Works/Experience Section */}
+        <div className={cn(
+          "relative z-10 flex flex-col bg-background transition-all duration-500",
+          activeCategory ? "min-h-screen" : "min-h-[300px]"
+        )}>
+          <div id="works-trigger" className="h-[1px] w-full pointer-events-none" />
 
-            <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
-              <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-12">
-                {categories.map((cat) => {
-                  const img = catImages.find(i => i.id === cat.id);
-                  const isActive = activeCategory === cat.label;
-                  return (
-                    <div 
-                      key={cat.label} 
-                      onClick={() => handleCategoryClick(cat.label)}
-                      className={cn(
-                        "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-[140px] md:h-auto md:aspect-square",
-                        isActive && "ring-2 ring-primary"
-                      )}
-                    >
-                      {img && (
-                        <EditableImage 
-                          src={img.imageUrl} 
-                          alt={cat.label} 
-                          storageKey={`cat-${cat.id}`}
-                          fill
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                        />
-                      )}
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                      <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none text-center px-1">
-                        {cat.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
-            
-            {!activeCategory && (
-              <div className="container mx-auto px-6 py-4 flex justify-center h-fit">
-                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">Select a category above to browse projects</span>
-              </div>
-            )}
-          </div>
-
-          <section id="contact" className="sticky top-0 z-[110] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
-            <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
-              <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
-              <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
-            </div>
-            
-            <div className="relative overflow-hidden">
-               <div className={cn(
-                    "overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center",
-                    isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0"
-                  )}>
-                  <LEDTicker text="VERONA STUDIO" />
-                </div>
-
-                <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0">
-                  <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div className="flex gap-8">
-                      <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
-                      <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
-                      <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
-                    </div>
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© 2024 Leonardo Verona. Digital Craftsman</p>
+          <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
+            <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-12">
+              {categories.map((cat) => {
+                const img = catImages.find(i => i.id === cat.id);
+                const isActive = activeCategory === cat.label;
+                return (
+                  <div 
+                    key={cat.label} 
+                    onClick={() => handleCategoryClick(cat.label)}
+                    className={cn(
+                      "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-[140px] md:h-auto md:aspect-square",
+                      isActive && "ring-2 ring-primary"
+                    )}
+                  >
+                    {img && (
+                      <EditableImage 
+                        src={img.imageUrl} 
+                        alt={cat.label} 
+                        storageKey={`cat-${cat.id}`}
+                        fill
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                    <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none text-center px-1">
+                      {cat.label}
+                    </span>
                   </div>
-                </footer>
+                );
+              })}
             </div>
           </section>
+
+          {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
+          
+          {!activeCategory && (
+            <div className="container mx-auto px-6 py-4 flex justify-center h-fit">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">Select a category above to browse projects</span>
+            </div>
+          )}
         </div>
+
+        {/* Layer 2: About/Philosophy Bridge */}
+        <section id="about" className="sticky top-0 z-[20] min-h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6">
+          <div className="max-w-4xl text-center">
+            <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-8 block">Layer 02 // Digital Craftsman</span>
+            <h2 className="text-4xl md:text-6xl font-serif italic font-bold leading-tight">
+              Obsessed with the <span className="text-primary">unseen details</span> that make a story truly unforgettable.
+            </h2>
+          </div>
+        </section>
+
+        {/* Layer 3: Final Contact & Reveal */}
+        <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
+          <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
+            <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6">Layer 03 // Final Call</span>
+            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
+            <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
+          </div>
+          
+          <div className="relative overflow-hidden">
+             <div className={cn(
+                  "overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center",
+                  isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0"
+                )}>
+                <LEDTicker text="VERONA STUDIO" />
+              </div>
+
+              <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0">
+                <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="flex gap-8">
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><DiscordIcon className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><WhatsAppIcon className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></Link>
+                  </div>
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© 2024 Leonardo Verona. Digital Craftsman</p>
+                </div>
+              </footer>
+          </div>
+        </section>
       </main>
     </div>
   );

@@ -64,7 +64,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
     if (containerRef.current) {
       gsap.fromTo(containerRef.current, 
         { opacity: 0, y: 100 },
-        { opacity: 1, y: 0, duration: 1.8, ease: "power4.out" }
+        { opacity: 1, y: 0, duration: 2.2, ease: "power3.out" }
       );
     }
 
