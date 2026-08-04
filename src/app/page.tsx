@@ -245,7 +245,6 @@ export default function PortfolioPage() {
     
     if (!worksSection) return;
 
-    // Morphing into a Square Mini-Menu
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
@@ -263,7 +262,7 @@ export default function PortfolioPage() {
     }, 0);
 
     tl.to(cards, {
-      height: 64, // Keep it a square
+      height: 64,
       width: 64, 
       duration: 1,
       ease: "power2.inOut"
@@ -277,7 +276,6 @@ export default function PortfolioPage() {
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
     
-    // Automatically transition to mini-menu state by scrolling past the trigger
     setTimeout(() => {
       const trigger = document.querySelector('#works-trigger');
       if (trigger) {
@@ -331,7 +329,11 @@ export default function PortfolioPage() {
         </section>
 
         <div className="relative z-10 bg-background">
-          <div ref={experienceRef} className="relative flex flex-col bg-background">
+          {/* Layer 1: Experience Wrapper. min-h-[300px] ensures enough sticky track for transformation */}
+          <div ref={experienceRef} className={cn(
+            "relative flex flex-col bg-background transition-all duration-500",
+            activeCategory ? "min-h-screen" : "min-h-[300px]"
+          )}>
             
             <div id="works-trigger" className="h-[1px] w-full pointer-events-none" />
 
@@ -371,7 +373,7 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
             
             {!activeCategory && (
-              <div className="container mx-auto px-6 py-4 flex justify-center">
+              <div className="container mx-auto px-6 py-4 flex justify-center h-fit">
                 <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">Select a category above to browse projects</span>
               </div>
             )}
