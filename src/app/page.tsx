@@ -245,7 +245,6 @@ export default function PortfolioPage() {
     
     if (!worksSection) return;
 
-    // We animate height and padding based on scroll progress
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
@@ -255,7 +254,6 @@ export default function PortfolioPage() {
       }
     });
 
-    // Animate padding and height independently of width
     tl.to(worksSection, {
       paddingTop: 8,
       paddingBottom: 8,
@@ -265,6 +263,7 @@ export default function PortfolioPage() {
 
     tl.to(cards, {
       height: 56, 
+      width: 56, // Keep it square
       duration: 1,
       ease: "power2.inOut"
     }, 0);
@@ -276,12 +275,15 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
+    
+    // Automatically transition to mini-menu state by scrolling past the trigger
     setTimeout(() => {
-      if (experienceRef.current) {
-        const target = experienceRef.current.getBoundingClientRect().top + window.scrollY;
+      const trigger = document.querySelector('#works-trigger');
+      if (trigger) {
+        const target = trigger.getBoundingClientRect().top + window.scrollY + 100; // Offset to ensure we are in the sticky area
         gsap.to(window, {
           duration: 1.2,
-          scrollTo: { y: target, offsetY: 80 },
+          scrollTo: { y: target },
           ease: 'power3.inOut'
         });
       }
@@ -309,7 +311,6 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        {/* Layer 0: Hero (Sticky Base) */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
@@ -328,14 +329,11 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Layer 1: Works/Experience Wrapper (Slides Over Hero) */}
         <div className="relative z-10 bg-background min-h-screen">
           <div ref={experienceRef} className="relative min-h-screen flex flex-col bg-background">
             
-            {/* Morphing Mini-Menu Trigger Area - Minimized Gap */}
             <div id="works-trigger" className="h-[1px] w-full pointer-events-none" />
 
-            {/* Sticky Category Section */}
             <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
               <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-12">
                 {categories.map((cat) => {
@@ -369,7 +367,6 @@ export default function PortfolioPage() {
               </div>
             </section>
 
-            {/* Content Feed */}
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
             
             {!activeCategory && (
@@ -381,7 +378,6 @@ export default function PortfolioPage() {
             )}
           </div>
 
-          {/* Layer 2: Contact Section (Slides Over Everything) */}
           <section id="contact" className="sticky top-0 z-[110] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
             <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
               <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
