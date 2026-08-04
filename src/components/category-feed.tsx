@@ -114,10 +114,10 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold mb-2">
         {item.date}
       </span>
-      <h3 className="font-serif text-3xl md:text-5xl font-bold text-black leading-[0.9] tracking-tighter mb-4">
+      <h3 className="font-serif text-3xl md:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-4">
         {item.title}<span className="text-primary">.</span>
       </h3>
-      <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-500 leading-relaxed max-w-[280px]">
+      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed max-w-[280px]">
         {item.notes}
       </p>
     </div>
@@ -127,7 +127,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
     <div 
       onClick={handleInteraction}
       className={cn(
-        "w-[350px] md:w-[450px] h-[70vh] relative bg-neutral-200 overflow-hidden group cursor-pointer transition-all z-10",
+        "w-[350px] md:w-[450px] h-[70vh] relative bg-muted overflow-hidden group cursor-pointer transition-all z-10",
         type === 'up' 
           ? "[clip-path:polygon(0%_100%,0%_0%,85%_0%,100%_15%,100%_100%)]" 
           : "[clip-path:polygon(0%_15%,15%_0%,100%_0%,100%_100%,0%_100%)]",
@@ -157,23 +157,23 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
   return (
     <section 
       ref={containerRef}
-      className="relative w-full h-[150vh] bg-white z-30"
+      className="relative w-full h-[150vh] bg-background z-30"
     >
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
         
         {/* Header */}
-        <div className="flex items-center justify-between py-6 px-12 border-neutral-100 shrink-0 bg-white/80 backdrop-blur-md z-50">
+        <div className="flex items-center justify-between py-6 px-12 border-border shrink-0 bg-background/80 backdrop-blur-md z-50 border-b">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
             <div className="h-px w-12 bg-primary/20" />
-            <h2 className="font-serif text-2xl italic font-bold text-black lowercase">{category}</h2>
-            <div className="ml-4 px-2 py-0.5 rounded-full border border-neutral-200 font-mono text-[8px] uppercase tracking-tighter">
+            <h2 className="font-serif text-2xl italic font-bold text-foreground lowercase">{category}</h2>
+            <div className="ml-4 px-2 py-0.5 rounded-full border border-border font-mono text-[8px] uppercase tracking-tighter">
               Credits: {3 - clickCount}/3
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-1.5 flex items-center transition-colors group"
+            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-1.5 flex items-center transition-colors group text-foreground"
           >
             Close Archive <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
           </button>
@@ -185,8 +185,8 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20 z-10 will-change-transform"
         >
           {[...Array(30)].map((_, i) => (
-            <div key={i} className="h-full w-px bg-black relative flex-shrink-0 mx-[250px]">
-              <span className="absolute top-24 left-2 font-mono text-[10px] font-bold">L-{i + 1}</span>
+            <div key={i} className="h-full w-px bg-foreground relative flex-shrink-0 mx-[250px]">
+              <span className="absolute top-24 left-2 font-mono text-[10px] font-bold text-foreground">L-{i + 1}</span>
             </div>
           ))}
         </div>
@@ -222,10 +222,10 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
         </div>
 
         {/* Progress Indicator */}
-        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-neutral-400 z-50">
+        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-muted-foreground z-50">
           <div className="flex items-center gap-4">
             <span>Geometric Masking Active</span>
-            <div className="w-12 h-px bg-neutral-200" />
+            <div className="w-12 h-px bg-border" />
             <span>01 / 04</span>
           </div>
           <div className="flex gap-2 items-center">
@@ -233,7 +233,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
             {[0, 1, 2].map(i => (
               <div key={i} className={cn(
                 "w-1.5 h-1.5 rounded-full border transition-colors", 
-                i < clickCount ? "bg-primary border-primary" : "border-neutral-300"
+                i < clickCount ? "bg-primary border-primary" : "border-border"
               )} />
             ))}
           </div>
