@@ -193,7 +193,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
-  const [year, setYear] = useState(2024);
+  const [year, setYear] = useState(2025);
   const lastScrollYRef = useRef(0);
 
   const categories = useMemo(() => [
@@ -410,9 +410,9 @@ export default function PortfolioPage() {
               <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0">
                 <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex gap-8">
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Discord"><DiscordIcon className="h-5 w-5" /></Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="WhatsApp"><WhatsAppIcon className="h-5 w-5" /></Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Email"><Mail className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Discord" target="_blank" rel="noopener noreferrer"><DiscordIcon className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><WhatsAppIcon className="h-5 w-5" /></Link>
+                    <Link href="mailto:contact@veronastudio.com" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Email"><Mail className="h-5 w-5" /></Link>
                   </div>
                   <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© {year} Leonardo Verona. Digital Craftsman</p>
                 </div>
@@ -423,3 +423,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
