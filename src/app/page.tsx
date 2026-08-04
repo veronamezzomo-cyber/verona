@@ -245,6 +245,7 @@ export default function PortfolioPage() {
     
     if (!worksSection) return;
 
+    // Morphing into a Square Mini-Menu
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
@@ -262,8 +263,8 @@ export default function PortfolioPage() {
     }, 0);
 
     tl.to(cards, {
-      height: 56, 
-      width: 56, // Keep it square
+      height: 64, // Reduced but kept proportional
+      width: 64, // Keep it square 1:1
       duration: 1,
       ease: "power2.inOut"
     }, 0);
@@ -280,7 +281,7 @@ export default function PortfolioPage() {
     setTimeout(() => {
       const trigger = document.querySelector('#works-trigger');
       if (trigger) {
-        const target = trigger.getBoundingClientRect().top + window.scrollY + 100; // Offset to ensure we are in the sticky area
+        const target = trigger.getBoundingClientRect().top + window.scrollY + 10;
         gsap.to(window, {
           duration: 1.2,
           scrollTo: { y: target },
