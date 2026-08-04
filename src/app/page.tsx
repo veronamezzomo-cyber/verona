@@ -263,8 +263,8 @@ export default function PortfolioPage() {
     }, 0);
 
     tl.to(cards, {
-      height: 64, // Reduced but kept proportional
-      width: 64, // Keep it square 1:1
+      height: 64, // Keep it a square
+      width: 64, 
       duration: 1,
       ease: "power2.inOut"
     }, 0);
@@ -371,10 +371,8 @@ export default function PortfolioPage() {
             {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
             
             {!activeCategory && (
-              <div className="flex-1 container mx-auto px-6 py-20">
-                <div className="h-[80vh] flex items-center justify-center border border-dashed border-foreground/10 rounded-3xl">
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Select a category above to browse projects</span>
-                </div>
+              <div className="container mx-auto px-6 py-12 flex justify-center">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">Select a category above to browse projects</span>
               </div>
             )}
           </div>
