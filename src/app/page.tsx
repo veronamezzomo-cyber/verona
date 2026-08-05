@@ -410,52 +410,58 @@ export default function PortfolioPage() {
     };
   }, []);
 
-  // About Section Animation - Corrected with gsap.context() for stability
+  // About Section Animation - Scoped with Context and Safe Timing
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const ctx = gsap.context(() => {
-      const words = gsap.utils.toArray('.about-word');
-      const light = document.querySelector('.about-light');
-      
-      if (!words || words.length === 0 || !light) return;
+    // Use a small timeout to ensure DOM spans from aboutWords.map are fully rendered
+    const timer = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        // Select words and filter out any potential nulls
+        const words = gsap.utils.toArray<HTMLElement>('.about-word').filter(Boolean);
+        const light = document.querySelector('.about-light');
+        
+        if (!words.length || !light) return;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#about-wrapper',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1,
-          invalidateOnRefresh: true,
-        }
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#about-wrapper',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1,
+            invalidateOnRefresh: true,
+          }
+        });
+
+        tl.fromTo(words, 
+          { 
+            x: 40, 
+            opacity: 0, 
+            filter: 'blur(8px)',
+            textShadow: "0 0 0px hsl(var(--primary)/0)"
+          },
+          { 
+            x: 0, 
+            opacity: 1, 
+            filter: 'blur(0px)',
+            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+            stagger: 0.1, 
+            duration: 0.8, 
+            ease: 'power2.out' 
+          }
+        );
+
+        tl.to(light, {
+          opacity: 1,
+          duration: 0.8,
+          ease: 'sine.inOut'
+        }, ">-0.4");
       });
 
-      tl.fromTo(words, 
-        { 
-          x: 40, 
-          opacity: 0, 
-          filter: 'blur(8px)',
-          textShadow: "0 0 0px hsl(var(--primary)/0)"
-        },
-        { 
-          x: 0, 
-          opacity: 1, 
-          filter: 'blur(0px)',
-          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-          stagger: 0.1, 
-          duration: 0.8, 
-          ease: 'power2.out' 
-        }
-      );
+      return () => ctx.revert();
+    }, 100);
 
-      tl.to(light, {
-        opacity: 1,
-        duration: 0.8,
-        ease: 'sine.inOut'
-      }, ">-0.4");
-    });
-
-    return () => ctx.revert();
+    return () => clearTimeout(timer);
   }, [aboutWords]);
 
   useEffect(() => {
