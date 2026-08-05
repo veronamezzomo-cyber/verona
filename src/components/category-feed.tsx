@@ -121,6 +121,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         ease: 'power3.inOut',
         overwrite: 'auto'
       });
+      // Removida transition-opacity do CSS para evitar conflito com GSAP
       gsap.fromTo(contentRef.current, 
         { y: 40, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, delay: 0.4, ease: 'power2.out' }
@@ -229,7 +230,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       <div 
         ref={contentRef}
         className={cn(
-          "w-full h-full flex flex-col transition-opacity duration-500",
+          "w-full h-full flex flex-col", // Removida a classe transition-opacity duration-500
           isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
       >

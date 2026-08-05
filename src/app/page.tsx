@@ -321,7 +321,7 @@ export default function PortfolioPage() {
 
         {/* Layer 1: Works Section */}
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500 min-h-fit">
-          <div id="works-trigger" className="h-32 w-full pointer-events-none" />
+          <div id="works-trigger" className="h-0 w-full pointer-events-none" />
 
           <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
             <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-12">
