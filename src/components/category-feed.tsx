@@ -135,10 +135,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   }, [isExpanded, category]);
 
   const handleInteraction = () => {
-    if (clickCount >= 3) {
+    if (clickCount >= 8) {
       toast({
         title: "Interaction Limit Reached",
-        description: "You've used your 3 interaction credits for this session.",
+        description: "You've used your 8 interaction credits for this session.",
         variant: "destructive"
       });
       return;
@@ -193,7 +193,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '100px' }}
       >
-        <div className="absolute top-6 left-6 md:left-12 flex flex-col gap-6 z-20 pointer-events-none">
+        <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-4 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
             <span 
               ref={activeLayerLabelRef}
@@ -216,14 +216,14 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
             <div className="flex items-center gap-2">
               <div className="flex gap-1">
-                {[0, 1, 2].map(i => (
+                {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
                   <div key={i} className={cn(
                     "w-1.5 h-1.5 rounded-full border border-primary/30 transition-colors",
                     i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
                   )} />
                 ))}
               </div>
-              <span className="font-mono text-[9px] uppercase tracking-tighter text-foreground ml-1">Credits: {3 - clickCount}/3</span>
+              <span className="font-mono text-[9px] uppercase tracking-tighter text-foreground ml-1">Credits: {8 - clickCount}/8</span>
             </div>
           </div>
         </div>
@@ -282,7 +282,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                         ? "h-[45vh] aspect-[9/16] w-auto" 
                         : "w-[300px] md:w-[400px] h-[50vh]",
                       "[clip-path:polygon(0%_10%,10%_0%,100%_0%,100%_90%,90%_100%,0%_100%)]",
-                      clickCount >= 3 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
+                      clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
                     )}
                   >
                     <EditableVideo 
@@ -297,7 +297,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       hideControls
                     />
                     
-                    {clickCount >= 3 && (
+                    {clickCount >= 8 && (
                       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                         <div className="flex flex-col items-center gap-2">
                           <Lock className="w-8 h-8 text-white opacity-40" />
