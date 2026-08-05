@@ -159,7 +159,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full pointer-events-none overflow-visible z-[95]"
-        style={{ height: 0 }}
+        style={{ height: '1px' }} // Mantido em 1px para evitar culling do motor de renderização mantendo overflow-visible
         aria-hidden="true"
       >
         <defs>
