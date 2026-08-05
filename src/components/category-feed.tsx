@@ -29,6 +29,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   
   const connectorsRef = useRef<SVGSVGElement>(null);
+  const activeLayerLabelRef = useRef<HTMLSpanElement>(null);
   const pickStyleTextRef = useRef<HTMLDivElement>(null);
   const compactStatusRef = useRef<HTMLDivElement>(null);
   
@@ -41,26 +42,27 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const isVerticalFormat = category === 'shorts' || category === 'talking';
 
   const updateLines = useCallback(() => {
-    if (!connectorsRef.current || !containerRef.current) return;
+    if (!connectorsRef.current || !containerRef.current || !activeLayerLabelRef.current) return;
 
     const svgRect = connectorsRef.current.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
+    const activeLabelRect = activeLayerLabelRef.current.getBoundingClientRect();
     const cards = document.querySelectorAll('.category-card');
 
     if (cards.length === 0) return;
 
-    const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-    const destY = 0; // Ponto de chegada (Active Layer)
+    // Ponto de Chegada (Active Layer): Centro horizontal e vertical do label real
+    const destX = (activeLabelRect.left + activeLabelRect.width / 2) - svgRect.left;
+    const destY = (activeLabelRect.top + activeLabelRect.height / 2) - svgRect.top;
 
     const coords = Array.from(cards).map(card => {
       const cardRect = card.getBoundingClientRect();
       const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
       return {
         id: label,
-        x1: (cardRect.left + cardRect.width / 2) - svgRect.left, // Origem: Botão
-        y1: cardRect.bottom - svgRect.top,
-        x2: destX, // Destino: Active Layer
-        y2: destY
+        x1: (cardRect.left + cardRect.width / 2) - svgRect.left, // Origem: Centro do Botão
+        y1: cardRect.bottom - svgRect.top,                      // Origem Y: Base do Botão
+        x2: destX,                                              // Destino X: Centro do Label
+        y2: destY                                               // Destino Y: Centro do Label
       };
     });
 
@@ -147,7 +149,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full pointer-events-none overflow-visible z-[95]"
-        style={{ height: '1px' }} 
+        style={{ height: '100px' }} 
         aria-hidden="true"
       >
         <defs>
@@ -191,10 +193,13 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       >
         <div className="absolute top-6 left-6 md:left-12 flex flex-col gap-6 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
-            <span className={cn(
-              "font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold",
-              isExpanded && "animate-active-layer-blink"
-            )}>
+            <span 
+              ref={activeLayerLabelRef}
+              className={cn(
+                "font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold",
+                isExpanded && "animate-active-layer-blink"
+              )}
+            >
               Active Layer
             </span>
             <div className="flex items-center gap-2">
