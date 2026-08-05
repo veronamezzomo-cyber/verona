@@ -88,7 +88,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const timeRef = useRef(0);
   const currentSpeedRef = useRef(0.2);
   const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0)));
-  const expansionRef = useRef(0); // Fator de expansão (0: cascata, 1: órbita)
   const activeIndexRef = useRef(0);
   const [containerWidth, setContainerWidth] = useState(600);
   const hasStartedRef = useRef(false);
@@ -113,14 +112,11 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     offset: (i * (Math.PI * 2)) / videos.length
   })), [videos, orbitScale]);
 
-  // Sincroniza o orbitParams em uma Ref para que o loop RAF sempre use os dados mais recentes
-  // sem precisar reiniciar o useEffect e o setTimeout a cada mudança de ResizeObserver.
   useEffect(() => {
     orbitParamsRef.current = orbitParams;
   }, [orbitParams]);
 
   useEffect(() => {
-    // Impede que a sequência de entrada seja reiniciada se já disparou ou está agendada.
     if (hasStartedRef.current) return;
 
     const focusInterval = setInterval(() => {
@@ -143,29 +139,23 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     let requestRef: number;
     const animate = () => {
       timeRef.current += 0.01 * currentSpeedRef.current;
-      const exp = expansionRef.current;
 
       itemRefs.current.forEach((el, i) => {
         if (!el) return;
 
-        // Usa a Ref sincronizada para evitar stale closures e garantir layout responsivo
         const p = orbitParamsRef.current[i];
         if (!p) return;
         
         const ff = focalFactorsRef.current[i];
         
-        // Offset de cascata inicial (baralho)
-        const cascadeX = i * 8;
-        const cascadeY = i * -8;
-
         const angle = timeRef.current + p.offset;
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
         const depth = Math.sin(angle);
 
-        // Interpolação: tx = (posição orbital * exp) + (posição cascata * (1-exp))
-        const tx = (ox * exp) * (1 - ff) + (cascadeX * (1 - exp));
-        const ty = (oy * exp) * (1 - ff) + (cascadeY * (1 - exp));
+        // Orbital pure position
+        const tx = ox * (1 - ff);
+        const ty = oy * (1 - ff);
 
         const baseScale = 0.9 + (1 + depth) * 0.05;
         const focalScale = 1.4;
@@ -186,13 +176,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     const timer = setTimeout(() => {
       hasStartedRef.current = true;
       requestRef = requestAnimationFrame(animate);
-      
-      // Inicia a expansão suave da cascata para a órbita
-      gsap.to(expansionRef, {
-        current: 1,
-        duration: 1.2,
-        ease: 'power2.out'
-      });
     }, 300);
 
     return () => {
@@ -200,8 +183,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       clearTimeout(timer);
       clearInterval(focusInterval);
     };
-    // Dependemos apenas de videos para garantir o mount inicial único.
-    // orbitParams foi removido daqui para evitar que o ResizeObserver resete o timer.
   }, [videos]);
 
   return (
@@ -213,7 +194,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
           ref={(el) => { itemRefs.current[i] = el; }}
           className="absolute top-1/2 left-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
           style={{ 
-            transform: `translate3d(calc(-50% + ${i * 8}px), calc(-50% + ${i * -8}px), 0) scale(0.9)`,
+            transform: `translate3d(-50%, -50%, 0) scale(0.9)`,
             zIndex: 50 + i,
             opacity: 1
           }}
