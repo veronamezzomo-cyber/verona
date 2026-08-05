@@ -322,8 +322,9 @@ export default function PortfolioPage() {
       scrollTrigger: {
         trigger: '#works-trigger',
         start: "top top+=80",
-        end: "bottom top+=80",
+        end: () => `+=${window.innerWidth < 768 ? 250 : 400}`,
         scrub: true,
+        invalidateOnRefresh: true,
       }
     });
 
@@ -346,7 +347,10 @@ export default function PortfolioPage() {
   }, []);
 
   useEffect(() => {
-    ScrollTrigger.refresh();
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 1050); // Covers CategoryFeed duration (1s) + margin
+    return () => clearTimeout(timer);
   }, [activeCategory]);
 
   const handleCategoryClick = (label: string) => {
