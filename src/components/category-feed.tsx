@@ -31,7 +31,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   
-  // REFS ALVO
   const connectorsRef = useRef<SVGSVGElement>(null);
   const pickStyleTextRef = useRef<HTMLDivElement>(null);
   const compactStatusRef = useRef<HTMLDivElement>(null);
@@ -43,7 +42,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   const isExpanded = !!category;
 
-  // Cálculo dinâmico das linhas conectoras (Ancoradas ao topo do container)
   const updateLines = useCallback(() => {
     if (!connectorsRef.current || !containerRef.current) return;
 
@@ -53,7 +51,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
     if (cards.length === 0) return;
 
-    // Ponto de origem: Centro horizontal do container, topo exato (Y=0 relativo ao SVG)
     const startX = (containerRect.left + containerRect.width / 2) - svgRect.left;
     const startY = 0; 
 
@@ -63,7 +60,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         x1: startX,
         y1: startY,
         x2: (cardRect.left + cardRect.width / 2) - svgRect.left,
-        y2: (cardRect.top + cardRect.height / 2) - svgRect.top
+        y2: cardRect.bottom - svgRect.top
       };
     });
 
@@ -71,12 +68,28 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   }, []);
 
   useEffect(() => {
-    updateLines();
+    let rafId: number;
+    let attempts = 0;
+
+    const tryUpdate = () => {
+      const cards = document.querySelectorAll('.category-card');
+      if (cards.length > 0) {
+        updateLines();
+      } else if (attempts < 30) {
+        attempts++;
+        rafId = requestAnimationFrame(tryUpdate);
+      }
+    };
+
+    tryUpdate();
     window.addEventListener('resize', updateLines);
-    return () => window.removeEventListener('resize', updateLines);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', updateLines);
+    };
   }, [updateLines]);
 
-  // Lógica de Expansão de Altura (Mantida, removendo animação de opacidade dos alvos de flicker)
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -147,7 +160,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       )}
       style={{ height: '100px' }}
     >
-      {/* Overlay de Conectores SVG - PERSISTENTE E ESTÁTICO */}
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible z-0"
@@ -178,9 +190,31 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         ))}
       </svg>
 
-      {/* ESTADO COMPACTO - Visível quando não expandido */}
+      {/* STATUS SEMPRE VISÍVEL */}
+      <div className="absolute top-4 left-4 md:left-12 flex items-center gap-6 z-20 pointer-events-none">
+        <div className="flex flex-col">
+          <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
+          <h2 className="font-serif text-lg md:text-xl italic font-bold text-foreground lowercase">{category || 'none'}</h2>
+        </div>
+        <div className="h-8 w-px bg-foreground/10 mx-2" />
+        <div className="flex flex-col">
+          <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              {[0, 1, 2].map(i => (
+                <div key={i} className={cn(
+                  "w-2 h-2 rounded-full border border-primary/30 transition-colors",
+                  i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
+                )} />
+              ))}
+            </div>
+            <span className="font-mono text-[10px] uppercase tracking-tighter text-foreground ml-2">Credits: {3 - clickCount}/3</span>
+          </div>
+        </div>
+      </div>
+
       {!isExpanded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
           <div ref={compactStatusRef} className="flex flex-col items-center gap-1 mb-1">
             <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60 font-bold">System Online</span>
           </div>
@@ -193,7 +227,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
       )}
 
-      {/* ESTADO EXPANDIDO */}
       <div 
         ref={contentRef}
         className={cn(
@@ -201,38 +234,16 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
       >
-        <div className="flex items-center justify-between py-8 px-12 border-b border-foreground/5 shrink-0">
-          <div className="flex items-center gap-6">
-            <div className="flex flex-col">
-              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
-              <h2 className="font-serif text-3xl italic font-bold text-foreground lowercase">{category}</h2>
-            </div>
-            <div className="h-10 w-px bg-foreground/10 mx-4" />
-            <div className="flex flex-col">
-              <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {[0, 1, 2].map(i => (
-                    <div key={i} className={cn(
-                      "w-2 h-2 rounded-full border border-primary/30 transition-colors",
-                      i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
-                    )} />
-                  ))}
-                </div>
-                <span className="font-mono text-[10px] uppercase tracking-tighter text-foreground ml-2">Credits: {3 - clickCount}/3</span>
-              </div>
-            </div>
-          </div>
-
+        <div className="flex items-center justify-end py-8 px-12 border-b border-foreground/5 shrink-0">
           <button 
             onClick={onClose}
-            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-colors group px-6 py-3 border border-foreground/10 rounded-full"
+            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-colors group px-6 py-3 border border-foreground/10 rounded-full pointer-events-auto"
           >
             Collapse Section <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
           </button>
         </div>
 
-        <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing">
+        <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto">
           <div className="absolute left-12 top-10 z-10">
             <p className="font-mono text-[9px] uppercase tracking-[0.5em] text-muted-foreground/40 vertical-text origin-top-left">
               Horizontal Navigation Required / Use Mouse Wheel
