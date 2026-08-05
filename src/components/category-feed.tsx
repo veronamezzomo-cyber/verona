@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
@@ -20,6 +21,7 @@ interface FeedItem {
 }
 
 interface LineCoord {
+  id: string;
   x1: number;
   y1: number;
   x2: number;
@@ -56,7 +58,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
     const coords = Array.from(cards).map(card => {
       const cardRect = card.getBoundingClientRect();
+      const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
       return {
+        id: label,
         x1: startX,
         y1: startY,
         x2: (cardRect.left + cardRect.width / 2) - svgRect.left,
@@ -171,26 +175,31 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
-        {lineCoords.map((line, i) => (
-          <line
-            key={i}
-            x1={line.x1}
-            y1={line.y1}
-            x2={line.x2}
-            y2={line.y2}
-            stroke="hsl(var(--primary))"
-            strokeWidth="1"
-            strokeDasharray="4 4"
-            className="opacity-40"
-            style={{ 
-              filter: 'url(#glow-line)',
-              animation: 'dash-pulse 20s linear infinite'
-            }}
-          />
-        ))}
+        {lineCoords.map((line, i) => {
+          const isActive = category === line.id;
+          return (
+            <line
+              key={i}
+              x1={line.x1}
+              y1={line.y1}
+              x2={line.x2}
+              y2={line.y2}
+              stroke="hsl(var(--primary))"
+              strokeWidth={isActive ? "2" : "1"}
+              strokeDasharray={isActive ? "none" : "4 4"}
+              className={cn(
+                "transition-all duration-500",
+                isActive ? "opacity-100" : "opacity-40"
+              )}
+              style={{ 
+                filter: isActive ? 'url(#glow-line)' : 'none',
+                animation: isActive ? 'dash-pulse 3s linear infinite' : 'dash-pulse 20s linear infinite'
+              }}
+            />
+          );
+        })}
       </svg>
 
-      {/* STATUS SEMPRE VISÍVEL */}
       <div className="absolute top-4 left-4 md:left-12 flex items-center gap-6 z-20 pointer-events-none">
         <div className="flex flex-col">
           <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
