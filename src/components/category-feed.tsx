@@ -124,11 +124,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!isExpanded || !trackRef.current) return;
     const track = trackRef.current;
     
-    if (track.scrollWidth === 0) return;
-
     const initialOffset = window.innerWidth / 3;
-    const calculatedMax = track.scrollWidth + initialOffset - window.innerWidth;
-    const maxScroll = Math.max(0, calculatedMax);
+    const maxScroll = Math.max(0, track.scrollWidth + initialOffset - window.innerWidth);
 
     scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
 
@@ -263,7 +260,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             <div 
               ref={trackRef}
               className={cn(
-                "flex items-center pr-[10vw] will-change-transform",
+                "flex items-center pr-[50vw] will-change-transform",
                 isVerticalFormat ? "gap-20" : "gap-16"
               )}
             >
