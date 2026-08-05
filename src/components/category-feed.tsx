@@ -269,7 +269,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     className={cn(
                       "relative bg-muted overflow-hidden transition-all duration-700",
                       isVerticalFormat 
-                        ? "w-[220px] md:w-[280px] aspect-[9/16] h-auto" 
+                        ? "h-[45vh] aspect-[9/16] w-auto" 
                         : "w-[300px] md:w-[400px] h-[50vh]",
                       "[clip-path:polygon(0%_10%,10%_0%,100%_0%,100%_90%,90%_100%,0%_100%)]",
                       clickCount >= 3 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
