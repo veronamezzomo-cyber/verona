@@ -105,8 +105,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const orbitScale = Math.min(containerWidth / 600, 1);
   
   const orbitParams = useMemo(() => videos.map((_, i) => ({
-    rx: (240 + Math.sin(i * 1.5) * 60) * orbitScale,
-    ry: (180 + Math.cos(i * 2.2) * 40) * orbitScale,
+    rx: (220 + Math.sin(i * 1.5) * 50) * orbitScale,
+    ry: (160 + Math.cos(i * 2.2) * 40) * orbitScale,
     offset: (i * (Math.PI * 2)) / videos.length
   })), [videos, orbitScale]);
 
@@ -170,7 +170,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   }, [videos, orbitParams]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none">
+    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none px-6 sm:px-10 lg:px-16">
       <div className="absolute inset-0 pointer-events-auto" />
       {videos.map((vid, i) => (
         <div 
@@ -316,16 +316,19 @@ export default function PortfolioPage() {
 
       <main className="relative">
         {/* Layer 0: Hero Section */}
-        <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
+        <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 bg-background container mx-auto px-6 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full">
-            <div className="flex flex-col gap-6 animate-slide-up">
-              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
+            <div className="flex flex-col gap-8 lg:gap-10 pl-1 sm:pl-2 lg:pl-4 animate-slide-up">
+              <div className="flex flex-col gap-2 lg:gap-4">
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
+                <div className="w-16 h-px bg-primary/30" />
+              </div>
               <h1 className="font-serif font-bold text-[clamp(2.5rem,5vw,5.5rem)] leading-tight tracking-tighter text-foreground">
                 CRAFTING<br />VISUAL<br />STORYTELLING<span className="text-primary">.</span>
               </h1>
-              <div className="flex gap-6 mt-4">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-8 lg:mt-12">
                 <Button size="lg" className="rounded-none px-12 h-16 bg-foreground text-background" onClick={() => handleCategoryClick('all')}>View Projects</Button>
-                <Link href="#contact" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest">Contact Me <ArrowRight className="h-3 w-3" /></Link>
+                <Link href="#contact" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest py-4">Contact Me <ArrowRight className="h-3 w-3" /></Link>
               </div>
             </div>
             <div className="relative animate-image-reveal">
