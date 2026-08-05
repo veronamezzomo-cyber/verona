@@ -30,6 +30,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   
   const connectorsRef = useRef<SVGSVGElement>(null);
   const activeLayerLabelRef = useRef<HTMLSpanElement>(null);
+  const headerDividerRef = useRef<HTMLDivElement>(null);
   const pickStyleTextRef = useRef<HTMLDivElement>(null);
   const compactStatusRef = useRef<HTMLDivElement>(null);
   
@@ -42,27 +43,28 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const isVerticalFormat = category === 'shorts' || category === 'talking';
 
   const updateLines = useCallback(() => {
-    if (!connectorsRef.current || !containerRef.current || !activeLayerLabelRef.current) return;
+    if (!connectorsRef.current || !containerRef.current || !headerDividerRef.current) return;
 
     const svgRect = connectorsRef.current.getBoundingClientRect();
-    const activeLabelRect = activeLayerLabelRef.current.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const dividerRect = headerDividerRef.current.getBoundingClientRect();
     const cards = document.querySelectorAll('.category-card');
 
     if (cards.length === 0) return;
 
-    // Ponto de Chegada (Active Layer): Centro horizontal e vertical do label real
-    const destX = (activeLabelRect.left + activeLabelRect.width / 2) - svgRect.left;
-    const destY = (activeLabelRect.top + activeLabelRect.height / 2) - svgRect.top;
+    // Ponto de Chegada: Centro horizontal do Feed e na altura da barra divisória (borda inferior)
+    const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
+    const destY = dividerRect.bottom - svgRect.top;
 
     const coords = Array.from(cards).map(card => {
       const cardRect = card.getBoundingClientRect();
       const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
       return {
         id: label,
-        x1: (cardRect.left + cardRect.width / 2) - svgRect.left, // Origem: Centro do Botão
+        x1: (cardRect.left + cardRect.width / 2) - svgRect.left, // Origem: Botão
         y1: cardRect.bottom - svgRect.top,                      // Origem Y: Base do Botão
-        x2: destX,                                              // Destino X: Centro do Label
-        y2: destY                                               // Destino Y: Centro do Label
+        x2: destX,                                              // Destino X: Centro
+        y2: destY                                               // Destino Y: Barra Divisória
       };
     });
 
@@ -71,7 +73,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   useEffect(() => {
     if (isExpanded) {
-      // Sincroniza o cálculo das linhas para rodar após a transição de altura do feed
+      // Sincroniza o cálculo das linhas para rodar após a transição de altura do feed terminar
       const timer = setTimeout(() => {
         updateLines();
       }, 1050);
@@ -247,7 +249,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="flex items-center justify-end py-10 px-12 border-b border-foreground/5 shrink-0">
+          <div 
+            ref={headerDividerRef}
+            className="flex items-center justify-end py-10 px-12 border-b border-foreground/5 shrink-0"
+          >
             <button 
               onClick={onClose}
               className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(var(--primary),0.2)]"
