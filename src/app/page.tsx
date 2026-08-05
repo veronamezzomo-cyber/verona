@@ -276,7 +276,7 @@ export default function PortfolioPage() {
   }, [activeCategory]);
 
   const handleCategoryClick = (label: string) => {
-    setActiveCategory(label);
+    setActiveCategory(label === activeCategory ? null : label);
   };
 
   const handleCloseFeed = () => {
@@ -319,11 +319,8 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Layer 1: Works/Experience Section */}
-        <div className={cn(
-          "relative z-10 flex flex-col bg-background transition-all duration-500",
-          activeCategory ? "min-h-screen" : "min-h-[300px]"
-        )}>
+        {/* Layer 1: Works Section */}
+        <div className="relative z-10 flex flex-col bg-background transition-all duration-500 min-h-fit">
           <div id="works-trigger" className="h-32 w-full pointer-events-none" />
 
           <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
@@ -360,13 +357,8 @@ export default function PortfolioPage() {
             </div>
           </section>
 
-          {activeCategory && <CategoryFeed category={activeCategory} onClose={handleCloseFeed} onCategoryClick={handleCategoryClick} />}
-          
-          {!activeCategory && (
-            <div className="container mx-auto px-6 py-4 flex justify-center h-fit">
-              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 animate-pulse">Select a category above to browse projects</span>
-            </div>
-          )}
+          {/* New Autocontained CategoryFeed */}
+          <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </div>
 
         {/* Layer 2: About/Philosophy Bridge */}

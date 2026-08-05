@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import { X, Lock } from 'lucide-react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { X, Lock, Sparkles } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { useToast } from '@/hooks/use-toast';
 
 interface CategoryFeedProps {
-  category: string;
+  category: string | null;
   onClose: () => void;
   onCategoryClick?: (label: string) => void;
 }
@@ -16,105 +16,72 @@ interface CategoryFeedProps {
 interface FeedItem {
   id: string;
   title: string;
-  date: string;
-  notes: string;
-  videoUrl?: string;
+  videoUrl: string;
 }
 
-export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFeedProps) {
-  const containerRef = useRef<HTMLElement>(null);
+export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const bgLinesRef = useRef<HTMLDivElement>(null);
-  const lastScrollY = useRef(0);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [clickCount, setClickCount] = useState(0);
+  const scrollX = useRef(0);
   const { toast } = useToast();
 
-  const feedItems: FeedItem[] = [
-    { 
-      id: '1', 
-      title: `${category.toUpperCase()} PROJECT 01`, 
-      date: 'OCT 2023',
-      notes: 'Exploration of high-contrast visual rhythm and experimental color grading techniques for high-end digital media.',
-      videoUrl: 'https://i.imgur.com/i33VokI.mp4'
-    },
-    { 
-      id: '2', 
-      title: `${category.toUpperCase()} PROJECT 02`, 
-      date: 'AUG 2023',
-      notes: 'Technical breakdown of motion graphics integration within raw footage, focusing on seamless transitions.',
-      videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4'
-    },
-    { 
-      id: '3', 
-      title: `${category.toUpperCase()} PROJECT 03`, 
-      date: 'MAY 2023',
-      notes: 'Sound-driven editorial piece where every cut responds to auditory frequencies and sub-bass impacts.',
-      videoUrl: 'https://i.imgur.com/3r8dNuR_lq.mp4'
-    },
-    { 
-      id: '4', 
-      title: `${category.toUpperCase()} PROJECT 04`, 
-      date: 'JAN 2023',
-      notes: 'Narrative-heavy short form content designed for maximum engagement within the first 3 seconds.',
-      videoUrl: 'https://i.imgur.com/p23vehx_lq.mp4'
-    },
-  ];
-
+  // Carrega créditos do sessionStorage
   useEffect(() => {
-    if (containerRef.current) {
-      gsap.fromTo(containerRef.current, 
-        { opacity: 0, y: 100 },
-        { opacity: 1, y: 0, duration: 2.2, ease: "power3.out" }
+    const saved = sessionStorage.getItem('verona_credits');
+    if (saved) setClickCount(parseInt(saved));
+  }, []);
+
+  const isExpanded = !!category;
+
+  // Animação de Expansão/Retração (GSAP)
+  useEffect(() => {
+    if (!containerRef.current || !contentRef.current) return;
+
+    if (isExpanded) {
+      // Abre a gaveta
+      gsap.to(containerRef.current, {
+        height: '80vh',
+        opacity: 1,
+        duration: 1,
+        ease: 'power3.inOut',
+        overwrite: 'auto'
+      });
+      gsap.fromTo(contentRef.current, 
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, delay: 0.4, ease: 'power2.out' }
       );
+    } else {
+      // Fecha a gaveta
+      gsap.to(containerRef.current, {
+        height: '100px',
+        duration: 0.8,
+        ease: 'power3.inOut',
+        overwrite: 'auto'
+      });
     }
+  }, [isExpanded]);
 
-    let isReady = false;
-    const readyTimeout = setTimeout(() => { isReady = true; }, 300);
+  // Controle de Scroll Horizontal Local (Independente da Janela)
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (!isExpanded || !trackRef.current) return;
 
-    const handleScroll = () => {
-      if (!isReady || !containerRef.current || !trackRef.current || !bgLinesRef.current) return;
-      
-      const rect = containerRef.current.getBoundingClientRect();
-      const scrollHeight = rect.height - window.innerHeight;
-      const progress = scrollHeight > 0 
-        ? Math.min(Math.max(-rect.top / scrollHeight, 0), 1)
-        : 0;
-      
-      const trackWidth = trackRef.current.scrollWidth;
-      const windowWidth = window.innerWidth;
-      const maxMove = trackWidth - windowWidth;
-
-      const currentScrollY = window.scrollY;
-      const isScrollingUp = currentScrollY < lastScrollY.current;
-      lastScrollY.current = currentScrollY;
-      
-      if (rect.top > 80 && isScrollingUp && onClose) {
-        onClose();
-        return;
-      }
-
-      gsap.to(trackRef.current, {
-        x: -(progress * maxMove),
-        duration: 0.2,
-        ease: 'none',
-        overwrite: 'auto'
-      });
-
-      gsap.to(bgLinesRef.current, {
-        x: -(progress * maxMove * 0.4),
-        duration: 0.3,
-        ease: 'none',
-        overwrite: 'auto'
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll);
+    // Previne que o scroll da página aconteça enquanto navegamos nos vídeos
+    // e o mouse estiver sobre o componente
+    const track = trackRef.current;
+    const maxScroll = track.scrollWidth - window.innerWidth * 0.8;
     
-    return () => {
-      clearTimeout(readyTimeout);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [onClose]);
+    // Sensibilidade do scroll local
+    scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
+
+    gsap.to(track, {
+      x: -scrollX.current,
+      duration: 0.6,
+      ease: 'power2.out',
+      overwrite: 'auto'
+    });
+  }, [isExpanded]);
 
   const handleInteraction = () => {
     if (clickCount >= 3) {
@@ -125,134 +92,157 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       });
       return;
     }
-    setClickCount(prev => prev + 1);
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
+    sessionStorage.setItem('verona_credits', newCount.toString());
   };
 
-  const ProjectText = ({ item }: { item: FeedItem }) => (
-    <div className="w-[300px] md:w-[400px] flex flex-col justify-center px-8 z-20">
-      <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold mb-2">
-        {item.date}
-      </span>
-      <h3 className="font-serif text-3xl md:text-5xl font-bold text-foreground leading-[0.9] tracking-tighter mb-4">
-        {item.title}<span className="text-primary">.</span>
-      </h3>
-      <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-relaxed max-w-[280px]">
-        {item.notes}
-      </p>
-    </div>
-  );
-
-  const ProjectVideo = ({ item, type }: { item: FeedItem, type: 'up' | 'down' }) => (
-    <div 
-      onClick={handleInteraction}
-      className={cn(
-        "w-[350px] md:w-[450px] h-[70vh] relative bg-muted overflow-hidden group cursor-pointer transition-all z-10",
-        type === 'up' 
-          ? "[clip-path:polygon(0%_100%,0%_0%,85%_0%,100%_15%,100%_100%)]" 
-          : "[clip-path:polygon(0%_15%,15%_0%,100%_0%,100%_100%,0%_100%)]",
-        clickCount >= 3 && "grayscale opacity-80 cursor-not-allowed"
-      )}
-    >
-      <EditableVideo 
-        src={item.videoUrl || ""} 
-        storageKey={`feed-${category}-${item.id}`}
-        fill
-        className="object-cover object-center scale-110 group-hover:scale-100 transition-transform duration-[2s]"
-        autoPlay
-        muted
-        loop
-        playsInline
-        hideControls
-      />
-      {clickCount >= 3 && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-          <Lock className="w-8 h-8 text-white opacity-50" />
-        </div>
-      )}
-      <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-    </div>
-  );
+  const feedItems: FeedItem[] = [
+    { id: '1', title: 'PROJ_01', videoUrl: 'https://i.imgur.com/i33VokI.mp4' },
+    { id: '2', title: 'PROJ_02', videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4' },
+    { id: '3', title: 'PROJ_03', videoUrl: 'https://i.imgur.com/3r8dNuR_lq.mp4' },
+    { id: '4', title: 'PROJ_04', videoUrl: 'https://i.imgur.com/p23vehx_lq.mp4' },
+    { id: '5', title: 'PROJ_05', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4' },
+  ];
 
   return (
-    <section 
+    <div 
       ref={containerRef}
-      className="relative w-full h-[150vh] bg-background z-30"
+      onWheel={handleWheel}
+      className={cn(
+        "relative w-full bg-background border-t border-b border-foreground/5 overflow-hidden transition-colors duration-700",
+        isExpanded ? "z-[95]" : "z-10"
+      )}
+      style={{ height: '100px' }}
     >
-      <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between py-6 px-12 border-border shrink-0 bg-background/80 backdrop-blur-md z-50 border-b">
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
-            <div className="h-px w-12 bg-primary/20" />
-            <h2 className="font-serif text-2xl italic font-bold text-foreground lowercase">{category}</h2>
-            <div className="ml-4 px-2 py-0.5 rounded-full border border-border font-mono text-[8px] uppercase tracking-tighter">
-              Credits: {3 - clickCount}/3
+      {/* ESTADO COMPACTO: Texto Pulsante + Conectores HUD */}
+      {!isExpanded && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center opacity-100 transition-opacity duration-500">
+          {/* Conectores Visuais (Circuit Style) */}
+          <svg className="absolute top-0 w-full h-full pointer-events-none opacity-20" aria-hidden="true">
+            <path d="M 50% 0 L 50% 30 L 45% 45 M 50% 30 L 55% 45" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <circle cx="50%" cy="0" r="2" fill="currentColor" />
+          </svg>
+          
+          <div className="flex flex-col items-center gap-2 animate-pulse">
+            <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">System Online</span>
+            <h3 className="font-serif italic text-xl md:text-2xl text-foreground flex items-center gap-3">
+              PICK YOUR STYLE <Sparkles className="h-4 w-4 text-primary" />
+            </h3>
+          </div>
+        </div>
+      )}
+
+      {/* ESTADO EXPANDIDO: Galeria de Vídeos */}
+      <div 
+        ref={contentRef}
+        className={cn(
+          "w-full h-full flex flex-col transition-opacity duration-500",
+          isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+      >
+        {/* Header Interno do Feed */}
+        <div className="flex items-center justify-between py-8 px-12 border-b border-foreground/5 shrink-0">
+          <div className="flex items-center gap-6">
+            <div className="flex flex-col">
+              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
+              <h2 className="font-serif text-3xl italic font-bold text-foreground lowercase">{category}</h2>
+            </div>
+            <div className="h-10 w-px bg-foreground/10 mx-4" />
+            <div className="flex flex-col">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map(i => (
+                    <div key={i} className={cn(
+                      "w-2 h-2 rounded-full border border-primary/30 transition-colors duration-500",
+                      i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
+                    )} />
+                  ))}
+                </div>
+                <span className="font-mono text-[10px] uppercase tracking-tighter text-foreground ml-2">Credits: {3 - clickCount}/3</span>
+              </div>
             </div>
           </div>
+
           <button 
             onClick={onClose}
-            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-1.5 flex items-center transition-colors group text-foreground"
+            className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-colors group px-6 py-3 border border-foreground/10 rounded-full"
           >
-            Close Archive <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
+            Collapse Section <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
           </button>
         </div>
 
-        <div 
-          ref={bgLinesRef}
-          className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20 z-10 will-change-transform"
-        >
-          {[...Array(30)].map((_, i) => (
-            <div key={i} className="h-full w-px bg-foreground relative flex-shrink-0 mx-[250px]">
-              <span className="absolute top-24 left-2 font-mono text-[10px] font-bold text-foreground">L-{i + 1}</span>
-            </div>
-          ))}
-        </div>
-
-        <div 
-          ref={trackRef}
-          className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
-        >
-          <div className="flex gap-0 items-center h-full py-0">
-            <div className="flex flex-col justify-between h-[80vh] py-10">
-              <ProjectText item={feedItems[0]} />
-              <ProjectVideo item={feedItems[1]} type="down" />
-            </div>
-
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
-              <ProjectVideo item={feedItems[0]} type="up" />
-              <ProjectText item={feedItems[1]} />
-            </div>
-
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
-              <ProjectText item={feedItems[2]} />
-              <ProjectVideo item={feedItems[3]} type="down" />
-            </div>
-
-            <div className="flex flex-col justify-between h-[80vh] py-10 ml-20">
-              <ProjectVideo item={feedItems[2]} type="up" />
-              <ProjectText item={feedItems[3]} />
-            </div>
-
-            <div className="w-[30vw]" />
+        {/* Trilho de Vídeos (Scroll Horizontal Local) */}
+        <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing">
+          {/* Instrução Tipográfica Discreta */}
+          <div className="absolute left-12 top-10 z-10">
+            <p className="font-mono text-[9px] uppercase tracking-[0.5em] text-muted-foreground/40 vertical-text origin-top-left">
+              Horizontal Navigation Required / Use Mouse Wheel
+            </p>
           </div>
-        </div>
 
-        <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-muted-foreground z-50">
-          <div className="flex items-center gap-4">
-            <span>Geometric Masking Active</span>
-            <div className="w-12 h-px bg-border" />
-            <span>01 / 04</span>
-          </div>
-          <div className="flex gap-2 items-center">
-            <span className="mr-2">Scroll vertically to reveal masks</span>
-            {[0, 1, 2].map(i => (
-              <div key={i} className={cn(
-                "w-1.5 h-1.5 rounded-full border transition-colors", 
-                i < clickCount ? "bg-primary border-primary" : "border-border"
-              )} />
+          <div 
+            ref={trackRef}
+            className="flex items-center gap-16 px-[10vw] will-change-transform"
+          >
+            {feedItems.map((item) => (
+              <div key={item.id} className="flex flex-col gap-6 shrink-0 group">
+                <div 
+                  onClick={handleInteraction}
+                  className={cn(
+                    "w-[300px] md:w-[400px] h-[50vh] relative bg-muted overflow-hidden transition-all duration-700",
+                    "[clip-path:polygon(0%_10%,10%_0%,100%_0%,100%_90%,90%_100%,0%_100%)]",
+                    clickCount >= 3 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
+                  )}
+                >
+                  <EditableVideo 
+                    src={item.videoUrl} 
+                    storageKey={`v2-feed-${item.id}`}
+                    fill
+                    className="object-cover scale-105 group-hover:scale-100 transition-transform duration-[2s]"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    hideControls
+                  />
+                  
+                  {clickCount >= 3 && (
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-500">
+                      <div className="flex flex-col items-center gap-2">
+                        <Lock className="w-8 h-8 text-white opacity-40" />
+                        <span className="font-mono text-[8px] uppercase tracking-widest text-white/40">Access Denied</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Borda técnica em hover */}
+                  <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 transition-colors pointer-events-none" />
+                </div>
+                
+                <div className="flex items-center justify-between px-2">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold">{item.title}</span>
+                  <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">Layer.0{item.id}</span>
+                </div>
+              </div>
             ))}
+            
+            {/* Espaçador final */}
+            <div className="w-[20vw] shrink-0" />
           </div>
+        </div>
+
+        {/* Footer do Feed */}
+        <div className="py-6 px-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">
+          <div className="flex gap-8">
+            <span>Status: Rendering</span>
+            <span>Bitrate: High</span>
+            <span>Codec: H.264 / AV1</span>
+          </div>
+          <div>© Verona Studio • Visual Engine v2.5</div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
