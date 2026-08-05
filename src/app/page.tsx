@@ -410,47 +410,63 @@ export default function PortfolioPage() {
 
   // About Section Animation
   useEffect(() => {
-    const words = gsap.utils.toArray('.about-word');
-    const light = document.querySelector('.about-light');
-    
-    if (!words.length || !light) return;
+    // Ensuring code only runs if window is available and elements are ready
+    if (typeof window === 'undefined') return;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#about-wrapper',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1,
-        invalidateOnRefresh: true,
-      }
+    const runAnimation = () => {
+      const words = gsap.utils.toArray('.about-word');
+      const light = document.querySelector('.about-light');
+      
+      if (!words || words.length === 0 || !light) return;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#about-wrapper',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1,
+          invalidateOnRefresh: true,
+        }
+      });
+
+      tl.fromTo(words, 
+        { 
+          x: 40, 
+          opacity: 0, 
+          filter: 'blur(8px)',
+          textShadow: "0 0 0px hsl(var(--primary)/0)"
+        },
+        { 
+          x: 0, 
+          opacity: 1, 
+          filter: 'blur(0px)',
+          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+          stagger: 0.1, 
+          duration: 0.8, 
+          ease: 'power2.out' 
+        }
+      );
+
+      tl.to(light, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'sine.inOut'
+      }, ">-0.4");
+
+      return tl;
+    };
+
+    // Use requestAnimationFrame to ensure React has rendered the words spans
+    const animRef = { current: null as any };
+    const frameId = requestAnimationFrame(() => {
+      animRef.current = runAnimation();
     });
 
-    tl.fromTo(words, 
-      { 
-        x: 40, 
-        opacity: 0, 
-        filter: 'blur(8px)',
-        textShadow: "0 0 0px hsl(var(--primary)/0)"
-      },
-      { 
-        x: 0, 
-        opacity: 1, 
-        filter: 'blur(0px)',
-        textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-        stagger: 0.1, 
-        duration: 0.8, 
-        ease: 'power2.out' 
-      }
-    );
-
-    tl.to(light, {
-      opacity: 1,
-      duration: 0.8,
-      ease: 'sine.inOut'
-    }, ">-0.4");
-
     return () => {
-      if (tl.scrollTrigger) tl.scrollTrigger.kill();
+      cancelAnimationFrame(frameId);
+      if (animRef.current && animRef.current.scrollTrigger) {
+        animRef.current.scrollTrigger.kill();
+      }
     };
   }, [aboutWords]);
 
