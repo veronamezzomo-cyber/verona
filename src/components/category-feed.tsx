@@ -93,8 +93,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!containerRef.current || !contentRef.current || !trackRef.current) return;
 
     if (isExpanded) {
-      scrollX.current = 0;
       const initialOffset = window.innerWidth / 3;
+      scrollX.current = 0;
       
       gsap.set(trackRef.current, { x: initialOffset });
 
@@ -254,7 +254,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </button>
           </div>
 
-          <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto">
+          <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto pb-12">
             <div 
               ref={trackRef}
               className={cn(
@@ -297,7 +297,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     )}
                   </div>
                   
-                  {/* Rodapé de Identificação por Vídeo */}
                   <div className="flex items-center justify-between px-2">
                     <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold">VÍDEO 0{index + 1} — {item.title}</span>
                     <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">{item.date}</span>
@@ -307,7 +306,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          {/* Barra de Status Inferior (Ajustada com pl-24 para evitar o corte) */}
           <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">
             <div className="flex gap-8">
               <span className="flex items-center gap-2">
