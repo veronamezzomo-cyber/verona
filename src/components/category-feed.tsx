@@ -31,7 +31,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   
-  // REFS ALVO (Exclusivos para Flicker/Fade)
+  // REFS ALVO
   const connectorsRef = useRef<SVGSVGElement>(null);
   const pickStyleTextRef = useRef<HTMLDivElement>(null);
   const compactStatusRef = useRef<HTMLDivElement>(null);
@@ -39,24 +39,23 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const [clickCount, setClickCount] = useState(0);
   const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
   const scrollX = useRef(0);
-  const lastScrollY = useRef(0);
   const { toast } = useToast();
 
   const isExpanded = !!category;
 
-  // REQUISITO 1: Cálculo dinâmico das linhas conectoras
+  // Cálculo dinâmico das linhas conectoras (Ancoradas ao topo do container)
   const updateLines = useCallback(() => {
-    if (!connectorsRef.current || !pickStyleTextRef.current || isExpanded) return;
+    if (!connectorsRef.current || !containerRef.current) return;
 
     const svgRect = connectorsRef.current.getBoundingClientRect();
-    const textRect = pickStyleTextRef.current.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
     const cards = document.querySelectorAll('.category-card');
 
     if (cards.length === 0) return;
 
-    // Ponto de origem: Centro horizontal do texto, topo da faixa
-    const startX = (textRect.left + textRect.width / 2) - svgRect.left;
-    const startY = textRect.top - svgRect.top;
+    // Ponto de origem: Centro horizontal do container, topo exato (Y=0 relativo ao SVG)
+    const startX = (containerRect.left + containerRect.width / 2) - svgRect.left;
+    const startY = 0; 
 
     const coords = Array.from(cards).map(card => {
       const cardRect = card.getBoundingClientRect();
@@ -69,7 +68,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     });
 
     setLineCoords(coords);
-  }, [isExpanded]);
+  }, []);
 
   useEffect(() => {
     updateLines();
@@ -77,39 +76,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     return () => window.removeEventListener('resize', updateLines);
   }, [updateLines]);
 
-  // REQUISITO 2 e 3: Flicker + Fade ao selecionar/fechar
-  useEffect(() => {
-    const targets = [
-      connectorsRef.current,
-      pickStyleTextRef.current,
-      compactStatusRef.current
-    ].filter(Boolean);
-
-    if (targets.length === 0) return;
-
-    if (isExpanded) {
-      // Desligamento (Flicker Out)
-      gsap.timeline({ defaults: { ease: "none" } })
-        .to(targets, { opacity: 0.2, duration: 0.08 })
-        .to(targets, { opacity: 1, duration: 0.08 })
-        .to(targets, { opacity: 0.2, duration: 0.08 })
-        .to(targets, { opacity: 1, duration: 0.08 })
-        .to(targets, { opacity: 0, duration: 0.1, display: 'none' });
-    } else {
-      // Reativação (Flicker In)
-      gsap.timeline({ defaults: { ease: "none" } })
-        .set(targets, { display: 'flex', opacity: 0 })
-        .to(targets, { opacity: 0.5, duration: 0.12 })
-        .to(targets, { opacity: 0.2, duration: 0.08 })
-        .to(targets, { opacity: 0.8, duration: 0.08 })
-        .to(targets, { opacity: 1, duration: 0.1 });
-      
-      // Força recalque das linhas ao reativar
-      setTimeout(updateLines, 50);
-    }
-  }, [isExpanded, updateLines]);
-
-  // Lógica de Expansão de Altura
+  // Lógica de Expansão de Altura (Mantida, removendo animação de opacidade dos alvos de flicker)
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -121,7 +88,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         ease: 'power3.inOut',
         overwrite: 'auto'
       });
-      // Removida transition-opacity do CSS para evitar conflito com GSAP
+      
       gsap.fromTo(contentRef.current, 
         { y: 40, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.8, delay: 0.4, ease: 'power2.out' }
@@ -180,7 +147,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       )}
       style={{ height: '100px' }}
     >
-      {/* REQUISITO 1: Overlay de Conectores SVG */}
+      {/* Overlay de Conectores SVG - PERSISTENTE E ESTÁTICO */}
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible z-0"
@@ -211,9 +178,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         ))}
       </svg>
 
-      {/* ESTADO COMPACTO */}
+      {/* ESTADO COMPACTO - Visível quando não expandido */}
       {!isExpanded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-500 z-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
           <div ref={compactStatusRef} className="flex flex-col items-center gap-1 mb-1">
             <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60 font-bold">System Online</span>
           </div>
@@ -230,7 +197,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       <div 
         ref={contentRef}
         className={cn(
-          "w-full h-full flex flex-col", // Removida a classe transition-opacity duration-500
+          "w-full h-full flex flex-col",
           isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
       >
