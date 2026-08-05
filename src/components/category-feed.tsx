@@ -39,12 +39,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const isExpanded = !!category;
   const isVerticalFormat = category === 'shorts' || category === 'talking';
 
-  // Memoize initialOffset to be consistent across components
-  const initialOffset = useMemo(() => {
-    if (typeof window === 'undefined') return 0;
-    return window.innerWidth / 3;
-  }, []);
-
   const updateLines = useCallback(() => {
     if (!connectorsRef.current || !containerRef.current) return;
 
@@ -99,7 +93,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!containerRef.current || !contentRef.current || !trackRef.current) return;
 
     if (isExpanded) {
-      // Reset scroll position on category change
+      const initialOffset = window.innerWidth / 3;
       scrollX.current = 0;
       
       gsap.set(trackRef.current, { x: initialOffset });
@@ -124,24 +118,22 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         overwrite: 'auto'
       });
     }
-  }, [isExpanded, category, initialOffset]);
+  }, [isExpanded, category]);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (!isExpanded || !trackRef.current) return;
     const track = trackRef.current;
     
-    // Safety check for scrollWidth which might be 0 during transitions
     if (track.scrollWidth === 0) return;
 
-    const currentInitialOffset = window.innerWidth / 3;
-    const calculatedMax = track.scrollWidth + currentInitialOffset - window.innerWidth;
+    const initialOffset = window.innerWidth / 3;
+    const calculatedMax = track.scrollWidth + initialOffset - window.innerWidth;
     const maxScroll = Math.max(0, calculatedMax);
 
-    // Update the ref
     scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
 
     gsap.to(track, {
-      x: currentInitialOffset - scrollX.current,
+      x: initialOffset - scrollX.current,
       duration: 0.6,
       ease: 'power2.out',
       overwrite: 'auto'
@@ -201,14 +193,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
       <div 
         ref={containerRef}
-        onWheel={handleWheel}
         className={cn(
           "relative w-full bg-background border-t border-b border-foreground/5 overflow-hidden transition-colors duration-700",
           isExpanded ? "z-[95]" : "z-10"
         )}
         style={{ height: '100px' }}
       >
-        {/* Top HUD Status */}
         <div className="absolute top-6 left-6 md:left-12 flex flex-col gap-6 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
             <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
@@ -266,7 +256,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </button>
           </div>
 
-          <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto pb-12">
+          <div 
+            onWheel={handleWheel}
+            className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto pb-12"
+          >
             <div 
               ref={trackRef}
               className={cn(
@@ -318,7 +311,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          {/* Bottom HUD Master Bar */}
           <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">
             <div className="flex gap-8">
               <span className="flex items-center gap-2">
