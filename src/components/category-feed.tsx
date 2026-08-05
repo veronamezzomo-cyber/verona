@@ -98,7 +98,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!containerRef.current || !contentRef.current || !trackRef.current) return;
 
     if (isExpanded) {
-      // Reset scroll state
+      // Reset scroll state and apply technical 1/3 offset
       scrollX.current = 0;
       const initialOffset = window.innerWidth / 3;
       
@@ -131,7 +131,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     const track = trackRef.current;
     const initialOffset = window.innerWidth / 3;
     
-    // Max scroll adjusted to stop exactly when the last card reaches the right edge
+    // Max scroll adjusted to allow the track to end at the right edge, accounting for initial 33vw offset
     const maxScroll = track.scrollWidth + initialOffset - window.innerWidth;
     
     scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
@@ -210,34 +210,29 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '100px' }}
       >
-        <div className="absolute top-4 left-4 md:left-12 flex flex-col gap-4 z-20 pointer-events-none">
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
-              <div className="flex items-center gap-2">
-                <h2 className="font-serif text-lg md:text-xl italic font-bold text-foreground lowercase leading-none">
-                  {category || 'none'}
-                </h2>
-                {category && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />}
-              </div>
+        <div className="absolute top-6 left-6 md:left-12 flex flex-col gap-6 z-20 pointer-events-none">
+          <div className="flex flex-col gap-1">
+            <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
+            <div className="flex items-center gap-2">
+              <h2 className="font-serif text-2xl md:text-3xl italic font-bold text-foreground lowercase leading-none">
+                {category || 'none'}
+              </h2>
+              {category && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />}
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="h-6 w-px bg-foreground/10" />
-            <div className="flex flex-col">
-              <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {[0, 1, 2].map(i => (
-                    <div key={i} className={cn(
-                      "w-1.5 h-1.5 rounded-full border border-primary/30 transition-colors",
-                      i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
-                    )} />
-                  ))}
-                </div>
-                <span className="font-mono text-[9px] uppercase tracking-tighter text-foreground ml-1">Credits: {3 - clickCount}/3</span>
+          <div className="flex flex-col gap-2">
+            <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                {[0, 1, 2].map(i => (
+                  <div key={i} className={cn(
+                    "w-1.5 h-1.5 rounded-full border border-primary/30 transition-colors",
+                    i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
+                  )} />
+                ))}
               </div>
+              <span className="font-mono text-[9px] uppercase tracking-tighter text-foreground ml-1">Credits: {3 - clickCount}/3</span>
             </div>
           </div>
         </div>
@@ -263,10 +258,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="flex items-center justify-end py-8 px-12 border-b border-foreground/5 shrink-0">
+          <div className="flex items-center justify-end py-10 px-12 border-b border-foreground/5 shrink-0">
             <button 
               onClick={onClose}
-              className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-6 py-3 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(var(--primary),0.1)]"
+              className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(var(--primary),0.2)]"
             >
               Collapse Section <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
             </button>
@@ -276,7 +271,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             <div 
               ref={trackRef}
               className={cn(
-                "flex items-center px-0 will-change-transform",
+                "flex items-center pr-[10vw] will-change-transform",
                 isVerticalFormat ? "gap-10" : "gap-16"
               )}
             >
@@ -321,7 +316,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   </div>
                 </div>
               ))}
-              <div className="w-[33vw] shrink-0" />
             </div>
           </div>
 
