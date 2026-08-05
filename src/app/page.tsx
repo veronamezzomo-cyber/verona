@@ -38,6 +38,8 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 const LED_BITMAPS: Record<string, number[][]> = {
   'V': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
   'E': [[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
+  'V': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
+  'E': [[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
   'R': [[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,1,0],[1,0,0,0,1],[1,0,0,0,1]],
   'O': [[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
   'N': [[1,0,0,0,1],[1,1,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1]],
@@ -408,12 +410,11 @@ export default function PortfolioPage() {
     };
   }, []);
 
-  // About Section Animation
+  // About Section Animation - Corrected with gsap.context() for stability
   useEffect(() => {
-    // Ensuring code only runs if window is available and elements are ready
     if (typeof window === 'undefined') return;
 
-    const runAnimation = () => {
+    const ctx = gsap.context(() => {
       const words = gsap.utils.toArray('.about-word');
       const light = document.querySelector('.about-light');
       
@@ -452,22 +453,9 @@ export default function PortfolioPage() {
         duration: 0.8,
         ease: 'sine.inOut'
       }, ">-0.4");
-
-      return tl;
-    };
-
-    // Use requestAnimationFrame to ensure React has rendered the words spans
-    const animRef = { current: null as any };
-    const frameId = requestAnimationFrame(() => {
-      animRef.current = runAnimation();
     });
 
-    return () => {
-      cancelAnimationFrame(frameId);
-      if (animRef.current && animRef.current.scrollTrigger) {
-        animRef.current.scrollTrigger.kill();
-      }
-    };
+    return () => ctx.revert();
   }, [aboutWords]);
 
   useEffect(() => {
