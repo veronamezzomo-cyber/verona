@@ -6,17 +6,12 @@ import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { useToast } from '@/hooks/use-toast';
+import { VIDEOS_DATA } from '@/lib/videos-data';
 
 interface CategoryFeedProps {
   category: string | null;
   onClose: () => void;
   onCategoryClick?: (label: string) => void;
-}
-
-interface FeedItem {
-  id: string;
-  title: string;
-  videoUrl: string;
 }
 
 interface LineCoord {
@@ -98,7 +93,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!containerRef.current || !contentRef.current || !trackRef.current) return;
 
     if (isExpanded) {
-      // Reset scroll state and apply technical 1/3 offset
       scrollX.current = 0;
       const initialOffset = window.innerWidth / 3;
       
@@ -131,7 +125,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     const track = trackRef.current;
     const initialOffset = window.innerWidth / 3;
     
-    // Max scroll adjusted to allow the track to end at the right edge, accounting for initial 33vw offset
     const maxScroll = track.scrollWidth + initialOffset - window.innerWidth;
     
     scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
@@ -155,12 +148,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     }
     setClickCount(prev => prev + 1);
   };
-
-  const feedItems: FeedItem[] = [
-    { id: '1', title: 'PROJ_01', videoUrl: 'https://i.imgur.com/i33VokI.mp4' },
-    { id: '2', title: 'PROJ_02', videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4' },
-    { id: '3', title: 'PROJ_03', videoUrl: 'https://i.imgur.com/3r8dNuR_lq.mp4' },
-  ];
 
   return (
     <div className="relative">
@@ -275,7 +262,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 isVerticalFormat ? "gap-10" : "gap-16"
               )}
             >
-              {feedItems.map((item) => (
+              {VIDEOS_DATA.map((item, index) => (
                 <div key={item.id} className="flex flex-col gap-6 shrink-0 group">
                   <div 
                     onClick={handleInteraction}
@@ -311,8 +298,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   </div>
                   
                   <div className="flex items-center justify-between px-2">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold">{item.title}</span>
-                    <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">Layer.0{item.id}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold">VÍDEO 0{index + 1} — {item.title}</span>
+                    <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">{item.date}</span>
                   </div>
                 </div>
               ))}
