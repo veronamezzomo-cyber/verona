@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
@@ -51,19 +50,19 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
     if (cards.length === 0) return;
 
-    // Ponto de Chegada: Topo central exato do Feed (Y=0 relativo ao SVG posicionado no topo)
+    // Destino: Topo central exato da barra divisória do Feed (border-t do containerRef)
     const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-    const destY = 0;
+    const destY = 0; // Topo do SVG que está fixado no topo do containerRef
 
     const coords = Array.from(cards).map(card => {
       const cardRect = card.getBoundingClientRect();
       const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
       return {
         id: label,
-        // Origem: Base do Botão (x1, y1)
+        // Origem: Base do Botão
         x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
         y1: cardRect.bottom - svgRect.top,
-        // Destino: Topo Centro do Feed (x2, y2)
+        // Destino: Topo Central do Feed (Barra divisória superior)
         x2: destX,
         y2: destY
       };
@@ -74,6 +73,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   useEffect(() => {
     if (isExpanded) {
+      // Sincroniza o cálculo para rodar logo após a transição GSAP terminar (~1s)
       const timer = setTimeout(() => {
         updateLines();
       }, 1050);
@@ -193,7 +193,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '100px' }}
       >
-        <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-4 z-20 pointer-events-none">
+        <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
             <span 
               ref={activeLayerLabelRef}
@@ -212,7 +212,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
           
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1 mt-1">
             <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
             <div className="flex items-center gap-2">
               <div className="flex gap-1">

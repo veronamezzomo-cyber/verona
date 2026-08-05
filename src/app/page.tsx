@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -251,7 +250,10 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
               src={vid.imageUrl} 
               storageKey={vid.id}
               fill
-              className="object-cover"
+              className={cn(
+                "object-cover object-center transition-transform duration-500",
+                "group-hover:scale-105" // O zoom do ativo é gerenciado externamente pelo CSS/Class condicional se necessário
+              )}
               data-ai-hint={vid.imageHint}
               priority={true} 
             />
