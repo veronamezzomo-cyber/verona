@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -86,10 +87,14 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const timeRef = useRef(0);
-  const expansionRef = useRef(0); // Interpolation factor: 0 (cascade) to 1 (orbital)
+  const expansionRef = useRef(0);
   const hasStartedRef = useRef(false);
   const [containerWidth, setContainerWidth] = useState(600);
   const orbitParamsRef = useRef<any[]>([]);
+  
+  // Ref para controlar os fatores de foco individuais (0 a 1)
+  const focalFactorsRef = useRef<number[]>([0, 0, 0, 0, 0]);
+  const currentFocusedIndexRef = useRef<number>(-1);
 
   // Responsiveness logic
   useEffect(() => {
@@ -105,26 +110,25 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
   const orbitScale = Math.min(containerWidth / 600, 1);
   
-  // Recalculate orbit parameters based on container size
   const orbitParams = useMemo(() => videos.map((_, i) => ({
     rx: (220 + Math.sin(i * 1.5) * 50) * orbitScale,
     ry: (160 + Math.cos(i * 2.2) * 40) * orbitScale,
     offset: (i * (Math.PI * 2)) / videos.length
   })), [videos, orbitScale]);
 
-  // Keep orbitParamsRef in sync for RAF to use without restarting effect
   useEffect(() => {
     orbitParamsRef.current = orbitParams;
   }, [orbitParams]);
 
   useEffect(() => {
-    // Guard to ensure animation and RAF start only once
     if (hasStartedRef.current) return;
 
     let requestRef: number;
+    let focusInterval: NodeJS.Timeout;
 
     const animate = () => {
-      timeRef.current += 0.01;
+      // Velocidade reduzida para 0.006 para movimento mais fluido
+      timeRef.current += 0.006;
       const expansion = expansionRef.current;
 
       itemRefs.current.forEach((el, i) => {
@@ -133,26 +137,35 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const p = orbitParamsRef.current[i];
         if (!p) return;
         
+        const ff = focalFactorsRef.current[i] || 0;
         const angle = timeRef.current + p.offset;
         
-        // Orbital coordinates
+        // Coordenadas base (Órbita ou Cascata)
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
-        const depth = Math.sin(angle);
-
-        // Cascade coordinates (offsets based on index)
         const cx = i * 8;
         const cy = i * -8;
 
-        // Linear interpolation from cascade to orbital position
-        const tx = ox * expansion + cx * (1 - expansion);
-        const ty = oy * expansion + cy * (1 - expansion);
+        // Interpolação base (Cascata -> Órbita)
+        const baseX = ox * expansion + cx * (1 - expansion);
+        const baseY = oy * expansion + cy * (1 - expansion);
 
-        // Dynamic z-index based purely on depth
-        const zIndex = Math.floor(50 + depth * 40);
-        const blur = depth < 0 ? Math.abs(depth) * 4 : 0;
+        // Interpolação de Foco (Puxa para 0,0 se ff -> 1)
+        const tx = baseX * (1 - ff);
+        const ty = baseY * (1 - ff);
 
-        el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(0.9)`;
+        const depth = Math.sin(angle);
+        
+        // Z-Index: Órbita normal (50-90) ou Focado (150)
+        const normalZ = Math.floor(50 + depth * 40);
+        const zIndex = Math.floor(normalZ * (1 - ff) + 150 * ff);
+        
+        // Scale: 0.9 (Normal) -> 1.4 (Focado)
+        const currentScale = 0.9 + (0.5 * ff);
+        
+        const blur = (depth < 0 ? Math.abs(depth) * 4 : 0) * (1 - ff);
+
+        el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${currentScale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
         el.style.opacity = '1';
@@ -161,25 +174,48 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       requestRef = requestAnimationFrame(animate);
     };
 
-    // Start delay to avoid initial page hydration jitters
+    const rotateFocus = () => {
+      const nextIndex = (currentFocusedIndexRef.current + 1) % videos.length;
+      const prevIndex = currentFocusedIndexRef.current;
+
+      // Animação de entrada do novo foco e saída do antigo via GSAP
+      if (prevIndex !== -1) {
+        gsap.to(focalFactorsRef.current, {
+          [prevIndex]: 0,
+          duration: 1.5,
+          ease: 'power2.inOut'
+        });
+      }
+
+      gsap.to(focalFactorsRef.current, {
+        [nextIndex]: 1,
+        duration: 1.5,
+        ease: 'power2.inOut'
+      });
+
+      currentFocusedIndexRef.current = nextIndex;
+    };
+
     const timer = setTimeout(() => {
       hasStartedRef.current = true;
       requestRef = requestAnimationFrame(animate);
 
-      // Smoothly animate from cascade (0) to full orbit (1)
-      const expansionObj = { value: 0 };
-      gsap.to(expansionObj, {
-        value: 1,
+      // Expansão inicial (Cascata para Órbita)
+      gsap.to(expansionRef, {
+        current: 1,
         duration: 1.2,
         ease: 'power2.out',
-        onUpdate: () => {
-          expansionRef.current = expansionObj.value;
+        onComplete: () => {
+          // Inicia o rodízio de foco após a expansão
+          rotateFocus();
+          focusInterval = setInterval(rotateFocus, 6000);
         }
       });
     }, 300);
 
     return () => {
       if (requestRef) cancelAnimationFrame(requestRef);
+      if (focusInterval) clearInterval(focusInterval);
       clearTimeout(timer);
     };
   }, [videos]);
@@ -193,7 +229,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
           ref={(el) => { itemRefs.current[i] = el; }}
           className="absolute top-1/2 left-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
           style={{ 
-            // Correct initial render state (cascade) before RAF starts
             transform: `translate3d(calc(-50% + ${i * 8}px), calc(-50% + ${i * -8}px), 0) scale(0.9)`,
             zIndex: 50 + i,
             opacity: 1
