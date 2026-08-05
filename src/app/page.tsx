@@ -239,18 +239,16 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Category Morphing Logic
   useEffect(() => {
     const cards = gsap.utils.toArray('.category-card');
     const worksSection = document.querySelector('#works');
-    
     if (!worksSection) return;
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
-        start: "top top+=80", 
-        end: "bottom top+=80",         
+        start: "top top+=80",
+        end: "bottom top+=80",
         scrub: true,
       }
     });
@@ -264,7 +262,6 @@ export default function PortfolioPage() {
 
     tl.to(cards, {
       height: 64,
-      width: 64, 
       duration: 1,
       ease: "power2.inOut"
     }, 0);
@@ -273,6 +270,10 @@ export default function PortfolioPage() {
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
+
+  useEffect(() => {
+    ScrollTrigger.refresh();
+  }, [activeCategory]);
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
@@ -335,7 +336,7 @@ export default function PortfolioPage() {
           "relative z-10 flex flex-col bg-background transition-all duration-500",
           activeCategory ? "min-h-screen" : "min-h-[300px]"
         )}>
-          <div id="works-trigger" className="h-[1px] w-full pointer-events-none" />
+          <div id="works-trigger" className="h-32 w-full pointer-events-none" />
 
           <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
             <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-12">
@@ -348,7 +349,7 @@ export default function PortfolioPage() {
                     onClick={() => handleCategoryClick(cat.label)}
                     aria-label={`View projects in ${cat.label}`}
                     className={cn(
-                      "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-[140px] md:h-auto md:aspect-square",
+                      "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-[140px] md:h-[200px]",
                       isActive && "ring-2 ring-primary"
                     )}
                   >
