@@ -161,10 +161,14 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       requestRef = requestAnimationFrame(animate);
     };
 
-    requestRef = requestAnimationFrame(animate);
+    // Atraso de 800ms para iniciar a animação do cluster e não competir com o stagger do Hero H1
+    const timer = setTimeout(() => {
+      requestRef = requestAnimationFrame(animate);
+    }, 800);
 
     return () => {
-      cancelAnimationFrame(requestRef);
+      if (requestRef) cancelAnimationFrame(requestRef);
+      clearTimeout(timer);
       clearInterval(focusInterval);
     };
   }, [videos, orbitParams]);
@@ -198,6 +202,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
               fill
               className="object-cover"
               data-ai-hint={vid.imageHint}
+              priority={true} // Prioridade habilitada para o Hero
             />
           )}
         </div>

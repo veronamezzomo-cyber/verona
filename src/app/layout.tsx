@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
   style: ['normal', 'italic'],
-  preload: false, // Otimização: desativa preload agressivo para variantes pontuais
+  preload: true, // Habilitado para evitar reflows e jank nas animações GSAP no mount
 });
 
 const jetbrains = JetBrains_Mono({
