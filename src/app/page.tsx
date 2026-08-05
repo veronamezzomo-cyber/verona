@@ -212,6 +212,10 @@ export default function PortfolioPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const lastScrollYRef = useRef(0);
 
+  const h1Line1Ref = useRef<HTMLDivElement>(null);
+  const h1Line2Ref = useRef<HTMLDivElement>(null);
+  const h1Line3Ref = useRef<HTMLDivElement>(null);
+
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
     { id: 'cat-shorts', label: 'shorts' },
@@ -223,6 +227,25 @@ export default function PortfolioPage() {
 
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
+
+  useEffect(() => {
+    // Staggered H1 animation
+    const tl = gsap.timeline({ delay: 0.5 });
+    
+    [h1Line1Ref, h1Line2Ref, h1Line3Ref].forEach((ref, index) => {
+      if (ref.current) {
+        tl.fromTo(ref.current, 
+          { y: '100%' }, 
+          { 
+            y: '0%', 
+            duration: 1.2, 
+            ease: 'expo.out' 
+          }, 
+          index * 0.18
+        );
+      }
+    });
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -298,6 +321,14 @@ export default function PortfolioPage() {
     setActiveCategory(null);
   };
 
+  const scrollToWorks = () => {
+    gsap.to(window, {
+      scrollTo: '#works',
+      duration: 1.5,
+      ease: 'power3.inOut'
+    });
+  };
+
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
@@ -306,6 +337,10 @@ export default function PortfolioPage() {
             LV<span className="text-primary">.</span>
           </Link>
           <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
+            <div className="flex items-center gap-3 text-muted-foreground mr-4">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" style={{ animationDuration: '1.5s' }} />
+              <span className="tracking-[0.2em]">CURRENT LOCATION: BLUMENAU — SOUTH — BRAZIL</span>
+            </div>
             <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
             <Link href="#about" className="text-foreground/70 hover:text-foreground">About</Link>
             <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
@@ -318,17 +353,35 @@ export default function PortfolioPage() {
         {/* Layer 0: Hero Section */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 bg-background container mx-auto px-6 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full">
-            <div className="flex flex-col gap-8 lg:gap-10 pl-1 sm:pl-2 lg:pl-4 animate-slide-up">
+            <div className="flex flex-col gap-8 lg:gap-10 pl-1 sm:pl-2 lg:pl-4">
               <div className="flex flex-col gap-2 lg:gap-4">
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor</span>
                 <div className="w-16 h-px bg-primary/30" />
               </div>
+              
               <h1 className="font-serif font-bold text-[clamp(2.5rem,5vw,5.5rem)] leading-tight tracking-tighter text-foreground">
-                CRAFTING<br />VISUAL<br />STORYTELLING<span className="text-primary">.</span>
+                <div className="overflow-hidden">
+                  <div ref={h1Line1Ref}>CRAFTING</div>
+                </div>
+                <div className="overflow-hidden">
+                  <div ref={h1Line2Ref}>VISUAL</div>
+                </div>
+                <div className="overflow-hidden">
+                  <div ref={h1Line3Ref}>STORYTELLING<span className="text-primary">.</span></div>
+                </div>
               </h1>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-8 lg:mt-12">
-                <Button size="lg" className="rounded-none px-12 h-16 bg-foreground text-background" onClick={() => handleCategoryClick('all')}>View Projects</Button>
-                <Link href="#contact" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest py-4">Contact Me <ArrowRight className="h-3 w-3" /></Link>
+
+              <div className="mt-8 lg:mt-12 flex flex-col items-start gap-4">
+                <button 
+                  onClick={scrollToWorks}
+                  className="group flex flex-col items-center gap-4 transition-opacity hover:opacity-60"
+                  aria-label="Scroll to works"
+                >
+                  <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60">Scroll Down</span>
+                  <div className="relative w-[1px] h-10 bg-foreground/30 overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-full bg-foreground animate-scroll-indicator" />
+                  </div>
+                </button>
               </div>
             </div>
             <div className="relative animate-image-reveal">
@@ -418,6 +471,17 @@ export default function PortfolioPage() {
           </div>
         </section>
       </main>
+
+      <style jsx global>{`
+        @keyframes scroll-indicator {
+          0% { transform: translateY(-100%); }
+          50% { transform: translateY(0%); }
+          100% { transform: translateY(100%); }
+        }
+        .animate-scroll-indicator {
+          animation: scroll-indicator 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+      `}</style>
     </div>
   );
 }
