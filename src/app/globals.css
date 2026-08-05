@@ -59,12 +59,14 @@
   html {
     @apply bg-background;
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
     @apply text-foreground relative min-h-screen;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
   
   /* Fix for sticky elements in mobile browsers */

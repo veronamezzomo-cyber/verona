@@ -353,7 +353,7 @@ export default function PortfolioPage() {
 
       <main className="relative">
         {/* Layer 0: Hero Section */}
-        <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 bg-background container mx-auto px-6 sm:px-8 lg:px-12">
+        <section className="sticky top-0 z-0 flex flex-col items-center justify-center h-screen max-h-screen overflow-hidden pt-20 bg-background container mx-auto px-6 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full flex-1">
             <div className="flex flex-col gap-8 lg:gap-10 pl-1 sm:pl-2 lg:pl-4">
               <div className="flex flex-col gap-2 lg:gap-4">
