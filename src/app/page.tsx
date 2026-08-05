@@ -38,8 +38,6 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 const LED_BITMAPS: Record<string, number[][]> = {
   'V': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
   'E': [[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
-  'V': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
-  'E': [[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
   'R': [[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,1,0],[1,0,0,0,1],[1,0,0,0,1]],
   'O': [[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
   'N': [[1,0,0,0,1],[1,1,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1]],
@@ -128,7 +126,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     let focusInterval: NodeJS.Timeout;
 
     const animate = () => {
-      // Velocidade reduzida para 0.006 para movimento mais fluido
       timeRef.current += 0.006;
       const expansion = expansionRef.current;
 
@@ -141,29 +138,21 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const ff = focalFactorsRef.current[i] || 0;
         const angle = timeRef.current + p.offset;
         
-        // Coordenadas base (Órbita ou Cascata)
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
         const cx = i * 8;
         const cy = i * -8;
 
-        // Interpolação base (Cascata -> Órbita)
         const baseX = ox * expansion + cx * (1 - expansion);
         const baseY = oy * expansion + cy * (1 - expansion);
 
-        // Interpolação de Foco (Puxa para 0,0 se ff -> 1)
         const tx = baseX * (1 - ff);
         const ty = baseY * (1 - ff);
 
         const depth = Math.sin(angle);
-        
-        // Z-Index: Órbita normal (50-90) ou Focado (150)
         const normalZ = Math.floor(50 + depth * 40);
         const zIndex = Math.floor(normalZ * (1 - ff) + 150 * ff);
-        
-        // Scale: 0.9 (Normal) -> 1.4 (Focado)
         const currentScale = 0.9 + (0.5 * ff);
-        
         const blur = (depth < 0 ? Math.abs(depth) * 4 : 0) * (1 - ff);
 
         el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${currentScale})`;
@@ -179,7 +168,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       const nextIndex = (currentFocusedIndexRef.current + 1) % videos.length;
       const prevIndex = currentFocusedIndexRef.current;
 
-      // Animação de entrada do novo foco e saída do antigo via GSAP
       if (prevIndex !== -1) {
         gsap.to(focalFactorsRef.current, {
           [prevIndex]: 0,
@@ -201,13 +189,11 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       hasStartedRef.current = true;
       requestRef = requestAnimationFrame(animate);
 
-      // Expansão inicial (Cascata para Órbita)
       gsap.to(expansionRef, {
         current: 1,
         duration: 1.2,
         ease: 'power2.out',
         onComplete: () => {
-          // Inicia o rodízio de foco após a expansão
           rotateFocus();
           focusInterval = setInterval(rotateFocus, 6000);
         }
@@ -277,6 +263,11 @@ export default function PortfolioPage() {
   const h1Line2Ref = useRef<HTMLDivElement>(null);
   const h1Line3Ref = useRef<HTMLDivElement>(null);
 
+  // Stable aboutWords array
+  const aboutWords = useMemo(() => 
+    "Behind every great story is someone obsessed with its details.".split(" "), 
+  []);
+
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
     { id: 'cat-shorts', label: 'shorts' },
@@ -289,12 +280,7 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   
-  const aboutWords = useMemo(() => 
-    "Behind every great story is someone obsessed with its details.".split(" "), 
-  []);
-
   useEffect(() => {
-    // Staggered H1 animation
     const tl = gsap.timeline({ delay: 0.5 });
     
     [h1Line1Ref, h1Line2Ref, h1Line3Ref].forEach((ref, index) => {
@@ -410,59 +396,53 @@ export default function PortfolioPage() {
     };
   }, []);
 
-  // About Section Animation - Scoped with Context and Safe Timing
+  // Corrected About Section Animation using stable scope and elements
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Use a small timeout to ensure DOM spans from aboutWords.map are fully rendered
-    const timer = setTimeout(() => {
-      const ctx = gsap.context(() => {
-        // Select words and filter out any potential nulls
-        const words = gsap.utils.toArray<HTMLElement>('.about-word').filter(Boolean);
-        const light = document.querySelector('.about-light');
-        
-        if (!words.length || !light) return;
+    const ctx = gsap.context(() => {
+      const words = gsap.utils.toArray<HTMLElement>('.about-word').filter(Boolean);
+      const light = document.querySelector('.about-light');
+      
+      if (!words.length || !light) return;
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '#about-wrapper',
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1,
-            invalidateOnRefresh: true,
-          }
-        });
-
-        tl.fromTo(words, 
-          { 
-            x: 40, 
-            opacity: 0, 
-            filter: 'blur(8px)',
-            textShadow: "0 0 0px hsl(var(--primary)/0)"
-          },
-          { 
-            x: 0, 
-            opacity: 1, 
-            filter: 'blur(0px)',
-            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-            stagger: 0.1, 
-            duration: 0.8, 
-            ease: 'power2.out' 
-          }
-        );
-
-        tl.to(light, {
-          opacity: 1,
-          duration: 0.8,
-          ease: 'sine.inOut'
-        }, ">-0.4");
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#about-wrapper',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1,
+          invalidateOnRefresh: true,
+        }
       });
 
-      return () => ctx.revert();
-    }, 100);
+      tl.fromTo(words, 
+        { 
+          x: 40, 
+          opacity: 0, 
+          filter: 'blur(8px)',
+          textShadow: "0 0 0px hsl(var(--primary)/0)"
+        },
+        { 
+          x: 0, 
+          opacity: 1, 
+          filter: 'blur(0px)',
+          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+          stagger: 0.1, 
+          duration: 0.8, 
+          ease: 'power2.out' 
+        }
+      );
 
-    return () => clearTimeout(timer);
-  }, [aboutWords]);
+      tl.to(light, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'sine.inOut'
+      }, ">-0.4");
+    });
+
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -594,17 +574,16 @@ export default function PortfolioPage() {
 
         <div id="about-wrapper" className="relative h-[200vh] z-20">
           <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
-            {/* Background Light */}
             <div className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" />
             
             <div className="max-w-5xl text-center relative z-10">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">Layer 02 // Digital Craftsman</span>
               <h2 className="text-[clamp(2rem,6vw,5rem)] font-serif italic font-bold leading-[1.2] tracking-tight flex flex-wrap justify-center gap-x-[0.4em] gap-y-[0.2em]">
-                {aboutWords.map((word, i) => (
+                {aboutWords?.map((word, i) => (
                   <span key={i} className="about-word opacity-0 inline-block">
                     {word}
                   </span>
-                ))}
+                )) ?? null}
               </h2>
             </div>
           </section>
