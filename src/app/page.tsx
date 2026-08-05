@@ -194,7 +194,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
-  const [year, setYear] = useState(2025);
+  const [year, setYear] = useState(new Date().getFullYear());
   const lastScrollYRef = useRef(0);
 
   const categories = useMemo(() => [
@@ -210,8 +210,6 @@ export default function PortfolioPage() {
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
   useEffect(() => {
-    setYear(new Date().getFullYear());
-    
     let ticking = false;
 
     const handleScroll = () => {

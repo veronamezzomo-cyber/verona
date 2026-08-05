@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
   style: ['normal', 'italic'],
-  preload: false,
+  preload: false, // Otimização: desativa preload agressivo para variantes pontuais
 });
 
 const jetbrains = JetBrains_Mono({
@@ -25,12 +25,12 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'Portfolio | Leonardo Verona - Video Editor',
-  description: 'Selected works and professional portfolio of Leonardo Verona, a Brazilian Video Editor specialized in cinematic storytelling, motion design, and high-end color grading.',
+  description: 'Selected works and professional portfolio of Leonardo Verona, specialized in cinematic storytelling and motion design.',
   keywords: ['Video Editor', 'Motion Design', 'Color Grading', 'Portfolio', 'Leonardo Verona', 'Cinematic', 'Visual Storytelling'],
   authors: [{ name: 'Leonardo Verona' }],
   openGraph: {
     title: 'Leonardo Verona | Video Editor Portfolio',
-    description: 'Cinematic visual storytelling and high-end video editing.',
+    description: 'Expert cinematic visual storytelling and video editing.',
     type: 'website',
     locale: 'en_US',
     siteName: 'Leonardo Verona Portfolio',
