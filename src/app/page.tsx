@@ -87,8 +87,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const timeRef = useRef(0);
   const currentSpeedRef = useRef(0.2);
-  const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0)));
-  const activeIndexRef = useRef(0);
   const [containerWidth, setContainerWidth] = useState(600);
   const hasStartedRef = useRef(false);
   const orbitParamsRef = useRef<any[]>([]);
@@ -119,23 +117,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   useEffect(() => {
     if (hasStartedRef.current) return;
 
-    const focusInterval = setInterval(() => {
-      const prev = activeIndexRef.current;
-      const next = (prev + 1) % videos.length;
-      activeIndexRef.current = next;
-
-      gsap.to(focalFactorsRef.current, {
-        [prev]: 0,
-        duration: 1.2,
-        ease: 'sine.inOut'
-      });
-      gsap.to(focalFactorsRef.current, {
-        [next]: 1,
-        duration: 1.2,
-        ease: 'sine.inOut'
-      });
-    }, 7000);
-
     let requestRef: number;
     const animate = () => {
       timeRef.current += 0.01 * currentSpeedRef.current;
@@ -146,23 +127,20 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const p = orbitParamsRef.current[i];
         if (!p) return;
         
-        const ff = focalFactorsRef.current[i];
-        
         const angle = timeRef.current + p.offset;
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
         const depth = Math.sin(angle);
 
-        // Orbital pure position
-        const tx = ox * (1 - ff);
-        const ty = oy * (1 - ff);
+        // Pure orbital position
+        const tx = ox;
+        const ty = oy;
 
-        const baseScale = 0.9 + (1 + depth) * 0.05;
-        const focalScale = 1.4;
-        const targetScale = baseScale + (focalScale - baseScale) * ff;
+        // Subtle scale variation for depth perception
+        const targetScale = 0.9 + (1 + depth) * 0.05;
         
-        const zIndex = ff > 0.5 ? 120 : Math.floor(50 + depth * 40);
-        const blur = (1 - ff) * (depth < 0 ? Math.abs(depth) * 4 : 0);
+        const zIndex = Math.floor(50 + depth * 40);
+        const blur = depth < 0 ? Math.abs(depth) * 4 : 0;
 
         el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${targetScale})`;
         el.style.zIndex = zIndex.toString();
@@ -181,7 +159,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => {
       if (requestRef) cancelAnimationFrame(requestRef);
       clearTimeout(timer);
-      clearInterval(focusInterval);
     };
   }, [videos]);
 
