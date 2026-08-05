@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   display: 'swap',
   style: ['normal', 'italic'],
-  preload: true, // Habilitado para evitar reflows e jank nas animações GSAP no mount
+  preload: true,
 });
 
 const jetbrains = JetBrains_Mono({
@@ -49,6 +49,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-clip" suppressHydrationWarning>
         <SmoothScroll />
         <div className="fixed inset-0 pointer-events-none z-[9997] mix-blend-soft-light opacity-[0.03] bg-white hidden dark:block" suppressHydrationWarning aria-hidden="true" />
