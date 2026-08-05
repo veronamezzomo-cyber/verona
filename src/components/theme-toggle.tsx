@@ -8,14 +8,14 @@ export function ThemeToggle() {
   const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
 
   React.useEffect(() => {
+    // Check only localStorage for previous manual selection
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
     }
+    // If no savedTheme, default is 'light' (already set in useState)
+    // Removed prefers-color-scheme check to prevent automatic theme switching on mount
   }, []);
 
   const toggleTheme = () => {
