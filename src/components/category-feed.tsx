@@ -125,7 +125,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     const track = trackRef.current;
     const initialOffset = window.innerWidth / 3;
     
-    const maxScroll = track.scrollWidth + initialOffset - window.innerWidth;
+    // Proteção: maxScroll nunca deve ser negativo para não travar o clamp
+    const calculatedMax = track.scrollWidth + initialOffset - window.innerWidth;
+    const maxScroll = Math.max(0, calculatedMax);
     
     scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
 
@@ -259,7 +261,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               ref={trackRef}
               className={cn(
                 "flex items-center pr-[10vw] will-change-transform",
-                isVerticalFormat ? "gap-10" : "gap-16"
+                isVerticalFormat ? "gap-20" : "gap-16"
               )}
             >
               {VIDEOS_DATA.map((item, index) => (
