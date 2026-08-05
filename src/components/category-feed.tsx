@@ -43,28 +43,29 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const isVerticalFormat = category === 'shorts' || category === 'talking';
 
   const updateLines = useCallback(() => {
-    if (!connectorsRef.current || !containerRef.current || !headerDividerRef.current) return;
+    if (!connectorsRef.current || !containerRef.current) return;
 
     const svgRect = connectorsRef.current.getBoundingClientRect();
     const containerRect = containerRef.current.getBoundingClientRect();
-    const dividerRect = headerDividerRef.current.getBoundingClientRect();
     const cards = document.querySelectorAll('.category-card');
 
     if (cards.length === 0) return;
 
-    // Ponto de Chegada: Centro horizontal do Feed e na altura da barra divisória (borda inferior)
+    // Ponto de Chegada: Topo central exato do Feed (Y=0 relativo ao SVG posicionado no topo)
     const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-    const destY = dividerRect.bottom - svgRect.top;
+    const destY = 0;
 
     const coords = Array.from(cards).map(card => {
       const cardRect = card.getBoundingClientRect();
       const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
       return {
         id: label,
-        x1: (cardRect.left + cardRect.width / 2) - svgRect.left, // Origem: Botão
-        y1: cardRect.bottom - svgRect.top,                      // Origem Y: Base do Botão
-        x2: destX,                                              // Destino X: Centro
-        y2: destY                                               // Destino Y: Barra Divisória
+        // Origem: Base do Botão (x1, y1)
+        x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
+        y1: cardRect.bottom - svgRect.top,
+        // Destino: Topo Centro do Feed (x2, y2)
+        x2: destX,
+        y2: destY
       };
     });
 
@@ -73,7 +74,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   useEffect(() => {
     if (isExpanded) {
-      // Sincroniza o cálculo das linhas para rodar após a transição de altura do feed terminar
       const timer = setTimeout(() => {
         updateLines();
       }, 1050);
