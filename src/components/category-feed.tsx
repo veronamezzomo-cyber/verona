@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
@@ -96,9 +95,15 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   }, [updateLines]);
 
   useEffect(() => {
-    if (!containerRef.current || !contentRef.current) return;
+    if (!containerRef.current || !contentRef.current || !trackRef.current) return;
 
     if (isExpanded) {
+      // Reset scroll state
+      scrollX.current = 0;
+      const initialOffset = window.innerWidth / 3;
+      
+      gsap.set(trackRef.current, { x: initialOffset });
+
       gsap.to(containerRef.current, {
         height: '80vh',
         opacity: 1,
@@ -119,16 +124,20 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         overwrite: 'auto'
       });
     }
-  }, [isExpanded]);
+  }, [isExpanded, category]);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (!isExpanded || !trackRef.current) return;
     const track = trackRef.current;
-    const maxScroll = track.scrollWidth - window.innerWidth * 0.8;
+    const initialOffset = window.innerWidth / 3;
+    
+    // Max scroll adjusted to stop exactly when the last card reaches the right edge
+    const maxScroll = track.scrollWidth + initialOffset - window.innerWidth;
+    
     scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
 
     gsap.to(track, {
-      x: -scrollX.current,
+      x: initialOffset - scrollX.current,
       duration: 0.6,
       ease: 'power2.out',
       overwrite: 'auto'
@@ -267,7 +276,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             <div 
               ref={trackRef}
               className={cn(
-                "flex items-center px-[10vw] will-change-transform",
+                "flex items-center px-0 will-change-transform",
                 isVerticalFormat ? "gap-10" : "gap-16"
               )}
             >
@@ -312,7 +321,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   </div>
                 </div>
               ))}
-              <div className="w-[20vw] shrink-0" />
+              <div className="w-[33vw] shrink-0" />
             </div>
           </div>
 
