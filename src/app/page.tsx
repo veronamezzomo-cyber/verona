@@ -179,7 +179,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         duration: 1.2,
         ease: 'power2.out'
       });
-    }, 800);
+    }, 300);
 
     return () => {
       if (requestRef) cancelAnimationFrame(requestRef);
