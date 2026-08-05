@@ -44,6 +44,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   const isExpanded = !!category;
 
+  // Lógica de cálculo das linhas HUD (Sincronizada com o DOM)
   const updateLines = useCallback(() => {
     if (!connectorsRef.current || !containerRef.current) return;
 
@@ -53,6 +54,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
     if (cards.length === 0) return;
 
+    // Origem: Centro horizontal do container, topo exato (Y=0 relativo ao SVG)
     const startX = (containerRect.left + containerRect.width / 2) - svgRect.left;
     const startY = 0; 
 
@@ -71,6 +73,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     setLineCoords(coords);
   }, []);
 
+  // Efeito de monitoramento para garantir que as linhas carreguem assim que os cards existirem
   useEffect(() => {
     let rafId: number;
     let attempts = 0;
@@ -94,6 +97,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     };
   }, [updateLines]);
 
+  // Animação de Expansão/Colapso via GSAP
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -120,6 +124,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     }
   }, [isExpanded]);
 
+  // Scroll Horizontal Direcional (Mouse Wheel)
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (!isExpanded || !trackRef.current) return;
     const track = trackRef.current;
@@ -156,10 +161,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   return (
     <div className="relative">
+      {/* SVG DE CONECTORES (DESACOPLADO DO OVERFLOW:HIDDEN) */}
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full pointer-events-none overflow-visible z-[95]"
-        style={{ height: '1px' }} // Mantido em 1px para evitar culling do motor de renderização mantendo overflow-visible
+        style={{ height: '1px' }} 
         aria-hidden="true"
       >
         <defs>
@@ -193,6 +199,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         })}
       </svg>
 
+      {/* CONTAINER PRINCIPAL DO FEED */}
       <div 
         ref={containerRef}
         onWheel={handleWheel}
@@ -202,6 +209,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '100px' }}
       >
+        {/* HUD DE STATUS SEMPRE VISÍVEL */}
         <div className="absolute top-4 left-4 md:left-12 flex items-center gap-6 z-20 pointer-events-none">
           <div className="flex flex-col">
             <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
@@ -224,6 +232,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
 
+        {/* ESTADO COMPACTO - LABELS CENTRAIS */}
         {!isExpanded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
             <div ref={compactStatusRef} className="flex flex-col items-center gap-1 mb-1">
@@ -238,6 +247,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         )}
 
+        {/* CONTEÚDO EXPANSÍVEL */}
         <div 
           ref={contentRef}
           className={cn(
@@ -254,13 +264,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </button>
           </div>
 
+          {/* TRACK DE VÍDEOS COM SCROLL HORIZONTAL */}
           <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto">
-            <div className="absolute left-12 top-10 z-10">
-              <p className="font-mono text-[9px] uppercase tracking-[0.5em] text-muted-foreground/40 vertical-text origin-top-left">
-                Horizontal Navigation Required / Use Mouse Wheel
-              </p>
-            </div>
-
             <div 
               ref={trackRef}
               className="flex items-center gap-16 px-[10vw] will-change-transform"
@@ -295,8 +300,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                         </div>
                       </div>
                     )}
-
-                    <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 transition-colors pointer-events-none" />
                   </div>
                   
                   <div className="flex items-center justify-between px-2">
@@ -309,6 +312,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
+          {/* RODAPÉ TÉCNICO DO FEED */}
           <div className="py-6 px-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">
             <div className="flex gap-8">
               <span>Status: Rendering</span>
@@ -327,10 +331,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         @keyframes energy-flow {
           from { stroke-dashoffset: 20; }
           to { stroke-dashoffset: 0; }
-        }
-        .vertical-text {
-          writing-mode: vertical-lr;
-          transform: rotate(180deg);
         }
       `}</style>
     </div>
