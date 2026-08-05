@@ -50,7 +50,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!connectorsRef.current || !containerRef.current) return;
 
     const svgRect = connectorsRef.current.getBoundingClientRect();
-    const containerRect = containerRect.current.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
     const cards = document.querySelectorAll('.category-card');
 
     if (cards.length === 0) return;
@@ -186,7 +186,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               y2={line.y2}
               stroke="hsl(var(--primary))"
               strokeWidth={isActive ? "2" : "1"}
-              strokeDasharray={isActive ? "6 10" : "4 4"}
+              strokeDasharray={isActive ? "none" : "4 4"}
               className={cn(
                 "transition-all duration-500",
                 isActive ? "opacity-100" : "opacity-40"
