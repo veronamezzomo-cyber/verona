@@ -50,10 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased selection:bg-primary selection:text-primary-foreground overflow-x-clip" suppressHydrationWarning>
-        {/* Smooth Scroll layer */}
         <SmoothScroll />
-        
-        {/* Cinematic Grain Overlay */}
         <div className="fixed inset-0 pointer-events-none z-[9997] mix-blend-soft-light opacity-[0.03] bg-white hidden dark:block" suppressHydrationWarning aria-hidden="true" />
         {children}
       </body>

@@ -60,7 +60,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
   ];
 
   useEffect(() => {
-    // Entrance animation - reveal slowly
     if (containerRef.current) {
       gsap.fromTo(containerRef.current, 
         { opacity: 0, y: 100 },
@@ -168,8 +167,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       className="relative w-full h-[150vh] bg-background z-30"
     >
       <div className="sticky top-0 w-full h-screen overflow-hidden flex flex-col">
-        
-        {/* Header */}
         <div className="flex items-center justify-between py-6 px-12 border-border shrink-0 bg-background/80 backdrop-blur-md z-50 border-b">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-primary font-bold">Project Archive</span>
@@ -187,7 +184,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           </button>
         </div>
 
-        {/* Parallax Background Layer */}
         <div 
           ref={bgLinesRef}
           className="absolute inset-0 pointer-events-none opacity-[0.05] flex justify-between px-20 z-10 will-change-transform"
@@ -199,7 +195,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           ))}
         </div>
 
-        {/* Foreground Content Track */}
         <div 
           ref={trackRef}
           className="flex-1 flex items-center px-[10vw] relative z-20 will-change-transform"
@@ -229,7 +224,6 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
           </div>
         </div>
 
-        {/* Progress Indicator */}
         <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between font-mono text-[8px] uppercase tracking-widest text-muted-foreground z-50">
           <div className="flex items-center gap-4">
             <span>Geometric Masking Active</span>
