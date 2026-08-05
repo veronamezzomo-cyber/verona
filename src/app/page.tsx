@@ -321,9 +321,8 @@ export default function PortfolioPage() {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
-        endTrigger: '#works',
-        start: "top top+=80",
-        end: "bottom top+=80",
+        start: "top bottom-=200", // Começa a encolher um pouco antes de chegar
+        end: "top top+=80",       // Trava exatamente quando encosta no header
         scrub: true,
         invalidateOnRefresh: true,
       }
@@ -333,13 +332,13 @@ export default function PortfolioPage() {
       paddingTop: 8,
       paddingBottom: 8,
       duration: 1,
-      ease: "power2.inOut"
+      ease: "none"
     }, 0);
 
     tl.to(cards, {
       height: 64,
       duration: 1,
-      ease: "power2.inOut"
+      ease: "none"
     }, 0);
 
     return () => {
@@ -528,4 +527,3 @@ export default function PortfolioPage() {
     </div>
   );
 }
-
