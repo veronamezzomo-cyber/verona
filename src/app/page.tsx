@@ -91,6 +91,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const expansionRef = useRef(0); // Fator de expansão (0: cascata, 1: órbita)
   const activeIndexRef = useRef(0);
   const [containerWidth, setContainerWidth] = useState(600);
+  const hasStartedRef = useRef(false);
+  const orbitParamsRef = useRef<any[]>([]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -111,7 +113,16 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     offset: (i * (Math.PI * 2)) / videos.length
   })), [videos, orbitScale]);
 
+  // Sincroniza o orbitParams em uma Ref para que o loop RAF sempre use os dados mais recentes
+  // sem precisar reiniciar o useEffect e o setTimeout a cada mudança de ResizeObserver.
   useEffect(() => {
+    orbitParamsRef.current = orbitParams;
+  }, [orbitParams]);
+
+  useEffect(() => {
+    // Impede que a sequência de entrada seja reiniciada se já disparou ou está agendada.
+    if (hasStartedRef.current) return;
+
     const focusInterval = setInterval(() => {
       const prev = activeIndexRef.current;
       const next = (prev + 1) % videos.length;
@@ -137,7 +148,10 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       itemRefs.current.forEach((el, i) => {
         if (!el) return;
 
-        const p = orbitParams[i];
+        // Usa a Ref sincronizada para evitar stale closures e garantir layout responsivo
+        const p = orbitParamsRef.current[i];
+        if (!p) return;
+        
         const ff = focalFactorsRef.current[i];
         
         // Offset de cascata inicial (baralho)
@@ -169,8 +183,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       requestRef = requestAnimationFrame(animate);
     };
 
-    // Atraso sincronizado para não competir com a entrada do Hero
     const timer = setTimeout(() => {
+      hasStartedRef.current = true;
       requestRef = requestAnimationFrame(animate);
       
       // Inicia a expansão suave da cascata para a órbita
@@ -186,7 +200,9 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       clearTimeout(timer);
       clearInterval(focusInterval);
     };
-  }, [videos, orbitParams]);
+    // Dependemos apenas de videos para garantir o mount inicial único.
+    // orbitParams foi removido daqui para evitar que o ResizeObserver resete o timer.
+  }, [videos]);
 
   return (
     <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none px-6 sm:px-10 lg:px-16">
