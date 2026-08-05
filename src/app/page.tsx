@@ -209,6 +209,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
+  const [reachedBottom, setReachedBottom] = useState(false);
   const [year, setYear] = useState(new Date().getFullYear());
   const lastScrollYRef = useRef(0);
 
@@ -256,17 +257,15 @@ export default function PortfolioPage() {
           const currentScrollY = window.scrollY;
           const winHeight = window.innerHeight;
           const docHeight = document.documentElement.scrollHeight;
-          const isAtBottom = (currentScrollY + winHeight) >= docHeight - 20;
+          const atBottom = (currentScrollY + winHeight) >= docHeight - 20;
           
-          const isScrollingUp = currentScrollY < lastScrollYRef.current;
+          setReachedBottom(atBottom);
+          
+          if (!atBottom) {
+            setIsSecretVisible(false);
+          }
+          
           lastScrollYRef.current = currentScrollY;
-
-          setIsSecretVisible(prev => {
-            const shouldBeVisible = isAtBottom && !isScrollingUp;
-            if (shouldBeVisible === prev) return prev;
-            return shouldBeVisible;
-          });
-          
           ticking = false;
         });
         ticking = true;
@@ -276,6 +275,43 @@ export default function PortfolioPage() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (!reachedBottom) return;
+      if (e.deltaY > 0) {
+        setIsSecretVisible(true);
+      } else if (e.deltaY < 0) {
+        setIsSecretVisible(false);
+      }
+    };
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [reachedBottom]);
+
+  useEffect(() => {
+    let lastTouchY = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      lastTouchY = e.touches[0].clientY;
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!reachedBottom) return;
+      const currentY = e.touches[0].clientY;
+      const deltaY = lastTouchY - currentY;
+      if (deltaY > 5) {
+        setIsSecretVisible(true);
+      } else if (deltaY < -5) {
+        setIsSecretVisible(false);
+      }
+      lastTouchY = currentY;
+    };
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [reachedBottom]);
 
   useEffect(() => {
     const cards = gsap.utils.toArray('.category-card');
