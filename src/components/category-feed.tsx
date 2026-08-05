@@ -67,12 +67,17 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       );
     }
 
+    let isReady = false;
+    const readyTimeout = setTimeout(() => { isReady = true; }, 300);
+
     const handleScroll = () => {
-      if (!containerRef.current || !trackRef.current || !bgLinesRef.current) return;
+      if (!isReady || !containerRef.current || !trackRef.current || !bgLinesRef.current) return;
       
       const rect = containerRef.current.getBoundingClientRect();
       const scrollHeight = rect.height - window.innerHeight;
-      const progress = Math.min(Math.max(-rect.top / scrollHeight, 0), 1);
+      const progress = scrollHeight > 0 
+        ? Math.min(Math.max(-rect.top / scrollHeight, 0), 1)
+        : 0;
       
       const trackWidth = trackRef.current.scrollWidth;
       const windowWidth = window.innerWidth;
@@ -99,9 +104,11 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll();
     
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      clearTimeout(readyTimeout);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [onClose]);
 
   const handleInteraction = () => {
