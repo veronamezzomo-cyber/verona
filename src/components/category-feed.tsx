@@ -25,6 +25,7 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
   const containerRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const bgLinesRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
   const [clickCount, setClickCount] = useState(0);
   const { toast } = useToast();
 
@@ -82,8 +83,12 @@ export function CategoryFeed({ category, onClose, onCategoryClick }: CategoryFee
       const trackWidth = trackRef.current.scrollWidth;
       const windowWidth = window.innerWidth;
       const maxMove = trackWidth - windowWidth;
+
+      const currentScrollY = window.scrollY;
+      const isScrollingUp = currentScrollY < lastScrollY.current;
+      lastScrollY.current = currentScrollY;
       
-      if (rect.top > 80 && onClose) {
+      if (rect.top > 80 && isScrollingUp && onClose) {
         onClose();
         return;
       }
