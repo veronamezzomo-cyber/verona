@@ -86,11 +86,12 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const timeRef = useRef(0);
-  const currentSpeedRef = useRef(0.2);
-  const [containerWidth, setContainerWidth] = useState(600);
+  const expansionRef = useRef(0); // Interpolation factor: 0 (cascade) to 1 (orbital)
   const hasStartedRef = useRef(false);
+  const [containerWidth, setContainerWidth] = useState(600);
   const orbitParamsRef = useRef<any[]>([]);
 
+  // Responsiveness logic
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
@@ -104,22 +105,27 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
   const orbitScale = Math.min(containerWidth / 600, 1);
   
+  // Recalculate orbit parameters based on container size
   const orbitParams = useMemo(() => videos.map((_, i) => ({
     rx: (220 + Math.sin(i * 1.5) * 50) * orbitScale,
     ry: (160 + Math.cos(i * 2.2) * 40) * orbitScale,
     offset: (i * (Math.PI * 2)) / videos.length
   })), [videos, orbitScale]);
 
+  // Keep orbitParamsRef in sync for RAF to use without restarting effect
   useEffect(() => {
     orbitParamsRef.current = orbitParams;
   }, [orbitParams]);
 
   useEffect(() => {
+    // Guard to ensure animation and RAF start only once
     if (hasStartedRef.current) return;
 
     let requestRef: number;
+
     const animate = () => {
-      timeRef.current += 0.01 * currentSpeedRef.current;
+      timeRef.current += 0.01;
+      const expansion = expansionRef.current;
 
       itemRefs.current.forEach((el, i) => {
         if (!el) return;
@@ -128,21 +134,25 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         if (!p) return;
         
         const angle = timeRef.current + p.offset;
+        
+        // Orbital coordinates
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
         const depth = Math.sin(angle);
 
-        // Pure orbital position
-        const tx = ox;
-        const ty = oy;
+        // Cascade coordinates (offsets based on index)
+        const cx = i * 8;
+        const cy = i * -8;
 
-        // Subtle scale variation for depth perception
-        const targetScale = 0.9 + (1 + depth) * 0.05;
-        
+        // Linear interpolation from cascade to orbital position
+        const tx = ox * expansion + cx * (1 - expansion);
+        const ty = oy * expansion + cy * (1 - expansion);
+
+        // Dynamic z-index based purely on depth
         const zIndex = Math.floor(50 + depth * 40);
         const blur = depth < 0 ? Math.abs(depth) * 4 : 0;
 
-        el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${targetScale})`;
+        el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(0.9)`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = `blur(${blur}px)`;
         el.style.opacity = '1';
@@ -151,9 +161,21 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       requestRef = requestAnimationFrame(animate);
     };
 
+    // Start delay to avoid initial page hydration jitters
     const timer = setTimeout(() => {
       hasStartedRef.current = true;
       requestRef = requestAnimationFrame(animate);
+
+      // Smoothly animate from cascade (0) to full orbit (1)
+      const expansionObj = { value: 0 };
+      gsap.to(expansionObj, {
+        value: 1,
+        duration: 1.2,
+        ease: 'power2.out',
+        onUpdate: () => {
+          expansionRef.current = expansionObj.value;
+        }
+      });
     }, 300);
 
     return () => {
@@ -171,7 +193,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
           ref={(el) => { itemRefs.current[i] = el; }}
           className="absolute top-1/2 left-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
           style={{ 
-            transform: `translate3d(-50%, -50%, 0) scale(0.9)`,
+            // Correct initial render state (cascade) before RAF starts
+            transform: `translate3d(calc(-50% + ${i * 8}px), calc(-50% + ${i * -8}px), 0) scale(0.9)`,
             zIndex: 50 + i,
             opacity: 1
           }}
