@@ -19,28 +19,101 @@ interface FeedItem {
   videoUrl: string;
 }
 
+interface LineCoord {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  
+  // REFS ALVO (Exclusivos para Flicker/Fade)
+  const connectorsRef = useRef<SVGSVGElement>(null);
+  const pickStyleTextRef = useRef<HTMLDivElement>(null);
+  const compactStatusRef = useRef<HTMLDivElement>(null);
+  
   const [clickCount, setClickCount] = useState(0);
+  const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
   const scrollX = useRef(0);
+  const lastScrollY = useRef(0);
   const { toast } = useToast();
-
-  // Carrega créditos do sessionStorage
-  useEffect(() => {
-    const saved = sessionStorage.getItem('verona_credits');
-    if (saved) setClickCount(parseInt(saved));
-  }, []);
 
   const isExpanded = !!category;
 
-  // Animação de Expansão/Retração (GSAP)
+  // REQUISITO 1: Cálculo dinâmico das linhas conectoras
+  const updateLines = useCallback(() => {
+    if (!connectorsRef.current || !pickStyleTextRef.current || isExpanded) return;
+
+    const svgRect = connectorsRef.current.getBoundingClientRect();
+    const textRect = pickStyleTextRef.current.getBoundingClientRect();
+    const cards = document.querySelectorAll('.category-card');
+
+    if (cards.length === 0) return;
+
+    // Ponto de origem: Centro horizontal do texto, topo da faixa
+    const startX = (textRect.left + textRect.width / 2) - svgRect.left;
+    const startY = textRect.top - svgRect.top;
+
+    const coords = Array.from(cards).map(card => {
+      const cardRect = card.getBoundingClientRect();
+      return {
+        x1: startX,
+        y1: startY,
+        x2: (cardRect.left + cardRect.width / 2) - svgRect.left,
+        y2: (cardRect.top + cardRect.height / 2) - svgRect.top
+      };
+    });
+
+    setLineCoords(coords);
+  }, [isExpanded]);
+
+  useEffect(() => {
+    updateLines();
+    window.addEventListener('resize', updateLines);
+    return () => window.removeEventListener('resize', updateLines);
+  }, [updateLines]);
+
+  // REQUISITO 2 e 3: Flicker + Fade ao selecionar/fechar
+  useEffect(() => {
+    const targets = [
+      connectorsRef.current,
+      pickStyleTextRef.current,
+      compactStatusRef.current
+    ].filter(Boolean);
+
+    if (targets.length === 0) return;
+
+    if (isExpanded) {
+      // Desligamento (Flicker Out)
+      gsap.timeline({ defaults: { ease: "none" } })
+        .to(targets, { opacity: 0.2, duration: 0.08 })
+        .to(targets, { opacity: 1, duration: 0.08 })
+        .to(targets, { opacity: 0.2, duration: 0.08 })
+        .to(targets, { opacity: 1, duration: 0.08 })
+        .to(targets, { opacity: 0, duration: 0.1, display: 'none' });
+    } else {
+      // Reativação (Flicker In)
+      gsap.timeline({ defaults: { ease: "none" } })
+        .set(targets, { display: 'flex', opacity: 0 })
+        .to(targets, { opacity: 0.5, duration: 0.12 })
+        .to(targets, { opacity: 0.2, duration: 0.08 })
+        .to(targets, { opacity: 0.8, duration: 0.08 })
+        .to(targets, { opacity: 1, duration: 0.1 });
+      
+      // Força recalque das linhas ao reativar
+      setTimeout(updateLines, 50);
+    }
+  }, [isExpanded, updateLines]);
+
+  // Lógica de Expansão de Altura
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
     if (isExpanded) {
-      // Abre a gaveta
       gsap.to(containerRef.current, {
         height: '80vh',
         opacity: 1,
@@ -53,7 +126,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         { y: 0, opacity: 1, duration: 0.8, delay: 0.4, ease: 'power2.out' }
       );
     } else {
-      // Fecha a gaveta
       gsap.to(containerRef.current, {
         height: '100px',
         duration: 0.8,
@@ -63,16 +135,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     }
   }, [isExpanded]);
 
-  // Controle de Scroll Horizontal Local (Independente da Janela)
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (!isExpanded || !trackRef.current) return;
-
-    // Previne que o scroll da página aconteça enquanto navegamos nos vídeos
-    // e o mouse estiver sobre o componente
     const track = trackRef.current;
     const maxScroll = track.scrollWidth - window.innerWidth * 0.8;
-    
-    // Sensibilidade do scroll local
     scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
 
     gsap.to(track, {
@@ -92,9 +158,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       });
       return;
     }
-    const newCount = clickCount + 1;
-    setClickCount(newCount);
-    sessionStorage.setItem('verona_credits', newCount.toString());
+    setClickCount(prev => prev + 1);
   };
 
   const feedItems: FeedItem[] = [
@@ -110,22 +174,50 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       ref={containerRef}
       onWheel={handleWheel}
       className={cn(
-        "relative w-full bg-background border-t border-b border-foreground/5 overflow-hidden transition-colors duration-700",
+        "relative w-full bg-background border-t border-b border-foreground/5 overflow-visible transition-colors duration-700",
         isExpanded ? "z-[95]" : "z-10"
       )}
       style={{ height: '100px' }}
     >
-      {/* ESTADO COMPACTO: Texto Pulsante + Conectores HUD */}
+      {/* REQUISITO 1: Overlay de Conectores SVG */}
+      <svg 
+        ref={connectorsRef}
+        className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-visible z-0"
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="glow-line">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        {lineCoords.map((line, i) => (
+          <line
+            key={i}
+            x1={line.x1}
+            y1={line.y1}
+            x2={line.x2}
+            y2={line.y2}
+            stroke="hsl(var(--primary))"
+            strokeWidth="1"
+            strokeDasharray="4 4"
+            className="opacity-40"
+            style={{ 
+              filter: 'url(#glow-line)',
+              animation: 'dash-pulse 20s linear infinite'
+            }}
+          />
+        ))}
+      </svg>
+
+      {/* ESTADO COMPACTO */}
       {!isExpanded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center opacity-100 transition-opacity duration-500">
-          {/* Conectores Visuais (Circuit Style) */}
-          <svg className="absolute top-0 w-full h-full pointer-events-none opacity-20" aria-hidden="true">
-            <path d="M 50% 0 L 50% 30 L 45% 45 M 50% 30 L 55% 45" fill="none" stroke="currentColor" strokeWidth="0.5" />
-            <circle cx="50%" cy="0" r="2" fill="currentColor" />
-          </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-500 z-10">
+          <div ref={compactStatusRef} className="flex flex-col items-center gap-1 mb-1">
+            <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60 font-bold">System Online</span>
+          </div>
           
-          <div className="flex flex-col items-center gap-2 animate-pulse">
-            <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">System Online</span>
+          <div ref={pickStyleTextRef} className="flex flex-col items-center gap-2 animate-pulse">
             <h3 className="font-serif italic text-xl md:text-2xl text-foreground flex items-center gap-3">
               PICK YOUR STYLE <Sparkles className="h-4 w-4 text-primary" />
             </h3>
@@ -133,7 +225,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         </div>
       )}
 
-      {/* ESTADO EXPANDIDO: Galeria de Vídeos */}
+      {/* ESTADO EXPANDIDO */}
       <div 
         ref={contentRef}
         className={cn(
@@ -141,7 +233,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
       >
-        {/* Header Interno do Feed */}
         <div className="flex items-center justify-between py-8 px-12 border-b border-foreground/5 shrink-0">
           <div className="flex items-center gap-6">
             <div className="flex flex-col">
@@ -155,7 +246,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 <div className="flex gap-1">
                   {[0, 1, 2].map(i => (
                     <div key={i} className={cn(
-                      "w-2 h-2 rounded-full border border-primary/30 transition-colors duration-500",
+                      "w-2 h-2 rounded-full border border-primary/30 transition-colors",
                       i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
                     )} />
                   ))}
@@ -173,9 +264,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </button>
         </div>
 
-        {/* Trilho de Vídeos (Scroll Horizontal Local) */}
         <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing">
-          {/* Instrução Tipográfica Discreta */}
           <div className="absolute left-12 top-10 z-10">
             <p className="font-mono text-[9px] uppercase tracking-[0.5em] text-muted-foreground/40 vertical-text origin-top-left">
               Horizontal Navigation Required / Use Mouse Wheel
@@ -209,7 +298,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   />
                   
                   {clickCount >= 3 && (
-                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-500">
+                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                       <div className="flex flex-col items-center gap-2">
                         <Lock className="w-8 h-8 text-white opacity-40" />
                         <span className="font-mono text-[8px] uppercase tracking-widest text-white/40">Access Denied</span>
@@ -217,7 +306,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     </div>
                   )}
 
-                  {/* Borda técnica em hover */}
                   <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 transition-colors pointer-events-none" />
                 </div>
                 
@@ -227,13 +315,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 </div>
               </div>
             ))}
-            
-            {/* Espaçador final */}
             <div className="w-[20vw] shrink-0" />
           </div>
         </div>
 
-        {/* Footer do Feed */}
         <div className="py-6 px-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">
           <div className="flex gap-8">
             <span>Status: Rendering</span>
@@ -243,6 +328,16 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           <div>© Verona Studio • Visual Engine v2.5</div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes dash-pulse {
+          to { stroke-dashoffset: -100; }
+        }
+        .vertical-text {
+          writing-mode: vertical-lr;
+          transform: rotate(180deg);
+        }
+      `}</style>
     </div>
   );
 }
