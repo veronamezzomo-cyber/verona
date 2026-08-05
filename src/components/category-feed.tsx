@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
@@ -48,18 +49,18 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
     if (cards.length === 0) return;
 
-    const startX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-    const startY = 0; 
+    const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
+    const destY = 0; // Ponto de chegada (Active Layer)
 
     const coords = Array.from(cards).map(card => {
       const cardRect = card.getBoundingClientRect();
       const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
       return {
         id: label,
-        x1: startX,
-        y1: startY,
-        x2: (cardRect.left + cardRect.width / 2) - svgRect.left,
-        y2: cardRect.bottom - svgRect.top
+        x1: (cardRect.left + cardRect.width / 2) - svgRect.left, // Origem: Botão
+        y1: cardRect.bottom - svgRect.top,
+        x2: destX, // Destino: Active Layer
+        y2: destY
       };
     });
 
@@ -67,26 +68,18 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   }, []);
 
   useEffect(() => {
-    let rafId: number;
-    let attempts = 0;
-
-    const tryUpdate = () => {
-      const cards = document.querySelectorAll('.category-card');
-      if (cards.length > 0) {
+    if (isExpanded) {
+      // Sincroniza o cálculo das linhas para rodar após a transição de altura do feed
+      const timer = setTimeout(() => {
         updateLines();
-      } else if (attempts < 30) {
-        attempts++;
-        rafId = requestAnimationFrame(tryUpdate);
-      }
-    };
+      }, 1050);
+      return () => clearTimeout(timer);
+    }
+  }, [isExpanded, category, updateLines]);
 
-    tryUpdate();
+  useEffect(() => {
     window.addEventListener('resize', updateLines);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', updateLines);
-    };
+    return () => window.removeEventListener('resize', updateLines);
   }, [updateLines]);
 
   useEffect(() => {
@@ -174,14 +167,14 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               y2={line.y2}
               stroke="hsl(var(--primary))"
               strokeWidth={isActive ? "2" : "1"}
-              strokeDasharray={isActive ? "6 10" : "4 4"}
+              strokeDasharray={isActive ? "10 100" : "4 4"}
               className={cn(
                 "transition-all duration-500",
                 isActive ? "opacity-100" : "opacity-40"
               )}
               style={{ 
                 filter: isActive ? 'url(#glow-line)' : 'none',
-                animation: isActive ? 'energy-flow 1s linear infinite' : 'dash-pulse 20s linear infinite'
+                animation: isActive ? 'energy-pulse 2s ease-in-out infinite' : 'dash-pulse 20s linear infinite'
               }}
             />
           );
@@ -198,7 +191,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       >
         <div className="absolute top-6 left-6 md:left-12 flex flex-col gap-6 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
-            <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
+            <span className={cn(
+              "font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold",
+              isExpanded && "animate-active-layer-blink"
+            )}>
+              Active Layer
+            </span>
             <div className="flex items-center gap-2">
               <h2 className="font-serif text-2xl md:text-3xl italic font-bold text-foreground lowercase leading-none">
                 {category || 'none'}
@@ -325,9 +323,18 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         @keyframes dash-pulse {
           to { stroke-dashoffset: -100; }
         }
-        @keyframes energy-flow {
-          from { stroke-dashoffset: 20; }
-          to { stroke-dashoffset: 0; }
+        @keyframes energy-pulse {
+          from { stroke-dashoffset: 110; opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          to { stroke-dashoffset: 0; opacity: 0; }
+        }
+        @keyframes active-layer-blink {
+          0%, 80%, 100% { opacity: 0.4; filter: none; }
+          90% { opacity: 1; filter: drop-shadow(0 0 4px hsl(var(--primary))); }
+        }
+        .animate-active-layer-blink {
+          animation: active-layer-blink 2s ease-in-out infinite;
         }
       `}</style>
     </div>

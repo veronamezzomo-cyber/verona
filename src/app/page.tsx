@@ -511,7 +511,10 @@ export default function PortfolioPage() {
                         alt={cat.label} 
                         storageKey={`cat-${cat.id}`}
                         fill
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        className={cn(
+                          "object-cover object-center transition-transform duration-500",
+                          isActive ? "scale-110" : "group-hover:scale-105"
+                        )}
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
