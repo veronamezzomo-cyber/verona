@@ -83,17 +83,32 @@ function LEDTicker({ text }: { text: string }) {
 }
 
 function FloatingVideoCluster({ videos }: { videos: any[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const timeRef = useRef(0);
   const currentSpeedRef = useRef(0.2);
   const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0)));
   const activeIndexRef = useRef(0);
+  const [containerWidth, setContainerWidth] = useState(600);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setContainerWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const orbitScale = Math.min(containerWidth / 600, 1);
   
   const orbitParams = useMemo(() => videos.map((_, i) => ({
-    rx: 240 + Math.sin(i * 1.5) * 60,
-    ry: 180 + Math.cos(i * 2.2) * 40,
+    rx: (240 + Math.sin(i * 1.5) * 60) * orbitScale,
+    ry: (180 + Math.cos(i * 2.2) * 40) * orbitScale,
     offset: (i * (Math.PI * 2)) / videos.length
-  })), [videos]);
+  })), [videos, orbitScale]);
 
   useEffect(() => {
     const focusInterval = setInterval(() => {
@@ -155,13 +170,13 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   }, [videos, orbitParams]);
 
   return (
-    <div className="relative w-full h-[650px] flex items-center justify-center pointer-events-none">
+    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none">
       <div className="absolute inset-0 pointer-events-auto" />
       {videos.map((vid, i) => (
         <div 
           key={vid.id}
           ref={(el) => { itemRefs.current[i] = el; }}
-          className="absolute top-1/2 left-1/2 w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
+          className="absolute top-1/2 left-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
           style={{ transform: 'translate(-50%, -50%)' }}
         >
           {vid.imageUrl.endsWith('.mp4') ? (
@@ -302,10 +317,10 @@ export default function PortfolioPage() {
       <main className="relative">
         {/* Layer 0: Hero Section */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 px-6 container mx-auto bg-background">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full">
             <div className="flex flex-col gap-6 animate-slide-up">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor • Brazil</span>
-              <h1 className="font-serif font-bold text-[clamp(2.5rem,6vw,5.5rem)] leading-tight tracking-tighter text-foreground">
+              <h1 className="font-serif font-bold text-[clamp(2.5rem,5vw,5.5rem)] leading-tight tracking-tighter text-foreground">
                 CRAFTING<br />VISUAL<br />STORYTELLING<span className="text-primary">.</span>
               </h1>
               <div className="flex gap-6 mt-4">
