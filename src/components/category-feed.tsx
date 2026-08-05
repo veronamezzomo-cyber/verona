@@ -151,8 +151,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     { id: '1', title: 'PROJ_01', videoUrl: 'https://i.imgur.com/i33VokI.mp4' },
     { id: '2', title: 'PROJ_02', videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4' },
     { id: '3', title: 'PROJ_03', videoUrl: 'https://i.imgur.com/3r8dNuR_lq.mp4' },
-    { id: '4', title: 'PROJ_04', videoUrl: 'https://i.imgur.com/p23vehx_lq.mp4' },
-    { id: '5', title: 'PROJ_05', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4' },
   ];
 
   return (
@@ -180,7 +178,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               y2={line.y2}
               stroke="hsl(var(--primary))"
               strokeWidth={isActive ? "2" : "1"}
-              strokeDasharray={isActive ? "none" : "4 4"}
+              strokeDasharray={isActive ? "6 10" : "4 4"}
               className={cn(
                 "transition-all duration-500",
                 isActive ? "opacity-100" : "opacity-40"
@@ -203,8 +201,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '100px' }}
       >
-        {/* HUD DE STATUS SEMPRE VISÍVEL - REFINADO */}
-        <div className="absolute top-4 left-4 md:left-12 flex flex-col gap-3 md:gap-4 z-20 pointer-events-none">
+        <div className="absolute top-4 left-4 md:left-12 flex flex-col gap-4 z-20 pointer-events-none">
           <div className="flex items-center gap-4">
             <div className="flex flex-col">
               <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold">Active Layer</span>
@@ -257,7 +254,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          {/* HEADER DO ESTADO EXPANDIDO - COM SEPARADOR TÉCNICO */}
           <div className="flex items-center justify-end py-8 px-12 border-b border-foreground/5 shrink-0">
             <button 
               onClick={onClose}
