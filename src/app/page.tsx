@@ -196,7 +196,11 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
           key={vid.id}
           ref={(el) => { itemRefs.current[i] = el; }}
           className="absolute top-1/2 left-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
-          style={{ transform: 'translate(-50%, -50%)' }}
+          style={{ 
+            transform: `translate3d(calc(-50% + ${i * 8}px), calc(-50% + ${i * -8}px), 0) scale(0.9)`,
+            zIndex: 50 + i,
+            opacity: 1
+          }}
         >
           {vid.imageUrl.endsWith('.mp4') ? (
             <EditableVideo 
