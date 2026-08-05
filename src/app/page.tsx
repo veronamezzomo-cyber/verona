@@ -321,8 +321,9 @@ export default function PortfolioPage() {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
+        endTrigger: '#works',
         start: "top top+=80",
-        end: () => `+=${window.innerWidth < 768 ? 250 : 400}`,
+        end: "bottom top+=80",
         scrub: true,
         invalidateOnRefresh: true,
       }
@@ -527,3 +528,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
