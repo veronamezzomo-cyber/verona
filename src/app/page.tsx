@@ -277,18 +277,6 @@ export default function PortfolioPage() {
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label);
-    
-    setTimeout(() => {
-      const trigger = document.querySelector('#works-trigger');
-      if (trigger) {
-        const target = trigger.getBoundingClientRect().top + window.scrollY + 10;
-        gsap.to(window, {
-          duration: 1.8,
-          scrollTo: { y: target },
-          ease: 'power3.inOut'
-        });
-      }
-    }, 50);
   };
 
   const handleCloseFeed = () => {
