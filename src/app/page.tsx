@@ -252,7 +252,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
               fill
               className={cn(
                 "object-cover object-center transition-transform duration-500",
-                "group-hover:scale-105" // O zoom do ativo é gerenciado externamente pelo CSS/Class condicional se necessário
+                "group-hover:scale-105"
               )}
               data-ai-hint={vid.imageHint}
               priority={true} 
@@ -286,6 +286,10 @@ export default function PortfolioPage() {
 
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
+  
+  const aboutWords = useMemo(() => 
+    "Behind every great story is someone obsessed with its details.".split(" "), 
+  []);
 
   useEffect(() => {
     // Staggered H1 animation
@@ -403,6 +407,52 @@ export default function PortfolioPage() {
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
+
+  // About Section Animation
+  useEffect(() => {
+    const words = gsap.utils.toArray('.about-word');
+    const light = document.querySelector('.about-light');
+    
+    if (!words.length || !light) return;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#about-wrapper',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1,
+        invalidateOnRefresh: true,
+      }
+    });
+
+    tl.fromTo(words, 
+      { 
+        x: 40, 
+        opacity: 0, 
+        filter: 'blur(8px)',
+        textShadow: "0 0 0px hsl(var(--primary)/0)"
+      },
+      { 
+        x: 0, 
+        opacity: 1, 
+        filter: 'blur(0px)',
+        textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+        stagger: 0.1, 
+        duration: 0.8, 
+        ease: 'power2.out' 
+      }
+    );
+
+    tl.to(light, {
+      opacity: 1,
+      duration: 0.8,
+      ease: 'sine.inOut'
+    }, ">-0.4");
+
+    return () => {
+      if (tl.scrollTrigger) tl.scrollTrigger.kill();
+    };
+  }, [aboutWords]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -532,14 +582,23 @@ export default function PortfolioPage() {
           <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </div>
 
-        <section id="about" className="sticky top-0 z-[20] min-h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6">
-          <div className="max-w-4xl text-center">
-            <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-8 block">Layer 02 // Digital Craftsman</span>
-            <h2 className="text-4xl md:text-6xl font-serif italic font-bold leading-tight">
-              Obsessed with the <span className="text-primary">unseen details</span> that make a story truly unforgettable.
-            </h2>
-          </div>
-        </section>
+        <div id="about-wrapper" className="relative h-[200vh] z-20">
+          <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
+            {/* Background Light */}
+            <div className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" />
+            
+            <div className="max-w-5xl text-center relative z-10">
+              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">Layer 02 // Digital Craftsman</span>
+              <h2 className="text-[clamp(2rem,6vw,5rem)] font-serif italic font-bold leading-[1.2] tracking-tight flex flex-wrap justify-center gap-x-[0.4em] gap-y-[0.2em]">
+                {aboutWords.map((word, i) => (
+                  <span key={i} className="about-word opacity-0 inline-block">
+                    {word}
+                  </span>
+                ))}
+              </h2>
+            </div>
+          </section>
+        </div>
 
         <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
