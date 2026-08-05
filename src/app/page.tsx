@@ -88,6 +88,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const timeRef = useRef(0);
   const currentSpeedRef = useRef(0.2);
   const focalFactorsRef = useRef(videos.map((_, i) => (i === 0 ? 1 : 0)));
+  const expansionRef = useRef(0); // Fator de expansão (0: cascata, 1: órbita)
   const activeIndexRef = useRef(0);
   const [containerWidth, setContainerWidth] = useState(600);
 
@@ -131,19 +132,26 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     let requestRef: number;
     const animate = () => {
       timeRef.current += 0.01 * currentSpeedRef.current;
+      const exp = expansionRef.current;
 
       itemRefs.current.forEach((el, i) => {
         if (!el) return;
 
         const p = orbitParams[i];
         const ff = focalFactorsRef.current[i];
+        
+        // Offset de cascata inicial (baralho)
+        const cascadeX = i * 8;
+        const cascadeY = i * -8;
+
         const angle = timeRef.current + p.offset;
         const ox = Math.cos(angle) * p.rx;
         const oy = Math.sin(angle) * p.ry;
         const depth = Math.sin(angle);
 
-        const tx = ox * (1 - ff);
-        const ty = oy * (1 - ff);
+        // Interpolação: tx = (posição orbital * exp) + (posição cascata * (1-exp))
+        const tx = (ox * exp) * (1 - ff) + (cascadeX * (1 - exp));
+        const ty = (oy * exp) * (1 - ff) + (cascadeY * (1 - exp));
 
         const baseScale = 0.9 + (1 + depth) * 0.05;
         const focalScale = 1.4;
@@ -161,9 +169,16 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       requestRef = requestAnimationFrame(animate);
     };
 
-    // Atraso de 800ms para iniciar a animação do cluster e não competir com o stagger do Hero H1
+    // Atraso sincronizado para não competir com a entrada do Hero
     const timer = setTimeout(() => {
       requestRef = requestAnimationFrame(animate);
+      
+      // Inicia a expansão suave da cascata para a órbita
+      gsap.to(expansionRef, {
+        current: 1,
+        duration: 1.2,
+        ease: 'power2.out'
+      });
     }, 800);
 
     return () => {
@@ -202,7 +217,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
               fill
               className="object-cover"
               data-ai-hint={vid.imageHint}
-              priority={true} // Prioridade habilitada para o Hero
+              priority={true} 
             />
           )}
         </div>
@@ -326,8 +341,8 @@ export default function PortfolioPage() {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
-        start: "top bottom-=200", // Começa a encolher um pouco antes de chegar
-        end: "top top+=80",       // Trava exatamente quando encosta no header
+        start: "top bottom-=200", 
+        end: "top top+=80",       
         scrub: true,
         invalidateOnRefresh: true,
       }
@@ -354,7 +369,7 @@ export default function PortfolioPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
-    }, 1050); // Covers CategoryFeed duration (1s) + margin
+    }, 1050); 
     return () => clearTimeout(timer);
   }, [activeCategory]);
 
@@ -397,7 +412,6 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        {/* Layer 0: Hero Section */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center h-screen max-h-screen overflow-hidden pt-20 bg-background container mx-auto px-6 sm:px-8 lg:px-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full flex-1">
             <div className="flex flex-col gap-8 lg:gap-10 pl-1 sm:pl-2 lg:pl-4">
@@ -437,7 +451,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Layer 1: Works Section */}
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500 min-h-fit">
           <div id="works-trigger" className="h-0 w-full pointer-events-none" />
 
@@ -452,7 +465,7 @@ export default function PortfolioPage() {
                     onClick={() => handleCategoryClick(cat.label)}
                     aria-label={`View projects in ${cat.label}`}
                     className={cn(
-                      "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-[140px] md:h-[200px]",
+                      "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-16",
                       isActive && "ring-2 ring-primary"
                     )}
                   >
@@ -475,11 +488,9 @@ export default function PortfolioPage() {
             </div>
           </section>
 
-          {/* New Autocontained CategoryFeed */}
           <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </div>
 
-        {/* Layer 2: About/Philosophy Bridge */}
         <section id="about" className="sticky top-0 z-[20] min-h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6">
           <div className="max-w-4xl text-center">
             <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-8 block">Layer 02 // Digital Craftsman</span>
@@ -489,7 +500,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* Layer 3: Final Contact & Reveal */}
         <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
             <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6">Layer 03 // Final Call</span>
