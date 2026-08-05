@@ -43,13 +43,14 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const { toast } = useToast();
 
   const isExpanded = !!category;
+  const isVerticalFormat = category === 'shorts' || category === 'talking';
 
   // Lógica de cálculo das linhas HUD (Sincronizada com o DOM)
   const updateLines = useCallback(() => {
     if (!connectorsRef.current || !containerRef.current) return;
 
     const svgRect = connectorsRef.current.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
+    const containerRect = containerRect.current.getBoundingClientRect();
     const cards = document.querySelectorAll('.category-card');
 
     if (cards.length === 0) return;
@@ -268,14 +269,20 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           <div className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto">
             <div 
               ref={trackRef}
-              className="flex items-center gap-16 px-[10vw] will-change-transform"
+              className={cn(
+                "flex items-center px-[10vw] will-change-transform",
+                isVerticalFormat ? "gap-10" : "gap-16"
+              )}
             >
               {feedItems.map((item) => (
                 <div key={item.id} className="flex flex-col gap-6 shrink-0 group">
                   <div 
                     onClick={handleInteraction}
                     className={cn(
-                      "w-[300px] md:w-[400px] h-[50vh] relative bg-muted overflow-hidden transition-all duration-700",
+                      "relative bg-muted overflow-hidden transition-all duration-700",
+                      isVerticalFormat 
+                        ? "w-[220px] md:w-[280px] aspect-[9/16] h-auto" 
+                        : "w-[300px] md:w-[400px] h-[50vh]",
                       "[clip-path:polygon(0%_10%,10%_0%,100%_0%,100%_90%,90%_100%,0%_100%)]",
                       clickCount >= 3 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
                     )}
