@@ -333,14 +333,16 @@ export default function PortfolioPage() {
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
         <div className="container mx-auto px-6 h-full flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
-            LV<span className="text-primary">.</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
-            <div className="flex items-center gap-3 text-muted-foreground mr-4">
+          <div className="flex items-center gap-12">
+            <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
+              LV<span className="text-primary">.</span>
+            </Link>
+            <div className="hidden lg:flex items-center gap-3 text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" style={{ animationDuration: '1.5s' }} />
-              <span className="tracking-[0.2em]">CURRENT LOCATION: BLUMENAU — SOUTH — BRAZIL</span>
+              <span className="tracking-[0.2em] font-mono text-[10px] uppercase">CURRENT LOCATION: BLUMENAU — SOUTH — BRAZIL</span>
             </div>
+          </div>
+          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
             <Link href="#about" className="text-foreground/70 hover:text-foreground">About</Link>
             <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
@@ -352,7 +354,7 @@ export default function PortfolioPage() {
       <main className="relative">
         {/* Layer 0: Hero Section */}
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center min-h-screen pt-20 bg-background container mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full flex-1">
             <div className="flex flex-col gap-8 lg:gap-10 pl-1 sm:pl-2 lg:pl-4">
               <div className="flex flex-col gap-2 lg:gap-4">
                 <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor</span>
@@ -370,23 +372,23 @@ export default function PortfolioPage() {
                   <div ref={h1Line3Ref}>STORYTELLING<span className="text-primary">.</span></div>
                 </div>
               </h1>
-
-              <div className="mt-8 lg:mt-12 flex flex-col items-start gap-4">
-                <button 
-                  onClick={scrollToWorks}
-                  className="group flex flex-col items-center gap-4 transition-opacity hover:opacity-60"
-                  aria-label="Scroll to works"
-                >
-                  <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60">Scroll Down</span>
-                  <div className="relative w-[1px] h-10 bg-foreground/30 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-full bg-foreground animate-scroll-indicator" />
-                  </div>
-                </button>
-              </div>
             </div>
             <div className="relative animate-image-reveal">
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
+          </div>
+
+          <div className="pb-12 flex justify-center w-full">
+            <button 
+              onClick={scrollToWorks}
+              className="group flex flex-col items-center gap-4 transition-opacity hover:opacity-60"
+              aria-label="Scroll to works"
+            >
+              <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60">Scroll Down</span>
+              <div className="relative w-[1px] h-10 bg-foreground/30 overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full bg-foreground animate-scroll-indicator" />
+              </div>
+            </button>
           </div>
         </section>
 
