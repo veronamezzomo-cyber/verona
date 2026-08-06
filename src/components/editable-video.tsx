@@ -24,7 +24,7 @@ export function EditableVideo({
   className,
   hideControls = false,
   startTime,
-  autoPlay, // Destructured here to prevent it from going into ...props Rest
+  autoPlay: autoPlayProp,
   ...props 
 }: EditableVideoProps) {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
@@ -41,19 +41,21 @@ export function EditableVideo({
     if (saved) setCurrentSrc(saved);
   }, [storageKey]);
 
-  // Precise startTime management
+  // Precise startTime management for both Grid and Theater
   useEffect(() => {
     const video = videoRef.current;
     if (!video || startTime === undefined) return;
 
     const seekAndPlay = async () => {
       try {
+        // Force state reset to ensure seek is accepted
         video.pause();
         video.currentTime = startTime;
+        
+        // Only attempt play if it was intended (autoPlay or manual controls)
         await video.play();
       } catch (e) {
-        // Autoplay policy might block play() if not muted or no interaction
-        // but for portfolio muted previews it should work fine
+        // Autoplay policy might block play()
       }
     };
 
@@ -63,9 +65,10 @@ export function EditableVideo({
       video.addEventListener('loadeddata', seekAndPlay, { once: true });
     }
 
-    // Custom loop logic: prevent resetting to 0:00
+    // Manual Loop handling to return to startTime instead of 0:00
     const handleTimeUpdate = () => {
-      if (video.loop && video.currentTime < startTime - 1) {
+      // If native loop is on, browser might jump to 0. We catch it.
+      if (video.currentTime < startTime - 1) {
         video.currentTime = startTime;
       }
     };
@@ -116,12 +119,14 @@ export function EditableVideo({
           fill && "absolute inset-0 w-full h-full object-cover"
         )}
         muted={isMuted}
-        loop={props.loop}
         playsInline
         preload="auto"
         aria-hidden="true"
         controls={props.controls}
-        {...(startTime === undefined ? { autoPlay: true } : {})}
+        // ONLY use native autoPlay if we don't have a specific startTime to manage
+        autoPlay={startTime === undefined ? true : undefined}
+        // ONLY use native loop if we don't have a specific startTime to manage
+        loop={startTime === undefined ? props.loop : undefined}
       />
       
       {!hideControls && (

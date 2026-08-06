@@ -61,7 +61,6 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
   }, [history]);
 
   const onMouseDown = (e: React.MouseEvent) => {
-    // Only drag if clicking the header
     const target = e.target as HTMLElement;
     if (!target.closest('.terminal-header') || isMinimized) return;
     
@@ -481,6 +480,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                         loop
                         playsInline
                         hideControls
+                        startTime={item.startTime}
                       />
                       
                       {clickCount >= 8 && (
