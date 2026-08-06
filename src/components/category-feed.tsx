@@ -227,34 +227,58 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
   }, [category]);
 
   const updateLines = useCallback(() => {
-    if (!connectorsRef.current || !containerRef.current || !cardElements.length) return;
-
-    const svgRect = connectorsRef.current.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
-
-    // Ponto de destino (centro horizontal do container, topo do SVG)
-    const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-    const destY = 0;
-
-    const coords = cardElements.map(card => {
-      const cardRect = card.getBoundingClientRect();
-      const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
-      return {
-        id: label,
-        x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
-        y1: (cardRect.bottom - svgRect.top),
-        x2: destX,
-        y2: destY
-      };
+    // Log de depuração para rastrear o estado das props e refs
+    console.log('DEBUG updateLines:', { 
+      hasConnectors: !!connectorsRef.current, 
+      hasContainer: !!containerRef.current, 
+      cardElementsType: typeof cardElements,
+      cardElementsLength: cardElements?.length,
+      cardElementsRaw: cardElements 
     });
 
-    setLineCoords(coords);
-  }, [cardElements]);
+    // Proteção rigorosa contra valores nulos ou indefinidos
+    if (!connectorsRef.current || !containerRef.current || !cardElements || !Array.isArray(cardElements) || cardElements.length === 0) {
+      if (lineCoords.length > 0) setLineCoords([]);
+      return;
+    }
+
+    try {
+      const svgRect = connectorsRef.current.getBoundingClientRect();
+      const containerRect = containerRef.current.getBoundingClientRect();
+
+      // Ponto de destino (centro horizontal do container, topo do SVG)
+      const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
+      const destY = 0;
+
+      // Mapeamento seguro verificando cada elemento individualmente
+      const coords = cardElements
+        .filter(card => card && typeof card.getBoundingClientRect === 'function')
+        .map(card => {
+          const cardRect = card.getBoundingClientRect();
+          const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
+          return {
+            id: label,
+            x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
+            y1: (cardRect.bottom - svgRect.top),
+            x2: destX,
+            y2: destY
+          };
+        });
+
+      setLineCoords(coords);
+    } catch (error) {
+      console.error('Error calculating line coordinates:', error);
+    }
+  }, [cardElements, lineCoords.length]);
 
   useEffect(() => {
-    updateLines();
+    // Pequeno delay para garantir que o DOM terminou de assentar após o render
+    const timer = setTimeout(updateLines, 50);
     window.addEventListener('resize', updateLines);
-    return () => window.removeEventListener('resize', updateLines);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateLines);
+    };
   }, [updateLines, isExpanded]);
 
   useEffect(() => {
