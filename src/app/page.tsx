@@ -478,7 +478,7 @@ export default function PortfolioPage() {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragStart({ x: e.clientX - faqPos.x, y: e.clientY - faqPos.y });
     dragBasePos.current = faqPos;
   };
 
@@ -487,17 +487,14 @@ export default function PortfolioPage() {
       if (!isDragging || !terminalRef.current) return;
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
-      terminalRef.current.style.transform = `translate(${dragBasePos.current.x + dx}px, ${dragBasePos.current.y + dy}px)`;
+      terminalRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
     };
 
     const handleMouseUp = (e: MouseEvent) => {
       if (!isDragging) return;
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
-      setFaqPos({
-        x: dragBasePos.current.x + dx,
-        y: dragBasePos.current.y + dy
-      });
+      setFaqPos({ x: dx, y: dy });
       setIsDragging(false);
     };
 
@@ -509,7 +506,7 @@ export default function PortfolioPage() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragStart, faqPos]);
+  }, [isDragging, dragStart]);
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
@@ -761,7 +758,7 @@ export default function PortfolioPage() {
                       tabIndex={0}
                       onFocus={() => setIsTerminalFocused(true)}
                       onBlur={() => setIsTerminalFocused(false)}
-                      className="p-8 font-mono text-sm relative outline-none group bg-black text-white h-auto"
+                      className="p-6 font-mono text-sm relative outline-none group bg-black text-white h-auto"
                     >
                       {isBooting ? (
                         <div className="space-y-1">
@@ -784,9 +781,9 @@ export default function PortfolioPage() {
                           )}
                         </div>
                       ) : (
-                        <div className="space-y-6">
+                        <div className="space-y-2">
                           {/* History */}
-                          <div className="space-y-4">
+                          <div className="space-y-2">
                             {faqHistory.map((item, i) => (
                               <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
                                 <div className="text-white/40 mb-1 flex items-center gap-2">
@@ -801,8 +798,8 @@ export default function PortfolioPage() {
 
                           {/* Options */}
                           {faqAvailableIndices.length > 0 && (
-                            <div className="pt-4 border-t border-white/5">
-                              <div className="text-[10px] uppercase tracking-widest text-white/20 mb-4">
+                            <div className="pt-2 border-t border-white/5 mt-2">
+                              <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">
                                 <TypewriterText 
                                   text="Available Queries (Use Arrows + Enter)" 
                                   onComplete={() => setIsHeaderTyped(true)}
@@ -850,7 +847,7 @@ export default function PortfolioPage() {
                           )}
 
                           {faqAvailableIndices.length === 0 && (
-                            <div className="text-center py-6 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
+                            <div className="text-center py-4 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
                               --- SYSTEM NOMINAL. ALL QUERIES EXECUTED ---
                             </div>
                           )}
