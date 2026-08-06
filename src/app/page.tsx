@@ -255,20 +255,46 @@ function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { t
   const [displayedText, setDisplayedText] = useState('');
   
   useEffect(() => {
-    setDisplayedText('');
     let i = 0;
-    const timer = setInterval(() => {
-      setDisplayedText(text.slice(0, i + 1));
-      i++;
-      if (i >= text.length) {
-        clearInterval(timer);
+    let timeoutId: NodeJS.Timeout;
+    let currentText = '';
+
+    const type = () => {
+      if (i < text.length) {
+        const char = text[i];
+        currentText += char;
+        
+        let delay = speed;
+        // Se for um ponto final e não for o último caractere, pausamos e pulamos linha
+        if (char === '.' && i < text.length - 1) {
+          delay = 500;
+          currentText += '\n';
+          // Pulamos o próximo caractere se for um espaço para evitar espaços no início das linhas
+          if (text[i + 1] === ' ') {
+            i++;
+          }
+        }
+        
+        setDisplayedText(currentText);
+        i++;
+        timeoutId = setTimeout(type, delay);
+      } else {
         if (onComplete) onComplete();
       }
-    }, speed);
-    return () => clearInterval(timer);
+    };
+
+    setDisplayedText('');
+    type();
+    
+    return () => clearTimeout(timeoutId);
   }, [text, speed, onComplete]);
 
-  return <span>{displayedText}{showCursor && <span className="w-2 h-4 bg-white inline-block ml-0.5 align-middle animate-cursor-blink" />}</span>;
+  return (
+    <span className="whitespace-pre-wrap">
+      {displayedText}
+      {showCursor && <span className="w-2 h-4 bg-white inline-block ml-0.5 align-middle animate-cursor-blink" />}
+    </span>
+  );
 }
 
 const FAQ_DATA = [
@@ -286,15 +312,14 @@ const BOOT_LINES = [
 ];
 
 export default function PortfolioPage() {
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const [reachedBottom, setReachedBottom] = useState(false);
   const [year] = useState(new Date().getFullYear());
   const [isMounted, setIsMounted] = useState(false);
-  
-  // Ref definitions moved up to avoid ReferenceError
-  const terminalRef = useRef<HTMLDivElement>(null);
-  const mainRef = useRef<HTMLDivElement>(null);
   
   // Terminal FAQ State
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
@@ -336,7 +361,7 @@ export default function PortfolioPage() {
   }, [activeCategory]);
 
   useGSAP(() => {
-    if (!isMounted || typeof window === 'undefined') return;
+    if (!isMounted || typeof window === 'undefined' || !mainRef.current) return;
 
     const heroLineRefs = document.querySelectorAll('.hero-line');
     const hudRef = document.querySelector('.hud-ref');
@@ -687,8 +712,8 @@ export default function PortfolioPage() {
             {!isTerminalClosed && (
               <div 
                 className={cn(
-                  "max-w-4xl mx-auto transition-all duration-500 terminal-reveal-ref",
-                  isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto"
+                  "mx-auto transition-all duration-500 terminal-reveal-ref",
+                  isTerminalMinimized ? "h-10 opacity-60 w-80" : "opacity-100 h-auto w-fit"
                 )}
               >
                 <div 
