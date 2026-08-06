@@ -265,6 +265,11 @@ export default function PortfolioPage() {
   const aboutWrapperRef = useRef<HTMLDivElement>(null);
   const lightRef = useRef<HTMLDivElement>(null);
 
+  // Animation instances (for Strict Mode double-invoke cleanup)
+  const heroCtxRef = useRef<gsap.Context | null>(null);
+  const worksCtxRef = useRef<gsap.Context | null>(null);
+  const aboutCtxRef = useRef<gsap.Context | null>(null);
+
   const aboutWords = useMemo(() => 
     "Behind every great story is someone obsessed with its details.".split(" "), 
   []);
@@ -286,12 +291,12 @@ export default function PortfolioPage() {
     setIsMounted(true);
   }, []);
 
-  // GSAP Context Management
+  // Isolated Animation Effects
   useLayoutEffect(() => {
     if (!isMounted || typeof window === 'undefined') return;
 
-    const ctx = gsap.context(() => {
-      // 1. Hero Entrance
+    if (heroCtxRef.current) heroCtxRef.current.revert();
+    heroCtxRef.current = gsap.context(() => {
       const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
       if (heroLines.length > 0) {
         gsap.timeline({ delay: 0.5 })
@@ -300,8 +305,10 @@ export default function PortfolioPage() {
             { y: '0%', duration: 1.2, ease: 'expo.out', stagger: 0.18 }
           );
       }
+    });
 
-      // 2. Works Section Scrub
+    if (worksCtxRef.current) worksCtxRef.current.revert();
+    worksCtxRef.current = gsap.context(() => {
       const cards = categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null);
       if (worksContainerRef.current && worksTriggerRef.current && cards.length > 0) {
         gsap.timeline({
@@ -314,13 +321,13 @@ export default function PortfolioPage() {
         }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
           .to(cards, { height: 64 }, 0);
       }
+    });
 
-      // 3. About Section Animation (FAILING CONTEXT)
-      const targetWords = wordRefs.current 
-        ? Array.from(wordRefs.current).filter((el): el is HTMLSpanElement => el !== null)
-        : null;
-
-      if (targetWords && targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
+    if (aboutCtxRef.current) aboutCtxRef.current.revert();
+    aboutCtxRef.current = gsap.context(() => {
+      const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
+      
+      if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: aboutWrapperRef.current,
@@ -357,7 +364,11 @@ export default function PortfolioPage() {
       }
     });
 
-    return () => ctx.revert();
+    return () => {
+      heroCtxRef.current?.revert();
+      worksCtxRef.current?.revert();
+      aboutCtxRef.current?.revert();
+    };
   }, [isMounted, aboutWords]);
 
   useEffect(() => {
