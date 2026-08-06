@@ -52,5 +52,13 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     date: '2025',
     videoUrl: 'https://i.imgur.com/hOqeL5j.mp4',
     category: ['motion', 'long']
+  },
+  {
+    id: 'grok-motion-showcase',
+    title: 'Grok Motion Showcase',
+    description: 'A love letter to clean kinetic typography. A self-initiated piece built around Grok\'s brand. No client, no brief, just an excuse to play. Simple by design: clean kinetic typography, light 2D/3D blending. Not the most technically ambitious thing in the portfolio, but it\'s a solid snapshot of pacing instincts and how much "feel" you can pack into a short, minimal piece.',
+    date: '2024',
+    videoUrl: 'https://i.imgur.com/SRki5JL.mp4',
+    category: ['motion']
   }
 ];
