@@ -17,7 +17,6 @@ import {
   Mail, 
   ArrowRight,
   Maximize2,
-  ChevronRight,
   Terminal as TerminalIcon,
   Quote,
   Minus,
@@ -251,6 +250,22 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   );
 }
 
+const TypewriterText = ({ text, delay = 18 }: { text: string; delay?: number }) => {
+  const [displayedText, setDisplayedText] = useState('');
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setDisplayedText(text.slice(0, i + 1));
+      i++;
+      if (i >= text.length) clearInterval(interval);
+    }, delay);
+    return () => clearInterval(interval);
+  }, [text, delay]);
+
+  return <span>{displayedText}</span>;
+};
+
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
@@ -280,7 +295,8 @@ export default function PortfolioPage() {
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
   
-  // New Refs for Added Sections
+  // Pinned Section Refs
+  const pinnedSectionRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const statsValuesRef = useRef<(HTMLSpanElement | null)[]>([]);
   const toolsRef = useRef<HTMLDivElement>(null);
@@ -342,10 +358,7 @@ export default function PortfolioPage() {
       if (!isDragging) return;
       const newX = e.clientX - dragStartRef.current.x;
       const newY = e.clientY - dragStartRef.current.y;
-      
-      // Limit vertical dragging slightly to keep header accessible
       const constrainedY = Math.max(-window.innerHeight * 0.4, Math.min(window.innerHeight * 0.4, newY));
-      
       setFaqPos({ x: newX, y: constrainedY });
     };
 
@@ -425,72 +438,59 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // Stats Counter Animation + Exit Fade
-    if (statsRef.current) {
-      gsap.from(statsValuesRef.current, {
+    // PINNED EXPERIENCE TIMELINE
+    if (pinnedSectionRef.current) {
+      const pinTl = gsap.timeline({
         scrollTrigger: {
-          trigger: statsRef.current,
-          start: "top 85%",
-        },
+          trigger: pinnedSectionRef.current,
+          start: "top 80px",
+          end: "+=400%",
+          pin: true,
+          scrub: 1,
+        }
+      });
+
+      // 1. STATS (Reveal and Count)
+      pinTl.to(statsRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 });
+      pinTl.from(statsValuesRef.current, {
         innerHTML: 0,
         duration: 2,
-        ease: "power2.out",
         snap: { innerHTML: 1 },
         stagger: 0.2
-      });
+      }, 0.5);
+      pinTl.to({}, { duration: 1 }); // Wait time
 
-      gsap.to(statsRef.current, {
-        scrollTrigger: {
-          trigger: statsRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-        opacity: 0.3,
-      });
-    }
-
-    // Tools Stack Animation - Overlap with Stats
-    if (toolsRef.current) {
-      gsap.from(toolsItemsRef.current, {
-        scrollTrigger: {
-          trigger: toolsRef.current,
-          start: "top 95%",
-        },
-        y: 30,
+      // 2. TOOLS (Stats Out, Tools In)
+      pinTl.to(statsRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
+      pinTl.to(toolsRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 });
+      pinTl.from(toolsItemsRef.current, {
+        y: 40,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: "power3.out"
-      });
-    }
+        stagger: 0.1,
+        duration: 1
+      }, "-=0.5");
+      pinTl.to({}, { duration: 1 }); // Wait time
 
-    // Reveal for Testimonial - Slower and Smooth
-    if (testimonialRef.current) {
-      gsap.from(testimonialRef.current, {
-        scrollTrigger: {
-          trigger: testimonialRef.current,
-          start: "top 85%",
-        },
-        y: 30,
+      // 3. TESTIMONIAL (Tools Out, Testimonial In)
+      pinTl.to(toolsRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
+      pinTl.to(testimonialRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 });
+      pinTl.from(testimonialRef.current?.querySelector('p'), {
+        y: 20,
         opacity: 0,
-        duration: 1.2,
-        ease: "power1.out"
-      });
-    }
+        duration: 1
+      }, "-=0.5");
+      pinTl.to({}, { duration: 1 }); // Wait time
 
-    // FAQ - Scale entrance
-    if (faqRef.current) {
-      gsap.from(faqRef.current, {
-        scrollTrigger: {
-          trigger: faqRef.current,
-          start: "top 85%",
-        },
-        scale: 0.96,
-        opacity: 0,
-        duration: 1,
-        ease: "power2.out"
+      // 4. FAQ (Testimonial Out, FAQ In)
+      pinTl.to(testimonialRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
+      pinTl.to(faqRef.current, { 
+        opacity: 1, 
+        pointerEvents: 'auto', 
+        scale: 1, 
+        duration: 1.5,
+        ease: "back.out(1.7)"
       });
+      pinTl.to({}, { duration: 1.5 }); // Final wait time
     }
 
   }, { dependencies: [isMounted], scope: mainRef });
@@ -669,185 +669,190 @@ export default function PortfolioPage() {
           />
         </div>
 
-        <section id="stats" ref={statsRef} className="relative z-20 py-8 border-t border-foreground/5 bg-background overflow-hidden">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div className="flex flex-col">
-                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ EXP ]</span>
-                <span className="text-4xl font-mono font-bold tracking-tighter leading-none">
-                  +<span ref={(el) => { statsValuesRef.current[0] = el; }}>6</span>Y
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ CLN ]</span>
-                <span className="text-4xl font-mono font-bold tracking-tighter leading-none">
-                  +<span ref={(el) => { statsValuesRef.current[1] = el; }}>12</span>
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ PRJ ]</span>
-                <span className="text-4xl font-mono font-bold tracking-tighter leading-none">
-                  +<span ref={(el) => { statsValuesRef.current[2] = el; }}>80</span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="tools" ref={toolsRef} className="relative z-20 py-12 bg-secondary/5 border-t border-foreground/5">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="flex flex-col items-center mb-8">
-              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-3">[ TECH_STACK ]</span>
-            </div>
+        {/* PINNED SUPPORT EXPERIENCE SECTION */}
+        <section 
+          ref={pinnedSectionRef} 
+          className="relative z-20 h-[calc(100vh-5rem)] bg-background border-t border-foreground/5 overflow-hidden"
+        >
+          <div className="container mx-auto px-6 md:px-12 h-full relative">
             
-            <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
-              {[
-                { name: "Premiere Pro", label: "Pr", color: "#00005B", text: "#9999FF" },
-                { name: "After Effects", label: "Ae", color: "#2C005E", text: "#D191FF" },
-                { name: "Photoshop", label: "Ps", color: "#001E36", text: "#31A8FF" },
-                { name: "Illustrator", label: "Ai", color: "#330000", text: "#FF9A00" }
-              ].map((tool, i) => (
-                <div 
-                  key={tool.name} 
-                  ref={(el) => { toolsItemsRef.current[i] = el; }}
-                  className="flex flex-col items-center gap-3 group"
-                >
-                  <div 
-                    className="w-14 h-14 flex items-center justify-center rounded-md shadow-lg transition-transform group-hover:scale-105"
-                    style={{ backgroundColor: tool.color, border: `1px solid ${tool.text}40` }}
-                  >
-                    <span className="font-sans font-bold text-xl" style={{ color: tool.text }}>
-                      {tool.label}
-                    </span>
-                  </div>
-                  <span className="font-serif italic text-xs text-muted-foreground">{tool.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-12 border-t border-foreground/5 bg-secondary/5">
-          <div className="container mx-auto px-6 md:px-12">
-            <div className="max-w-2xl">
-              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-4 block">[ CLIENT_FEEDBACK ]</span>
-              <div className="relative">
-                <Quote className="absolute -top-6 -left-6 w-8 h-8 text-foreground/5 -z-10" />
-                <p className="text-xl md:text-2xl font-serif italic leading-snug text-foreground mb-4">
-                  &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-px bg-primary" />
-                  <div className="flex flex-col">
-                    <span className="font-mono text-[10px] uppercase tracking-widest font-bold">James Huang</span>
-                    <span className="font-mono text-[8px] uppercase tracking-widest text-muted-foreground/60">Creative Director @ Void Studio</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="faq" ref={faqRef} className="relative z-20 py-12 border-t border-foreground/5 bg-background">
-          <div className="container mx-auto px-6 md:px-12 max-w-4xl">
-            <div className="flex flex-col mb-6">
-              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-2">[ ARCHIVE_FAQ ]</span>
-            </div>
-
-            <div 
-              onKeyDown={handleKeyDown}
-              tabIndex={0}
-              onFocus={() => setIsTerminalFocused(true)}
-              onBlur={() => setIsTerminalFocused(false)}
-              style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
-              className="bg-foreground text-background font-mono p-6 shadow-2xl relative overflow-hidden outline-none group focus-within:ring-1 focus-within:ring-primary rounded-md"
-            >
-              <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] animate-rolling-scanlines" />
-              
-              {!isTerminalFocused && faqAvailableIndices.length > 0 && (
-                <div className="absolute inset-0 z-10 bg-foreground/10 backdrop-blur-[1px] flex items-center justify-center cursor-pointer pointer-events-none">
-                  <span className="text-[10px] uppercase tracking-[0.4em] opacity-40 animate-pulse text-background">
-                    [ click to activate terminal ]
+            {/* 1. STATS BLOCK */}
+            <div ref={statsRef} className="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 text-center w-full max-w-5xl">
+                <div className="flex flex-col">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ EXP ]</span>
+                  <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter leading-none">
+                    +<span ref={(el) => { statsValuesRef.current[0] = el; }}>6</span>Y
                   </span>
                 </div>
-              )}
-
-              <div 
-                onMouseDown={handleMouseDown}
-                className="absolute top-0 left-0 w-full h-8 cursor-grab active:cursor-grabbing flex items-center justify-between px-6 opacity-40 hover:opacity-100 transition-opacity"
-              >
-                <div className="flex gap-2">
-                  <div className="w-2 h-2 rounded-full bg-background" />
-                  <div className="w-2 h-2 rounded-full bg-background" />
-                  <div className="w-2 h-2 rounded-full bg-background" />
+                <div className="flex flex-col">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ CLN ]</span>
+                  <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter leading-none">
+                    +<span ref={(el) => { statsValuesRef.current[1] = el; }}>12</span>
+                  </span>
                 </div>
-                <span className="text-[10px] uppercase tracking-widest">ROOT@VERONA // ARCHIVE_CLI</span>
-                <div className="flex gap-2">
-                  <Minus className="w-3 h-3" />
-                  <X className="w-3 h-3" />
+                <div className="flex flex-col">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ PRJ ]</span>
+                  <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter leading-none">
+                    +<span ref={(el) => { statsValuesRef.current[2] = el; }}>80</span>
+                  </span>
                 </div>
-              </div>
-
-              <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
-
-              <div className="space-y-4 pt-6">
-                {faqHistory.map((item, i) => (
-                  <div key={i} className="animate-in fade-in duration-300">
-                    <div className="flex items-center gap-2 text-primary/60">
-                      <span>ROOT@VERONA:~/FAQ$</span>
-                      <span className="text-background">{item.q}</span>
-                    </div>
-                    <div className="pl-4 text-background/60 text-sm">
-                      {item.a}
-                    </div>
-                  </div>
-                ))}
-
-                {faqAvailableIndices.length > 0 ? (
-                  <div className="mt-6 border-t border-background/10 pt-4">
-                    <div className="text-[10px] uppercase tracking-widest text-primary/40 mb-2">Select Query (Arrows + Enter)</div>
-                    <div className="space-y-2">
-                      {faqAvailableIndices.map((qIdx, i) => (
-                        <div 
-                          key={qIdx}
-                          onClick={() => {
-                            const qIndex = faqAvailableIndices[i];
-                            setFaqHistory(prev => [...prev, faqData[qIndex]]);
-                            setFaqAvailableIndices(prev => prev.filter((_, idx) => idx !== i));
-                            setActiveFaqIndex(0);
-                            setHoverFaqIndex(null);
-                          }}
-                          onMouseEnter={() => setHoverFaqIndex(i)}
-                          onMouseLeave={() => setHoverFaqIndex(null)}
-                          className={cn(
-                            "flex items-center gap-3 px-2 py-1 cursor-pointer transition-colors",
-                            activeFaqIndex === i ? "bg-primary text-white" : 
-                            hoverFaqIndex === i ? "bg-primary/20 text-white/90" : "text-background/40 hover:text-background/60"
-                          )}
-                        >
-                          <span>{activeFaqIndex === i ? ">" : " "}</span>
-                          <span className="text-xs uppercase tracking-tighter">
-                            {faqData[qIdx].q}
-                            {activeFaqIndex === i && <span className="animate-cursor-blink ml-1">_</span>}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-8 text-center py-4 border border-background/10 animate-pulse">
-                    <span className="text-[10px] uppercase tracking-widest opacity-40">All queries executed. System Nominal.</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-8 pt-4 border-t border-background/5 flex justify-between items-center opacity-40">
-                <span className="text-[8px] tracking-[0.4em] flex items-center">
-                  ROOT@VERONA:~/FAQ$ <span className="animate-cursor-blink ml-1">_</span>
-                </span>
-                <TerminalIcon className="w-4 h-4" />
               </div>
             </div>
+
+            {/* 2. TECH STACK BLOCK */}
+            <div ref={toolsRef} className="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none">
+              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-12">[ TECH_STACK ]</span>
+              <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+                {[
+                  { name: "Premiere Pro", label: "Pr", bg: "#00005B", text: "#9999FF" },
+                  { name: "After Effects", label: "Ae", bg: "#2C005E", text: "#D191FF" },
+                  { name: "Photoshop", label: "Ps", bg: "#001E36", text: "#31A8FF" },
+                  { name: "Illustrator", label: "Ai", bg: "#330000", text: "#FF9A00" }
+                ].map((tool, i) => (
+                  <div 
+                    key={tool.name} 
+                    ref={(el) => { toolsItemsRef.current[i] = el; }}
+                    className="flex flex-col items-center gap-4 group"
+                  >
+                    <div 
+                      className="w-20 h-20 md:w-24 md:h-24 flex items-center justify-center rounded-lg shadow-2xl border border-white/5 transition-transform group-hover:scale-110"
+                      style={{ backgroundColor: tool.bg }}
+                    >
+                      <span className="font-sans font-bold text-3xl md:text-4xl" style={{ color: tool.text }}>
+                        {tool.label}
+                      </span>
+                    </div>
+                    <span className="font-serif italic text-sm text-muted-foreground opacity-60">{tool.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. TESTIMONIAL BLOCK */}
+            <div ref={testimonialRef} className="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none px-4">
+              <div className="max-w-3xl text-center md:text-left">
+                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-8 block">[ CLIENT_FEEDBACK ]</span>
+                <div className="relative">
+                  <Quote className="absolute -top-10 -left-10 w-16 h-16 text-foreground/5 -z-10" />
+                  <p className="text-2xl md:text-4xl font-serif italic leading-snug text-foreground mb-8">
+                    &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
+                  </p>
+                  <div className="flex items-center justify-center md:justify-start gap-4">
+                    <div className="w-12 h-px bg-primary" />
+                    <div className="flex flex-col">
+                      <span className="font-mono text-[11px] uppercase tracking-widest font-bold">James Huang</span>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60">Creative Director @ Void Studio</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. FAQ TERMINAL BLOCK */}
+            <div ref={faqRef} className="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none scale-95">
+              <div className="w-full max-w-4xl relative">
+                <div className="flex flex-col mb-4 items-center">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-2">[ ARCHIVE_FAQ ]</span>
+                </div>
+
+                <div 
+                  onKeyDown={handleKeyDown}
+                  tabIndex={0}
+                  onFocus={() => setIsTerminalFocused(true)}
+                  onBlur={() => setIsTerminalFocused(false)}
+                  style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
+                  className="bg-[#0a0a0a] text-[#f0f0f0] font-mono shadow-2xl relative overflow-hidden outline-none border border-white/10 rounded-md select-none group"
+                >
+                  {/* Title Bar */}
+                  <div 
+                    onMouseDown={handleMouseDown}
+                    className="h-8 bg-[#1a1a1a] flex items-center justify-between px-4 cursor-grab active:cursor-grabbing border-b border-white/5"
+                  >
+                    <div className="flex gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+                      <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+                      <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+                    </div>
+                    <span className="text-[10px] uppercase tracking-widest text-white/40">ROOT@VERONA // ARCHIVE_CLI</span>
+                    <div className="flex gap-3 text-white/20">
+                      <Minus className="w-3.5 h-3.5" />
+                      <X className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+
+                  {/* Terminal Body */}
+                  <div className="p-8 space-y-6 h-[400px] overflow-y-auto scrollbar-hide relative">
+                    <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] animate-rolling-scanlines" />
+                    
+                    {!isTerminalFocused && faqAvailableIndices.length > 0 && (
+                      <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-[1px] flex items-center justify-center cursor-pointer pointer-events-none">
+                        <span className="text-[10px] uppercase tracking-[0.4em] text-[#33ff33] opacity-60 animate-pulse">
+                          [ click to activate terminal ]
+                        </span>
+                      </div>
+                    )}
+
+                    {faqHistory.map((item, i) => (
+                      <div key={i} className="animate-in fade-in duration-300">
+                        <div className="flex items-center gap-2 text-[#33ff33]/60 mb-1">
+                          <span>ROOT@VERONA:~/FAQ$</span>
+                          <span className="text-white">{item.q}</span>
+                        </div>
+                        <div className="pl-4 text-[#33ff33] text-sm leading-relaxed mb-4">
+                          <TypewriterText text={item.a} />
+                        </div>
+                      </div>
+                    ))}
+
+                    {faqAvailableIndices.length > 0 ? (
+                      <div className="mt-8 border-t border-white/5 pt-6">
+                        <div className="text-[10px] uppercase tracking-widest text-white/20 mb-4 flex items-center gap-2">
+                          Select Query (Arrows + Enter)
+                        </div>
+                        <div className="space-y-3">
+                          {faqAvailableIndices.map((qIdx, i) => (
+                            <div 
+                              key={qIdx}
+                              onClick={() => {
+                                setActiveFaqIndex(i);
+                                handleTerminalAction();
+                              }}
+                              onMouseEnter={() => setHoverFaqIndex(i)}
+                              onMouseLeave={() => setHoverFaqIndex(null)}
+                              className={cn(
+                                "flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors border border-transparent",
+                                activeFaqIndex === i ? "bg-[#33ff33]/10 border-[#33ff33]/20 text-[#33ff33]" : 
+                                hoverFaqIndex === i ? "bg-white/5 text-white/80" : "text-white/30"
+                              )}
+                            >
+                              <span className="w-4 shrink-0">{activeFaqIndex === i ? ">" : " "}</span>
+                              <span className="text-xs uppercase tracking-tight flex items-center">
+                                {faqData[qIdx].q}
+                                {activeFaqIndex === i && <span className="w-1.5 h-4 bg-[#33ff33] ml-2 animate-cursor-blink" />}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-12 text-center py-8 border border-white/5 bg-white/[0.02]">
+                        <span className="text-[10px] uppercase tracking-[0.4em] text-[#33ff33]/40">System Nominal. All queries executed.</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status Bar */}
+                  <div className="px-6 py-3 bg-[#1a1a1a] border-t border-white/5 flex justify-between items-center opacity-40">
+                    <span className="text-[8px] tracking-[0.4em] flex items-center">
+                      ROOT@VERONA:~/FAQ$ <span className="w-1.5 h-3 bg-[#33ff33] ml-1 animate-cursor-blink" />
+                    </span>
+                    <TerminalIcon className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
