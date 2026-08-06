@@ -39,6 +39,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   const { toast } = useToast();
 
   const isExpanded = !!category;
+  // Ajuste para 2:3 em Talking e Shorts
   const isVerticalFormat = category === 'shorts' || category === 'talking';
 
   const updateLines = useCallback(() => {
@@ -275,7 +276,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                       isVerticalFormat 
                         ? "h-[50vh] aspect-[2/3] w-auto" 
                         : "h-[45vh] aspect-[16/9] w-auto",
-                      "[clip-path:polygon(0%_10%,10%_0%,100%_0%,100%_90%,90%_100%,0%_100%)]",
                       clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
                     )}
                   >
