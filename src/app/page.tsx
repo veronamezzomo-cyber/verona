@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useLayoutEffect } from 'react';
@@ -12,13 +13,14 @@ import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 import { 
   Mail, 
   ArrowRight
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
+  gsap.registerPlugin(ScrollToPlugin, ScrollTrigger, useGSAP);
 }
 
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -256,6 +258,7 @@ export default function PortfolioPage() {
   const [isMounted, setIsMounted] = useState(false);
 
   // Refs for Animations
+  const mainRef = useRef<HTMLDivElement>(null);
   const heroLineRefs = useRef<(HTMLDivElement | null)[]>([]);
   const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -264,11 +267,6 @@ export default function PortfolioPage() {
   const worksTriggerRef = useRef<HTMLDivElement>(null);
   const aboutWrapperRef = useRef<HTMLDivElement>(null);
   const lightRef = useRef<HTMLDivElement>(null);
-
-  // Animation instances (for Strict Mode double-invoke cleanup)
-  const heroCtxRef = useRef<gsap.Context | null>(null);
-  const worksCtxRef = useRef<gsap.Context | null>(null);
-  const aboutCtxRef = useRef<gsap.Context | null>(null);
 
   const aboutWords = useMemo(() => 
     "Behind every great story is someone obsessed with its details.".split(" "), 
@@ -291,85 +289,75 @@ export default function PortfolioPage() {
     setIsMounted(true);
   }, []);
 
-  // Isolated Animation Effects
-  useLayoutEffect(() => {
-    if (!isMounted || typeof window === 'undefined') return;
+  // GSAP Animations with official useGSAP hook
+  useGSAP(() => {
+    if (!isMounted) return;
 
-    if (heroCtxRef.current) heroCtxRef.current.revert();
-    heroCtxRef.current = gsap.context(() => {
-      const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
-      if (heroLines.length > 0) {
-        gsap.timeline({ delay: 0.5 })
-          .fromTo(heroLines, 
-            { y: '100%' }, 
-            { y: '0%', duration: 1.2, ease: 'expo.out', stagger: 0.18 }
-          );
-      }
-    });
-
-    if (worksCtxRef.current) worksCtxRef.current.revert();
-    worksCtxRef.current = gsap.context(() => {
-      const cards = categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null);
-      if (worksContainerRef.current && worksTriggerRef.current && cards.length > 0) {
-        gsap.timeline({
-          scrollTrigger: {
-            trigger: worksTriggerRef.current,
-            start: "top bottom-=200", 
-            end: "top top+=80",       
-            scrub: true,
-          }
-        }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
-          .to(cards, { height: 64 }, 0);
-      }
-    });
-
-    if (aboutCtxRef.current) aboutCtxRef.current.revert();
-    aboutCtxRef.current = gsap.context(() => {
-      const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
-      
-      if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: aboutWrapperRef.current,
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1,
-            invalidateOnRefresh: true,
-          }
-        });
-
-        tl.fromTo(targetWords, 
-          { 
-            x: 40, 
-            opacity: 0, 
-            filter: 'blur(8px)',
-            textShadow: "0 0 0px hsl(var(--primary)/0)"
-          },
-          { 
-            x: 0, 
-            opacity: 1, 
-            filter: 'blur(0px)',
-            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-            stagger: 0.1, 
-            duration: 0.8, 
-            ease: 'power2.out' 
-          }
+    // 1. Hero Entrance
+    const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
+    if (heroLines.length > 0) {
+      gsap.timeline({ delay: 0.5 })
+        .fromTo(heroLines, 
+          { y: '100%' }, 
+          { y: '0%', duration: 1.2, ease: 'expo.out', stagger: 0.18 }
         );
+    }
 
-        tl.to(lightRef.current, {
-          opacity: 1,
-          duration: 0.8,
-          ease: 'sine.inOut'
-        }, ">-0.4");
-      }
-    });
+    // 2. Works Section Scrub
+    const cards = categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null);
+    if (worksContainerRef.current && worksTriggerRef.current && cards.length > 0) {
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: worksTriggerRef.current,
+          start: "top bottom-=200", 
+          end: "top top+=80",       
+          scrub: true,
+        }
+      }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
+        .to(cards, { height: 64 }, 0);
+    }
 
-    return () => {
-      heroCtxRef.current?.revert();
-      worksCtxRef.current?.revert();
-      aboutCtxRef.current?.revert();
-    };
-  }, [isMounted, aboutWords]);
+    // 3. About Section Animation
+    const targetWords = wordRefs.current 
+      ? Array.from(wordRefs.current).filter((el): el is HTMLSpanElement => el !== null)
+      : [];
+
+    if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: aboutWrapperRef.current,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1,
+          invalidateOnRefresh: true,
+        }
+      });
+
+      tl.fromTo(targetWords, 
+        { 
+          x: 40, 
+          opacity: 0, 
+          filter: 'blur(8px)',
+          textShadow: "0 0 0px hsl(var(--primary)/0)"
+        },
+        { 
+          x: 0, 
+          opacity: 1, 
+          filter: 'blur(0px)',
+          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+          stagger: 0.1, 
+          duration: 0.8, 
+          ease: 'power2.out' 
+        }
+      );
+
+      tl.to(lightRef.current, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'sine.inOut'
+      }, ">-0.4");
+    }
+  }, { dependencies: [isMounted, aboutWords], scope: mainRef });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -424,7 +412,7 @@ export default function PortfolioPage() {
         </div>
       </header>
 
-      <main className="relative">
+      <main ref={mainRef} className="relative">
         <section className="sticky top-0 z-0 flex flex-col items-center justify-center h-screen pt-20 bg-background container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full flex-1">
             <div className="flex flex-col gap-8 pl-4">
