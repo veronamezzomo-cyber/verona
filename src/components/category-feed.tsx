@@ -218,14 +218,12 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   const isExpanded = !!category;
   const isShorts = category === 'shorts';
   
-  // Categorias de formato vertical (2:3)
   const verticalCategories = ['shorts', 'talking'];
   const isVerticalFormat = category ? verticalCategories.includes(category) : false;
 
-  // Filtragem dos vídeos baseada na categoria selecionada
   const filteredVideos = useMemo(() => {
     if (!category || category === 'all') return VIDEOS_DATA;
-    return VIDEOS_DATA.filter(video => video.category === category);
+    return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
 
   const updateLines = useCallback(() => {
@@ -442,58 +440,61 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                     )
               )}
             >
-              {filteredVideos.map((item, index) => (
-                <div 
-                  key={item.id} 
-                  className={cn(
-                    "flex flex-col gap-6 group transform transition-all duration-700",
-                    isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-                    isShorts && "min-w-[185px] md:min-w-[235px] lg:min-w-[265px] shrink-0"
-                  )}
-                  style={{ transitionDelay: `${index * 150}ms` }}
-                >
+              {filteredVideos.map((item, index) => {
+                const itemIsVertical = item.category.some(c => verticalCategories.includes(c));
+                return (
                   <div 
-                    onClick={() => handleInteraction(item)}
+                    key={item.id} 
                     className={cn(
-                      "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl rounded-none",
-                      verticalCategories.includes(item.category)
-                        ? "aspect-[2/3]" 
-                        : "aspect-[16/9]",
-                      clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30"
+                      "flex flex-col gap-6 group transform transition-all duration-700",
+                      isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+                      isShorts && "min-w-[185px] md:min-w-[235px] lg:min-w-[265px] shrink-0"
                     )}
+                    style={{ transitionDelay: `${index * 150}ms` }}
                   >
-                    <EditableVideo 
-                      src={item.videoUrl} 
-                      storageKey={`v3-feed-grid-${item.id}`}
-                      fill
-                      className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] ease-out"
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      hideControls
-                    />
-                    
-                    {clickCount >= 8 && (
-                      <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                        <div className="flex flex-col items-center gap-2">
-                          <Lock className="w-8 h-8 text-white opacity-40" />
-                          <span className="font-mono text-[8px] uppercase tracking-widest text-white/40">Access Denied</span>
+                    <div 
+                      onClick={() => handleInteraction(item)}
+                      className={cn(
+                        "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl rounded-none",
+                        itemIsVertical
+                          ? "aspect-[2/3]" 
+                          : "aspect-[16/9]",
+                        clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30"
+                      )}
+                    >
+                      <EditableVideo 
+                        src={item.videoUrl} 
+                        storageKey={`v3-feed-grid-${item.id}`}
+                        fill
+                        className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] ease-out"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        hideControls
+                      />
+                      
+                      {clickCount >= 8 && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                          <div className="flex flex-col items-center gap-2">
+                            <Lock className="w-8 h-8 text-white opacity-40" />
+                            <span className="font-mono text-[8px] uppercase tracking-widest text-white/40">Access Denied</span>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    </div>
+                    
+                    <div className="flex items-center justify-between px-2">
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors">
+                        {item.title}
+                      </span>
+                      <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">{item.date}</span>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between px-2">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors">
-                      {item.title}
-                    </span>
-                    <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">{item.date}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -507,7 +508,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
               <div 
                 className={cn(
                   "relative z-[60] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
-                  verticalCategories.includes(selectedProject.category) ? "max-w-[1000px]" : "max-w-[1400px]"
+                  selectedProject.category.some(c => verticalCategories.includes(c)) ? "max-w-[1000px]" : "max-w-[1400px]"
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -541,7 +542,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                 <div 
                   className={cn(
                     "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
-                    verticalCategories.includes(selectedProject.category) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
+                    selectedProject.category.some(c => verticalCategories.includes(c)) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
                   )}
                   onClick={(e) => e.stopPropagation()}
                 >
