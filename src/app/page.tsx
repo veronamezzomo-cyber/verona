@@ -301,6 +301,7 @@ export default function PortfolioPage() {
   const [isBooting, setIsBooting] = useState(true);
   const [bootStep, setBootStep] = useState(0);
   const [isHeaderTyped, setIsHeaderTyped] = useState(false);
+  const [typedQuestionsCount, setTypedQuestionsCount] = useState(0);
   const [isTerminalClosed, setIsTerminalClosed] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
@@ -452,16 +453,18 @@ export default function PortfolioPage() {
 
   // Terminal Action Logic
   const handleTerminalAction = () => {
-    if (faqAvailableIndices.length === 0) return;
+    if (faqAvailableIndices.length === 0 || typedQuestionsCount < faqAvailableIndices.length) return;
     const qIdx = faqAvailableIndices[activeFaqIndex];
     const item = FAQ_DATA[qIdx];
     setFaqHistory(prev => [...prev, item]);
     setFaqAvailableIndices(prev => prev.filter((_, i) => i !== activeFaqIndex));
     setActiveFaqIndex(0);
+    setTypedQuestionsCount(0);
+    setIsHeaderTyped(false); // Reset sequence to re-type the remaining options
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isBooting || !isHeaderTyped) return;
+    if (isBooting || !isHeaderTyped || typedQuestionsCount < faqAvailableIndices.length) return;
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       setActiveFaqIndex(prev => (prev > 0 ? prev - 1 : Math.max(0, faqAvailableIndices.length - 1)));
@@ -484,8 +487,6 @@ export default function PortfolioPage() {
       if (!isDragging || !terminalRef.current) return;
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
-      
-      // Direct DOM manipulation for fluid drag (avoids React re-renders per pixel)
       terminalRef.current.style.transform = `translate(${dragBasePos.current.x + dx}px, ${dragBasePos.current.y + dy}px)`;
     };
 
@@ -493,8 +494,6 @@ export default function PortfolioPage() {
       if (!isDragging) return;
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
-      
-      // Synchronize with React state only on mouse up
       setFaqPos({
         x: dragBasePos.current.x + dx,
         y: dragBasePos.current.y + dy
@@ -716,7 +715,7 @@ export default function PortfolioPage() {
               <div 
                 className={cn(
                   "max-w-4xl mx-auto transition-all duration-500",
-                  isTerminalMinimized ? "h-10 opacity-60" : "opacity-100"
+                  isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto"
                 )}
               >
                 <div 
@@ -762,7 +761,7 @@ export default function PortfolioPage() {
                       tabIndex={0}
                       onFocus={() => setIsTerminalFocused(true)}
                       onBlur={() => setIsTerminalFocused(false)}
-                      className="p-8 font-mono text-sm min-h-[420px] relative outline-none group bg-black text-white"
+                      className="p-8 font-mono text-sm relative outline-none group bg-black text-white h-auto"
                     >
                       {isBooting ? (
                         <div className="space-y-1">
@@ -802,7 +801,7 @@ export default function PortfolioPage() {
 
                           {/* Options */}
                           {faqAvailableIndices.length > 0 && (
-                            <div className="pt-8 border-t border-white/5">
+                            <div className="pt-4 border-t border-white/5">
                               <div className="text-[10px] uppercase tracking-widest text-white/20 mb-4">
                                 <TypewriterText 
                                   text="Available Queries (Use Arrows + Enter)" 
@@ -815,22 +814,34 @@ export default function PortfolioPage() {
                                   {faqAvailableIndices.map((qIdx, i) => (
                                     <div 
                                       key={qIdx}
-                                      onMouseEnter={() => setHoverFaqIndex(i)}
-                                      onMouseLeave={() => setHoverFaqIndex(null)}
                                       className={cn(
                                         "transition-colors flex items-start gap-2 py-0.5 outline-none",
                                         activeFaqIndex === i ? "text-white font-bold" : "text-white/30"
                                       )}
                                     >
-                                      <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
-                                        {'>'}
-                                      </span>
-                                      <span className="uppercase text-xs tracking-tight">
-                                        {FAQ_DATA[qIdx].q}
-                                        {activeFaqIndex === i && (
-                                          <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
-                                        )}
-                                      </span>
+                                      {i <= typedQuestionsCount ? (
+                                        <>
+                                          <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
+                                            {'>'}
+                                          </span>
+                                          <span className="uppercase text-xs tracking-tight">
+                                            {i === typedQuestionsCount ? (
+                                              <TypewriterText 
+                                                text={FAQ_DATA[qIdx].q}
+                                                speed={5}
+                                                onComplete={() => setTypedQuestionsCount(prev => prev + 1)}
+                                              />
+                                            ) : (
+                                              <span>
+                                                {FAQ_DATA[qIdx].q}
+                                                {activeFaqIndex === i && (
+                                                  <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
+                                                )}
+                                              </span>
+                                            )}
+                                          </span>
+                                        </>
+                                      ) : null}
                                     </div>
                                   ))}
                                 </div>
@@ -839,7 +850,7 @@ export default function PortfolioPage() {
                           )}
 
                           {faqAvailableIndices.length === 0 && (
-                            <div className="text-center py-12 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
+                            <div className="text-center py-6 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
                               --- SYSTEM NOMINAL. ALL QUERIES EXECUTED ---
                             </div>
                           )}
