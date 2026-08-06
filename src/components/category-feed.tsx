@@ -448,7 +448,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   className={cn(
                     "flex flex-col gap-6 group transform transition-all duration-700",
                     isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-                    isShorts && "min-w-[280px] md:min-w-[350px] lg:min-w-[400px] shrink-0"
+                    isShorts && "min-w-[185px] md:min-w-[235px] lg:min-w-[265px] shrink-0"
                   )}
                   style={{ transitionDelay: `${index * 150}ms` }}
                 >
