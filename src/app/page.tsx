@@ -438,7 +438,7 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // NEW PINNED SECTION IMPLEMENTATION - SINGLE TIMELINE
+    // PINNED SECTION IMPLEMENTATION - MASTER TIMELINE
     if (pinnedSectionRef.current && statsRef.current && toolsRef.current && testimonialRef.current && faqRef.current) {
       const supportTl = gsap.timeline({
         scrollTrigger: {
@@ -450,25 +450,33 @@ export default function PortfolioPage() {
         }
       });
 
+      // Initial state reset
       gsap.set([toolsRef.current, testimonialRef.current, faqRef.current], { opacity: 0, pointerEvents: 'none' });
       gsap.set(statsRef.current, { opacity: 1, pointerEvents: 'auto' });
       gsap.set(faqRef.current, { scale: 0.95 });
 
       supportTl
+        // 1. Stats Counter
         .to(statsValuesRef.current, { innerHTML: 0, duration: 0.01, snap: { innerHTML: 1 } }, 0)
         .from(statsValuesRef.current, { innerHTML: 0, duration: 5, snap: { innerHTML: 1 }, stagger: 0.5, ease: 'power2.out' }, 0)
-        .to({}, { duration: 8 })
+        .to({}, { duration: 8 }) // Pause on stats
+        
+        // 2. Transition Stats -> Tools (OVERLAP)
         .to(statsRef.current, { opacity: 0, pointerEvents: 'none', duration: 5 }, "stats-out")
         .to(toolsRef.current, { opacity: 1, pointerEvents: 'auto', duration: 5 }, "stats-out")
         .from(toolsItemsRef.current, { y: 40, opacity: 0, stagger: 0.2, duration: 4, ease: 'power3.out' }, "stats-out+=2")
-        .to({}, { duration: 8 })
+        .to({}, { duration: 8 }) // Pause on tools
+        
+        // 3. Transition Tools -> Testimonial (OVERLAP)
         .to(toolsRef.current, { opacity: 0, pointerEvents: 'none', duration: 5 }, "tools-out")
         .to(testimonialRef.current, { opacity: 1, pointerEvents: 'auto', duration: 5 }, "tools-out")
         .from(testimonialRef.current.querySelector('p'), { y: 20, opacity: 0, duration: 4, ease: 'power2.out' }, "tools-out+=2")
-        .to({}, { duration: 8 })
+        .to({}, { duration: 8 }) // Pause on testimonial
+        
+        // 4. Transition Testimonial -> FAQ (OVERLAP)
         .to(testimonialRef.current, { opacity: 0, pointerEvents: 'none', duration: 5 }, "test-out")
         .to(faqRef.current, { opacity: 1, scale: 1, pointerEvents: 'auto', duration: 5 }, "test-out")
-        .to({}, { duration: 15 });
+        .to({}, { duration: 15 }); // Final pause on FAQ
     }
 
   }, { dependencies: [isMounted], scope: mainRef });
