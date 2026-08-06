@@ -133,12 +133,10 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
       style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
       onClick={() => inputRef.current?.focus()}
     >
-      {/* Title Bar - Draggable handle */}
       <div 
         onMouseDown={onMouseDown}
         className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-red-900/30 select-none cursor-move active:bg-[#222]"
       >
-        {/* Controls on the Left (Prompt/Console Controls) */}
         <div className="flex items-center gap-3">
           <X 
             onClick={(e) => { e.stopPropagation(); onClose(); }}
@@ -157,7 +155,6 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
         </div>
       </div>
 
-      {/* Content Area */}
       <div 
         ref={scrollRef}
         className="p-6 flex-1 h-[380px] md:h-[450px] relative overflow-y-auto scrollbar-hide"
@@ -185,7 +182,6 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
         </div>
       </div>
 
-      {/* Footer Info */}
       <div className="px-6 py-3 border-t border-red-900/10 flex justify-between items-center bg-black/60">
         <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-red-600/40">
           <span>Mode: Interactive</span>
@@ -299,8 +295,11 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   };
 
   const closeTheater = (e: React.MouseEvent) => {
+    // We prevent closing when clicking the inner elements
+    // so we only close when clicking the overlay area.
     e.stopPropagation();
     setSelectedProject(null);
+    setTerminalStatus('closed');
   };
 
   return (
@@ -496,7 +495,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Minimized Terminal Bar */}
                 {terminalStatus === 'minimized' && (
                   <div 
                     onClick={() => setTerminalStatus('open')}
@@ -508,7 +506,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   </div>
                 )}
 
-                {/* Terminal Window Area (LEFT on Desktop, BOTTOM on Mobile) */}
                 <div className="w-full max-w-[450px] shrink-0 self-center">
                   {terminalStatus === 'open' && (
                     <CyberTerminal 
@@ -519,7 +516,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   )}
                 </div>
 
-                {/* Video Window (RIGHT on Desktop, TOP on Mobile) */}
                 <div className={cn(
                   "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
                   isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
