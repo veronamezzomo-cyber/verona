@@ -5,9 +5,12 @@ import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-re
 import { EditableVideo } from '@/components/editable-video';
 import { EditableImage } from '@/components/editable-image';
 import { cn } from '@/lib/utils';
-import gsap from 'gsap';
+import gsap from 'react-gsap'; // Note: In project files it was 'gsap', but dependencies show 'gsap'. Standard import.
 import { useToast } from '@/hooks/use-toast';
 import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
+
+// Note: Re-importing GSAP standard to match project structure
+import gsap_real from 'gsap';
 
 interface CategoryFeedProps {
   category: string | null;
@@ -216,7 +219,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!containerRef.current || !contentRef.current) return;
 
     if (isExpanded) {
-      gsap.to(containerRef.current, {
+      gsap_real.to(containerRef.current, {
         height: '85vh',
         opacity: 1,
         duration: 1.2,
@@ -224,12 +227,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         overwrite: 'auto'
       });
       
-      gsap.fromTo(contentRef.current, 
+      gsap_real.fromTo(contentRef.current, 
         { y: 60, opacity: 0, filter: 'blur(10px)' },
         { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1, delay: 0.5, ease: 'power4.out' }
       );
     } else {
-      gsap.to(containerRef.current, {
+      gsap_real.to(containerRef.current, {
         height: '120px',
         duration: 0.8,
         ease: 'power3.inOut',
@@ -358,7 +361,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     key={item.id} 
                     className={cn(
                       "flex flex-col gap-6 group transform transition-all duration-700",
-                      isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                      isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+                      category === 'shorts' && "flex-shrink-0 w-[260px] sm:w-[280px] md:w-[320px]"
                     )}
                     style={{ transitionDelay: `${index * 150}ms` }}
                   >
