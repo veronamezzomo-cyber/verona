@@ -262,6 +262,8 @@ export default function PortfolioPage() {
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState([0, 1, 2, 3, 4]);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
+  const [hoverFaqIndex, setHoverFaqIndex] = useState<number | null>(null);
+  const [isTerminalFocused, setIsTerminalFocused] = useState(false);
 
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
@@ -304,6 +306,7 @@ export default function PortfolioPage() {
     setFaqHistory(prev => [...prev, faqData[qIndex]]);
     setFaqAvailableIndices(prev => prev.filter((_, i) => i !== activeFaqIndex));
     setActiveFaqIndex(0);
+    setHoverFaqIndex(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -479,7 +482,6 @@ export default function PortfolioPage() {
           </div>
           <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
-            <Link href="#about" className="text-foreground/70 hover:text-foreground">About</Link>
             <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
             <ThemeToggle />
           </nav>
@@ -487,7 +489,7 @@ export default function PortfolioPage() {
       </header>
 
       <main ref={mainRef} className="relative">
-        <section className="sticky top-0 z-0 h-screen w-full flex items-center justify-center bg-background overflow-hidden">
+        <section className="relative z-0 h-screen w-full flex items-center justify-center bg-background overflow-hidden">
           <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               <div className="flex items-center gap-4 mb-6">
@@ -608,7 +610,6 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* 1. STATS BAR - COMPRESSED */}
         <section id="stats" ref={statsRef} className="relative z-20 py-8 border-t border-foreground/5 bg-background overflow-hidden">
           <div className="container mx-auto px-6 md:px-12">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -634,7 +635,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 2. TECH_STACK - ADOBE BLOCKS */}
         <section id="tools" ref={toolsRef} className="relative z-20 py-12 bg-secondary/5 border-t border-foreground/5">
           <div className="container mx-auto px-6 md:px-12">
             <div className="flex flex-col items-center mb-8">
@@ -644,7 +644,7 @@ export default function PortfolioPage() {
             <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
               {[
                 { name: "Premiere Pro", label: "Pr", color: "#00005B", text: "#9999FF" },
-                { name: "After Effects", label: "Ae", color: "#00005B", text: "#9999FF" },
+                { name: "After Effects", label: "Ae", color: "#2C005E", text: "#D191FF" },
                 { name: "Photoshop", label: "Ps", color: "#001E36", text: "#31A8FF" },
                 { name: "Illustrator", label: "Ai", color: "#330000", text: "#FF9A00" }
               ].map((tool, i) => (
@@ -668,7 +668,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 3. TESTIMONIAL - COMPACT & LEFT ALIGNED */}
         <section id="testimonial" ref={testimonialRef} className="relative z-20 py-12 border-t border-foreground/5 bg-background">
           <div className="container mx-auto px-6 md:px-12">
             <div className="max-w-2xl">
@@ -690,7 +689,6 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        {/* 4. ARCHIVE_FAQ - INTERACTIVE TERMINAL */}
         <section id="faq" ref={faqRef} className="relative z-20 py-12 border-t border-foreground/5 bg-background">
           <div className="container mx-auto px-6 md:px-12 max-w-4xl">
             <div className="flex flex-col mb-6">
@@ -700,9 +698,18 @@ export default function PortfolioPage() {
             <div 
               onKeyDown={handleKeyDown}
               tabIndex={0}
+              onFocus={() => setIsTerminalFocused(true)}
+              onBlur={() => setIsTerminalFocused(false)}
               className="bg-foreground text-background font-mono p-6 shadow-2xl relative overflow-hidden outline-none group focus-within:ring-1 focus-within:ring-primary"
             >
-              {/* Terminal Header */}
+              {!isTerminalFocused && faqAvailableIndices.length > 0 && (
+                <div className="absolute inset-0 z-10 bg-foreground/10 backdrop-blur-[1px] flex items-center justify-center cursor-pointer pointer-events-none">
+                  <span className="text-[10px] uppercase tracking-[0.4em] opacity-40 animate-pulse text-background">
+                    [ click to activate terminal ]
+                  </span>
+                </div>
+              )}
+
               <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
               <div className="flex items-center justify-between mb-6 opacity-40">
                 <div className="flex gap-2">
@@ -717,9 +724,7 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              {/* Terminal Body */}
               <div className="space-y-4">
-                {/* History */}
                 {faqHistory.map((item, i) => (
                   <div key={i} className="animate-in fade-in duration-300">
                     <div className="flex items-center gap-2 text-primary/60">
@@ -732,7 +737,6 @@ export default function PortfolioPage() {
                   </div>
                 ))}
 
-                {/* Question Selection */}
                 {faqAvailableIndices.length > 0 ? (
                   <div className="mt-6 border-t border-background/10 pt-4">
                     <div className="text-[10px] uppercase tracking-widest text-primary/40 mb-2">Select Query (Arrows + Enter)</div>
@@ -741,13 +745,18 @@ export default function PortfolioPage() {
                         <div 
                           key={qIdx}
                           onClick={() => {
-                            setActiveFaqIndex(i);
-                            handleTerminalAction();
+                            const qIndex = faqAvailableIndices[i];
+                            setFaqHistory(prev => [...prev, faqData[qIndex]]);
+                            setFaqAvailableIndices(prev => prev.filter((_, idx) => idx !== i));
+                            setActiveFaqIndex(0);
+                            setHoverFaqIndex(null);
                           }}
-                          onMouseEnter={() => setActiveFaqIndex(i)}
+                          onMouseEnter={() => setHoverFaqIndex(i)}
+                          onMouseLeave={() => setHoverFaqIndex(null)}
                           className={cn(
                             "flex items-center gap-3 px-2 py-1 cursor-pointer transition-colors",
-                            activeFaqIndex === i ? "bg-primary text-white" : "text-background/40 hover:text-background/60"
+                            activeFaqIndex === i ? "bg-primary text-white" : 
+                            hoverFaqIndex === i ? "bg-primary/20 text-white/90" : "text-background/40 hover:text-background/60"
                           )}
                         >
                           <span>{activeFaqIndex === i ? ">" : " "}</span>
@@ -763,7 +772,6 @@ export default function PortfolioPage() {
                 )}
               </div>
 
-              {/* Cursor Footer */}
               <div className="mt-8 pt-4 border-t border-background/5 flex justify-between items-center opacity-40">
                 <span className="text-[8px] tracking-[0.4em]">ROOT@VERONA:~/FAQ$ _</span>
                 <TerminalIcon className="w-4 h-4" />
