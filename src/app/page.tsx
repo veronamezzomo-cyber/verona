@@ -323,6 +323,7 @@ export default function PortfolioPage() {
         });
 
         // REVERTED: Original correct timeline architecture
+        console.log('DEBUG_WORDS:', words, 'isArray:', Array.isArray(words), 'length:', words?.length, 'hasMap:', typeof words?.map);
         tl.fromTo(words, 
           { 
             x: 40, 
