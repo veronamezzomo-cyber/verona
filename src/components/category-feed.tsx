@@ -138,7 +138,7 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
         onMouseDown={onMouseDown}
         className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-red-900/30 select-none cursor-move active:bg-[#222]"
       >
-        {/* Controls on the Left */}
+        {/* Controls on the Left (Prompt/Console Controls) */}
         <div className="flex items-center gap-3">
           <X 
             onClick={(e) => { e.stopPropagation(); onClose(); }}
@@ -295,7 +295,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
     }
     setClickCount(prev => prev + 1);
     setSelectedProject(item);
-    setTerminalStatus('open'); // Re-open terminal for new projects
+    setTerminalStatus('open');
   };
 
   const closeTheater = (e: React.MouseEvent) => {
@@ -491,7 +491,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
               
               <div 
                 className={cn(
-                  "relative z-[60] flex flex-col md:flex-row items-center justify-center gap-8 w-full",
+                  "relative z-[60] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
                   isVerticalFormat ? "max-w-[1000px]" : "max-w-[1400px]"
                 )}
                 onClick={(e) => e.stopPropagation()}
@@ -508,7 +508,18 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   </div>
                 )}
 
-                {/* Video Window */}
+                {/* Terminal Window Area (LEFT on Desktop, BOTTOM on Mobile) */}
+                <div className="w-full max-w-[450px] shrink-0 self-center">
+                  {terminalStatus === 'open' && (
+                    <CyberTerminal 
+                      text={selectedProject.description || 'HELLO WORLD'} 
+                      onClose={() => setTerminalStatus('closed')}
+                      onMinimize={() => setTerminalStatus('minimized')}
+                    />
+                  )}
+                </div>
+
+                {/* Video Window (RIGHT on Desktop, TOP on Mobile) */}
                 <div className={cn(
                   "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
                   isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
@@ -528,17 +539,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   >
                     Close Archive <X className="w-4 h-4" />
                   </button>
-                </div>
-
-                {/* Terminal Window Area */}
-                <div className="w-full max-w-[450px] shrink-0 self-center">
-                  {terminalStatus === 'open' && (
-                    <CyberTerminal 
-                      text={selectedProject.description || 'HELLO WORLD'} 
-                      onClose={() => setTerminalStatus('closed')}
-                      onMinimize={() => setTerminalStatus('minimized')}
-                    />
-                  )}
                 </div>
               </div>
             </div>
