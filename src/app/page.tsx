@@ -210,7 +210,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       if (requestRef) cancelAnimationFrame(requestRef);
       if (focusInterval) clearInterval(focusInterval);
       clearTimeout(timer);
-      isMountedRef.current = false;
     };
   }, [videos]);
 
@@ -332,36 +331,37 @@ export default function PortfolioPage() {
         .to(cards, { height: 64 }, 0);
     }
 
-    // 3. About Section Animation (ISOLATION TEST: Removed scrollTrigger)
+    // 3. About Section Animation (LOOP FIX - NO ScrollTrigger for Test)
     const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
     
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
-      // Temporarily removed scrollTrigger for isolation test
-      const tl = gsap.timeline();
+      // Loop individual para contornar erro de mapeamento do GSAP em arrays
+      targetWords.forEach((word, i) => {
+        gsap.fromTo(word, 
+          { 
+            x: 40, 
+            opacity: 0, 
+            filter: 'blur(8px)',
+            textShadow: "0 0 0px hsl(var(--primary)/0)"
+          },
+          { 
+            x: 0, 
+            opacity: 1, 
+            filter: 'blur(0px)',
+            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+            duration: 0.8, 
+            delay: i * 0.1, 
+            ease: 'power2.out' 
+          }
+        );
+      });
 
-      tl.fromTo(targetWords, 
-        { 
-          x: 40, 
-          opacity: 0, 
-          filter: 'blur(8px)',
-          textShadow: "0 0 0px hsl(var(--primary)/0)"
-        },
-        { 
-          x: 0, 
-          opacity: 1, 
-          filter: 'blur(0px)',
-          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-          stagger: 0.1, 
-          duration: 0.8, 
-          ease: 'power2.out' 
-        }
-      );
-
-      tl.to(lightRef.current, {
+      gsap.to(lightRef.current, {
         opacity: 1,
         duration: 0.8,
-        ease: 'sine.inOut'
-      }, ">-0.4");
+        ease: 'sine.inOut',
+        delay: 0.4
+      });
     }
   }, { dependencies: [isMounted, aboutWords], scope: mainRef });
 
