@@ -16,7 +16,10 @@ import { useGSAP } from '@gsap/react';
 import { 
   Mail, 
   ArrowRight,
-  Maximize2
+  Maximize2,
+  ChevronRight,
+  Terminal as TerminalIcon,
+  Quote
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -250,8 +253,9 @@ export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const [reachedBottom, setReachedBottom] = useState(false);
-  const [year, setYear] = useState(new Date().getFullYear());
+  const [year] = useState(new Date().getFullYear());
   const [isMounted, setIsMounted] = useState(false);
+  const [activeFaq, setActiveFaq] = useState<number | null>(0);
 
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
@@ -262,16 +266,14 @@ export default function PortfolioPage() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   
-  const worksContainerRef = useRef<HTMLDivElement>(null);
-  const worksTriggerRef = useRef<HTMLDivElement>(null);
-  const aboutWrapperRef = useRef<HTMLDivElement>(null);
-  const lightRef = useRef<HTMLDivElement>(null);
-
-  const aboutWords = useMemo(() => 
-    "Behind every great story is someone obsessed with its details.".split(" "), 
-  []);
+  // New Refs for Added Sections
+  const statsRef = useRef<HTMLDivElement>(null);
+  const statsValuesRef = useRef<(HTMLSpanElement | null)[]>([]);
+  const toolsRef = useRef<HTMLDivElement>(null);
+  const toolsItemsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const testimonialRef = useRef<HTMLDivElement>(null);
+  const faqRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -285,6 +287,14 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   
+  const faqData = [
+    { q: "Qual o seu turnaround médio?", a: "Para shorts, 24-48h. Para conteúdo longo, 5-7 dias úteis dependendo da complexidade." },
+    { q: "Quais softwares você utiliza?", a: "Premiere Pro para corte e ritmo, After Effects para motion design avançado." },
+    { q: "Você trabalha com revisões?", a: "Sim, ofereço 2 rodadas de revisões inclusas para garantir que o pacing esteja perfeito." },
+    { q: "Faz color grading profissional?", a: "Sim, tratamento de cor completo para garantir o look cinematográfico de marca." },
+    { q: "Como funciona o pagamento?", a: "Geralmente 50% antecipado para reserva de agenda e 50% na entrega final." }
+  ];
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -292,11 +302,10 @@ export default function PortfolioPage() {
   useGSAP(() => {
     if (!isMounted || typeof window === 'undefined') return;
 
-    // 1. Hero Entrance Sequence (Orchestrated GSAP Timeline)
     const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
     const tl = gsap.timeline({ delay: 0.5 });
 
-    // FASE A (0—300ms) — System Boot
+    // FASE A (Boot)
     tl.to([hudRef.current, coordsRef.current, statusBlockRef.current], {
       opacity: 1,
       duration: 0.1,
@@ -304,14 +313,13 @@ export default function PortfolioPage() {
       stagger: 0.05
     }, 0);
 
-    // Boot Status Block fade out after 1.5s
     tl.to(statusBlockRef.current, {
       opacity: 0,
       duration: 0.6,
       ease: "power2.inOut"
     }, 1.5);
 
-    // FASE B (300—900ms) — Cinematic Title Reveal
+    // FASE B (Reveal)
     if (heroLines.length > 0) {
       tl.fromTo(heroLines, 
         { y: '100%' }, 
@@ -323,18 +331,20 @@ export default function PortfolioPage() {
         }, 0.3);
     }
 
-    // FASE C (900ms+) — Context Reveal (CTA & Scroll Indicator)
-    tl.fromTo([ctaRef.current, scrollIndicatorRef.current],
+    // FASE C (Context)
+    tl.fromTo(ctaRef.current,
       { y: 12, opacity: 0 },
       { 
         y: 0, 
         opacity: 1, 
         duration: 0.8, 
         ease: 'power2.out',
-        stagger: 0.2,
         onComplete: () => {
-          // Breathing animation loop for scroll indicator
           if (scrollIndicatorRef.current) {
+            gsap.fromTo(scrollIndicatorRef.current,
+              { opacity: 0, y: 10 },
+              { opacity: 1, y: 0, duration: 1 }
+            );
             gsap.to(scrollIndicatorRef.current, {
               opacity: 0.35,
               duration: 2.5,
@@ -346,31 +356,53 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // 2. Works Section Scrub
-    const cards = categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null);
-    if (worksContainerRef.current && worksTriggerRef.current && cards.length > 0) {
-      gsap.timeline({
+    // Stats Counter Animation
+    if (statsRef.current) {
+      gsap.from(statsValuesRef.current, {
         scrollTrigger: {
-          trigger: worksTriggerRef.current,
-          start: "top bottom-=200", 
-          end: "top top+=80",       
-          scrub: true,
-        }
-      }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
-        .to(cards, { height: 76 }, 0);
-    }
-
-    // 3. About Section Animation
-    const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
-    
-    if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
-      const aboutTl = gsap.timeline({ delay: 0.2 });
-      targetWords.forEach((word, i) => {
-        aboutTl.set(word, { x: 40, opacity: 0, filter: 'blur(8px)', textShadow: "0 0 0px rgba(0,0,0,0)" })
-          .to(word, { x: 0, opacity: 1, filter: 'blur(0px)', textShadow: "0 0 20px rgba(0,0,0,0.5)", duration: 0.8, ease: 'power2.out' }, i * 0.1);
+          trigger: statsRef.current,
+          start: "top 80%",
+        },
+        innerHTML: 0,
+        duration: 2,
+        ease: "power2.out",
+        snap: { innerHTML: 1 },
+        stagger: 0.2
       });
     }
-  }, { dependencies: [isMounted, aboutWords], scope: mainRef });
+
+    // Tools Stack Animation
+    if (toolsRef.current) {
+      gsap.from(toolsItemsRef.current, {
+        scrollTrigger: {
+          trigger: toolsRef.current,
+          start: "top 80%",
+        },
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: "power3.out"
+      });
+    }
+
+    // Reveal for Testimonial and FAQ
+    [testimonialRef.current, faqRef.current].forEach(ref => {
+      if (ref) {
+        gsap.from(ref, {
+          scrollTrigger: {
+            trigger: ref,
+            start: "top 85%",
+          },
+          y: 20,
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.out"
+        });
+      }
+    });
+
+  }, { dependencies: [isMounted], scope: mainRef });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -509,8 +541,7 @@ export default function PortfolioPage() {
         </section>
 
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
-          <div ref={worksTriggerRef} id="works-trigger" className="h-0 w-full" />
-          <section ref={worksContainerRef} id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
+          <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
             <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat, index) => {
                 const img = catImages.find(i => i.id === cat.id);
@@ -548,28 +579,145 @@ export default function PortfolioPage() {
           />
         </div>
 
-        <div ref={aboutWrapperRef} id="about-wrapper" className="relative h-[200vh] z-20">
-          <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
-            <div 
-              className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" 
-            />
-            
-            <div className="max-w-5xl text-center relative z-10">
-              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">Layer 02 // Digital Craftsman</span>
-              <h2 className="text-[clamp(2rem,6vw,5rem)] font-serif italic font-bold leading-[1.2] tracking-tight flex flex-wrap justify-center gap-x-[0.4em] gap-y-[0.2em]">
-                {aboutWords?.map((word, i) => (
-                  <span 
-                    key={i} 
-                    ref={(el) => { wordRefs.current[i] = el; }}
-                    className="about-word opacity-0 inline-block"
-                  >
-                    {word}
-                  </span>
-                )) ?? null}
-              </h2>
+        {/* 1. STATS BAR */}
+        <section id="stats" ref={statsRef} className="relative z-20 py-24 border-t border-foreground/5 bg-background overflow-hidden">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+              <div className="flex flex-col gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-2">Experience</span>
+                <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter">
+                  +<span ref={(el) => { statsValuesRef.current[0] = el; }}>6</span>
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Years in Craft</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-2">Partnerships</span>
+                <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter">
+                  +<span ref={(el) => { statsValuesRef.current[1] = el; }}>12</span>
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">High-End Clients</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-2">Output</span>
+                <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter">
+                  +<span ref={(el) => { statsValuesRef.current[2] = el; }}>80</span>
+                </span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Projects Delivered</span>
+              </div>
             </div>
-          </section>
-        </div>
+          </div>
+        </section>
+
+        {/* 2. TOOLS STACK */}
+        <section id="tools" ref={toolsRef} className="relative z-20 py-32 bg-secondary/5 border-t border-foreground/5">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col items-center mb-16">
+              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-4">[ TECH_STACK ]</span>
+              <h2 className="text-4xl md:text-6xl font-serif italic font-bold">The Creative Engine</h2>
+            </div>
+            
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+              {[
+                { name: "Premiere Pro", color: "#00005B", accent: "#9999FF" },
+                { name: "After Effects", color: "#00005B", accent: "#9999FF" },
+                { name: "Photoshop", color: "#001E36", accent: "#31A8FF" },
+                { name: "Illustrator", color: "#330000", accent: "#FF9A00" }
+              ].map((tool, i) => (
+                <div 
+                  key={tool.name} 
+                  ref={(el) => { toolsItemsRef.current[i] = el; }}
+                  className="flex flex-col items-center gap-6 p-10 bg-background border border-foreground/5 rounded-none group hover:border-primary/20 transition-all"
+                >
+                  <div 
+                    className="w-16 h-16 flex items-center justify-center rounded-lg shadow-lg group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: tool.color, border: `2px solid ${tool.accent}` }}
+                  >
+                    <span className="font-bold text-white text-xl">
+                      {tool.name.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  </div>
+                  <span className="font-serif italic text-lg">{tool.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 3. TESTIMONIAL */}
+        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-32 border-t border-foreground/5 bg-background overflow-hidden">
+          <div className="container mx-auto px-6 max-w-4xl text-center">
+            <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">[ CLIENT_FEEDBACK ]</span>
+            <div className="relative">
+              <Quote className="absolute -top-10 -left-10 w-20 h-20 text-foreground/5 -z-10" />
+              <p className="text-2xl md:text-4xl font-serif italic leading-relaxed text-foreground mb-8">
+                &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience that resonated perfectly with our audience.&quot;
+              </p>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-px bg-primary" />
+                <span className="font-mono text-[10px] uppercase tracking-widest font-bold">James Huang</span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60">Creative Director @ Void Studio</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 4. FAQ TERMINAL */}
+        <section id="faq" ref={faqRef} className="relative z-20 py-32 border-t border-foreground/5 bg-background">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <div className="flex flex-col mb-16">
+              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-4">[ ARCHIVE_FAQ ]</span>
+              <h2 className="text-4xl font-serif italic font-bold">Common Queries</h2>
+            </div>
+
+            <div className="bg-foreground text-background font-mono p-8 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
+              <div className="flex items-center justify-between mb-8 opacity-40">
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 rounded-full bg-background" />
+                  <div className="w-2 h-2 rounded-full bg-background" />
+                  <div className="w-2 h-2 rounded-full bg-background" />
+                </div>
+                <span className="text-[10px]">VERONA_CLI_V3.0.SYS</span>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-12">
+                <div className="flex flex-col gap-4 shrink-0 md:w-16">
+                  {faqData.map((_, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => setActiveFaq(i)}
+                      className={cn(
+                        "w-full py-2 border transition-all",
+                        activeFaq === i ? "bg-primary border-primary text-white" : "border-background/20 text-background/40 hover:border-background/60"
+                      )}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex-1">
+                  {activeFaq !== null && (
+                    <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+                      <div className="flex items-start gap-4 mb-4">
+                        <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-1" />
+                        <span className="text-xl font-bold uppercase tracking-tighter">{faqData[activeFaq].q}</span>
+                      </div>
+                      <div className="pl-8 text-sm leading-relaxed text-background/70 border-l border-primary/30">
+                        {faqData[activeFaq].a}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-12 pt-6 border-t border-background/10 flex justify-between items-center opacity-40">
+                <span className="text-[8px] tracking-[0.4em]">ROOT@VERONA:~/FAQ$ _</span>
+                <TerminalIcon className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
