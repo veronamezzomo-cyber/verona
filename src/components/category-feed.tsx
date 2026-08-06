@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { X, Lock, Sparkles, Cpu, Layers, Zap, Activity, Terminal } from 'lucide-react';
+import { X, Lock, Sparkles, Cpu, Layers, Zap, Activity, Terminal, Minus, Square } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -90,38 +90,55 @@ function CyberTerminal({ text }: { text: string }) {
   }, [phase, text]);
 
   return (
-    <div className="w-full bg-black/60 border border-primary/20 backdrop-blur-xl p-6 font-mono relative overflow-hidden group">
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-      
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Terminal className="w-3 h-3 text-primary" />
-          <span className="text-[9px] uppercase tracking-[0.3em] text-primary/60 font-bold">Project Data Interface</span>
+    <div className="w-full bg-black/85 border border-primary/30 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
+      {/* Title Bar - Fake Window Controls */}
+      <div className="flex items-center justify-between px-4 py-2 bg-primary/10 border-b border-primary/20 select-none">
+        <div className="flex items-center gap-3">
+          <Terminal className="w-3 h-3 text-primary animate-pulse" />
+          <span className="text-[9px] uppercase tracking-[0.3em] text-primary font-bold">Verona_OS // Project_Terminal v4.0.2</span>
         </div>
-        <div className="flex gap-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-pulse" />
+        <div className="flex items-center gap-4">
+          <Minus className="w-3 h-3 text-primary/40 hover:text-primary cursor-pointer transition-colors" />
+          <Square className="w-2.5 h-2.5 text-primary/40 hover:text-primary cursor-pointer transition-colors" />
+          <X className="w-3.5 h-3.5 text-primary/40 hover:text-primary cursor-pointer transition-colors" />
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <div className="flex items-start gap-4">
-          <span className="text-primary/40 text-[10px] select-none shrink-0">$ root@verona:~/logs/</span>
-          <div className="text-[11px] leading-relaxed tracking-wider text-foreground break-words uppercase">
-            {display}
-            <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
+      {/* Content Area - Min 19 lines space */}
+      <div className="p-6 flex-1 min-h-[380px] relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
+        
+        <div className="flex flex-col gap-2 relative z-10">
+          <div className="flex items-start gap-4">
+            <span className="text-primary/40 text-[10px] select-none shrink-0">$ root@verona:~/logs/</span>
+            <div className="text-[11px] leading-relaxed tracking-wider text-foreground break-words uppercase max-w-[85%]">
+              {display}
+              <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
+            </div>
           </div>
+
+          {/* Fake history lines to fill vertical space */}
+          {Array.from({ length: 18 }).map((_, i) => (
+            <div key={i} className="flex items-start gap-4 opacity-[0.05] select-none pointer-events-none">
+               <span className="text-primary/40 text-[10px]">$</span>
+               <div className="w-full h-[1px] bg-primary/20 mt-2" />
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-primary/10 flex justify-between items-center opacity-40">
-        <div className="flex gap-4 text-[8px] uppercase tracking-[0.2em]">
-          <span>Ln: 01</span>
-          <span>Col: {display.length}</span>
+      {/* Footer Info */}
+      <div className="px-6 py-3 border-t border-primary/10 flex justify-between items-center bg-black/40">
+        <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-primary/40">
+          <span>Buffer: OK</span>
+          <span>Ln: {Math.ceil(display.length / 50)}</span>
+          <span>Col: {display.length % 50}</span>
           <span>Enc: UTF-8</span>
         </div>
-        <div className="text-[8px] uppercase tracking-[0.2em]">Ready_</div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+          <span className="text-[8px] uppercase tracking-[0.3em] text-primary/60">System_Ready_</span>
+        </div>
       </div>
     </div>
   );
