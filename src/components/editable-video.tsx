@@ -40,22 +40,41 @@ export function EditableVideo({
     if (saved) setCurrentSrc(saved);
   }, [storageKey]);
 
-  // Handle startTime
+  // Precise startTime management
   useEffect(() => {
     const video = videoRef.current;
-    if (video && startTime !== undefined) {
-      const handleMetadata = () => {
+    if (!video || startTime === undefined) return;
+
+    const seekAndPlay = async () => {
+      try {
+        video.pause();
         video.currentTime = startTime;
-      };
-      
-      if (video.readyState >= 1) {
-        handleMetadata();
-      } else {
-        video.addEventListener('loadedmetadata', handleMetadata);
+        await video.play();
+      } catch (e) {
+        // Autoplay policy might block play() if not muted or no interaction
+        // but for portfolio muted previews it should work fine
       }
-      
-      return () => video.removeEventListener('loadedmetadata', handleMetadata);
+    };
+
+    if (video.readyState >= 2) {
+      seekAndPlay();
+    } else {
+      video.addEventListener('loadeddata', seekAndPlay, { once: true });
     }
+
+    // Custom loop logic: prevent resetting to 0:00
+    const handleTimeUpdate = () => {
+      if (video.loop && video.currentTime < startTime - 1) {
+        video.currentTime = startTime;
+      }
+    };
+    
+    video.addEventListener('timeupdate', handleTimeUpdate);
+
+    return () => {
+      video.removeEventListener('loadeddata', seekAndPlay);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+    };
   }, [currentSrc, startTime]);
 
   const validateAndApply = async () => {
@@ -65,10 +84,7 @@ export function EditableVideo({
     setError(null);
 
     try {
-      // Basic URL validation
       new URL(newUrl);
-      
-      // Update state and storage
       setCurrentSrc(newUrl);
       sessionStorage.setItem(`vid_${storageKey}`, newUrl);
       setIsOpen(false);
@@ -99,11 +115,12 @@ export function EditableVideo({
           className,
           fill && "absolute inset-0 w-full h-full object-cover"
         )}
-        autoPlay
+        // If startTime is defined, we disable native autoPlay to handle it via script
+        {...(startTime === undefined ? { autoPlay: true } : { autoPlay: false })}
         muted={isMuted}
-        loop
+        loop={props.loop}
         playsInline
-        preload="metadata"
+        preload="auto"
         aria-hidden="true"
       />
       
@@ -114,12 +131,6 @@ export function EditableVideo({
             tabIndex={0}
             onClick={toggleMute}
             aria-label={isMuted ? "Unmute video" : "Mute video"}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                toggleMute(e as any);
-              }
-            }}
             className={cn(
               buttonVariants({ variant: "secondary", size: "icon" }),
               "h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl cursor-pointer"
@@ -133,20 +144,12 @@ export function EditableVideo({
               <div 
                 role="button"
                 tabIndex={0}
-                aria-label="Edit video source"
                 className={cn(
                   buttonVariants({ variant: "secondary", size: "icon" }),
                   "h-8 w-8 rounded-full bg-black/60 hover:bg-black/80 border border-white/10 backdrop-blur-md shadow-xl cursor-pointer"
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsOpen(true);
-                  }
                 }}
               >
                 <Pencil className="h-3.5 w-3.5 text-white" />
@@ -156,7 +159,7 @@ export function EditableVideo({
               <div className="flex flex-col gap-3" suppressHydrationWarning>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Edit Video Source</span>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)} aria-label="Close popover">
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
                     <X className="h-3 w-3" />
                   </Button>
                 </div>
@@ -167,23 +170,16 @@ export function EditableVideo({
                     onChange={(e) => setNewUrl(e.target.value)}
                     placeholder="Paste video URL (mp4, webm)..."
                     className="h-9 text-xs bg-muted/50"
-                    onKeyDown={(e) => e.key === 'Enter' && validateAndApply()}
                   />
                   <Button 
                     size="sm" 
                     onClick={validateAndApply} 
                     disabled={isValidating || !newUrl.trim()}
-                    className="h-9 px-3 bg-primary hover:bg-primary/90"
                   >
                     {isValidating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                   </Button>
                 </div>
-                
                 {error && <p className="text-[10px] text-destructive font-medium">{error}</p>}
-                
-                <p className="text-[9px] text-muted-foreground italic">
-                  Changes are temporary and stored in your session.
-                </p>
               </div>
             </PopoverContent>
           </Popover>
