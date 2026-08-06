@@ -17,7 +17,10 @@ import {
   Mail, 
   ArrowRight,
   Maximize2,
-  Terminal as TerminalIcon
+  Terminal as TerminalIcon,
+  Quote,
+  X,
+  Minus
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -247,6 +250,30 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   );
 }
 
+function TypewriterText({ text }: { text: string }) {
+  const [displayedText, setDisplayedText] = useState('');
+  
+  useEffect(() => {
+    setDisplayedText('');
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayedText((prev) => prev + text.charAt(i));
+      i++;
+      if (i === text.length) clearInterval(timer);
+    }, 15);
+    return () => clearInterval(timer);
+  }, [text]);
+
+  return <span>{displayedText}<span className="w-2 h-4 bg-primary inline-block ml-1 animate-cursor-blink" /></span>;
+}
+
+const FAQ_DATA = [
+  { q: "What is your average turnaround time?", a: "For short-form content (Reels/Shorts), expect a 24-48h turnaround. Long-form projects usually take 4-7 business days depending on complexity." },
+  { q: "Which tech stack do you use?", a: "My primary engine is Adobe Premiere Pro & After Effects. I use Photoshop for assets and AI tools (Topaz/ElevenLabs) for specialized enhancements." },
+  { q: "How many revisions are included?", a: "Every project includes two major revision rounds. Minor tweaks are unlimited until the final delivery feels perfect." },
+  { q: "Do you offer professional color grading?", a: "Yes. Every video goes through a color correction and grading process to ensure a consistent, cinematic look across all clips." }
+];
+
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
@@ -254,6 +281,12 @@ export default function PortfolioPage() {
   const [year] = useState(new Date().getFullYear());
   const [isMounted, setIsMounted] = useState(false);
   
+  // FAQ Terminal State
+  const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
+  const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3]);
+  const [activeFaqIndex, setActiveFaqIndex] = useState(0);
+  const [isTerminalInitializing, setIsTerminalInitializing] = useState(true);
+
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
   const heroLineRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -263,6 +296,11 @@ export default function PortfolioPage() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  
+  // New Section Refs
+  const statsBarRef = useRef<HTMLDivElement>(null);
+  const contentBlockRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -326,16 +364,46 @@ export default function PortfolioPage() {
               { opacity: 0, y: 10 },
               { opacity: 1, y: 0, duration: 1 }
             );
-            gsap.to(scrollIndicatorRef.current, {
-              opacity: 0.35,
-              duration: 2.5,
-              repeat: -1,
-              yoyo: true,
-              ease: "sine.inOut"
-            });
           }
         }
       }, 0.9);
+
+    // New Section Scroll Animations
+    gsap.from(statsBarRef.current, {
+      scrollTrigger: {
+        trigger: statsBarRef.current,
+        start: "top 90%",
+      },
+      opacity: 0,
+      y: 20,
+      duration: 1,
+      ease: "power2.out"
+    });
+
+    gsap.from(contentBlockRef.current, {
+      scrollTrigger: {
+        trigger: contentBlockRef.current,
+        start: "top 85%",
+      },
+      opacity: 0,
+      y: 30,
+      duration: 1.2,
+      ease: "power2.out"
+    });
+
+    gsap.from(terminalRef.current, {
+      scrollTrigger: {
+        trigger: terminalRef.current,
+        start: "top 80%",
+        onEnter: () => {
+          setTimeout(() => setIsTerminalInitializing(false), 2000);
+        }
+      },
+      opacity: 0,
+      scale: 0.98,
+      duration: 1,
+      ease: "power3.out"
+    });
 
   }, { dependencies: [isMounted], scope: mainRef });
 
@@ -369,6 +437,29 @@ export default function PortfolioPage() {
   const handleCloseFeed = () => {
     setActiveCategory(null);
   };
+
+  const handleFaqAction = (index: number) => {
+    const qIdx = faqAvailableIndices[index];
+    const item = FAQ_DATA[qIdx];
+    setFaqHistory(prev => [...prev, item]);
+    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== index));
+    setActiveFaqIndex(0);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isTerminalInitializing) return;
+      if (e.key === 'ArrowUp') {
+        setActiveFaqIndex(prev => (prev > 0 ? prev - 1 : faqAvailableIndices.length - 1));
+      } else if (e.key === 'ArrowDown') {
+        setActiveFaqIndex(prev => (prev < faqAvailableIndices.length - 1 ? prev + 1 : 0));
+      } else if (e.key === 'Enter') {
+        if (faqAvailableIndices.length > 0) handleFaqAction(activeFaqIndex);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [faqAvailableIndices, activeFaqIndex, isTerminalInitializing]);
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
@@ -465,13 +556,6 @@ export default function PortfolioPage() {
             </span>
             <div className="w-px h-12 bg-gradient-to-b from-primary/60 to-transparent shadow-[0_0_8px_rgba(var(--primary),0.3)]" />
           </div>
-          
-          <div className="absolute top-32 right-10 pointer-events-none hidden md:block opacity-20">
-            <Maximize2 className="w-4 h-4 text-foreground mb-2" />
-            <div className="font-mono text-[8px] uppercase tracking-[0.4em] [writing-mode:vertical-rl]">
-              Visual_Archive_v3.0
-            </div>
-          </div>
         </section>
 
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
@@ -513,7 +597,153 @@ export default function PortfolioPage() {
           />
         </div>
 
-        <section className="min-h-screen bg-background" />
+        {/* New Experience & FAQ Section */}
+        <section className="py-24 bg-background overflow-hidden">
+          <div className="container mx-auto px-6 md:px-12">
+            
+            {/* Part 1: Stats Bar */}
+            <div ref={statsBarRef} className="flex justify-center border-b border-foreground/5 pb-12 mb-24">
+              <div className="flex flex-wrap gap-12 md:gap-24 items-center">
+                <div className="flex flex-col items-center">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ YEARS ]</span>
+                  <span className="text-3xl font-bold font-mono tracking-tighter">+6</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ CLIENTS ]</span>
+                  <span className="text-3xl font-bold font-mono tracking-tighter">+12</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ PROJECTS ]</span>
+                  <span className="text-3xl font-bold font-mono tracking-tighter">+80</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Part 2: Quote & Tech Stack */}
+            <div ref={contentBlockRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-center">
+              <div className="lg:col-span-8">
+                <div className="relative">
+                  <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
+                  <p className="text-3xl md:text-5xl font-serif italic leading-[1.1] text-foreground mb-8">
+                    &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-px bg-primary" />
+                    <div className="flex flex-col">
+                      <span className="font-mono text-[10px] uppercase tracking-widest font-bold">James Huang</span>
+                      <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60">Creative Director @ Void Studio</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 border-l border-foreground/5 pl-12 flex flex-col gap-8">
+                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary">[ POWERED_BY ]</span>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
+                    { name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
+                    { name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
+                    { name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
+                  ].map((tech) => (
+                    <div key={tech.name} className="flex flex-col gap-2 group">
+                      <div 
+                        className="w-16 h-16 flex items-center justify-center rounded-lg shadow-xl transition-transform group-hover:scale-110"
+                        style={{ backgroundColor: tech.bg }}
+                      >
+                        <span className="font-sans font-bold text-2xl" style={{ color: tech.text }}>{tech.label}</span>
+                      </div>
+                      <span className="font-serif italic text-xs text-muted-foreground">{tech.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Part 3: Interactive Terminal FAQ */}
+            <div ref={terminalRef} className="max-w-4xl mx-auto">
+              <div className="bg-[#0a0a0a] border border-foreground/10 rounded-xl overflow-hidden shadow-2xl">
+                {/* Title Bar */}
+                <div className="bg-[#1a1a1a] h-10 px-4 flex items-center justify-between border-b border-foreground/5">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/50" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/30 border border-green-500/50" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <TerminalIcon className="w-3 h-3 text-muted-foreground/40" />
+                    <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">LV_FAQ_v3.0</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Minus className="w-3 h-3 text-muted-foreground/20" />
+                    <X className="w-3 h-3 text-muted-foreground/20" />
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-8 font-mono text-sm min-h-[400px]">
+                  {isTerminalInitializing ? (
+                    <div className="space-y-2 text-primary/40">
+                      <div>[BOOT]: INITIALIZING VERONA_ENGINE...</div>
+                      <div className="animate-pulse">[INFO]: LOADING FAQ_MODULE_3.0 [OK]</div>
+                      <div className="animate-pulse" style={{ animationDelay: '0.2s' }}>[INFO]: ESTABLISHING SECURE CONNECTION [OK]</div>
+                      <div className="animate-pulse" style={{ animationDelay: '0.4s' }}>[INFO]: SYNCING ARCHIVE_DATA [OK]</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="text-primary/60">
+                        VERONA OS v3.0 // ARCHIVE CONSOLE <br/>
+                        TYPE &apos;HELP&apos; FOR COMMANDS OR SELECT BELOW:
+                      </div>
+
+                      {/* History */}
+                      <div className="space-y-4">
+                        {faqHistory.map((item, i) => (
+                          <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
+                            <div className="text-foreground/40 mb-1 flex items-center gap-2">
+                              <span className="text-primary">LV_OS:$</span> {item.q}
+                            </div>
+                            <div className="text-foreground/80 leading-relaxed pl-4 border-l border-primary/20">
+                              <TypewriterText text={item.a} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Options */}
+                      {faqAvailableIndices.length > 0 && (
+                        <div className="pt-8 border-t border-foreground/5">
+                          <div className="text-[10px] uppercase tracking-widest text-muted-foreground/40 mb-4">Available Queries (Setas + Enter)</div>
+                          <div className="space-y-3">
+                            {faqAvailableIndices.map((qIdx, i) => (
+                              <div 
+                                key={qIdx}
+                                onClick={() => handleFaqAction(i)}
+                                className={cn(
+                                  "cursor-pointer transition-all flex items-center gap-3",
+                                  activeFaqIndex === i ? "text-primary translate-x-2" : "text-foreground/30 hover:text-foreground/60"
+                                )}
+                              >
+                                <span>{activeFaqIndex === i ? '>' : ' '}</span>
+                                <span className="uppercase text-xs tracking-tight">{FAQ_DATA[qIdx].q}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {faqAvailableIndices.length === 0 && (
+                        <div className="text-center py-12 text-muted-foreground/20 italic">
+                          --- ALL QUERIES EXECUTED ---
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
