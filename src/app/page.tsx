@@ -445,7 +445,7 @@ export default function PortfolioPage() {
           <CategoryFeed 
             category={activeCategory} 
             onClose={handleCloseFeed} 
-            cardElements={categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null)}
+            cardElements={categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null).filter(Boolean)}
           />
         </div>
 
