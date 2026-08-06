@@ -251,7 +251,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   );
 }
 
-function TypewriterText({ text }: { text: string }) {
+function TypewriterText({ text, onComplete, speed = 15 }: { text: string, onComplete?: () => void, speed?: number }) {
   const [displayedText, setDisplayedText] = useState('');
   
   useEffect(() => {
@@ -260,10 +260,13 @@ function TypewriterText({ text }: { text: string }) {
     const timer = setInterval(() => {
       setDisplayedText(text.slice(0, i + 1));
       i++;
-      if (i >= text.length) clearInterval(timer);
-    }, 15);
+      if (i >= text.length) {
+        clearInterval(timer);
+        if (onComplete) onComplete();
+      }
+    }, speed);
     return () => clearInterval(timer);
-  }, [text]);
+  }, [text, speed, onComplete]);
 
   return <span>{displayedText}<span className="w-2 h-4 bg-white inline-block ml-0.5 align-middle animate-cursor-blink" /></span>;
 }
@@ -273,6 +276,13 @@ const FAQ_DATA = [
   { q: "Which tech stack do you use?", a: "My primary engine is Adobe Premiere Pro & After Effects. I use Photoshop for assets and AI tools (Topaz/ElevenLabs) for specialized enhancements." },
   { q: "How many revisions are included?", a: "Every project includes two major revision rounds. Minor tweaks are unlimited until the final delivery feels perfect." },
   { q: "Do you offer professional color grading?", a: "Yes. Every video goes through a color correction and grading process to ensure a consistent, cinematic look across all clips." }
+];
+
+const BOOT_LINES = [
+  "[BOOT]: INITIALIZING VERONA_ENGINE...",
+  "[INFO]: LOADING_CORE_MODULES [OK]",
+  "[INFO]: SYNCING_ARCHIVE_DATA [OK]",
+  "[INFO]: ESTABLISHING_SECURE_CONN [OK]"
 ];
 
 export default function PortfolioPage() {
@@ -289,6 +299,7 @@ export default function PortfolioPage() {
   const [hoverFaqIndex, setHoverFaqIndex] = useState<number | null>(null);
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
   const [isBooting, setIsBooting] = useState(true);
+  const [bootStep, setBootStep] = useState(0);
   const [isTerminalClosed, setIsTerminalClosed] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
@@ -402,10 +413,7 @@ export default function PortfolioPage() {
                   opacity: 1, 
                   scale: 1, 
                   duration: 1, 
-                  ease: "power3.out",
-                  onStart: () => {
-                    setTimeout(() => setIsBooting(false), 2000);
-                  }
+                  ease: "power3.out"
                 }, "-=0.6");
 
   }, { dependencies: [isMounted], scope: mainRef });
@@ -753,23 +761,30 @@ export default function PortfolioPage() {
                       tabIndex={0}
                       onFocus={() => setIsTerminalFocused(true)}
                       onBlur={() => setIsTerminalFocused(false)}
-                      className="p-8 font-mono text-sm min-h-[420px] relative outline-none group bg-black"
+                      className="p-8 font-mono text-sm min-h-[420px] relative outline-none group bg-black text-white"
                     >
                       {isBooting ? (
-                        <div className="space-y-2 text-white/40">
-                          <div>[BOOT]: INITIALIZING VERONA_ENGINE...</div>
-                          <div className="animate-pulse">[INFO]: LOADING_CORE_MODULES [OK]</div>
-                          <div className="animate-pulse" style={{ animationDelay: '0.2s' }}>[INFO]: SYNCING_ARCHIVE_DATA [OK]</div>
-                          <div className="animate-pulse" style={{ animationDelay: '0.4s' }}>[INFO]: ESTABLISHING_SECURE_CONN [OK]</div>
+                        <div className="space-y-1">
+                          {BOOT_LINES.slice(0, bootStep).map((line, idx) => (
+                            <div key={idx} className="opacity-80">{line}</div>
+                          ))}
+                          {bootStep < BOOT_LINES.length && (
+                            <TypewriterText 
+                              text={BOOT_LINES[bootStep]} 
+                              onComplete={() => {
+                                setTimeout(() => {
+                                  if (bootStep === BOOT_LINES.length - 1) {
+                                    setIsBooting(false);
+                                  } else {
+                                    setBootStep(s => s + 1);
+                                  }
+                                }, 150);
+                              }} 
+                            />
+                          )}
                         </div>
                       ) : (
                         <div className="space-y-6">
-                          <div className="text-white/60 mb-8">
-                            VERONA OS v3.0 [Version 10.0.19045.4291] <br/>
-                            (c) Verona Corporation. All rights reserved. <br/><br/>
-                            SELECT QUERY VIA ARROWS + ENTER OR CLICK:
-                          </div>
-
                           {/* History */}
                           <div className="space-y-4">
                             {faqHistory.map((item, i) => (
