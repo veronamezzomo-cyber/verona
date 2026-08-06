@@ -24,6 +24,7 @@ export function EditableVideo({
   className,
   hideControls = false,
   startTime,
+  autoPlay, // Destructured here to prevent it from going into ...props Rest
   ...props 
 }: EditableVideoProps) {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
@@ -108,20 +109,19 @@ export function EditableVideo({
   return (
     <div className={cn("group relative w-full h-full", containerClassName)} suppressHydrationWarning>
       <video 
-        {...props} 
         ref={videoRef}
         src={currentSrc || undefined} 
         className={cn(
           className,
           fill && "absolute inset-0 w-full h-full object-cover"
         )}
-        // If startTime is defined, we disable native autoPlay to handle it via script
-        {...(startTime === undefined ? { autoPlay: true } : { autoPlay: false })}
         muted={isMuted}
         loop={props.loop}
         playsInline
         preload="auto"
         aria-hidden="true"
+        controls={props.controls}
+        {...(startTime === undefined ? { autoPlay: true } : {})}
       />
       
       {!hideControls && (
