@@ -61,7 +61,10 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
   }, [history]);
 
   const onMouseDown = (e: React.MouseEvent) => {
-    if (isMinimized) return;
+    // Only drag if clicking the header
+    const target = e.target as HTMLElement;
+    if (!target.closest('.terminal-header') || isMinimized) return;
+    
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -129,7 +132,7 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 
   return (
     <div 
-      className="w-full bg-[#0a0a0a] border border-red-900/50 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] cursor-text select-none z-[70]"
+      className="w-full bg-[#0a0a0a] border border-red-900/50 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] cursor-auto select-text z-[70]"
       style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
       onClick={(e) => {
         e.stopPropagation();
@@ -138,7 +141,7 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
     >
       <div 
         onMouseDown={onMouseDown}
-        className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-red-900/30 select-none cursor-move active:bg-[#222]"
+        className="terminal-header flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-red-900/30 select-none cursor-move active:bg-[#222]"
       >
         <div className="flex items-center gap-3">
           <X 
@@ -185,7 +188,7 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
         </div>
       </div>
 
-      <div className="px-6 py-3 border-t border-red-900/10 flex justify-between items-center bg-black/60">
+      <div className="px-6 py-3 border-t border-red-900/10 flex justify-between items-center bg-black/60 select-none">
         <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-red-600/40">
           <span>Mode: Interactive</span>
           <span>Ln: {history.length}</span>
@@ -217,6 +220,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
 
   const isExpanded = !!category;
   const isShorts = category === 'shorts';
+  const isAll = category === 'all';
   
   const verticalCategories = ['shorts', 'talking'];
   const isVerticalFormat = category ? verticalCategories.includes(category) : false;
@@ -434,7 +438,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   ? "flex flex-nowrap overflow-x-auto gap-8 pb-10 pt-12 px-4 scroll-smooth cyber-scrollbar" 
                   : cn(
                       "grid max-w-[1600px] mx-auto pt-12",
-                      category === 'all'
+                      isAll
                         ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                         : cn(
                             "gap-12 md:gap-16 lg:gap-24",
@@ -515,7 +519,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   "relative z-[60] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
                   selectedProject.category.some(c => verticalCategories.includes(c)) ? "max-w-[1000px]" : "max-w-[1400px]"
                 )}
-                onClick={(e) => e.stopPropagation()}
               >
                 {terminalStatus === 'minimized' && (
                   <div 
