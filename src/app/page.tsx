@@ -637,7 +637,7 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            {/* Part 2: Quote & Tech Stack (Now Vertical Column) */}
+            {/* Part 2: Quote & Tech Stack (Reorganized Column) */}
             <div ref={contentBlockRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-end">
               <div className="lg:col-span-9">
                 <div className="relative">
