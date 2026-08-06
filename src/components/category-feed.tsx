@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { X, Lock, Sparkles, Cpu, Layers, Zap, Activity, Terminal, Minus, Square } from 'lucide-react';
+import { X, Lock, Sparkles, Terminal, Minus, Square } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -20,39 +20,6 @@ interface LineCoord {
   y1: number;
   x2: number;
   y2: number;
-}
-
-interface MetadataItemProps {
-  label: string;
-  value: string;
-  icon: React.ElementType;
-  xFactor: number;
-  yFactor: number;
-  mousePos: { x: number; y: number };
-}
-
-function MetadataItem({ label, value, icon: Icon, xFactor, yFactor, mousePos }: MetadataItemProps) {
-  const shiftX = (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 0)) * 0.03 * xFactor;
-  const shiftY = (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 0)) * 0.03 * yFactor;
-
-  return (
-    <div 
-      className="absolute z-[70] bg-background/40 backdrop-blur-xl border border-primary/20 p-3 rounded-lg flex items-center gap-3 pointer-events-none transition-transform duration-300 ease-out"
-      style={{ 
-        transform: `translate(${shiftX}px, ${shiftY}px)`,
-        top: `${50 + yFactor * 28}%`,
-        left: `${50 + xFactor * 38}%`,
-      }}
-    >
-      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-        <Icon className="w-4 h-4 text-primary" />
-      </div>
-      <div className="flex flex-col">
-        <span className="text-[8px] uppercase tracking-[0.2em] text-muted-foreground font-mono">{label}</span>
-        <span className="text-[10px] uppercase font-bold text-foreground tracking-widest">{value}</span>
-      </div>
-    </div>
-  );
 }
 
 function CyberTerminal({ text }: { text: string }) {
@@ -156,17 +123,10 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   const [clickCount, setClickCount] = useState(0);
   const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { toast } = useToast();
 
   const isExpanded = !!category;
   const isVerticalFormat = category === 'shorts' || category === 'talking';
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (selectedProject) {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    }
-  }, [selectedProject]);
 
   const updateLines = useCallback(() => {
     if (!connectorsRef.current || !containerRef.current || !cardElements.length) return;
@@ -252,7 +212,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   };
 
   return (
-    <div className="relative" onMouseMove={handleMouseMove}>
+    <div className="relative">
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full pointer-events-none overflow-visible z-[95]"
@@ -456,11 +416,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                     autoPlay
                     controls
                   />
-
-                  <MetadataItem label="Software" value="After Effects" icon={Cpu} xFactor={-1} yFactor={-1} mousePos={mousePos} />
-                  <MetadataItem label="Grade" value="DaVinci Resolve" icon={Activity} xFactor={1} yFactor={-1} mousePos={mousePos} />
-                  <MetadataItem label="Master" value="4K / 60FPS" icon={Layers} xFactor={-1} yFactor={1} mousePos={mousePos} />
-                  <MetadataItem label="Engine" value="ProRes 422" icon={Zap} xFactor={1} yFactor={1} mousePos={mousePos} />
 
                   <button 
                     onClick={closeTheater}
