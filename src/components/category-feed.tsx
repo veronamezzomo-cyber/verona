@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { X, Lock, Sparkles } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
@@ -11,7 +11,7 @@ import { VIDEOS_DATA } from '@/lib/videos-data';
 interface CategoryFeedProps {
   category: string | null;
   onClose: () => void;
-  onCategoryClick?: (label: string) => void;
+  cardElements: HTMLButtonElement[]; // Recebendo elementos via prop para evitar querySelector
 }
 
 interface LineCoord {
@@ -22,7 +22,7 @@ interface LineCoord {
   y2: number;
 }
 
-export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
+export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -42,38 +42,32 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const isVerticalFormat = category === 'shorts' || category === 'talking';
 
   const updateLines = useCallback(() => {
-    if (!connectorsRef.current || !containerRef.current) return;
+    if (!connectorsRef.current || !containerRef.current || !cardElements.length) return;
 
     const svgRect = connectorsRef.current.getBoundingClientRect();
     const containerRect = containerRef.current.getBoundingClientRect();
-    const cards = document.querySelectorAll('.category-card');
 
-    if (cards.length === 0) return;
-
-    // Destino: Topo central exato da barra divisória do Feed (border-t do containerRef)
+    // Destino: Topo central exato da barra divisória do Feed
     const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-    const destY = 0; // Topo do SVG que está fixado no topo do containerRef
+    const destY = 0;
 
-    const coords = Array.from(cards).map(card => {
+    const coords = cardElements.map(card => {
       const cardRect = card.getBoundingClientRect();
       const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
       return {
         id: label,
-        // Origem: Base do Botão
         x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
         y1: cardRect.bottom - svgRect.top,
-        // Destino: Topo Central do Feed (Barra divisória superior)
         x2: destX,
         y2: destY
       };
     });
 
     setLineCoords(coords);
-  }, []);
+  }, [cardElements]);
 
   useEffect(() => {
     if (isExpanded) {
-      // Sincroniza o cálculo para rodar logo após a transição GSAP terminar (~1s)
       const timer = setTimeout(() => {
         updateLines();
       }, 1050);

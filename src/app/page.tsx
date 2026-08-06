@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useLayoutEffect } from 'react';
@@ -88,6 +87,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const timeRef = useRef(0);
   const expansionRef = useRef(0);
   const hasStartedRef = useRef(false);
+  const isMountedRef = useRef(true); // Controle de segurança
   const [containerWidth, setContainerWidth] = useState(600);
   const orbitParamsRef = useRef<any[]>([]);
   
@@ -95,6 +95,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const currentFocusedIndexRef = useRef<number>(-1);
 
   useEffect(() => {
+    isMountedRef.current = true;
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -102,7 +103,10 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       }
     });
     observer.observe(containerRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      isMountedRef.current = false;
+    };
   }, []);
 
   const orbitScale = Math.min(containerWidth / 600, 1);
@@ -124,6 +128,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     let focusInterval: NodeJS.Timeout;
 
     const animate = () => {
+      if (!isMountedRef.current) return;
       timeRef.current += 0.006;
       const expansion = expansionRef.current;
 
@@ -163,6 +168,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     };
 
     const rotateFocus = () => {
+      if (!isMountedRef.current) return;
       const nextIndex = (currentFocusedIndexRef.current + 1) % videos.length;
       const prevIndex = currentFocusedIndexRef.current;
 
@@ -184,6 +190,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     };
 
     const timer = setTimeout(() => {
+      if (!isMountedRef.current) return;
       hasStartedRef.current = true;
       requestRef = requestAnimationFrame(animate);
 
@@ -192,6 +199,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         duration: 1.2,
         ease: 'power2.out',
         onComplete: () => {
+          if (!isMountedRef.current) return;
           rotateFocus();
           focusInterval = setInterval(rotateFocus, 6000);
         }
@@ -202,6 +210,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       if (requestRef) cancelAnimationFrame(requestRef);
       if (focusInterval) clearInterval(focusInterval);
       clearTimeout(timer);
+      isMountedRef.current = false;
     };
   }, [videos]);
 
@@ -284,20 +293,28 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   
-  // Initialization
+  // Elementos reais filtrados para o HUD do CategoryFeed
+  const [cardElements, setCardElements] = useState<HTMLButtonElement[]>([]);
+
   useLayoutEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // GSAP Animations with official useGSAP hook
+  useEffect(() => {
+    if (isMounted) {
+      setCardElements(categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null));
+    }
+  }, [isMounted]);
+
+  // GSAP Gestão via hook oficial
   useGSAP(() => {
-    if (!isMounted) return;
+    if (!isMounted || typeof window === 'undefined') return;
 
     // 1. Hero Entrance
     const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
     if (heroLines.length > 0) {
       gsap.timeline({ delay: 0.5 })
-        .fromTo(heroLines, 
+        .fromTo(heroLines.filter(Boolean), 
           { y: '100%' }, 
           { y: '0%', duration: 1.2, ease: 'expo.out', stagger: 0.18 }
         );
@@ -308,24 +325,22 @@ export default function PortfolioPage() {
     if (worksContainerRef.current && worksTriggerRef.current && cards.length > 0) {
       gsap.timeline({
         scrollTrigger: {
-          trigger: worksTriggerRef.current,
+          trigger: worksTriggerRef.current, // Usando ref direta
           start: "top bottom-=200", 
           end: "top top+=80",       
           scrub: true,
         }
       }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
-        .to(cards, { height: 64 }, 0);
+        .to(cards.filter(Boolean), { height: 64 }, 0);
     }
 
     // 3. About Section Animation
-    const targetWords = wordRefs.current 
-      ? Array.from(wordRefs.current).filter((el): el is HTMLSpanElement => el !== null)
-      : [];
-
+    const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
+    
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: aboutWrapperRef.current,
+          trigger: aboutWrapperRef.current, // Usando ref direta
           start: 'top top',
           end: 'bottom bottom',
           scrub: 1,
@@ -333,7 +348,7 @@ export default function PortfolioPage() {
         }
       });
 
-      tl.fromTo(targetWords, 
+      tl.fromTo(targetWords.filter(Boolean), 
         { 
           x: 40, 
           opacity: 0, 
@@ -466,7 +481,11 @@ export default function PortfolioPage() {
               })}
             </div>
           </section>
-          <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
+          <CategoryFeed 
+            category={activeCategory} 
+            onClose={handleCloseFeed} 
+            cardElements={cardElements}
+          />
         </div>
 
         <div ref={aboutWrapperRef} id="about-wrapper" className="relative h-[200vh] z-20">
