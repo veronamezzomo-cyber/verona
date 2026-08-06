@@ -87,7 +87,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const timeRef = useRef(0);
   const expansionRef = useRef(0);
   const hasStartedRef = useRef(false);
-  const isMountedRef = useRef(true); // Controle de segurança
+  const isMountedRef = useRef(true);
   const [containerWidth, setContainerWidth] = useState(600);
   const orbitParamsRef = useRef<any[]>([]);
   
@@ -132,7 +132,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       timeRef.current += 0.006;
       const expansion = expansionRef.current;
 
-      itemRefs.current.forEach((el, i) => {
+      itemRefs.current.filter(Boolean).forEach((el, i) => {
         if (!el) return;
 
         const p = orbitParamsRef.current[i];
@@ -293,10 +293,9 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   
-  // Elementos reais filtrados para o HUD do CategoryFeed
   const [cardElements, setCardElements] = useState<HTMLButtonElement[]>([]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsMounted(true);
   }, []);
 
@@ -306,7 +305,6 @@ export default function PortfolioPage() {
     }
   }, [isMounted]);
 
-  // GSAP Gestão via hook oficial
   useGSAP(() => {
     if (!isMounted || typeof window === 'undefined') return;
 
@@ -314,7 +312,7 @@ export default function PortfolioPage() {
     const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
     if (heroLines.length > 0) {
       gsap.timeline({ delay: 0.5 })
-        .fromTo(heroLines.filter(Boolean), 
+        .fromTo(heroLines, 
           { y: '100%' }, 
           { y: '0%', duration: 1.2, ease: 'expo.out', stagger: 0.18 }
         );
@@ -325,30 +323,23 @@ export default function PortfolioPage() {
     if (worksContainerRef.current && worksTriggerRef.current && cards.length > 0) {
       gsap.timeline({
         scrollTrigger: {
-          trigger: worksTriggerRef.current, // Usando ref direta
+          trigger: worksTriggerRef.current,
           start: "top bottom-=200", 
           end: "top top+=80",       
           scrub: true,
         }
       }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
-        .to(cards.filter(Boolean), { height: 64 }, 0);
+        .to(cards, { height: 64 }, 0);
     }
 
-    // 3. About Section Animation
+    // 3. About Section Animation (ISOLATION TEST: Removed scrollTrigger)
     const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
     
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: aboutWrapperRef.current, // Usando ref direta
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1,
-          invalidateOnRefresh: true,
-        }
-      });
+      // Temporarily removed scrollTrigger for isolation test
+      const tl = gsap.timeline();
 
-      tl.fromTo(targetWords.filter(Boolean), 
+      tl.fromTo(targetWords, 
         { 
           x: 40, 
           opacity: 0, 
