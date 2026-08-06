@@ -179,11 +179,9 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       
       let nextIndex: number;
       
-      // Lógica de Ciclo: Sequencial no primeiro ciclo, Aleatório depois.
       if (cycleProgressRef.current < videos.length) {
         nextIndex = cycleProgressRef.current;
       } else {
-        // Modo aleatório, sem repetir o atual
         do {
           nextIndex = Math.floor(Math.random() * videos.length);
         } while (nextIndex === currentFocusedIndexRef.current);
@@ -221,7 +219,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         onComplete: () => {
           if (!isMountedRef.current) return;
           rotateFocus();
-          focusInterval = setInterval(rotateFocus, 6000);
+          focusInterval = setInterval(rotateFocus, 10000);
         }
       });
     }, 300);
@@ -257,7 +255,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
             loop
             playsInline
             hideControls
-            startTime={(vid as any).startTime}
+            startTime={vid.startTime}
           />
         </div>
       ))}
@@ -279,11 +277,9 @@ function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { t
         currentText += char;
         
         let delay = speed;
-        // Se for um ponto final e não for o último caractere, pausamos e pulamos linha
         if (char === '.' && i < text.length - 1) {
           delay = 500;
           currentText += '\n';
-          // Pulamos o próximo caractere se for um espaço para evitar espaços no início das linhas
           if (text[i + 1] === ' ') {
             i++;
           }
@@ -336,7 +332,6 @@ export default function PortfolioPage() {
   const [year] = useState(new Date().getFullYear());
   const [isMounted, setIsMounted] = useState(false);
   
-  // Terminal FAQ State
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3, 4]);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
@@ -361,10 +356,25 @@ export default function PortfolioPage() {
     { id: 'cat-vlogs', label: 'vlogs' }
   ], []);
 
-  const clusterVideos = useMemo(() => 
-    PlaceHolderImages.filter(i => 
+  const clusterVideos = useMemo(() => {
+    const raw = PlaceHolderImages.filter(i => 
       ['hero-grok', 'hero-me-in-one-min', 'hero-cook', 'hero-speed', 'hero-pensen'].includes(i.id)
-    ), []);
+    );
+    
+    const TIMINGS: Record<string, { focus: number; apice: number }> = {
+      'hero-grok': { focus: 0, apice: 3 },
+      'hero-me-in-one-min': { focus: 10, apice: 13 },
+      'hero-cook': { focus: 20, apice: 0 },
+      'hero-speed': { focus: 30, apice: 0 },
+      'hero-pensen': { focus: 40, apice: 5 },
+    };
+
+    return raw.map(vid => ({
+      ...vid,
+      startTime: TIMINGS[vid.id] ? TIMINGS[vid.id].apice - TIMINGS[vid.id].focus : 0
+    }));
+  }, []);
+
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
   useEffect(() => {

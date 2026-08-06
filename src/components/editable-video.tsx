@@ -35,54 +35,50 @@ export function EditableVideo({
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Initialize from session storage if available
   useEffect(() => {
     const saved = sessionStorage.getItem(`vid_${storageKey}`);
     if (saved) setCurrentSrc(saved);
   }, [storageKey]);
 
-  // Precise startTime management for both Grid and Theater
   useEffect(() => {
     const video = videoRef.current;
     if (!video || startTime === undefined) return;
 
     const seekAndPlay = async () => {
       try {
-        // Ensure state is ready before seeking
-        video.pause();
-        video.currentTime = startTime;
+        let finalStart = startTime;
         
-        // Only attempt play if it was intended or is muted (autoplay friendly)
+        if (finalStart < 0) {
+          const duration = video.duration;
+          if (duration > 0) {
+            while (finalStart < 0) {
+              finalStart += duration;
+            }
+          } else {
+            finalStart = 0;
+          }
+        } else if (video.duration > 0) {
+          finalStart = finalStart % video.duration;
+        }
+
+        video.pause();
+        video.currentTime = finalStart;
+        
         if (video.muted) {
           await video.play();
         }
-      } catch (e) {
-        // Autoplay policy might block play() if not muted or user hasn't interacted
-      }
+      } catch (e) {}
     };
 
-    if (video.readyState >= 2) {
+    if (video.readyState >= 1) {
       seekAndPlay();
     } else {
-      const onLoadedData = () => {
+      const onLoadedMetadata = () => {
         seekAndPlay();
       };
-      video.addEventListener('loadeddata', onLoadedData, { once: true });
-      return () => video.removeEventListener('loadeddata', onLoadedData);
+      video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+      return () => video.removeEventListener('loadedmetadata', onLoadedMetadata);
     }
-
-    // Manual Loop handling to return to startTime instead of 0:00
-    const handleTimeUpdate = () => {
-      if (video.currentTime < startTime - 0.5) {
-        video.currentTime = startTime;
-      }
-    };
-    
-    video.addEventListener('timeupdate', handleTimeUpdate);
-
-    return () => {
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-    };
   }, [currentSrc, startTime]);
 
   const validateAndApply = async () => {
@@ -127,10 +123,8 @@ export function EditableVideo({
         preload="auto"
         aria-hidden="true"
         controls={props.controls}
-        // ONLY use native autoPlay if we don't have a specific startTime to manage
         autoPlay={startTime === undefined ? true : undefined}
-        // ONLY use native loop if we don't have a specific startTime to manage
-        loop={startTime === undefined ? props.loop : undefined}
+        loop={props.loop}
       />
       
       {!hideControls && (
