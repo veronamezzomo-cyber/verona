@@ -36,5 +36,13 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     date: '2026',
     videoUrl: 'https://i.imgur.com/0zy9NtL.mp4',
     category: ['shorts']
+  },
+  {
+    id: 'intro-video-01',
+    title: 'Me in 1 min',
+    description: "My 20's Upwork introduction video. Cringe? Maybe. A masterpiece? Absolutely. One of my earliest pieces, and still one of my favorites. Raw, honest, and a good reminder of how far the craft has come. Project developed with the goal of introducing myself, as well as my perspective about content creation and audience retention. The piece aims to showcase different and simple ways of working with 2D and 3D elements, combined with audio treatment, alternating music, and engaging sound effects.",
+    date: '2023',
+    videoUrl: 'https://i.imgur.com/ND3kmsW.mp4',
+    category: ['motion', 'vlogs']
   }
 ];
