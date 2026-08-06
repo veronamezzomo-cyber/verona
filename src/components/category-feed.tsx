@@ -433,10 +433,15 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                 isShorts 
                   ? "flex flex-nowrap overflow-x-auto gap-8 pb-10 pt-12 px-4 scroll-smooth cyber-scrollbar" 
                   : cn(
-                      "grid gap-12 md:gap-16 lg:gap-24 max-w-[1600px] mx-auto pt-12",
-                      isVerticalFormat 
-                        ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
-                        : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                      "grid max-w-[1600px] mx-auto pt-12",
+                      category === 'all'
+                        ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
+                        : cn(
+                            "gap-12 md:gap-16 lg:gap-24",
+                            isVerticalFormat 
+                              ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
+                              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                          )
                     )
               )}
             >
@@ -466,7 +471,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                         src={item.videoUrl} 
                         storageKey={`v3-feed-grid-${item.id}`}
                         fill
-                        className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] ease-out"
+                        className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] depth-shadow"
                         autoPlay
                         muted
                         loop
@@ -487,10 +492,10 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                     </div>
                     
                     <div className="flex items-center justify-between px-2">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors">
+                      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors truncate">
                         {item.title}
                       </span>
-                      <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">{item.date}</span>
+                      <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60 shrink-0">{item.date}</span>
                     </div>
                   </div>
                 );
