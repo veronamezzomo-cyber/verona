@@ -13,6 +13,7 @@ interface EditableVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement>
   containerClassName?: string;
   fill?: boolean;
   hideControls?: boolean;
+  startTime?: number;
 }
 
 export function EditableVideo({ 
@@ -22,6 +23,7 @@ export function EditableVideo({
   fill, 
   className,
   hideControls = false,
+  startTime,
   ...props 
 }: EditableVideoProps) {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
@@ -37,6 +39,24 @@ export function EditableVideo({
     const saved = sessionStorage.getItem(`vid_${storageKey}`);
     if (saved) setCurrentSrc(saved);
   }, [storageKey]);
+
+  // Handle startTime
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && startTime !== undefined) {
+      const handleMetadata = () => {
+        video.currentTime = startTime;
+      };
+      
+      if (video.readyState >= 1) {
+        handleMetadata();
+      } else {
+        video.addEventListener('loadedmetadata', handleMetadata);
+      }
+      
+      return () => video.removeEventListener('loadedmetadata', handleMetadata);
+    }
+  }, [currentSrc, startTime]);
 
   const validateAndApply = async () => {
     if (!newUrl.trim()) return;

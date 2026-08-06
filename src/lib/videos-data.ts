@@ -10,6 +10,7 @@ export interface ProjectVideo {
   date: string;
   videoUrl: string;
   category: string[];
+  startTime?: number;
 }
 
 export const VIDEOS_DATA: ProjectVideo[] = [
@@ -43,7 +44,8 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     description: "My 20's Upwork introduction video. Cringe? Maybe. A masterpiece? Absolutely. One of my earliest pieces, and still one of my favorites. Raw, honest, and a good reminder of how far the craft has come. Project developed with the goal of introducing myself, as well as my perspective about content creation and audience retention. The piece aims to showcase different and simple ways of working with 2D and 3D elements, combined with audio treatment, alternating music, and engaging sound effects.",
     date: '2023',
     videoUrl: 'https://i.imgur.com/ND3kmsW.mp4',
-    category: ['motion', 'vlogs']
+    category: ['motion', 'vlogs'],
+    startTime: 13
   },
   {
     id: 'iamcooklo-humor-edit',
@@ -51,7 +53,7 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     description: 'Video made for YouTube creator @iamcooklo — the only piece I keep public on my resume. Fast-paced humor edit built around dynamic subtitles, layered motion graphics, parallax effects, and a soundtrack that drives every cut. Color correction and visual effects throughout to keep the energy high from frame one.',
     date: '2025',
     videoUrl: 'https://i.imgur.com/hOqeL5j.mp4',
-    category: ['motion', 'long']
+    category: ['motion', 'long-form']
   },
   {
     id: 'grok-motion-showcase',

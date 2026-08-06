@@ -519,6 +519,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   "relative z-[60] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
                   selectedProject.category.some(c => verticalCategories.includes(c)) ? "max-w-[1000px]" : "max-w-[1400px]"
                 )}
+                onClick={(e) => e.stopPropagation()}
               >
                 {terminalStatus === 'minimized' && (
                   <div 
@@ -561,6 +562,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                     className="object-cover"
                     autoPlay
                     controls
+                    startTime={selectedProject.startTime}
                   />
 
                   <button 
