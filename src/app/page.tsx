@@ -214,7 +214,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   }, [videos]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none px-6 sm:px-10 lg:px-16">
+    <div className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none px-6 sm:px-10 lg:px-16">
       <div className="absolute inset-0 pointer-events-auto" />
       {videos.map((vid, i) => (
         <div 
@@ -419,7 +419,7 @@ export default function PortfolioPage() {
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
           <div ref={worksTriggerRef} id="works-trigger" className="h-0 w-full" />
           <section ref={worksContainerRef} id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
-            <div className="container mx-auto px-6 flex flex-wrap justify-center gap-12">
+            <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat, index) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
@@ -428,7 +428,7 @@ export default function PortfolioPage() {
                     ref={(el) => { categoryRefs.current[index] = el; }}
                     onClick={() => handleCategoryClick(cat.label)}
                     className={cn(
-                      "category-card group relative overflow-hidden cursor-pointer w-full max-w-[170px] md:flex-1 h-20",
+                      "category-card group relative overflow-hidden cursor-pointer w-full md:flex-1 h-20 max-w-full md:max-w-[220px]",
                       activeCategory === cat.label && "ring-2 ring-primary"
                     )}
                   >
