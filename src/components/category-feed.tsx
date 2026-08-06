@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,15 @@ import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
 interface CategoryFeedProps {
   category: string | null;
   onClose: () => void;
+  cardElements?: HTMLButtonElement[];
+}
+
+interface LineCoord {
+  id: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
 }
 
 interface CyberTerminalProps {
@@ -193,14 +202,13 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
   );
 }
 
-export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
+export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const activeLayerLabelRef = useRef<HTMLSpanElement>(null);
-  const headerDividerRef = useRef<HTMLDivElement>(null);
-  const pickStyleTextRef = useRef<HTMLDivElement>(null);
-  const compactStatusRef = useRef<HTMLDivElement>(null);
+  const connectorsRef = useRef<SVGSVGElement>(null);
+  const pulseStopRef = useRef<SVGStopElement>(null);
   
+  const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
   const [clickCount, setClickCount] = useState(0);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
   const [terminalStatus, setTerminalStatus] = useState<'open' | 'minimized' | 'closed'>('open');
@@ -217,6 +225,46 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!category || category === 'all') return VIDEOS_DATA;
     return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
+
+  const updateLines = useCallback(() => {
+    if (!connectorsRef.current || !containerRef.current || !cardElements.length) return;
+
+    const svgRect = connectorsRef.current.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+
+    // Ponto de destino (centro horizontal do container, topo do SVG)
+    const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
+    const destY = 0;
+
+    const coords = cardElements.map(card => {
+      const cardRect = card.getBoundingClientRect();
+      const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
+      return {
+        id: label,
+        x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
+        y1: (cardRect.bottom - svgRect.top),
+        x2: destX,
+        y2: destY
+      };
+    });
+
+    setLineCoords(coords);
+  }, [cardElements]);
+
+  useEffect(() => {
+    updateLines();
+    window.addEventListener('resize', updateLines);
+    return () => window.removeEventListener('resize', updateLines);
+  }, [updateLines, isExpanded]);
+
+  useEffect(() => {
+    if (isExpanded && pulseStopRef.current) {
+      gsap.fromTo(pulseStopRef.current, 
+        { offset: "0%" }, 
+        { offset: "100%", duration: 0.8, ease: "power2.out" }
+      );
+    }
+  }, [category, isExpanded]);
 
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
@@ -274,11 +322,40 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '120px' }}
       >
+        <svg 
+          ref={connectorsRef} 
+          className="absolute top-0 left-0 w-full pointer-events-none overflow-visible" 
+          style={{ height: '80px', zIndex: 10 }}
+        >
+          <defs>
+            <linearGradient id="pulse-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop ref={pulseStopRef} offset="0%" stopColor="rgb(220, 38, 38)" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="rgb(220, 38, 38)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {lineCoords.map((line, i) => {
+            const isActive = category === line.id;
+            return (
+              <line
+                key={i}
+                x1={line.x1}
+                y1={line.y1}
+                x2={line.x2}
+                y2={line.y2}
+                stroke={isActive ? "url(#pulse-gradient)" : "rgba(128, 128, 128, 0.15)"}
+                strokeWidth={isActive ? 1.5 : 1}
+                style={{ 
+                  opacity: isActive ? 0.6 : 0.15,
+                  transition: 'stroke 0.3s, stroke-width 0.3s, opacity 0.3s'
+                }}
+              />
+            );
+          })}
+        </svg>
+
         <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
-            <span 
-              ref={activeLayerLabelRef}
-              className={cn(
+            <span className={cn(
                 "font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold",
                 isExpanded && "animate-active-layer-blink"
               )}
@@ -311,11 +388,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
         {!isExpanded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
-            <div ref={compactStatusRef} className="flex flex-col items-center gap-1 mb-1">
+            <div className="flex flex-col items-center gap-1 mb-1">
               <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60 font-bold">System Online</span>
             </div>
             
-            <div ref={pickStyleTextRef} className="flex flex-col items-center gap-2 animate-pulse">
+            <div className="flex flex-col items-center gap-2 animate-pulse">
               <h3 className="font-serif italic text-xl md:text-2xl text-foreground flex items-center gap-3">
                 PICK YOUR STYLE <Sparkles className="h-4 w-4 text-primary" />
               </h3>
@@ -330,10 +407,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div 
-            ref={headerDividerRef}
-            className="flex items-center justify-end py-10 px-12 border-b border-foreground/5 shrink-0"
-          >
+          <div className="flex items-center justify-end py-10 px-12 border-b border-foreground/5 shrink-0">
             <button 
               onClick={onClose}
               className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(var(--primary),0.2)]"
