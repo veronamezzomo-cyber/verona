@@ -803,7 +803,7 @@ export default function PortfolioPage() {
                           {faqAvailableIndices.length > 0 && (
                             <div className="pt-8 border-t border-white/5">
                               <div className="text-[10px] uppercase tracking-widest text-white/20 mb-4">Available Queries</div>
-                              <div className="space-y-3">
+                              <div className="space-y-1">
                                 {faqAvailableIndices.map((qIdx, i) => (
                                   <div 
                                     key={qIdx}
@@ -814,13 +814,19 @@ export default function PortfolioPage() {
                                     onMouseEnter={() => setHoverFaqIndex(i)}
                                     onMouseLeave={() => setHoverFaqIndex(null)}
                                     className={cn(
-                                      "cursor-pointer transition-all flex items-center gap-3 px-2 py-1 rounded-sm border border-transparent",
-                                      activeFaqIndex === i ? "text-white bg-white/10 border-white/20 translate-x-2" : 
-                                      hoverFaqIndex === i ? "text-white/80 bg-white/5" : "text-white/30"
+                                      "cursor-pointer transition-colors flex items-start gap-2 py-0.5 outline-none",
+                                      activeFaqIndex === i ? "text-white" : "text-white/30"
                                     )}
                                   >
-                                    <span className="w-4">{activeFaqIndex === i ? '>' : ' '}</span>
-                                    <span className="uppercase text-xs tracking-tight">{FAQ_DATA[qIdx].q}</span>
+                                    <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
+                                      {'>'}
+                                    </span>
+                                    <span className="uppercase text-xs tracking-tight">
+                                      {FAQ_DATA[qIdx].q}
+                                      {activeFaqIndex === i && (
+                                        <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
+                                      )}
+                                    </span>
                                   </div>
                                 ))}
                               </div>
