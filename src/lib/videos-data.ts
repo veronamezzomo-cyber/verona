@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Conteúdo curado do portfólio.
  * Centraliza os metadados dos vídeos reais com suporte a múltiplas categorias.
@@ -27,7 +28,7 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     description: 'An example of subtitles that are trending right now — no B-roll, pure typography. Built as a personal showcase of animated subtitle styles trending across Reels, Shorts, and TikTok. Text timing, keyword highlights, and typographic pacing synced tight to speech. Pair this with dynamic B-roll and you\'ve got the perfect recipe for content that actually gets watched.',
     date: '2025',
     videoUrl: 'https://i.imgur.com/ZGVjMPL.mp4',
-    category: ['shorts', 'talking']
+    category: ['shorts', 'long-form']
   },
   {
     id: 'retention-edit-01',
@@ -44,5 +45,13 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     date: '2023',
     videoUrl: 'https://i.imgur.com/ND3kmsW.mp4',
     category: ['motion', 'vlogs']
+  },
+  {
+    id: 'iamcooklo-humor-edit',
+    title: 'iamcooklo — Humor Edit',
+    description: 'Video made for YouTube creator @iamcooklo — the only piece I keep public on my resume. Fast-paced humor edit built around dynamic subtitles, layered motion graphics, parallax effects, and a soundtrack that drives every cut. Color correction and visual effects throughout to keep the energy high from frame one.',
+    date: '2025',
+    videoUrl: 'https://i.imgur.com/hOqeL5j.mp4',
+    category: ['motion']
   }
 ];

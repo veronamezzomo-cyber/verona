@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useLayoutEffect } from 'react';
@@ -283,7 +284,7 @@ export default function PortfolioPage() {
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
     { id: 'cat-shorts', label: 'shorts' },
-    { id: 'cat-podcast', label: 'podcast' },
+    { id: 'cat-longform', label: 'long-form' },
     { id: 'cat-motion', label: 'motion' },
     { id: 'cat-talking', label: 'talking' },
     { id: 'cat-vlogs', label: 'vlogs' }

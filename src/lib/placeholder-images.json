@@ -49,8 +49,8 @@
       "imageHint": "cinema film"
     },
     {
-      "id": "cat-podcast",
-      "description": "Podcast",
+      "id": "cat-longform",
+      "description": "Long-Form",
       "imageUrl": "https://i.imgur.com/VYInbZ5.png",
       "imageHint": "microphone studio"
     },
