@@ -283,7 +283,7 @@ export default function PortfolioPage() {
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
     { id: 'cat-shorts', label: 'shorts' },
-    { id: 'cat-longform', label: 'long' },
+    { id: 'cat-long', label: 'long' },
     { id: 'cat-motion', label: 'motion' },
     { id: 'cat-talking', label: 'talking' },
     { id: 'cat-vlogs', label: 'vlogs' }

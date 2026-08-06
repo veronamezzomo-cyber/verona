@@ -53,7 +53,7 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     description: 'Video made for YouTube creator @iamcooklo — the only piece I keep public on my resume. Fast-paced humor edit built around dynamic subtitles, layered motion graphics, parallax effects, and a soundtrack that drives every cut. Color correction and visual effects throughout to keep the energy high from frame one.',
     date: '2025',
     videoUrl: 'https://i.imgur.com/hOqeL5j.mp4',
-    category: ['motion', 'long-form']
+    category: ['motion', 'long']
   },
   {
     id: 'grok-motion-showcase',
