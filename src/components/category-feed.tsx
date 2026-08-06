@@ -1,9 +1,9 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
+import { EditableImage } from '@/components/editable-image';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { useToast } from '@/hooks/use-toast';
@@ -19,14 +19,6 @@ interface CyberTerminalProps {
   onClose: () => void;
   onMinimize: () => void;
   isMinimized?: boolean;
-}
-
-interface LazerCoord {
-  id: string;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
 }
 
 function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminalProps) {
@@ -205,10 +197,7 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const lazerSVGRef = useRef<SVGSVGElement>(null);
-  const laserRefs = useRef<(SVGLineElement | null)[]>([]);
   
-  const [lazerCoords, setLazerCoords] = useState<LazerCoord[]>([]);
   const [clickCount, setClickCount] = useState(0);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
   const [terminalStatus, setTerminalStatus] = useState<'open' | 'minimized' | 'closed'>('open');
@@ -222,80 +211,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!category || category === 'all') return VIDEOS_DATA;
     return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
-
-  const updateLazers = useCallback(() => {
-    const svg = lazerSVGRef.current;
-    if (!svg) return;
-
-    const svgRect = svg.getBoundingClientRect();
-    const buttons = document.querySelectorAll('.category-card');
-    
-    if (!buttons.length) return;
-
-    const newCoords = Array.from(buttons).map((btn) => {
-      const btnRect = btn.getBoundingClientRect();
-      const label = btn.querySelector('span')?.textContent?.toLowerCase().trim() || '';
-      
-      return {
-        id: label,
-        x1: (btnRect.left + btnRect.width / 2) - svgRect.left,
-        y1: btnRect.bottom - svgRect.top,
-        x2: svgRect.width / 2,
-        y2: 40 // Alinhado com o topo do feed (o SVG tem top -40px)
-      };
-    });
-
-    setLazerCoords(newCoords);
-  }, []);
-
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(updateLazers, 200);
-    };
-
-    window.addEventListener('resize', handleResize);
-    updateLazers();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(timeout);
-    };
-  }, [updateLazers]);
-
-  useEffect(() => {
-    if (!lazerCoords.length) return;
-
-    lazerCoords.forEach((coord, i) => {
-      const el = laserRefs.current[i];
-      if (!el) return;
-
-      const isActive = category === coord.id;
-
-      if (isActive) {
-        gsap.killTweensOf(el);
-        gsap.to(el, {
-          opacity: 1,
-          duration: 0.15,
-          ease: "power2.out",
-          onComplete: () => {
-            gsap.to(el, {
-              opacity: 0.55,
-              duration: 0.3,
-              ease: "power2.inOut"
-            });
-          }
-        });
-      } else {
-        gsap.to(el, {
-          opacity: 0.12,
-          duration: 0.3,
-          ease: "power2.inOut"
-        });
-      }
-    });
-  }, [category, lazerCoords]);
 
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
@@ -345,35 +260,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   return (
     <div className="relative">
-      {/* LazerGuides SVG Overlay - Fora do overflow-hidden */}
-      <svg 
-        ref={lazerSVGRef}
-        className="absolute left-0 w-full pointer-events-none overflow-visible z-50"
-        style={{ height: '120px', top: '-40px' }}
-        aria-hidden="true"
-      >
-        {lazerCoords.map((laser, i) => {
-          const isActive = category === laser.id;
-          return (
-            <line
-              key={i}
-              ref={(el) => { laserRefs.current[i] = el; }}
-              x1={laser.x1}
-              y1={laser.y1}
-              x2={laser.x2}
-              y2={laser.y2}
-              stroke={isActive ? "rgb(220, 38, 38)" : "rgba(128, 128, 128, 0.5)"}
-              strokeWidth={isActive ? 2 : 1}
-              strokeDasharray="8 4"
-              style={{
-                opacity: 0.12,
-                transition: 'stroke 0.3s ease, stroke-width 0.3s ease'
-              }}
-            />
-          );
-        })}
-      </svg>
-
       <div 
         ref={containerRef}
         className={cn(
@@ -484,18 +370,28 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                         clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30"
                       )}
                     >
-                      <EditableVideo 
-                        src={item.videoUrl} 
-                        storageKey={`v3-feed-grid-${item.id}`}
-                        fill
-                        className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] depth-shadow"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        hideControls
-                        startTime={item.startTime}
-                      />
+                      {item.coverImage ? (
+                        <EditableImage 
+                          src={item.coverImage} 
+                          storageKey={`v3-feed-cover-${item.id}`}
+                          fill
+                          className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] depth-shadow"
+                          alt={item.title}
+                        />
+                      ) : (
+                        <EditableVideo 
+                          src={item.videoUrl} 
+                          storageKey={`v3-feed-grid-${item.id}`}
+                          fill
+                          className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] depth-shadow"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          hideControls
+                          startTime={item.startTime}
+                        />
+                      )}
                       
                       {clickCount >= 8 && (
                         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">

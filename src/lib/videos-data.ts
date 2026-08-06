@@ -11,6 +11,7 @@ export interface ProjectVideo {
   videoUrl: string;
   category: string[];
   startTime?: number;
+  coverImage?: string;
 }
 
 export const VIDEOS_DATA: ProjectVideo[] = [
@@ -45,7 +46,8 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     date: '2023',
     videoUrl: 'https://i.imgur.com/ND3kmsW.mp4',
     category: ['motion', 'vlogs'],
-    startTime: 13
+    startTime: 13,
+    coverImage: "https://i.imgur.com/leLxq09.png"
   },
   {
     id: 'iamcooklo-humor-edit',
