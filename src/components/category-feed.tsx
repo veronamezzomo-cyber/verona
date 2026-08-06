@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
@@ -18,6 +19,14 @@ interface CyberTerminalProps {
   onClose: () => void;
   onMinimize: () => void;
   isMinimized?: boolean;
+}
+
+interface LazerCoord {
+  id: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
 }
 
 function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminalProps) {
@@ -196,16 +205,16 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const lazerSVGRef = useRef<SVGSVGElement>(null);
+  const laserRefs = useRef<(SVGLineElement | null)[]>([]);
   
+  const [lazerCoords, setLazerCoords] = useState<LazerCoord[]>([]);
   const [clickCount, setClickCount] = useState(0);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
   const [terminalStatus, setTerminalStatus] = useState<'open' | 'minimized' | 'closed'>('open');
   const { toast } = useToast();
 
   const isExpanded = !!category;
-  const isShorts = category === 'shorts';
-  const isAll = category === 'all';
-  
   const verticalCategories = ['shorts', 'talking'];
   const isVerticalFormat = category ? verticalCategories.includes(category) : false;
 
@@ -213,6 +222,84 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!category || category === 'all') return VIDEOS_DATA;
     return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
+
+  // Função para atualizar as coordenadas dos lasers
+  const updateLazers = useCallback(() => {
+    const svg = lazerSVGRef.current;
+    if (!svg) return;
+
+    const svgRect = svg.getBoundingClientRect();
+    const buttons = document.querySelectorAll('.category-card');
+    
+    if (!buttons.length) return;
+
+    const newCoords = Array.from(buttons).map((btn) => {
+      const btnRect = btn.getBoundingClientRect();
+      const label = btn.querySelector('span')?.textContent?.toLowerCase().trim() || '';
+      
+      return {
+        id: label,
+        x1: (btnRect.left + btnRect.width / 2) - svgRect.left,
+        y1: btnRect.bottom - svgRect.top,
+        x2: svgRect.width / 2,
+        y2: 40 // Ponto de convergência (HUD topo)
+      };
+    });
+
+    setLazerCoords(newCoords);
+  }, []);
+
+  // Recalcular no resize com debounce
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(updateLazers, 200);
+    };
+
+    window.addEventListener('resize', handleResize);
+    updateLazers();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeout);
+    };
+  }, [updateLazers]);
+
+  // Animações dos lasers via GSAP (opacity)
+  useEffect(() => {
+    if (!lazerCoords.length) return;
+
+    lazerCoords.forEach((coord, i) => {
+      const el = laserRefs.current[i];
+      if (!el) return;
+
+      const isActive = category === coord.id;
+
+      if (isActive) {
+        gsap.killTweensOf(el);
+        // Sequência de Flash
+        gsap.to(el, {
+          opacity: 1,
+          duration: 0.15,
+          ease: "power2.out",
+          onComplete: () => {
+            gsap.to(el, {
+              opacity: 0.55,
+              duration: 0.3,
+              ease: "power2.inOut"
+            });
+          }
+        });
+      } else {
+        gsap.to(el, {
+          opacity: 0.12,
+          duration: 0.3,
+          ease: "power2.inOut"
+        });
+      }
+    });
+  }, [category, lazerCoords]);
 
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
@@ -270,6 +357,35 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '120px' }}
       >
+        {/* LazerGuides SVG Overlay */}
+        <svg 
+          ref={lazerSVGRef}
+          className="absolute left-0 w-full pointer-events-none overflow-visible z-10"
+          style={{ height: '120px', top: '-40px' }}
+          aria-hidden="true"
+        >
+          {lazerCoords.map((laser, i) => {
+            const isActive = category === laser.id;
+            return (
+              <line
+                key={i}
+                ref={(el) => { laserRefs.current[i] = el; }}
+                x1={laser.x1}
+                y1={laser.y1}
+                x2={laser.x2}
+                y2={laser.y2}
+                stroke={isActive ? "rgb(220, 38, 38)" : "rgba(128, 128, 128, 0.5)"}
+                strokeWidth={isActive ? 2 : 1}
+                strokeDasharray="8 4"
+                style={{
+                  opacity: 0.12,
+                  transition: 'stroke 0.3s ease, stroke-width 0.3s ease'
+                }}
+              />
+            );
+          })}
+        </svg>
+
         <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
             <span className={cn(
@@ -338,11 +454,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               className={cn(
                 "transition-all duration-700",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
-                isShorts 
+                category === 'shorts' 
                   ? "flex flex-nowrap overflow-x-auto gap-8 pb-10 pt-12 px-4 scroll-smooth cyber-scrollbar" 
                   : cn(
                       "grid max-w-[1600px] mx-auto pt-12",
-                      isAll
+                      category === 'all'
                         ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                         : cn(
                             "gap-12 md:gap-16 lg:gap-24",
@@ -360,8 +476,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     key={item.id} 
                     className={cn(
                       "flex flex-col gap-6 group transform transition-all duration-700",
-                      isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-                      isShorts && "min-w-[185px] md:min-w-[235px] lg:min-w-[265px] shrink-0"
+                      isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                     )}
                     style={{ transitionDelay: `${index * 150}ms` }}
                   >
@@ -369,9 +484,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       onClick={() => handleInteraction(item)}
                       className={cn(
                         "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl rounded-none",
-                        itemIsVertical
-                          ? "aspect-[2/3]" 
-                          : "aspect-[16/9]",
+                        itemIsVertical ? "aspect-[2/3]" : "aspect-[16/9]",
                         clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30"
                       )}
                     >
@@ -513,7 +626,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           scrollbar-width: none;
         }
         
-        /* Custom scrollbar for horizontal sections */
         .cyber-scrollbar::-webkit-scrollbar {
           height: 4px;
         }
