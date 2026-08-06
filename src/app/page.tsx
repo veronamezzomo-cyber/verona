@@ -438,61 +438,127 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // PINNED EXPERIENCE - NEW PROGRESS-BASED APPROACH
+    // PINNED EXPERIENCE - NEW PROGRESS-BASED MULTI-TRIGGER APPROACH
     if (pinnedSectionRef.current) {
+      // 1. Create the main Pin
       ScrollTrigger.create({
         trigger: pinnedSectionRef.current,
         start: "top 80px",
         end: "+=400%",
         pin: true,
-        scrub: 1,
-        onUpdate: (self) => {
-          const p = self.progress;
+        scrub: 1
+      });
 
-          const getOpacity = (val: number, start: number, end: number, isOut = false) => {
-            const clamped = Math.max(start, Math.min(end, val));
-            if (isOut) return gsap.utils.mapRange(start, end, 1, 0, clamped);
-            return gsap.utils.mapRange(start, end, 0, 1, clamped);
-          };
-
-          // Calculation zones with 15% (0.15) overlap
-          // Zone 1: Stats (0.0 -> 0.35)
-          const opStats = p < 0.15 ? 1 : getOpacity(p, 0.15, 0.35, true);
-
-          // Zone 2: Tools (0.15 -> 0.60)
-          let opTools = 0;
-          if (p >= 0.15 && p <= 0.40) opTools = getOpacity(p, 0.15, 0.35);
-          else if (p > 0.40) opTools = getOpacity(p, 0.40, 0.60, true);
-
-          // Zone 3: Testimonial (0.40 -> 0.85)
-          let opTest = 0;
-          if (p >= 0.40 && p <= 0.65) opTest = getOpacity(p, 0.40, 0.60);
-          else if (p > 0.65) opTest = getOpacity(p, 0.65, 0.85, true);
-
-          // Zone 4: FAQ (0.65 -> 1.0)
-          const opFAQ = p < 0.65 ? 0 : getOpacity(p, 0.65, 0.85);
-
-          // Apply states via gsap.set for performance
-          gsap.set(statsRef.current, { opacity: opStats, pointerEvents: opStats > 0.5 ? 'auto' : 'none' });
-          gsap.set(toolsRef.current, { opacity: opTools, pointerEvents: opTools > 0.5 ? 'auto' : 'none' });
-          gsap.set(testimonialRef.current, { opacity: opTest, pointerEvents: opTest > 0.5 ? 'auto' : 'none' });
-          gsap.set(faqRef.current, { opacity: opFAQ, pointerEvents: opFAQ > 0.5 ? 'auto' : 'none', scale: gsap.utils.mapRange(0.65, 0.85, 0.95, 1, Math.max(0.65, Math.min(0.85, p))) });
-
-          // Trigger sub-animations once per cycle
-          if (p > 0.05 && !statsRef.current?.dataset.fired) {
-            statsRef.current!.dataset.fired = 'true';
-            gsap.from(statsValuesRef.current, { innerHTML: 0, duration: 1.5, snap: { innerHTML: 1 }, stagger: 0.1, ease: 'power2.out' });
-          }
-          if (p > 0.2 && !toolsRef.current?.dataset.fired) {
-            toolsRef.current!.dataset.fired = 'true';
-            gsap.from(toolsItemsRef.current, { y: 40, opacity: 0, stagger: 0.1, duration: 0.8, ease: 'power3.out' });
-          }
-          if (p > 0.45 && !testimonialRef.current?.dataset.fired) {
-            testimonialRef.current!.dataset.fired = 'true';
-            gsap.from(testimonialRef.current?.querySelector('p'), { y: 20, opacity: 0, duration: 1.2, ease: 'power2.out' });
+      // 2. Stats Visibility
+      gsap.fromTo(statsRef.current, 
+        { opacity: 1 }, 
+        { 
+          opacity: 0, 
+          scrollTrigger: {
+            trigger: pinnedSectionRef.current,
+            start: "15% top",
+            end: "35% top",
+            scrub: true,
+            onUpdate: (self) => {
+              if (self.progress < 0.1 && !statsRef.current?.dataset.fired) {
+                statsRef.current!.dataset.fired = 'true';
+                gsap.from(statsValuesRef.current, { innerHTML: 0, duration: 1.5, snap: { innerHTML: 1 }, stagger: 0.1, ease: 'power2.out' });
+              }
+              statsRef.current!.style.pointerEvents = self.progress < 0.5 ? 'auto' : 'none';
+            }
           }
         }
-      });
+      );
+
+      // 3. Tools Visibility
+      gsap.fromTo(toolsRef.current,
+        { opacity: 0 },
+        { 
+          opacity: 1, 
+          scrollTrigger: {
+            trigger: pinnedSectionRef.current,
+            start: "15% top",
+            end: "35% top",
+            scrub: true,
+            onUpdate: (self) => {
+              if (self.progress > 0.1 && !toolsRef.current?.dataset.fired) {
+                toolsRef.current!.dataset.fired = 'true';
+                gsap.from(toolsItemsRef.current, { y: 40, opacity: 0, stagger: 0.1, duration: 0.8, ease: 'power3.out' });
+              }
+              if (self.progress > 0.5) toolsRef.current!.style.pointerEvents = 'auto';
+            }
+          }
+        }
+      );
+      gsap.fromTo(toolsRef.current,
+        { opacity: 1 },
+        { 
+          opacity: 0, 
+          scrollTrigger: {
+            trigger: pinnedSectionRef.current,
+            start: "40% top",
+            end: "60% top",
+            scrub: true,
+            onUpdate: (self) => {
+              if (self.progress > 0.5) toolsRef.current!.style.pointerEvents = 'none';
+            }
+          }
+        }
+      );
+
+      // 4. Testimonial Visibility
+      gsap.fromTo(testimonialRef.current,
+        { opacity: 0 },
+        { 
+          opacity: 1, 
+          scrollTrigger: {
+            trigger: pinnedSectionRef.current,
+            start: "40% top",
+            end: "60% top",
+            scrub: true,
+            onUpdate: (self) => {
+              if (self.progress > 0.1 && !testimonialRef.current?.dataset.fired) {
+                testimonialRef.current!.dataset.fired = 'true';
+                gsap.from(testimonialRef.current?.querySelector('p'), { y: 20, opacity: 0, duration: 1.2, ease: 'power2.out' });
+              }
+              if (self.progress > 0.5) testimonialRef.current!.style.pointerEvents = 'auto';
+            }
+          }
+        }
+      );
+      gsap.fromTo(testimonialRef.current,
+        { opacity: 1 },
+        { 
+          opacity: 0, 
+          scrollTrigger: {
+            trigger: pinnedSectionRef.current,
+            start: "65% top",
+            end: "85% top",
+            scrub: true,
+            onUpdate: (self) => {
+              if (self.progress > 0.5) testimonialRef.current!.style.pointerEvents = 'none';
+            }
+          }
+        }
+      );
+
+      // 5. FAQ Visibility
+      gsap.fromTo(faqRef.current,
+        { opacity: 0, scale: 0.95 },
+        { 
+          opacity: 1, 
+          scale: 1,
+          scrollTrigger: {
+            trigger: pinnedSectionRef.current,
+            start: "65% top",
+            end: "85% top",
+            scrub: true,
+            onUpdate: (self) => {
+              if (self.progress > 0.5) faqRef.current!.style.pointerEvents = 'auto';
+            }
+          }
+        }
+      );
     }
 
   }, { dependencies: [isMounted], scope: mainRef });
@@ -679,7 +745,7 @@ export default function PortfolioPage() {
           <div className="container mx-auto px-6 md:px-12 h-full relative">
             
             {/* 1. STATS BLOCK */}
-            <div ref={statsRef} className="absolute inset-0 flex flex-col items-center justify-center opacity-1 pt-12">
+            <div ref={statsRef} className="absolute inset-0 flex flex-col items-center justify-center pt-12">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 text-center w-full max-w-5xl">
                 <div className="flex flex-col">
                   <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ EXP ]</span>
@@ -752,7 +818,7 @@ export default function PortfolioPage() {
             </div>
 
             {/* 4. FAQ TERMINAL BLOCK */}
-            <div ref={faqRef} className="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none scale-95">
+            <div ref={faqRef} className="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none">
               <div className="w-full max-w-4xl relative">
                 <div className="flex flex-col mb-4 items-center">
                   <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-2">[ ARCHIVE_FAQ ]</span>
