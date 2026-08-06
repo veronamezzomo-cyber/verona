@@ -251,7 +251,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   );
 }
 
-function TypewriterText({ text, onComplete, speed = 15 }: { text: string, onComplete?: () => void, speed?: number }) {
+function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { text: string, onComplete?: () => void, speed?: number, showCursor?: boolean }) {
   const [displayedText, setDisplayedText] = useState('');
   
   useEffect(() => {
@@ -268,7 +268,7 @@ function TypewriterText({ text, onComplete, speed = 15 }: { text: string, onComp
     return () => clearInterval(timer);
   }, [text, speed, onComplete]);
 
-  return <span>{displayedText}<span className="w-2 h-4 bg-white inline-block ml-0.5 align-middle animate-cursor-blink" /></span>;
+  return <span>{displayedText}{showCursor && <span className="w-2 h-4 bg-white inline-block ml-0.5 align-middle animate-cursor-blink" />}</span>;
 }
 
 const FAQ_DATA = [
@@ -292,13 +292,16 @@ export default function PortfolioPage() {
   const [year] = useState(new Date().getFullYear());
   const [isMounted, setIsMounted] = useState(false);
   
+  // Ref definitions moved up to avoid ReferenceError
+  const terminalRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+  
   // Terminal FAQ State
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3]);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [typedQuestionsCount, setTypedQuestionsCount] = useState(0);
   const [isHeaderTyped, setIsHeaderTyped] = useState(false);
-  const [typedAvailableIndices, setTypedAvailableIndices] = useState<number>(-1);
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
   const [isBooting, setIsBooting] = useState(true);
   const [bootStep, setBootStep] = useState(0);
@@ -308,22 +311,6 @@ export default function PortfolioPage() {
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const dragBasePos = useRef({ x: 0, y: 0 });
-
-  // Refs for Animations
-  const mainRef = useRef<HTMLDivElement>(null);
-  const heroLineRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const hudRef = useRef<HTMLDivElement>(null);
-  const coordsRef = useRef<HTMLSpanElement>(null);
-  const statusBlockRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
-  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
-  const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  
-  // New Section Refs
-  const statsBarRef = useRef<HTMLDivElement>(null);
-  const contentBlockRef = useRef<HTMLDivElement>(null);
-  const terminalRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => [
     { id: 'cat-all', label: 'all' },
@@ -341,7 +328,6 @@ export default function PortfolioPage() {
     setIsMounted(true);
   }, []);
 
-  // Refresh ScrollTrigger when category feed opens/closes to prevent animation positioning bugs
   useEffect(() => {
     const timer = setTimeout(() => {
       ScrollTrigger.refresh();
@@ -352,26 +338,33 @@ export default function PortfolioPage() {
   useGSAP(() => {
     if (!isMounted || typeof window === 'undefined') return;
 
-    const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
+    const heroLineRefs = document.querySelectorAll('.hero-line');
+    const hudRef = document.querySelector('.hud-ref');
+    const coordsRef = document.querySelector('.coords-ref');
+    const statusBlockRef = document.querySelector('.status-block-ref');
+    const ctaRef = document.querySelector('.cta-ref');
+    const scrollIndicatorRef = document.querySelector('.scroll-indicator-ref');
+    const statsBarRef = document.querySelector('.stats-bar-ref');
+    const contentBlockRef = document.querySelector('.content-block-ref');
+    const termRef = document.querySelector('.terminal-reveal-ref');
+
     const tl = gsap.timeline({ delay: 0.5 });
 
-    // FASE A (Boot)
-    tl.to([hudRef.current, coordsRef.current, statusBlockRef.current], {
+    tl.to([hudRef, coordsRef, statusBlockRef], {
       opacity: 1,
       duration: 0.1,
       ease: "none",
       stagger: 0.05
     }, 0);
 
-    tl.to(statusBlockRef.current, {
+    tl.to(statusBlockRef, {
       opacity: 0,
       duration: 0.6,
       ease: "power2.inOut"
     }, 1.5);
 
-    // FASE B (Reveal)
-    if (heroLines.length > 0) {
-      tl.fromTo(heroLines, 
+    if (heroLineRefs.length > 0) {
+      tl.fromTo(heroLineRefs, 
         { y: '100%' }, 
         { 
           y: '0%', 
@@ -381,8 +374,7 @@ export default function PortfolioPage() {
         }, 0.3);
     }
 
-    // FASE C (Context)
-    tl.fromTo(ctaRef.current,
+    tl.fromTo(ctaRef,
       { y: 12, opacity: 0 },
       { 
         y: 0, 
@@ -390,8 +382,8 @@ export default function PortfolioPage() {
         duration: 0.8, 
         ease: 'power2.out',
         onComplete: () => {
-          if (scrollIndicatorRef.current) {
-            gsap.fromTo(scrollIndicatorRef.current,
+          if (scrollIndicatorRef) {
+            gsap.fromTo(scrollIndicatorRef,
               { opacity: 0, y: 10 },
               { opacity: 1, y: 0, duration: 1 }
             );
@@ -399,18 +391,17 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // New Section Scroll Stagger Reveal
     const sectionTl = gsap.timeline({
       scrollTrigger: {
-        trigger: statsBarRef.current,
+        trigger: statsBarRef,
         start: "top 85%",
         toggleActions: "play none none reverse"
       }
     });
 
-    sectionTl.from(statsBarRef.current, { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" })
-             .from(contentBlockRef.current, { opacity: 0, y: 30, duration: 1, ease: "power2.out" }, "-=0.4")
-             .fromTo(terminalRef.current, 
+    sectionTl.from(statsBarRef, { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" })
+             .from(contentBlockRef, { opacity: 0, y: 30, duration: 1, ease: "power2.out" }, "-=0.4")
+             .fromTo(termRef, 
                 { opacity: 0, scale: 0.98 },
                 { 
                   opacity: 1, 
@@ -455,7 +446,6 @@ export default function PortfolioPage() {
     setActiveCategory(null);
   };
 
-  // Terminal Action Logic
   const handleTerminalAction = () => {
     if (faqAvailableIndices.length === 0 || typedQuestionsCount < faqAvailableIndices.length) return;
     const qIdx = faqAvailableIndices[activeFaqIndex];
@@ -464,7 +454,7 @@ export default function PortfolioPage() {
     setFaqAvailableIndices(prev => prev.filter((_, i) => i !== activeFaqIndex));
     setActiveFaqIndex(0);
     setTypedQuestionsCount(0);
-    setIsHeaderTyped(false); // Reset sequence to re-type the remaining options
+    setIsHeaderTyped(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -483,7 +473,6 @@ export default function PortfolioPage() {
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setDragStart({ x: e.clientX - faqPos.x, y: e.clientY - faqPos.y });
-    dragBasePos.current = faqPos;
   };
 
   useEffect(() => {
@@ -496,9 +485,12 @@ export default function PortfolioPage() {
 
     const handleMouseUp = (e: MouseEvent) => {
       if (!isDragging) return;
-      const dx = e.clientX - dragStart.x;
-      const dy = e.clientY - dragStart.y;
-      setFaqPos({ x: dx, y: dy });
+      const rect = terminalRef.current?.getBoundingClientRect();
+      if (rect) {
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+        setFaqPos({ x: dx, y: dy });
+      }
       setIsDragging(false);
     };
 
@@ -538,42 +530,33 @@ export default function PortfolioPage() {
           <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               <div className="flex items-center gap-4 mb-6">
-                <div 
-                  ref={hudRef}
-                  className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full opacity-0"
-                >
+                <div className="hud-ref flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full opacity-0">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary font-bold">
                     [ 00 / EDITOR ]
                   </span>
                 </div>
-                <span 
-                  ref={coordsRef}
-                  className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block opacity-0"
-                >
+                <span className="coords-ref font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block opacity-0">
                   COORDINATES: 23.5505° S, 46.6333° W
                 </span>
               </div>
 
               <h1 className="font-serif font-bold text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
                 <div className="overflow-hidden">
-                  <div ref={(el) => { heroLineRefs.current[0] = el; }} className="translate-y-full">CRAFTING</div>
+                  <div className="hero-line translate-y-full">CRAFTING</div>
                 </div>
                 <div className="overflow-hidden">
-                  <div ref={(el) => { heroLineRefs.current[1] = el; }} className="translate-y-full">VISUAL</div>
+                  <div className="hero-line translate-y-full">VISUAL</div>
                 </div>
                 <div className="overflow-hidden">
-                  <div ref={(el) => { heroLineRefs.current[2] = el; }} className="translate-y-full">
+                  <div className="hero-line translate-y-full">
                     STORYTELLING<span className="text-primary">.</span>
                   </div>
                 </div>
               </h1>
 
               <div className="max-w-md">
-                <div 
-                  ref={ctaRef}
-                  className="mt-6 flex items-center gap-6 opacity-0"
-                >
+                <div className="cta-ref mt-6 flex items-center gap-6 opacity-0">
                   <Button variant="link" className="p-0 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground hover:text-primary group">
                     View Archive <ArrowRight className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-2" />
                   </Button>
@@ -587,10 +570,7 @@ export default function PortfolioPage() {
             </div>
           </div>
           
-          <div 
-            ref={statusBlockRef}
-            className="absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-0"
-          >
+          <div className="status-block-ref absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-0">
             <div className="font-mono text-[8px] uppercase tracking-[0.4em] flex flex-col gap-1">
               <span>System: Active</span>
               <span>Buffer: Locked</span>
@@ -598,10 +578,7 @@ export default function PortfolioPage() {
             </div>
           </div>
 
-          <div 
-            ref={scrollIndicatorRef}
-            className="absolute bottom-10 left-10 sm:left-1/2 sm:-translate-x-1/2 flex flex-col items-center gap-4 opacity-0 pointer-events-none z-10"
-          >
+          <div className="scroll-indicator-ref absolute bottom-10 left-10 sm:left-1/2 sm:-translate-x-1/2 flex flex-col items-center gap-4 opacity-0 pointer-events-none z-10">
             <span className="font-mono text-[9px] uppercase tracking-[0.6em] text-foreground/40">
               Scroll
             </span>
@@ -612,12 +589,11 @@ export default function PortfolioPage() {
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
           <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
             <div className="container mx-auto px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
-              {categories.map((cat, index) => {
+              {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
                   <button 
                     key={cat.label} 
-                    ref={(el) => { categoryRefs.current[index] = el; }}
                     onClick={() => handleCategoryClick(cat.label)}
                     className={cn(
                       "category-card group relative overflow-hidden cursor-pointer w-full md:flex-1 h-20 max-w-full md:max-w-[220px]",
@@ -648,12 +624,10 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* Narrativa & Experience Section */}
         <section className="py-24 bg-background overflow-hidden border-t border-foreground/5">
           <div className="container mx-auto px-6 md:px-12">
             
-            {/* Part 1: Discreet Stats Bar */}
-            <div ref={statsBarRef} className="flex justify-center border-b border-foreground/5 pb-10 mb-20">
+            <div className="stats-bar-ref flex justify-center border-b border-foreground/5 pb-10 mb-20">
               <div className="flex flex-wrap gap-12 md:gap-24 items-center">
                 <div className="flex flex-col items-center">
                   <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ YEARS ]</span>
@@ -670,8 +644,7 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            {/* Part 2: Quote & Tech Stack (Reorganized Column) */}
-            <div ref={contentBlockRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-end">
+            <div className="content-block-ref grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-end">
               <div className="lg:col-span-9">
                 <div className="relative">
                   <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
@@ -711,11 +684,10 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            {/* Part 3: Fully Functional Interactive Terminal FAQ */}
             {!isTerminalClosed && (
               <div 
                 className={cn(
-                  "max-w-4xl mx-auto transition-all duration-500",
+                  "max-w-4xl mx-auto transition-all duration-500 terminal-reveal-ref",
                   isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto"
                 )}
               >
@@ -727,7 +699,6 @@ export default function PortfolioPage() {
                   )}
                   style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
                 >
-                  {/* Title Bar (Windows style) */}
                   <div 
                     onMouseDown={handleMouseDown}
                     className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none"
@@ -755,7 +726,6 @@ export default function PortfolioPage() {
                     </div>
                   </div>
 
-                  {/* Terminal Body */}
                   {!isTerminalMinimized && (
                     <div 
                       onKeyDown={handleKeyDown}
@@ -786,7 +756,6 @@ export default function PortfolioPage() {
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          {/* History */}
                           <div className="space-y-2">
                             {faqHistory.map((item, i) => (
                               <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
@@ -800,14 +769,14 @@ export default function PortfolioPage() {
                             ))}
                           </div>
 
-                          {/* Options */}
                           {faqAvailableIndices.length > 0 && (
-                            <div className="mt-2">
+                            <div className="mt-0">
                               <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">
                                 <TypewriterText 
                                   text="Available Queries" 
                                   onComplete={() => setIsHeaderTyped(true)}
                                   speed={10}
+                                  showCursor={false}
                                 />
                               </div>
                               {isHeaderTyped && (
@@ -830,6 +799,7 @@ export default function PortfolioPage() {
                                               <TypewriterText 
                                                 text={FAQ_DATA[qIdx].q}
                                                 speed={5}
+                                                showCursor={false}
                                                 onComplete={() => setTypedQuestionsCount(prev => prev + 1)}
                                               />
                                             ) : (
@@ -860,7 +830,6 @@ export default function PortfolioPage() {
                     </div>
                   )}
                   
-                  {/* Status Bar */}
                   {!isTerminalMinimized && (
                     <div className="bg-[#1a1a1a] h-8 px-6 flex items-center justify-between border-t border-white/5 opacity-40">
                        <span className="text-[8px] tracking-[0.4em] text-white">C:\VERONA\ARCHIVE&gt; <span className="w-2 h-0.5 bg-white inline-block ml-0.5 align-baseline animate-cursor-blink" /></span>
