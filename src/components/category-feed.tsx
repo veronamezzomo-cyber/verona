@@ -25,6 +25,10 @@ interface LineCoord {
 function CyberTerminal({ text }: { text: string }) {
   const [history, setHistory] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -49,6 +53,38 @@ function CyberTerminal({ text }: { text: string }) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [history]);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
+  };
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    };
+
+    const onMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [isDragging, dragStart]);
 
   const handleCommand = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,23 +117,27 @@ function CyberTerminal({ text }: { text: string }) {
 
   return (
     <div 
-      className="w-full bg-black/90 border border-primary/30 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] cursor-text"
+      className="w-full bg-[#0a0a0a] border border-red-900/50 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] cursor-text select-none z-[70]"
+      style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
       onClick={() => inputRef.current?.focus()}
     >
-      {/* Title Bar - Fake Window Controls */}
-      <div className="flex items-center justify-between px-4 py-2 bg-primary/10 border-b border-primary/20 select-none">
-        <div className="flex items-center gap-3">
-          <Terminal className="w-3 h-3 text-primary animate-pulse" />
-          <span className="text-[9px] uppercase tracking-[0.3em] text-primary font-bold">Verona_OS // Cmd_Console</span>
+      {/* Title Bar - Draggable handle */}
+      <div 
+        onMouseDown={onMouseDown}
+        className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-red-900/30 select-none cursor-move active:bg-[#222]"
+      >
+        <div className="flex items-center gap-3 pointer-events-none">
+          <Terminal className="w-3 h-3 text-red-600 animate-pulse" />
+          <span className="text-[9px] uppercase tracking-[0.3em] text-red-600 font-bold">Verona_OS // Cmd_Console</span>
         </div>
         <div className="flex items-center gap-4">
-          <Minus className="w-3 h-3 text-primary/40 hover:text-primary cursor-pointer transition-colors" />
-          <Square className="w-2.5 h-2.5 text-primary/40 hover:text-primary cursor-pointer transition-colors" />
-          <X className="w-3.5 h-3.5 text-primary/40 hover:text-primary cursor-pointer transition-colors" />
+          <Minus className="w-3 h-3 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" />
+          <Square className="w-2.5 h-2.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" />
+          <X className="w-3.5 h-3.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" />
         </div>
       </div>
 
-      {/* Content Area - Min 19 lines space via height */}
+      {/* Content Area */}
       <div 
         ref={scrollRef}
         className="p-6 flex-1 h-[380px] md:h-[450px] relative overflow-y-auto scrollbar-hide"
@@ -106,17 +146,17 @@ function CyberTerminal({ text }: { text: string }) {
         
         <div className="flex flex-col relative z-10">
           {history.map((line, i) => (
-            <div key={i} className="text-[11px] leading-snug tracking-wider text-foreground/80 break-words mb-1 uppercase">
+            <div key={i} className="text-[11px] leading-snug tracking-wider text-red-500/80 break-words mb-1 uppercase">
               {line}
             </div>
           ))}
           
           <form onSubmit={handleCommand} className="flex items-center gap-2">
-            <span className="text-primary/60 text-[11px] shrink-0">C:\Users\Guest&gt;</span>
+            <span className="text-red-600/60 text-[11px] shrink-0">C:\Users\Guest&gt;</span>
             <input
               ref={inputRef}
               type="text"
-              className="bg-transparent border-none outline-none text-foreground text-[11px] w-full p-0 uppercase"
+              className="bg-transparent border-none outline-none text-red-500 text-[11px] w-full p-0 uppercase"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               autoFocus
@@ -126,15 +166,15 @@ function CyberTerminal({ text }: { text: string }) {
       </div>
 
       {/* Footer Info */}
-      <div className="px-6 py-3 border-t border-primary/10 flex justify-between items-center bg-black/40">
-        <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-primary/40">
+      <div className="px-6 py-3 border-t border-red-900/10 flex justify-between items-center bg-black/60">
+        <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-red-600/40">
           <span>Mode: Interactive</span>
           <span>Ln: {history.length}</span>
           <span>I/O: Active</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
-          <span className="text-[8px] uppercase tracking-[0.3em] text-primary/60">Ready_</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-red-600/40 animate-pulse" />
+          <span className="text-[8px] uppercase tracking-[0.3em] text-red-600/60">Ready_</span>
         </div>
       </div>
     </div>
