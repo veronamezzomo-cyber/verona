@@ -23,46 +23,72 @@ interface LineCoord {
 }
 
 function CyberTerminal({ text }: { text: string }) {
-  const [display, setDisplay] = useState('');
-  const [phase, setPhase] = useState<'hello' | 'cls' | 'typing'>('hello');
+  const [history, setHistory] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Initial boot sequence
+  useEffect(() => {
+    setHistory([
+      'VERONA_OS [Version 10.0.19045.4291]',
+      '(c) Verona Corporation. All rights reserved.',
+      '',
+      'Initializing secure connection to archive...',
+      'Connection established. Status: encrypted.',
+      '',
+      `[ARCHIVE_LOG]: ${text}`,
+      '',
+      'Type "help" for a list of available commands.',
+      ''
+    ]);
+  }, [text]);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    
-    if (phase === 'hello') {
-      setDisplay('HELLO WORLD');
-      timeout = setTimeout(() => setPhase('cls'), 1200);
-    } else if (phase === 'cls') {
-      setDisplay('CLS');
-      timeout = setTimeout(() => {
-        setDisplay('');
-        setPhase('typing');
-      }, 400);
-    } else if (phase === 'typing') {
-      let i = 0;
-      const interval = setInterval(() => {
-        if (i <= text.length) {
-          const content = text.substring(0, i);
-          const placeholders = '_'.repeat(text.length - i);
-          setDisplay(content + placeholders);
-          i++;
-        } else {
-          clearInterval(interval);
-        }
-      }, 30);
-      return () => clearInterval(interval);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [history]);
+
+  const handleCommand = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    const cmd = inputValue.toLowerCase().trim();
+    let response = '';
+
+    switch (cmd) {
+      case 'help':
+        response = 'AVAILABLE: HELP, CLS, STATUS, ABOUT, EXIT';
+        break;
+      case 'cls':
+        setHistory([]);
+        setInputValue('');
+        return;
+      case 'status':
+        response = 'SYSTEM_STATUS: NOMINAL | UPTIME: 1024h | LATENCY: 2ms';
+        break;
+      case 'about':
+        response = 'VERONA STUDIO ENGINE V3.0 - BUILT FOR PERFORMANCE.';
+        break;
+      default:
+        response = `Command "${cmd}" not recognized. Check "help".`;
     }
 
-    return () => clearTimeout(timeout);
-  }, [phase, text]);
+    setHistory(prev => [...prev, `C:\\Users\\Guest> ${inputValue}`, response, '']);
+    setInputValue('');
+  };
 
   return (
-    <div className="w-full bg-black/85 border border-primary/30 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
+    <div 
+      className="w-full bg-black/90 border border-primary/30 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] cursor-text"
+      onClick={() => inputRef.current?.focus()}
+    >
       {/* Title Bar - Fake Window Controls */}
       <div className="flex items-center justify-between px-4 py-2 bg-primary/10 border-b border-primary/20 select-none">
         <div className="flex items-center gap-3">
           <Terminal className="w-3 h-3 text-primary animate-pulse" />
-          <span className="text-[9px] uppercase tracking-[0.3em] text-primary font-bold">Verona_OS // Project_Terminal v4.0.2</span>
+          <span className="text-[9px] uppercase tracking-[0.3em] text-primary font-bold">Verona_OS // Cmd_Console</span>
         </div>
         <div className="flex items-center gap-4">
           <Minus className="w-3 h-3 text-primary/40 hover:text-primary cursor-pointer transition-colors" />
@@ -71,40 +97,44 @@ function CyberTerminal({ text }: { text: string }) {
         </div>
       </div>
 
-      {/* Content Area - Min 19 lines space */}
-      <div className="p-6 flex-1 min-h-[380px] relative overflow-hidden">
+      {/* Content Area - Min 19 lines space via height */}
+      <div 
+        ref={scrollRef}
+        className="p-6 flex-1 h-[380px] md:h-[450px] relative overflow-y-auto scrollbar-hide"
+      >
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
         
-        <div className="flex flex-col gap-2 relative z-10">
-          <div className="flex items-start gap-4">
-            <span className="text-primary/40 text-[10px] select-none shrink-0">$ root@verona:~/logs/</span>
-            <div className="text-[11px] leading-relaxed tracking-wider text-foreground break-words uppercase max-w-[85%]">
-              {display}
-              <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
-            </div>
-          </div>
-
-          {/* Fake history lines to fill vertical space */}
-          {Array.from({ length: 18 }).map((_, i) => (
-            <div key={i} className="flex items-start gap-4 opacity-[0.05] select-none pointer-events-none">
-               <span className="text-primary/40 text-[10px]">$</span>
-               <div className="w-full h-[1px] bg-primary/20 mt-2" />
+        <div className="flex flex-col relative z-10">
+          {history.map((line, i) => (
+            <div key={i} className="text-[11px] leading-snug tracking-wider text-foreground/80 break-words mb-1 uppercase">
+              {line}
             </div>
           ))}
+          
+          <form onSubmit={handleCommand} className="flex items-center gap-2">
+            <span className="text-primary/60 text-[11px] shrink-0">C:\Users\Guest&gt;</span>
+            <input
+              ref={inputRef}
+              type="text"
+              className="bg-transparent border-none outline-none text-foreground text-[11px] w-full p-0 uppercase"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              autoFocus
+            />
+          </form>
         </div>
       </div>
 
       {/* Footer Info */}
       <div className="px-6 py-3 border-t border-primary/10 flex justify-between items-center bg-black/40">
         <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-primary/40">
-          <span>Buffer: OK</span>
-          <span>Ln: {Math.ceil(display.length / 50)}</span>
-          <span>Col: {display.length % 50}</span>
-          <span>Enc: UTF-8</span>
+          <span>Mode: Interactive</span>
+          <span>Ln: {history.length}</span>
+          <span>I/O: Active</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
-          <span className="text-[8px] uppercase tracking-[0.3em] text-primary/60">System_Ready_</span>
+          <span className="text-[8px] uppercase tracking-[0.3em] text-primary/60">Ready_</span>
         </div>
       </div>
     </div>
@@ -348,7 +378,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   <div 
                     onClick={() => handleInteraction(item)}
                     className={cn(
-                      "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl",
+                      "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl rounded-none",
                       isVerticalFormat 
                         ? "aspect-[2/3]" 
                         : "aspect-[16/9]",
@@ -399,14 +429,15 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
               
               <div 
                 className={cn(
-                  "relative z-[60] flex flex-col gap-0",
-                  isVerticalFormat ? "w-full max-w-[400px]" : "w-full max-w-[1000px]"
+                  "relative z-[60] flex flex-col md:flex-row items-center justify-center gap-8 w-full",
+                  isVerticalFormat ? "max-w-[1000px]" : "max-w-[1400px]"
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Video Window */}
                 <div className={cn(
-                  "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black overflow-visible",
-                  isVerticalFormat ? "aspect-[2/3]" : "aspect-[16/9]"
+                  "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
+                  isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
                 )}>
                   <EditableVideo 
                     src={selectedProject.videoUrl} 
@@ -425,7 +456,10 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   </button>
                 </div>
 
-                <CyberTerminal text={selectedProject.description || 'HELLO WORLD'} />
+                {/* Detached Interactive Terminal Window */}
+                <div className="w-full max-w-[450px] shrink-0 self-center">
+                  <CyberTerminal text={selectedProject.description || 'HELLO WORLD'} />
+                </div>
               </div>
             </div>
           )}
