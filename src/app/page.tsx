@@ -19,7 +19,9 @@ import {
   Maximize2,
   ChevronRight,
   Terminal as TerminalIcon,
-  Quote
+  Quote,
+  Minus,
+  X
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -255,7 +257,11 @@ export default function PortfolioPage() {
   const [reachedBottom, setReachedBottom] = useState(false);
   const [year] = useState(new Date().getFullYear());
   const [isMounted, setIsMounted] = useState(false);
-  const [activeFaq, setActiveFaq] = useState<number | null>(0);
+  
+  // Interactive FAQ Terminal State
+  const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
+  const [faqAvailableIndices, setFaqAvailableIndices] = useState([0, 1, 2, 3, 4]);
+  const [activeFaqIndex, setActiveFaqIndex] = useState(0);
 
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
@@ -284,16 +290,39 @@ export default function PortfolioPage() {
     { id: 'cat-vlogs', label: 'vlogs' }
   ], []);
 
+  const faqData = [
+    { q: "TURNAROUND MÉDIO?", a: "Shorts: 24-48h. Long-Form: 5-7 dias úteis." },
+    { q: "TECH STACK?", a: "Premiere Pro, After Effects, Photoshop, Illustrator." },
+    { q: "REVISÕES?", a: "2 rodadas inclusas para ajuste de pacing e ritmo." },
+    { q: "COLOR GRADING?", a: "Tratamento profissional incluso em todos os pacotes." },
+    { q: "PAGAMENTO?", a: "50% antecipado / 50% na aprovação final." }
+  ];
+
+  const handleTerminalAction = () => {
+    if (faqAvailableIndices.length === 0) return;
+    const qIndex = faqAvailableIndices[activeFaqIndex];
+    setFaqHistory(prev => [...prev, faqData[qIndex]]);
+    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== activeFaqIndex));
+    setActiveFaqIndex(0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (faqAvailableIndices.length === 0) return;
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveFaqIndex(prev => (prev + 1) % faqAvailableIndices.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveFaqIndex(prev => (prev - 1 + faqAvailableIndices.length) % faqAvailableIndices.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      handleTerminalAction();
+    }
+  };
+
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
-  
-  const faqData = [
-    { q: "Qual o seu turnaround médio?", a: "Para shorts, 24-48h. Para conteúdo longo, 5-7 dias úteis dependendo da complexidade." },
-    { q: "Quais softwares você utiliza?", a: "Premiere Pro para corte e ritmo, After Effects para motion design avançado." },
-    { q: "Você trabalha com revisões?", a: "Sim, ofereço 2 rodadas de revisões inclusas para garantir que o pacing esteja perfeito." },
-    { q: "Faz color grading profissional?", a: "Sim, tratamento de cor completo para garantir o look cinematográfico de marca." },
-    { q: "Como funciona o pagamento?", a: "Geralmente 50% antecipado para reserva de agenda e 50% na entrega final." }
-  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -438,7 +467,7 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
-        <div className="container mx-auto px-6 h-full flex items-center justify-between">
+        <div className="container mx-auto px-6 md:px-12 h-full flex items-center justify-between">
           <div className="flex items-center gap-12">
             <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
               LV<span className="text-primary">.</span>
@@ -542,7 +571,7 @@ export default function PortfolioPage() {
 
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
           <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
-            <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
+            <div className="container mx-auto px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat, index) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
@@ -579,139 +608,163 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* 1. STATS BAR */}
-        <section id="stats" ref={statsRef} className="relative z-20 py-16 border-t border-foreground/5 bg-background overflow-hidden">
-          <div className="container mx-auto px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-              <div className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-2">Experience</span>
-                <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter">
-                  +<span ref={(el) => { statsValuesRef.current[0] = el; }}>6</span>
+        {/* 1. STATS BAR - COMPRESSED */}
+        <section id="stats" ref={statsRef} className="relative z-20 py-8 border-t border-foreground/5 bg-background overflow-hidden">
+          <div className="container mx-auto px-6 md:px-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div className="flex flex-col">
+                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ EXP ]</span>
+                <span className="text-4xl font-mono font-bold tracking-tighter leading-none">
+                  +<span ref={(el) => { statsValuesRef.current[0] = el; }}>6</span>Y
                 </span>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Years in Craft</span>
               </div>
-              <div className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-2">Partnerships</span>
-                <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter">
+              <div className="flex flex-col">
+                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ CLN ]</span>
+                <span className="text-4xl font-mono font-bold tracking-tighter leading-none">
                   +<span ref={(el) => { statsValuesRef.current[1] = el; }}>12</span>
                 </span>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">High-End Clients</span>
               </div>
-              <div className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-2">Output</span>
-                <span className="text-5xl md:text-7xl font-mono font-bold tracking-tighter">
+              <div className="flex flex-col">
+                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ PRJ ]</span>
+                <span className="text-4xl font-mono font-bold tracking-tighter leading-none">
                   +<span ref={(el) => { statsValuesRef.current[2] = el; }}>80</span>
                 </span>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Projects Delivered</span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 2. TOOLS STACK */}
-        <section id="tools" ref={toolsRef} className="relative z-20 py-20 bg-secondary/5 border-t border-foreground/5">
-          <div className="container mx-auto px-6">
-            <div className="flex flex-col items-center mb-10">
-              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-4">[ TECH_STACK ]</span>
-              <h2 className="text-4xl md:text-5xl font-serif italic font-bold">The Creative Engine</h2>
+        {/* 2. TECH_STACK - ADOBE BLOCKS */}
+        <section id="tools" ref={toolsRef} className="relative z-20 py-12 bg-secondary/5 border-t border-foreground/5">
+          <div className="container mx-auto px-6 md:px-12">
+            <div className="flex flex-col items-center mb-8">
+              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-3">[ TECH_STACK ]</span>
             </div>
             
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
               {[
-                { name: "Premiere Pro", color: "#00005B", accent: "#9999FF" },
-                { name: "After Effects", color: "#00005B", accent: "#9999FF" },
-                { name: "Photoshop", color: "#001E36", accent: "#31A8FF" },
-                { name: "Illustrator", color: "#330000", accent: "#FF9A00" }
+                { name: "Premiere Pro", label: "Pr", color: "#00005B", text: "#9999FF" },
+                { name: "After Effects", label: "Ae", color: "#00005B", text: "#9999FF" },
+                { name: "Photoshop", label: "Ps", color: "#001E36", text: "#31A8FF" },
+                { name: "Illustrator", label: "Ai", color: "#330000", text: "#FF9A00" }
               ].map((tool, i) => (
                 <div 
                   key={tool.name} 
                   ref={(el) => { toolsItemsRef.current[i] = el; }}
-                  className="flex flex-col items-center gap-6 p-6 bg-background border border-foreground/5 rounded-none group hover:border-primary/20 transition-all"
+                  className="flex flex-col items-center gap-3 group"
                 >
                   <div 
-                    className="w-12 h-12 flex items-center justify-center rounded-lg shadow-lg group-hover:scale-110 transition-transform"
-                    style={{ backgroundColor: tool.color, border: `2px solid ${tool.accent}` }}
+                    className="w-14 h-14 flex items-center justify-center rounded-md shadow-lg transition-transform group-hover:scale-105"
+                    style={{ backgroundColor: tool.color, border: `1px solid ${tool.text}40` }}
                   >
-                    <span className="font-bold text-white text-lg">
-                      {tool.name.split(' ').map(n => n[0]).join('')}
+                    <span className="font-sans font-bold text-xl" style={{ color: tool.text }}>
+                      {tool.label}
                     </span>
                   </div>
-                  <span className="font-serif italic text-lg">{tool.name}</span>
+                  <span className="font-serif italic text-xs text-muted-foreground">{tool.name}</span>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* 3. TESTIMONIAL */}
-        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-20 border-t border-foreground/5 bg-background overflow-hidden">
-          <div className="container mx-auto px-6 max-w-4xl text-center">
-            <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-8 block">[ CLIENT_FEEDBACK ]</span>
-            <div className="relative">
-              <Quote className="absolute -top-10 -left-10 w-12 h-12 text-foreground/5 -z-10" />
-              <p className="text-2xl md:text-3xl font-serif italic leading-relaxed text-foreground mb-8">
-                &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience that resonated perfectly with our audience.&quot;
-              </p>
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-px bg-primary" />
-                <span className="font-mono text-[10px] uppercase tracking-widest font-bold">James Huang</span>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60">Creative Director @ Void Studio</span>
+        {/* 3. TESTIMONIAL - COMPACT & LEFT ALIGNED */}
+        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-12 border-t border-foreground/5 bg-background">
+          <div className="container mx-auto px-6 md:px-12">
+            <div className="max-w-2xl">
+              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-4 block">[ CLIENT_FEEDBACK ]</span>
+              <div className="relative">
+                <Quote className="absolute -top-6 -left-6 w-8 h-8 text-foreground/5 -z-10" />
+                <p className="text-xl md:text-2xl font-serif italic leading-snug text-foreground mb-4">
+                  &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-px bg-primary" />
+                  <div className="flex flex-col">
+                    <span className="font-mono text-[10px] uppercase tracking-widest font-bold">James Huang</span>
+                    <span className="font-mono text-[8px] uppercase tracking-widest text-muted-foreground/60">Creative Director @ Void Studio</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 4. FAQ TERMINAL */}
-        <section id="faq" ref={faqRef} className="relative z-20 py-20 border-t border-foreground/5 bg-background">
-          <div className="container mx-auto px-6 max-w-4xl">
-            <div className="flex flex-col mb-8">
-              <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-4">[ ARCHIVE_FAQ ]</span>
-              <h2 className="text-4xl font-serif italic font-bold">Common Queries</h2>
+        {/* 4. ARCHIVE_FAQ - INTERACTIVE TERMINAL */}
+        <section id="faq" ref={faqRef} className="relative z-20 py-12 border-t border-foreground/5 bg-background">
+          <div className="container mx-auto px-6 md:px-12 max-w-4xl">
+            <div className="flex flex-col mb-6">
+              <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-2">[ ARCHIVE_FAQ ]</span>
             </div>
 
-            <div className="bg-foreground text-background font-mono p-6 shadow-2xl relative overflow-hidden">
+            <div 
+              onKeyDown={handleKeyDown}
+              tabIndex={0}
+              className="bg-foreground text-background font-mono p-6 shadow-2xl relative overflow-hidden outline-none group focus-within:ring-1 focus-within:ring-primary"
+            >
+              {/* Terminal Header */}
               <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
-              <div className="flex items-center justify-between mb-8 opacity-40">
+              <div className="flex items-center justify-between mb-6 opacity-40">
                 <div className="flex gap-2">
                   <div className="w-2 h-2 rounded-full bg-background" />
                   <div className="w-2 h-2 rounded-full bg-background" />
                   <div className="w-2 h-2 rounded-full bg-background" />
                 </div>
-                <span className="text-[10px]">VERONA_CLI_V3.0.SYS</span>
+                <span className="text-[10px] uppercase tracking-widest">ROOT@VERONA // ARCHIVE_CLI</span>
+                <div className="flex gap-2">
+                  <Minus className="w-3 h-3" />
+                  <X className="w-3 h-3" />
+                </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-12">
-                <div className="flex flex-col gap-4 shrink-0 md:w-16">
-                  {faqData.map((_, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => setActiveFaq(i)}
-                      className={cn(
-                        "w-full py-2 border transition-all",
-                        activeFaq === i ? "bg-primary border-primary text-white" : "border-background/20 text-background/40 hover:border-background/60"
-                      )}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex-1">
-                  {activeFaq !== null && (
-                    <div className="animate-in fade-in slide-in-from-left-4 duration-500">
-                      <div className="flex items-start gap-4 mb-4">
-                        <ChevronRight className="w-4 h-4 text-primary shrink-0 mt-1" />
-                        <span className="text-xl font-bold uppercase tracking-tighter">{faqData[activeFaq].q}</span>
-                      </div>
-                      <div className="pl-8 text-sm leading-relaxed text-background/70 border-l border-primary/30">
-                        {faqData[activeFaq].a}
-                      </div>
+              {/* Terminal Body */}
+              <div className="space-y-4">
+                {/* History */}
+                {faqHistory.map((item, i) => (
+                  <div key={i} className="animate-in fade-in duration-300">
+                    <div className="flex items-center gap-2 text-primary/60">
+                      <span>ROOT@VERONA:~/FAQ$</span>
+                      <span className="text-background">{item.q}</span>
                     </div>
-                  )}
-                </div>
+                    <div className="pl-4 text-background/60 text-sm">
+                      {item.a}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Question Selection */}
+                {faqAvailableIndices.length > 0 ? (
+                  <div className="mt-6 border-t border-background/10 pt-4">
+                    <div className="text-[10px] uppercase tracking-widest text-primary/40 mb-2">Select Query (Arrows + Enter)</div>
+                    <div className="space-y-2">
+                      {faqAvailableIndices.map((qIdx, i) => (
+                        <div 
+                          key={qIdx}
+                          onClick={() => {
+                            setActiveFaqIndex(i);
+                            handleTerminalAction();
+                          }}
+                          onMouseEnter={() => setActiveFaqIndex(i)}
+                          className={cn(
+                            "flex items-center gap-3 px-2 py-1 cursor-pointer transition-colors",
+                            activeFaqIndex === i ? "bg-primary text-white" : "text-background/40 hover:text-background/60"
+                          )}
+                        >
+                          <span>{activeFaqIndex === i ? ">" : " "}</span>
+                          <span className="text-xs uppercase tracking-tighter">{faqData[qIdx].q}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-8 text-center py-4 border border-background/10 animate-pulse">
+                    <span className="text-[10px] uppercase tracking-widest opacity-40">All queries executed. System Nominal.</span>
+                  </div>
+                )}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-background/10 flex justify-between items-center opacity-40">
+              {/* Cursor Footer */}
+              <div className="mt-8 pt-4 border-t border-background/5 flex justify-between items-center opacity-40">
                 <span className="text-[8px] tracking-[0.4em]">ROOT@VERONA:~/FAQ$ _</span>
                 <TerminalIcon className="w-4 h-4" />
               </div>
@@ -733,7 +786,7 @@ export default function PortfolioPage() {
                 <LEDTicker text="VERONA STUDIO" />
               </div>
               <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0">
-                <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="container mx-auto md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex gap-8">
                     <Link href="#" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
                     <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
