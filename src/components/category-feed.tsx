@@ -11,7 +11,7 @@ import { VIDEOS_DATA } from '@/lib/videos-data';
 interface CategoryFeedProps {
   category: string | null;
   onClose: () => void;
-  cardElements: HTMLButtonElement[]; // Recebendo elementos via prop para evitar querySelector
+  cardElements: HTMLButtonElement[];
 }
 
 interface LineCoord {
@@ -24,9 +24,7 @@ interface LineCoord {
 
 export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  
   const connectorsRef = useRef<SVGSVGElement>(null);
   const activeLayerLabelRef = useRef<HTMLSpanElement>(null);
   const headerDividerRef = useRef<HTMLDivElement>(null);
@@ -35,11 +33,9 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   
   const [clickCount, setClickCount] = useState(0);
   const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
-  const scrollX = useRef(0);
   const { toast } = useToast();
 
   const isExpanded = !!category;
-  // Ajuste para 2:3 em Talking e Shorts
   const isVerticalFormat = category === 'shorts' || category === 'talking';
 
   const updateLines = useCallback(() => {
@@ -48,7 +44,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
     const svgRect = connectorsRef.current.getBoundingClientRect();
     const containerRect = containerRef.current.getBoundingClientRect();
 
-    // Destino: Topo central exato da barra divisória do Feed
     const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
     const destY = 0;
 
@@ -82,25 +77,20 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   }, [updateLines]);
 
   useEffect(() => {
-    if (!containerRef.current || !contentRef.current || !trackRef.current) return;
+    if (!containerRef.current || !contentRef.current) return;
 
     if (isExpanded) {
-      const initialOffset = window.innerWidth / 3;
-      scrollX.current = 0;
-      
-      gsap.set(trackRef.current, { x: initialOffset });
-
       gsap.to(containerRef.current, {
-        height: '80vh',
+        height: '85vh',
         opacity: 1,
-        duration: 1,
-        ease: 'power3.inOut',
+        duration: 1.2,
+        ease: 'expo.inOut',
         overwrite: 'auto'
       });
       
       gsap.fromTo(contentRef.current, 
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, delay: 0.4, ease: 'power2.out' }
+        { y: 60, opacity: 0, filter: 'blur(10px)' },
+        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1, delay: 0.5, ease: 'power4.out' }
       );
     } else {
       gsap.to(containerRef.current, {
@@ -110,23 +100,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
         overwrite: 'auto'
       });
     }
-  }, [isExpanded, category]);
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (!isExpanded || !trackRef.current) return;
-    const track = trackRef.current;
-    
-    const initialOffset = window.innerWidth / 3;
-    const maxScroll = Math.max(0, track.scrollWidth + initialOffset - window.innerWidth);
-
-    scrollX.current = Math.min(Math.max(scrollX.current + e.deltaY + e.deltaX, 0), maxScroll);
-
-    gsap.to(track, {
-      x: initialOffset - scrollX.current,
-      duration: 0.6,
-      ease: 'power2.out',
-      overwrite: 'auto'
-    });
   }, [isExpanded, category]);
 
   const handleInteraction = () => {
@@ -256,34 +229,39 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
             </button>
           </div>
 
-          <div 
-            onWheel={handleWheel}
-            className="flex-1 relative flex items-center overflow-hidden cursor-grab active:cursor-grabbing pointer-events-auto pb-12"
-          >
+          <div className="flex-1 relative overflow-y-auto scrollbar-hide pointer-events-auto pb-20 px-6 md:px-12 lg:px-24">
             <div 
-              ref={trackRef}
               className={cn(
-                "flex items-center pr-[50vw] will-change-transform",
-                isVerticalFormat ? "gap-20" : "gap-16"
+                "grid gap-12 md:gap-16 lg:gap-24 max-w-[1600px] mx-auto pt-12",
+                isVerticalFormat 
+                  ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
+                  : "grid-cols-1 md:grid-cols-2"
               )}
             >
               {VIDEOS_DATA.map((item, index) => (
-                <div key={item.id} className="flex flex-col gap-6 shrink-0 group">
+                <div 
+                  key={item.id} 
+                  className={cn(
+                    "flex flex-col gap-6 group transform transition-all duration-700",
+                    isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                  )}
+                  style={{ transitionDelay: `${index * 150}ms` }}
+                >
                   <div 
                     onClick={handleInteraction}
                     className={cn(
-                      "relative bg-muted overflow-hidden transition-all duration-700",
+                      "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl",
                       isVerticalFormat 
-                        ? "h-[50vh] aspect-[2/3] w-auto" 
-                        : "h-[45vh] aspect-[16/9] w-auto",
-                      clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
+                        ? "aspect-[2/3]" 
+                        : "aspect-[16/9]",
+                      clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30"
                     )}
                   >
                     <EditableVideo 
                       src={item.videoUrl} 
-                      storageKey={`v2-feed-${item.id}`}
+                      storageKey={`v2-feed-grid-${item.id}`}
                       fill
-                      className="object-cover scale-105 group-hover:scale-100 transition-transform duration-[2s]"
+                      className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] ease-out"
                       autoPlay
                       muted
                       loop
@@ -299,10 +277,14 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                         </div>
                       </div>
                     )}
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   </div>
                   
                   <div className="flex items-center justify-between px-2">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold">VÍDEO 0{index + 1} — {item.title}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors">
+                      {item.title}
+                    </span>
                     <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60">{item.date}</span>
                   </div>
                 </div>
@@ -310,15 +292,15 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
             </div>
           </div>
 
-          <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">
+          <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 shrink-0">
             <div className="flex gap-8">
               <span className="flex items-center gap-2">
-                Status: <span className="animate-pulse text-foreground/60">Rendering</span>
+                Status: <span className="animate-pulse text-foreground/60">Simultaneous Processing</span>
               </span>
-              <span>Bitrate: High</span>
-              <span>Codec: H.264 / AV1</span>
+              <span>Buffer: Dynamic Grid</span>
+              <span>V-Sync: Active</span>
             </div>
-            <div>© Verona Studio • Visual Engine v2.5</div>
+            <div>© Verona Studio • Visual Engine v3.0 // LUXURY EDITION</div>
           </div>
         </div>
       </div>
@@ -339,6 +321,13 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
         }
         .animate-active-layer-blink {
           animation: active-layer-blink 2s ease-in-out infinite;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>
