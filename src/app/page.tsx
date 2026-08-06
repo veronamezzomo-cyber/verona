@@ -294,6 +294,7 @@ export default function PortfolioPage() {
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const dragBasePos = useRef({ x: 0, y: 0 });
 
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
@@ -465,21 +466,32 @@ export default function PortfolioPage() {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
-    setDragStart({
-      x: e.clientX - faqPos.x,
-      y: e.clientY - faqPos.y
-    });
+    setDragStart({ x: e.clientX, y: e.clientY });
+    dragBasePos.current = faqPos;
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      setFaqPos({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      });
+      if (!isDragging || !terminalRef.current) return;
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      
+      // Direct DOM manipulation for fluid drag (avoids React re-renders per pixel)
+      terminalRef.current.style.transform = `translate(${dragBasePos.current.x + dx}px, ${dragBasePos.current.y + dy}px)`;
     };
-    const handleMouseUp = () => setIsDragging(false);
+
+    const handleMouseUp = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      
+      // Synchronize with React state only on mouse up
+      setFaqPos({
+        x: dragBasePos.current.x + dx,
+        y: dragBasePos.current.y + dy
+      });
+      setIsDragging(false);
+    };
 
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
@@ -489,7 +501,7 @@ export default function PortfolioPage() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragStart]);
+  }, [isDragging, dragStart, faqPos]);
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
@@ -693,16 +705,16 @@ export default function PortfolioPage() {
             {/* Part 3: Fully Functional Interactive Terminal FAQ */}
             {!isTerminalClosed && (
               <div 
-                ref={terminalRef} 
                 className={cn(
                   "max-w-4xl mx-auto transition-all duration-500",
                   isTerminalMinimized ? "h-10 opacity-60" : "opacity-100"
                 )}
               >
                 <div 
+                  ref={terminalRef} 
                   className={cn(
                     "bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300",
-                    !isTerminalFocused && "blur-[1px] hover:blur-0"
+                    isDragging && "transition-none"
                   )}
                   style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
                 >
@@ -743,13 +755,6 @@ export default function PortfolioPage() {
                       onBlur={() => setIsTerminalFocused(false)}
                       className="p-8 font-mono text-sm min-h-[420px] relative outline-none group bg-black"
                     >
-                      {/* Inactive Overlay */}
-                      {!isTerminalFocused && (
-                        <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-[2px] flex items-center justify-center cursor-pointer pointer-events-none">
-                          <span className="text-[10px] uppercase tracking-[0.4em] text-white opacity-60 animate-pulse">[ CLICK TO ACTIVATE TERMINAL ]</span>
-                        </div>
-                      )}
-
                       {isBooting ? (
                         <div className="space-y-2 text-white/40">
                           <div>[BOOT]: INITIALIZING VERONA_ENGINE...</div>
