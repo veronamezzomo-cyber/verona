@@ -42,7 +42,7 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     id: 'retention-edit-01',
     title: 'Viral Retention Edit',
     date: '2026',
-    videoUrl: 'https://i.imgur.com/0zy9NuR.mp4',
+    videoUrl: 'https://i.imgur.com/0zy9NtL.mp4',
     category: 'shorts',
     tags: ['Short-Form Video', 'Shorts', 'All', 'June, 2026'],
     description: 'Pokemon card pull — built entirely around dopamine loops and retention hooks. Fast micro-cuts synced to sound effects, 2D/3D motion elements layered throughout, and constant visual stimuli designed to keep the viewer from scrolling. Every frame is a reason to stay.',
@@ -62,7 +62,7 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     title: 'Urban Flow Edit',
     date: '2023',
     videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4',
-    category: 'shorts',
+    category: 'vlogs',
     description: 'Capturing the heartbeat of the city through fast-paced transitions and dynamic speed ramping.'
   },
   {

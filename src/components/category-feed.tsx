@@ -216,6 +216,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   const { toast } = useToast();
 
   const isExpanded = !!category;
+  const isShorts = category === 'shorts';
   
   // Categorias de formato vertical (2:3)
   const verticalCategories = ['shorts', 'talking'];
@@ -429,11 +430,16 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
           <div className="flex-1 relative overflow-y-auto scrollbar-hide pointer-events-auto pb-20 px-6 md:px-12 lg:px-24">
             <div 
               className={cn(
-                "grid gap-12 md:gap-16 lg:gap-24 max-w-[1600px] mx-auto pt-12 transition-all duration-700",
+                "transition-all duration-700",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
-                isVerticalFormat 
-                  ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
-                  : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                isShorts 
+                  ? "flex flex-nowrap overflow-x-auto gap-8 pb-10 pt-12 px-4 scroll-smooth cyber-scrollbar" 
+                  : cn(
+                      "grid gap-12 md:gap-16 lg:gap-24 max-w-[1600px] mx-auto pt-12",
+                      isVerticalFormat 
+                        ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
+                        : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                    )
               )}
             >
               {filteredVideos.map((item, index) => (
@@ -441,7 +447,8 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   key={item.id} 
                   className={cn(
                     "flex flex-col gap-6 group transform transition-all duration-700",
-                    isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+                    isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
+                    isShorts && "min-w-[280px] md:min-w-[350px] lg:min-w-[400px] shrink-0"
                   )}
                   style={{ transitionDelay: `${index * 150}ms` }}
                 >
@@ -597,6 +604,24 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        
+        /* Custom scrollbar for horizontal sections */
+        .cyber-scrollbar::-webkit-scrollbar {
+          height: 4px;
+        }
+        .cyber-scrollbar::-webkit-scrollbar-track {
+          background: rgba(var(--primary), 0.05);
+          border-radius: 10px;
+        }
+        .cyber-scrollbar::-webkit-scrollbar-thumb {
+          background: hsl(var(--primary));
+          border-radius: 10px;
+          box-shadow: 0 0 10px hsl(var(--primary));
+        }
+        .cyber-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: hsl(var(--primary));
+          height: 6px;
         }
       `}</style>
     </div>
