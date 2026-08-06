@@ -259,8 +259,8 @@ export default function PortfolioPage() {
   const hudRef = useRef<HTMLDivElement>(null);
   const coordsRef = useRef<HTMLSpanElement>(null);
   const statusBlockRef = useRef<HTMLDivElement>(null);
-  const descriptionRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
+  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   
@@ -318,20 +318,32 @@ export default function PortfolioPage() {
         { 
           y: '0%', 
           duration: 1.2, 
-          ease: "expo.out", // Equivalent to cubic-bezier(0.16, 1, 0.3, 1)
+          ease: "expo.out", 
           stagger: 0.18 
         }, 0.3);
     }
 
-    // FASE C (900ms+) — Context Reveal (Description & CTA)
-    tl.fromTo([descriptionRef.current, ctaRef.current],
+    // FASE C (900ms+) — Context Reveal (CTA & Scroll Indicator)
+    tl.fromTo([ctaRef.current, scrollIndicatorRef.current],
       { y: 12, opacity: 0 },
       { 
         y: 0, 
         opacity: 1, 
-        duration: 0.6, 
+        duration: 0.8, 
         ease: 'power2.out',
-        stagger: 0.15
+        stagger: 0.2,
+        onComplete: () => {
+          // Breathing animation loop for scroll indicator
+          if (scrollIndicatorRef.current) {
+            gsap.to(scrollIndicatorRef.current, {
+              opacity: 0.35,
+              duration: 2.5,
+              repeat: -1,
+              yoyo: true,
+              ease: "sine.inOut"
+            });
+          }
+        }
       }, 0.9);
 
     // 2. Works Section Scrub
@@ -414,13 +426,9 @@ export default function PortfolioPage() {
       </header>
 
       <main ref={mainRef} className="relative">
-        {/* REFACTORED HERO SECTION */}
         <section className="sticky top-0 z-0 h-screen w-full flex items-center justify-center bg-background overflow-hidden">
           <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-            
-            {/* HUD & Text Column */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
-              {/* HUD Tag & Coordinates (GSAP Controlled) */}
               <div className="flex items-center gap-4 mb-6">
                 <div 
                   ref={hudRef}
@@ -439,7 +447,6 @@ export default function PortfolioPage() {
                 </span>
               </div>
 
-              {/* Serif Title (GSAP Mask Reveal) */}
               <h1 className="font-serif font-bold text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
                 <div className="overflow-hidden">
                   <div ref={(el) => { heroLineRefs.current[0] = el; }} className="translate-y-full">CRAFTING</div>
@@ -454,17 +461,10 @@ export default function PortfolioPage() {
                 </div>
               </h1>
 
-              {/* Technical Description & CTA (GSAP Controlled) */}
               <div className="max-w-md">
-                <p 
-                  ref={descriptionRef}
-                  className="font-mono text-xs md:text-sm uppercase tracking-widest leading-relaxed text-foreground/40 italic opacity-0"
-                >
-                  High-retention editing for creators who value storytelling over noise. Focused on pacing, motion, and visual rhythm.
-                </p>
                 <div 
                   ref={ctaRef}
-                  className="mt-8 flex items-center gap-6 opacity-0"
+                  className="mt-6 flex items-center gap-6 opacity-0"
                 >
                   <Button variant="link" className="p-0 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground hover:text-primary group">
                     View Archive <ArrowRight className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-2" />
@@ -473,14 +473,12 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            {/* Video Cluster Column (Intact) */}
             <div className="lg:col-span-5 relative flex justify-center lg:justify-end animate-image-reveal lg:-mr-12">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.05)_0%,transparent_70%)] pointer-events-none" />
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
           </div>
           
-          {/* Decorative Corner HUD Elements (Animated Boot) */}
           <div 
             ref={statusBlockRef}
             className="absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-0"
@@ -490,6 +488,16 @@ export default function PortfolioPage() {
               <span>Buffer: Locked</span>
               <span>Layer: 01_Hero</span>
             </div>
+          </div>
+
+          <div 
+            ref={scrollIndicatorRef}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-0 pointer-events-none z-10"
+          >
+            <span className="font-mono text-[9px] uppercase tracking-[0.6em] text-foreground/40">
+              Scroll
+            </span>
+            <div className="w-px h-12 bg-gradient-to-b from-primary/60 to-transparent shadow-[0_0_8px_rgba(var(--primary),0.3)]" />
           </div>
           
           <div className="absolute top-32 right-10 pointer-events-none hidden md:block opacity-20">
