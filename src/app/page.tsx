@@ -264,6 +264,11 @@ export default function PortfolioPage() {
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [hoverFaqIndex, setHoverFaqIndex] = useState<number | null>(null);
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
+  
+  // Draggable FAQ State
+  const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0 });
 
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
@@ -323,6 +328,38 @@ export default function PortfolioPage() {
       handleTerminalAction();
     }
   };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX - faqPos.x,
+      y: e.clientY - faqPos.y
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      const newX = e.clientX - dragStartRef.current.x;
+      const newY = e.clientY - dragStartRef.current.y;
+      
+      // Limit vertical dragging slightly to keep header accessible
+      const constrainedY = Math.max(-window.innerHeight * 0.4, Math.min(window.innerHeight * 0.4, newY));
+      
+      setFaqPos({ x: newX, y: constrainedY });
+    };
+
+    const handleMouseUp = () => setIsDragging(false);
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging]);
 
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
@@ -388,12 +425,12 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // Stats Counter Animation
+    // Stats Counter Animation + Exit Fade
     if (statsRef.current) {
       gsap.from(statsValuesRef.current, {
         scrollTrigger: {
           trigger: statsRef.current,
-          start: "top 80%",
+          start: "top 85%",
         },
         innerHTML: 0,
         duration: 2,
@@ -401,14 +438,24 @@ export default function PortfolioPage() {
         snap: { innerHTML: 1 },
         stagger: 0.2
       });
+
+      gsap.to(statsRef.current, {
+        scrollTrigger: {
+          trigger: statsRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+        opacity: 0.3,
+      });
     }
 
-    // Tools Stack Animation
+    // Tools Stack Animation - Overlap with Stats
     if (toolsRef.current) {
       gsap.from(toolsItemsRef.current, {
         scrollTrigger: {
           trigger: toolsRef.current,
-          start: "top 80%",
+          start: "top 95%",
         },
         y: 30,
         opacity: 0,
@@ -418,21 +465,33 @@ export default function PortfolioPage() {
       });
     }
 
-    // Reveal for Testimonial and FAQ
-    [testimonialRef.current, faqRef.current].forEach(ref => {
-      if (ref) {
-        gsap.from(ref, {
-          scrollTrigger: {
-            trigger: ref,
-            start: "top 85%",
-          },
-          y: 20,
-          opacity: 0,
-          duration: 0.8,
-          ease: "power2.out"
-        });
-      }
-    });
+    // Reveal for Testimonial - Slower and Smooth
+    if (testimonialRef.current) {
+      gsap.from(testimonialRef.current, {
+        scrollTrigger: {
+          trigger: testimonialRef.current,
+          start: "top 85%",
+        },
+        y: 30,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power1.out"
+      });
+    }
+
+    // FAQ - Scale entrance
+    if (faqRef.current) {
+      gsap.from(faqRef.current, {
+        scrollTrigger: {
+          trigger: faqRef.current,
+          start: "top 85%",
+        },
+        scale: 0.96,
+        opacity: 0,
+        duration: 1,
+        ease: "power2.out"
+      });
+    }
 
   }, { dependencies: [isMounted], scope: mainRef });
 
@@ -668,7 +727,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-12 border-t border-foreground/5 bg-background">
+        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-12 border-t border-foreground/5 bg-secondary/5">
           <div className="container mx-auto px-6 md:px-12">
             <div className="max-w-2xl">
               <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-4 block">[ CLIENT_FEEDBACK ]</span>
@@ -700,8 +759,11 @@ export default function PortfolioPage() {
               tabIndex={0}
               onFocus={() => setIsTerminalFocused(true)}
               onBlur={() => setIsTerminalFocused(false)}
-              className="bg-foreground text-background font-mono p-6 shadow-2xl relative overflow-hidden outline-none group focus-within:ring-1 focus-within:ring-primary"
+              style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
+              className="bg-foreground text-background font-mono p-6 shadow-2xl relative overflow-hidden outline-none group focus-within:ring-1 focus-within:ring-primary rounded-md"
             >
+              <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] animate-rolling-scanlines" />
+              
               {!isTerminalFocused && faqAvailableIndices.length > 0 && (
                 <div className="absolute inset-0 z-10 bg-foreground/10 backdrop-blur-[1px] flex items-center justify-center cursor-pointer pointer-events-none">
                   <span className="text-[10px] uppercase tracking-[0.4em] opacity-40 animate-pulse text-background">
@@ -710,8 +772,10 @@ export default function PortfolioPage() {
                 </div>
               )}
 
-              <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
-              <div className="flex items-center justify-between mb-6 opacity-40">
+              <div 
+                onMouseDown={handleMouseDown}
+                className="absolute top-0 left-0 w-full h-8 cursor-grab active:cursor-grabbing flex items-center justify-between px-6 opacity-40 hover:opacity-100 transition-opacity"
+              >
                 <div className="flex gap-2">
                   <div className="w-2 h-2 rounded-full bg-background" />
                   <div className="w-2 h-2 rounded-full bg-background" />
@@ -724,7 +788,9 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
+
+              <div className="space-y-4 pt-6">
                 {faqHistory.map((item, i) => (
                   <div key={i} className="animate-in fade-in duration-300">
                     <div className="flex items-center gap-2 text-primary/60">
@@ -760,7 +826,10 @@ export default function PortfolioPage() {
                           )}
                         >
                           <span>{activeFaqIndex === i ? ">" : " "}</span>
-                          <span className="text-xs uppercase tracking-tighter">{faqData[qIdx].q}</span>
+                          <span className="text-xs uppercase tracking-tighter">
+                            {faqData[qIdx].q}
+                            {activeFaqIndex === i && <span className="animate-cursor-blink ml-1">_</span>}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -773,7 +842,9 @@ export default function PortfolioPage() {
               </div>
 
               <div className="mt-8 pt-4 border-t border-background/5 flex justify-between items-center opacity-40">
-                <span className="text-[8px] tracking-[0.4em]">ROOT@VERONA:~/FAQ$ _</span>
+                <span className="text-[8px] tracking-[0.4em] flex items-center">
+                  ROOT@VERONA:~/FAQ$ <span className="animate-cursor-blink ml-1">_</span>
+                </span>
                 <TerminalIcon className="w-4 h-4" />
               </div>
             </div>

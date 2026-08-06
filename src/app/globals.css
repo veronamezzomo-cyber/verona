@@ -163,6 +163,15 @@
     to { background-position: 0 100%; }
   }
 
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .animate-cursor-blink {
+    animation: cursor-blink 0.53s step-start infinite;
+  }
+
   /* Hero Image Floating Animations */
   @keyframes float-hero-1 {
     0%, 100% { transform: translate(0, 0) rotate(2deg); }
