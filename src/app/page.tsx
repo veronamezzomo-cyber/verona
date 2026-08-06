@@ -176,14 +176,14 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         gsap.to(focalFactorsRef.current, {
           [prevIndex]: 0,
           duration: 1.5,
-          ease: 'power2.inOut'
+          ease: 'expo.out'
         });
       }
 
       gsap.to(focalFactorsRef.current, {
         [nextIndex]: 1,
         duration: 1.5,
-        ease: 'power2.inOut'
+        ease: 'expo.out'
       });
 
       currentFocusedIndexRef.current = nextIndex;
