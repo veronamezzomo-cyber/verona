@@ -29,13 +29,13 @@ if (typeof window !== 'undefined') {
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0-5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292.074.074 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.078.078 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0-5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 1 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292.074.074 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.078.078 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
   </svg>
 );
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
   </svg>
 );
 
@@ -257,14 +257,14 @@ function TypewriterText({ text }: { text: string }) {
     setDisplayedText('');
     let i = 0;
     const timer = setInterval(() => {
-      setDisplayedText((prev) => prev + text.charAt(i));
+      setDisplayedText(text.slice(0, i + 1));
       i++;
-      if (i === text.length) clearInterval(timer);
+      if (i >= text.length) clearInterval(timer);
     }, 15);
     return () => clearInterval(timer);
   }, [text]);
 
-  return <span>{displayedText}<span className="w-2 h-4 bg-primary inline-block ml-1 animate-cursor-blink" /></span>;
+  return <span>{displayedText}<span className="w-1.5 h-4 bg-[#33ff33] inline-block ml-1 animate-cursor-blink" /></span>;
 }
 
 const FAQ_DATA = [
@@ -281,11 +281,18 @@ export default function PortfolioPage() {
   const [year] = useState(new Date().getFullYear());
   const [isMounted, setIsMounted] = useState(false);
   
-  // FAQ Terminal State
+  // Terminal FAQ State
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3]);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
-  const [isTerminalInitializing, setIsTerminalInitializing] = useState(true);
+  const [hoverFaqIndex, setHoverFaqIndex] = useState<number | null>(null);
+  const [isTerminalFocused, setIsTerminalFocused] = useState(false);
+  const [isBooting, setIsBooting] = useState(true);
+  const [isTerminalClosed, setIsTerminalClosed] = useState(false);
+  const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
+  const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
@@ -368,42 +375,25 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // New Section Scroll Animations
-    gsap.from(statsBarRef.current, {
+    // New Section Scroll Stagger Reveal
+    const sectionTl = gsap.timeline({
       scrollTrigger: {
         trigger: statsBarRef.current,
-        start: "top 90%",
-      },
-      opacity: 0,
-      y: 20,
-      duration: 1,
-      ease: "power2.out"
-    });
-
-    gsap.from(contentBlockRef.current, {
-      scrollTrigger: {
-        trigger: contentBlockRef.current,
         start: "top 85%",
-      },
-      opacity: 0,
-      y: 30,
-      duration: 1.2,
-      ease: "power2.out"
+      }
     });
 
-    gsap.from(terminalRef.current, {
-      scrollTrigger: {
-        trigger: terminalRef.current,
-        start: "top 80%",
-        onEnter: () => {
-          setTimeout(() => setIsTerminalInitializing(false), 2000);
-        }
-      },
-      opacity: 0,
-      scale: 0.98,
-      duration: 1,
-      ease: "power3.out"
-    });
+    sectionTl.from(statsBarRef.current, { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" })
+             .from(contentBlockRef.current, { opacity: 0, y: 30, duration: 1, ease: "power2.out" }, "-=0.4")
+             .from(terminalRef.current, { 
+                opacity: 0, 
+                scale: 0.98, 
+                duration: 1, 
+                ease: "power3.out",
+                onStart: () => {
+                  setTimeout(() => setIsBooting(false), 2000);
+                }
+             }, "-=0.6");
 
   }, { dependencies: [isMounted], scope: mainRef });
 
@@ -438,28 +428,56 @@ export default function PortfolioPage() {
     setActiveCategory(null);
   };
 
-  const handleFaqAction = (index: number) => {
-    const qIdx = faqAvailableIndices[index];
+  // Terminal Action Logic
+  const handleTerminalAction = () => {
+    if (faqAvailableIndices.length === 0) return;
+    const qIdx = faqAvailableIndices[activeFaqIndex];
     const item = FAQ_DATA[qIdx];
     setFaqHistory(prev => [...prev, item]);
-    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== index));
+    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== activeFaqIndex));
     setActiveFaqIndex(0);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (isBooting) return;
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveFaqIndex(prev => (prev > 0 ? prev - 1 : Math.max(0, faqAvailableIndices.length - 1)));
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveFaqIndex(prev => (prev < faqAvailableIndices.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'Enter') {
+      handleTerminalAction();
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - faqPos.x,
+      y: e.clientY - faqPos.y
+    });
+  };
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isTerminalInitializing) return;
-      if (e.key === 'ArrowUp') {
-        setActiveFaqIndex(prev => (prev > 0 ? prev - 1 : faqAvailableIndices.length - 1));
-      } else if (e.key === 'ArrowDown') {
-        setActiveFaqIndex(prev => (prev < faqAvailableIndices.length - 1 ? prev + 1 : 0));
-      } else if (e.key === 'Enter') {
-        if (faqAvailableIndices.length > 0) handleFaqAction(activeFaqIndex);
-      }
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      setFaqPos({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [faqAvailableIndices, activeFaqIndex, isTerminalInitializing]);
+    const handleMouseUp = () => setIsDragging(false);
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragStart]);
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
@@ -597,34 +615,34 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* New Experience & FAQ Section */}
-        <section className="py-24 bg-background overflow-hidden">
+        {/* Narrativa & Experience Section */}
+        <section className="py-24 bg-background overflow-hidden border-t border-foreground/5">
           <div className="container mx-auto px-6 md:px-12">
             
-            {/* Part 1: Stats Bar */}
-            <div ref={statsBarRef} className="flex justify-center border-b border-foreground/5 pb-12 mb-24">
+            {/* Part 1: Discreet Stats Bar */}
+            <div ref={statsBarRef} className="flex justify-center border-b border-foreground/5 pb-10 mb-20">
               <div className="flex flex-wrap gap-12 md:gap-24 items-center">
                 <div className="flex flex-col items-center">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ YEARS ]</span>
-                  <span className="text-3xl font-bold font-mono tracking-tighter">+6</span>
+                  <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ YEARS ]</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80">+6</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ CLIENTS ]</span>
-                  <span className="text-3xl font-bold font-mono tracking-tighter">+12</span>
+                  <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ CLIENTS ]</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80">+12</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ PROJECTS ]</span>
-                  <span className="text-3xl font-bold font-mono tracking-tighter">+80</span>
+                  <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ PROJECTS ]</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80">+80</span>
                 </div>
               </div>
             </div>
 
-            {/* Part 2: Quote & Tech Stack */}
-            <div ref={contentBlockRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-center">
-              <div className="lg:col-span-8">
+            {/* Part 2: Quote & Tech Stack (Now Vertical Column) */}
+            <div ref={contentBlockRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-end">
+              <div className="lg:col-span-9">
                 <div className="relative">
                   <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
-                  <p className="text-3xl md:text-5xl font-serif italic leading-[1.1] text-foreground mb-8">
+                  <p className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8">
                     &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
                   </p>
                   <div className="flex items-center gap-4">
@@ -637,111 +655,166 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              <div className="lg:col-span-4 border-l border-foreground/5 pl-12 flex flex-col gap-8">
-                <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary">[ POWERED_BY ]</span>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="lg:col-span-3 flex flex-col gap-8 items-center lg:items-end">
+                <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary">[ POWERED_BY ]</span>
+                <div className="flex flex-col gap-6 w-full lg:w-auto">
                   {[
                     { name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
                     { name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
                     { name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
                     { name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
                   ].map((tech) => (
-                    <div key={tech.name} className="flex flex-col gap-2 group">
+                    <div key={tech.name} className="flex items-center gap-4 group justify-center lg:justify-end">
+                      <span className="font-serif italic text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300">{tech.name}</span>
                       <div 
-                        className="w-16 h-16 flex items-center justify-center rounded-lg shadow-xl transition-transform group-hover:scale-110"
+                        className="w-14 h-14 flex items-center justify-center rounded shadow-xl transition-transform group-hover:scale-110"
                         style={{ backgroundColor: tech.bg }}
                       >
-                        <span className="font-sans font-bold text-2xl" style={{ color: tech.text }}>{tech.label}</span>
+                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
                       </div>
-                      <span className="font-serif italic text-xs text-muted-foreground">{tech.name}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Part 3: Interactive Terminal FAQ */}
-            <div ref={terminalRef} className="max-w-4xl mx-auto">
-              <div className="bg-[#0a0a0a] border border-foreground/10 rounded-xl overflow-hidden shadow-2xl">
-                {/* Title Bar */}
-                <div className="bg-[#1a1a1a] h-10 px-4 flex items-center justify-between border-b border-foreground/5">
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500/30 border border-red-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/30 border border-yellow-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/30 border border-green-500/50" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <TerminalIcon className="w-3 h-3 text-muted-foreground/40" />
-                    <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40">LV_FAQ_v3.0</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Minus className="w-3 h-3 text-muted-foreground/20" />
-                    <X className="w-3 h-3 text-muted-foreground/20" />
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-8 font-mono text-sm min-h-[400px]">
-                  {isTerminalInitializing ? (
-                    <div className="space-y-2 text-primary/40">
-                      <div>[BOOT]: INITIALIZING VERONA_ENGINE...</div>
-                      <div className="animate-pulse">[INFO]: LOADING FAQ_MODULE_3.0 [OK]</div>
-                      <div className="animate-pulse" style={{ animationDelay: '0.2s' }}>[INFO]: ESTABLISHING SECURE CONNECTION [OK]</div>
-                      <div className="animate-pulse" style={{ animationDelay: '0.4s' }}>[INFO]: SYNCING ARCHIVE_DATA [OK]</div>
+            {/* Part 3: Fully Functional Interactive Terminal FAQ */}
+            {!isTerminalClosed && (
+              <div 
+                ref={terminalRef} 
+                className={cn(
+                  "max-w-4xl mx-auto transition-all duration-500",
+                  isTerminalMinimized ? "h-10 opacity-60" : "opacity-100"
+                )}
+              >
+                <div 
+                  className={cn(
+                    "bg-[#0a0a0a] border border-white/10 rounded-md overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300",
+                    !isTerminalFocused && "blur-[1px] hover:blur-0"
+                  )}
+                  style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
+                >
+                  {/* Title Bar (macOS style) */}
+                  <div 
+                    onMouseDown={handleMouseDown}
+                    className="bg-[#1a1a1a] h-9 px-4 flex items-center justify-between border-b border-white/5 cursor-grab active:cursor-grabbing select-none"
+                  >
+                    <div className="flex gap-2">
+                      <div 
+                        onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }}
+                        className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] cursor-pointer hover:brightness-110" 
+                      />
+                      <div 
+                        onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }}
+                        className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] cursor-pointer hover:brightness-110" 
+                      />
+                      <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] cursor-not-allowed opacity-50" />
                     </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="text-primary/60">
-                        VERONA OS v3.0 // ARCHIVE CONSOLE <br/>
-                        TYPE &apos;HELP&apos; FOR COMMANDS OR SELECT BELOW:
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <TerminalIcon className="w-3 h-3 text-white/20" />
+                      <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-white/20">ROOT@VERONA // ARCHIVE_CLI</span>
+                    </div>
+                    <div className="flex gap-2 invisible md:visible">
+                      <Minus className="w-3 h-3 text-white/10" />
+                      <X className="w-3 h-3 text-white/10" />
+                    </div>
+                  </div>
 
-                      {/* History */}
-                      <div className="space-y-4">
-                        {faqHistory.map((item, i) => (
-                          <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
-                            <div className="text-foreground/40 mb-1 flex items-center gap-2">
-                              <span className="text-primary">LV_OS:$</span> {item.q}
-                            </div>
-                            <div className="text-foreground/80 leading-relaxed pl-4 border-l border-primary/20">
-                              <TypewriterText text={item.a} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                  {/* Terminal Body */}
+                  {!isTerminalMinimized && (
+                    <div 
+                      onKeyDown={handleKeyDown}
+                      tabIndex={0}
+                      onFocus={() => setIsTerminalFocused(true)}
+                      onBlur={() => setIsTerminalFocused(false)}
+                      className="p-8 font-mono text-sm min-h-[420px] relative outline-none group"
+                    >
+                      {/* Scanlines Effect */}
+                      <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] animate-rolling-scanlines" />
 
-                      {/* Options */}
-                      {faqAvailableIndices.length > 0 && (
-                        <div className="pt-8 border-t border-foreground/5">
-                          <div className="text-[10px] uppercase tracking-widest text-muted-foreground/40 mb-4">Available Queries (Setas + Enter)</div>
-                          <div className="space-y-3">
-                            {faqAvailableIndices.map((qIdx, i) => (
-                              <div 
-                                key={qIdx}
-                                onClick={() => handleFaqAction(i)}
-                                className={cn(
-                                  "cursor-pointer transition-all flex items-center gap-3",
-                                  activeFaqIndex === i ? "text-primary translate-x-2" : "text-foreground/30 hover:text-foreground/60"
-                                )}
-                              >
-                                <span>{activeFaqIndex === i ? '>' : ' '}</span>
-                                <span className="uppercase text-xs tracking-tight">{FAQ_DATA[qIdx].q}</span>
-                              </div>
-                            ))}
-                          </div>
+                      {/* Inactive Overlay */}
+                      {!isTerminalFocused && (
+                        <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-[2px] flex items-center justify-center cursor-pointer pointer-events-none">
+                          <span className="text-[10px] uppercase tracking-[0.4em] text-[#33ff33] opacity-60 animate-pulse">[ CLICK TO ACTIVATE TERMINAL ]</span>
                         </div>
                       )}
 
-                      {faqAvailableIndices.length === 0 && (
-                        <div className="text-center py-12 text-muted-foreground/20 italic">
-                          --- ALL QUERIES EXECUTED ---
+                      {isBooting ? (
+                        <div className="space-y-2 text-[#33ff33]/40">
+                          <div>[BOOT]: INITIALIZING VERONA_ENGINE...</div>
+                          <div className="animate-pulse">[INFO]: LOADING_CORE_MODULES [OK]</div>
+                          <div className="animate-pulse" style={{ animationDelay: '0.2s' }}>[INFO]: SYNCING_ARCHIVE_DATA [OK]</div>
+                          <div className="animate-pulse" style={{ animationDelay: '0.4s' }}>[INFO]: ESTABLISHING_SECURE_CONN [OK]</div>
+                        </div>
+                      ) : (
+                        <div className="space-y-6">
+                          <div className="text-[#33ff33]/60 mb-8">
+                            VERONA OS v3.0 // ARCHIVE CONSOLE <br/>
+                            SELECT QUERY VIA ARROWS + ENTER OR CLICK:
+                          </div>
+
+                          {/* History */}
+                          <div className="space-y-4">
+                            {faqHistory.map((item, i) => (
+                              <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
+                                <div className="text-white/40 mb-1 flex items-center gap-2">
+                                  <span className="text-[#33ff33]">ROOT@VERONA:$</span> {item.q}
+                                </div>
+                                <div className="text-[#33ff33] leading-relaxed pl-4 border-l border-[#33ff33]/20">
+                                  <TypewriterText text={item.a} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Options */}
+                          {faqAvailableIndices.length > 0 && (
+                            <div className="pt-8 border-t border-white/5">
+                              <div className="text-[10px] uppercase tracking-widest text-white/20 mb-4">Available Queries</div>
+                              <div className="space-y-3">
+                                {faqAvailableIndices.map((qIdx, i) => (
+                                  <div 
+                                    key={qIdx}
+                                    onClick={() => {
+                                      setActiveFaqIndex(i);
+                                      handleTerminalAction();
+                                    }}
+                                    onMouseEnter={() => setHoverFaqIndex(i)}
+                                    onMouseLeave={() => setHoverFaqIndex(null)}
+                                    className={cn(
+                                      "cursor-pointer transition-all flex items-center gap-3 px-2 py-1 rounded-sm border border-transparent",
+                                      activeFaqIndex === i ? "text-[#33ff33] bg-[#33ff33]/5 border-[#33ff33]/10 translate-x-2" : 
+                                      hoverFaqIndex === i ? "text-white/80 bg-white/5" : "text-white/30"
+                                    )}
+                                  >
+                                    <span className="w-4">{activeFaqIndex === i ? '>' : ' '}</span>
+                                    <span className="uppercase text-xs tracking-tight">{FAQ_DATA[qIdx].q}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {faqAvailableIndices.length === 0 && (
+                            <div className="text-center py-12 text-[#33ff33]/20 italic border border-[#33ff33]/5 bg-[#33ff33]/[0.02] rounded">
+                              --- SYSTEM NOMINAL. ALL QUERIES EXECUTED ---
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   )}
+                  
+                  {/* Status Bar */}
+                  {!isTerminalMinimized && (
+                    <div className="bg-[#1a1a1a] h-8 px-6 flex items-center justify-between border-t border-white/5 opacity-40">
+                       <span className="text-[8px] tracking-[0.4em] text-white">ROOT@VERONA:~/FAQ$ <span className="w-1.5 h-3 bg-[#33ff33] inline-block ml-1 animate-cursor-blink" /></span>
+                       <span className="text-[8px] tracking-[0.4em] text-white">STATUS: NOMINAL</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </section>
 
