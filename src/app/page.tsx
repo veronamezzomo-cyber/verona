@@ -299,9 +299,10 @@ function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { t
 
 const FAQ_DATA = [
   { q: "What is your average turnaround time?", a: "For short-form content (Reels/Shorts), expect a 24-48h turnaround. Long-form projects usually take 4-7 business days depending on complexity." },
-  { q: "Which tech stack do you use?", a: "My primary engine is Adobe Premiere Pro & After Effects. I use Photoshop for assets and AI tools (Topaz/ElevenLabs) for specialized enhancements." },
   { q: "How many revisions are included?", a: "Every project includes two major revision rounds. Minor tweaks are unlimited until the final delivery feels perfect." },
-  { q: "Do you offer professional color grading?", a: "Yes. Every video goes through a color correction and grading process to ensure a consistent, cinematic look across all clips." }
+  { q: "Which tech stack do you use?", a: "Premiere Pro & After Effects are my core tools, that's where 90% of the work happens. I also have experience with DaVinci Resolve and CapCut, but I stick to my core workflow for consistency and speed. For sound, I run on an Epidemic Sound subscription, so every project gets copyright-free music and SFX." },
+  { q: "Do you offer professional color grading?", a: "Yes, every project goes through a color grading pass to match the tone and mood you're going for, cinematic, warm, moody, whatever fits the story best." },
+  { q: "Do you accept international payments?", a: "Yes, I work with clients worldwide. Payments are handled through Wise for international transfers, keeping fees low and everything transparent on both ends." }
 ];
 
 const BOOT_LINES = [
@@ -323,7 +324,7 @@ export default function PortfolioPage() {
   
   // Terminal FAQ State
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
-  const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3]);
+  const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3, 4]);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [typedQuestionsCount, setTypedQuestionsCount] = useState(0);
   const [isHeaderTyped, setIsHeaderTyped] = useState(false);
