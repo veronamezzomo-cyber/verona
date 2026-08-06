@@ -15,7 +15,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { 
   Mail, 
-  ArrowRight
+  ArrowRight,
+  Maximize2
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -227,32 +228,18 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
             opacity: 1
           }}
         >
-          {vid.imageUrl.endsWith('.mp4') ? (
-            <EditableVideo 
-              src={vid.imageUrl} 
-              storageKey={vid.id}
-              fill
-              className="object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              hideControls
-              startTime={(vid as any).startTime}
-            />
-          ) : (
-             <EditableImage 
-              src={vid.imageUrl} 
-              storageKey={vid.id}
-              fill
-              className={cn(
-                "object-cover object-center transition-transform duration-500",
-                "group-hover:scale-105"
-              )}
-              data-ai-hint={vid.imageHint}
-              priority={true} 
-            />
-          )}
+          <EditableVideo 
+            src={vid.imageUrl} 
+            storageKey={vid.id}
+            fill
+            className="object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            hideControls
+            startTime={(vid as any).startTime}
+          />
         </div>
       ))}
     </div>
@@ -377,7 +364,7 @@ export default function PortfolioPage() {
             </Link>
             <div className="hidden lg:flex items-center gap-3 text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="tracking-[0.2em] font-mono text-[10px] uppercase">CURRENT LOCATION: BRAZIL</span>
+              <span className="tracking-[0.2em] font-mono text-[10px] uppercase">SYS_ONLINE // BRAZIL</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
@@ -390,21 +377,73 @@ export default function PortfolioPage() {
       </header>
 
       <main ref={mainRef} className="relative">
-        <section className="sticky top-0 z-0 flex flex-col items-center justify-center h-screen pt-20 bg-background container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full flex-1">
-            <div className="flex flex-col gap-8 pl-4">
-              <div className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor</span>
-                <div className="w-16 h-px bg-primary/30" />
+        {/* REFACTORED HERO SECTION */}
+        <section className="sticky top-0 z-0 h-screen w-full flex items-center justify-center bg-background overflow-hidden">
+          <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+            
+            {/* HUD & Text Column */}
+            <div className="lg:col-span-7 flex flex-col items-start text-left">
+              {/* HUD Tag */}
+              <div className="flex items-center gap-4 mb-6 animate-in slide-in-from-left duration-700">
+                <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary font-bold">
+                    [ 00 / EDITOR ]
+                  </span>
+                </div>
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block">
+                  COORDINATES: 23.5505° S, 46.6333° W
+                </span>
               </div>
-              <h1 className="font-serif font-bold text-[clamp(2.5rem,5vw,5.5rem)] leading-tight tracking-tighter text-foreground">
-                <div className="overflow-hidden"><div ref={(el) => { heroLineRefs.current[0] = el; }}>CRAFTING</div></div>
-                <div className="overflow-hidden"><div ref={(el) => { heroLineRefs.current[1] = el; }}>VISUAL</div></div>
-                <div className="overflow-hidden"><div ref={(el) => { heroLineRefs.current[2] = el; }}>STORYTELLING<span className="text-primary">.</span></div></div>
+
+              {/* Serif Title */}
+              <h1 className="font-serif font-bold text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
+                <div className="overflow-hidden">
+                  <div ref={(el) => { heroLineRefs.current[0] = el; }}>CRAFTING</div>
+                </div>
+                <div className="overflow-hidden">
+                  <div ref={(el) => { heroLineRefs.current[1] = el; }}>VISUAL</div>
+                </div>
+                <div className="overflow-hidden">
+                  <div ref={(el) => { heroLineRefs.current[2] = el; }}>
+                    STORYTELLING<span className="text-primary">.</span>
+                  </div>
+                </div>
               </h1>
+
+              {/* Technical Description (3rd Level Hierarchy) */}
+              <div className="max-w-md animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+                <p className="font-mono text-xs md:text-sm uppercase tracking-widest leading-relaxed text-foreground/40 italic">
+                  High-retention editing for creators who value storytelling over noise. Focused on pacing, motion, and visual rhythm.
+                </p>
+                <div className="mt-8 flex items-center gap-6">
+                  <Button variant="link" className="p-0 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground hover:text-primary group">
+                    View Archive <ArrowRight className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-2" />
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className="relative animate-image-reveal">
+
+            {/* Video Cluster Column with Optical Offset */}
+            <div className="lg:col-span-5 relative flex justify-center lg:justify-end animate-image-reveal lg:-mr-12">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.05)_0%,transparent_70%)] pointer-events-none" />
               <FloatingVideoCluster videos={clusterVideos} />
+            </div>
+          </div>
+          
+          {/* Decorative Corner HUD Elements */}
+          <div className="absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-20">
+            <div className="font-mono text-[8px] uppercase tracking-[0.4em] flex flex-col gap-1">
+              <span>System: Active</span>
+              <span>Buffer: Locked</span>
+              <span>Layer: 01_Hero</span>
+            </div>
+          </div>
+          
+          <div className="absolute top-32 right-10 pointer-events-none hidden md:block opacity-20">
+            <Maximize2 className="w-4 h-4 text-foreground mb-2" />
+            <div className="font-mono text-[8px] uppercase tracking-[0.4em] [writing-mode:vertical-rl]">
+              Visual_Archive_v3.0
             </div>
           </div>
         </section>
