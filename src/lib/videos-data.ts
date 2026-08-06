@@ -62,5 +62,13 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     date: '2024',
     videoUrl: 'https://i.imgur.com/SRki5JL.mp4',
     category: ['motion']
+  },
+  {
+    id: 'dentistry-01',
+    title: 'Dentistry',
+    description: "Complex topics? Simplified. Boring lectures? Never. Transforming complex dental procedures into accessible visual storytelling through 2D motion graphics and synchronized captions. Technical content doesn't have to be dry. Built for a lay audience with retention-focused editing rhythm using Adobe Premiere and After Effects — attention from start to finish.",
+    date: '2026',
+    videoUrl: 'https://i.imgur.com/HMSGIZG.mp4',
+    category: ['shorts']
   }
 ];
