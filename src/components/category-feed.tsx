@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { X, Lock, Sparkles } from 'lucide-react';
+import { X, Lock, Sparkles, Cpu, Layers, Zap, Activity } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { useToast } from '@/hooks/use-toast';
-import { VIDEOS_DATA } from '@/lib/videos-data';
+import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
 
 interface CategoryFeedProps {
   category: string | null;
@@ -22,6 +22,39 @@ interface LineCoord {
   y2: number;
 }
 
+interface MetadataItemProps {
+  label: string;
+  value: string;
+  icon: React.ElementType;
+  xFactor: number;
+  yFactor: number;
+  mousePos: { x: number; y: number };
+}
+
+function MetadataItem({ label, value, icon: Icon, xFactor, yFactor, mousePos }: MetadataItemProps) {
+  const shiftX = (mousePos.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 0)) * 0.03 * xFactor;
+  const shiftY = (mousePos.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 0)) * 0.03 * yFactor;
+
+  return (
+    <div 
+      className="absolute z-[70] bg-background/40 backdrop-blur-xl border border-primary/20 p-3 rounded-lg flex items-center gap-3 pointer-events-none transition-transform duration-300 ease-out"
+      style={{ 
+        transform: `translate(${shiftX}px, ${shiftY}px)`,
+        top: `${50 + yFactor * 28}%`,
+        left: `${50 + xFactor * 38}%`,
+      }}
+    >
+      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+        <Icon className="w-4 h-4 text-primary" />
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[8px] uppercase tracking-[0.2em] text-muted-foreground font-mono">{label}</span>
+        <span className="text-[10px] uppercase font-bold text-foreground tracking-widest">{value}</span>
+      </div>
+    </div>
+  );
+}
+
 export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -33,10 +66,18 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   
   const [clickCount, setClickCount] = useState(0);
   const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { toast } = useToast();
 
   const isExpanded = !!category;
   const isVerticalFormat = category === 'shorts' || category === 'talking';
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (selectedProject) {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    }
+  }, [selectedProject]);
 
   const updateLines = useCallback(() => {
     if (!connectorsRef.current || !containerRef.current || !cardElements.length) return;
@@ -99,10 +140,11 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
         ease: 'power3.inOut',
         overwrite: 'auto'
       });
+      setSelectedProject(null);
     }
   }, [isExpanded, category]);
 
-  const handleInteraction = () => {
+  const handleInteraction = (item: ProjectVideo) => {
     if (clickCount >= 8) {
       toast({
         title: "Interaction Limit Reached",
@@ -112,10 +154,16 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
       return;
     }
     setClickCount(prev => prev + 1);
+    setSelectedProject(item);
+  };
+
+  const closeTheater = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedProject(null);
   };
 
   return (
-    <div className="relative">
+    <div className="relative" onMouseMove={handleMouseMove}>
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full pointer-events-none overflow-visible z-[95]"
@@ -232,7 +280,8 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
           <div className="flex-1 relative overflow-y-auto scrollbar-hide pointer-events-auto pb-20 px-6 md:px-12 lg:px-24">
             <div 
               className={cn(
-                "grid gap-12 md:gap-16 lg:gap-24 max-w-[1600px] mx-auto pt-12",
+                "grid gap-12 md:gap-16 lg:gap-24 max-w-[1600px] mx-auto pt-12 transition-all duration-700",
+                selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
                 isVerticalFormat 
                   ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
                   : "grid-cols-1 md:grid-cols-2"
@@ -248,7 +297,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   style={{ transitionDelay: `${index * 150}ms` }}
                 >
                   <div 
-                    onClick={handleInteraction}
+                    onClick={() => handleInteraction(item)}
                     className={cn(
                       "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl",
                       isVerticalFormat 
@@ -259,7 +308,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   >
                     <EditableVideo 
                       src={item.videoUrl} 
-                      storageKey={`v2-feed-grid-${item.id}`}
+                      storageKey={`v3-feed-grid-${item.id}`}
                       fill
                       className="object-cover scale-[1.02] group-hover:scale-100 transition-transform duration-[1.5s] ease-out"
                       autoPlay
@@ -291,6 +340,44 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
               ))}
             </div>
           </div>
+
+          {selectedProject && (
+            <div 
+              className="absolute inset-0 z-50 flex items-center justify-center p-6 md:p-12 animate-in fade-in zoom-in-95 duration-500"
+              onClick={closeTheater}
+            >
+              <div className="absolute inset-0 bg-background/60 backdrop-blur-md" />
+              
+              <div 
+                className={cn(
+                  "relative z-[60] shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black overflow-visible",
+                  isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[1000px] aspect-[16/9]"
+                )}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <EditableVideo 
+                  src={selectedProject.videoUrl} 
+                  storageKey={`theater-${selectedProject.id}`}
+                  fill
+                  className="object-cover"
+                  autoPlay
+                  controls
+                />
+
+                <MetadataItem label="Software" value="After Effects" icon={Cpu} xFactor={-1} yFactor={-1} mousePos={mousePos} />
+                <MetadataItem label="Grade" value="DaVinci Resolve" icon={Activity} xFactor={1} yFactor={-1} mousePos={mousePos} />
+                <MetadataItem label="Master" value="4K / 60FPS" icon={Layers} xFactor={-1} yFactor={1} mousePos={mousePos} />
+                <MetadataItem label="Engine" value="ProRes 422" icon={Zap} xFactor={1} yFactor={1} mousePos={mousePos} />
+
+                <button 
+                  onClick={closeTheater}
+                  className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground hover:text-primary transition-colors"
+                >
+                  Close Archive <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 shrink-0">
             <div className="flex gap-8">
