@@ -260,6 +260,10 @@ export default function PortfolioPage() {
   const h1Line2Ref = useRef<HTMLDivElement>(null);
   const h1Line3Ref = useRef<HTMLDivElement>(null);
 
+  // About Section Refs
+  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const lightRef = useRef<HTMLDivElement>(null);
+
   const aboutWords = useMemo(() => 
     "Behind every great story is someone obsessed with its details.".split(" "), 
   []);
@@ -289,70 +293,52 @@ export default function PortfolioPage() {
     });
   }, []);
 
-  // About Section Animation - Advanced Diagnostic Version
+  // About Section Animation using Refs
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const timer = setTimeout(() => {
-      const ctx = gsap.context(() => {
-        const words = gsap.utils.toArray<HTMLElement>('.about-word').filter(Boolean);
-        const light = document.querySelector('.about-light');
-        
-        // POINT 5: CRITICAL DIAGNOSTIC LOG
-        console.log('GSAP DIAGNOSTIC:', {
-          targets: words,
-          isArray: Array.isArray(words),
-          length: words.length,
-          mapMethod: words.map ? 'Exists' : 'NULL/MISSING',
-          lightElement: !!light
-        });
+    const ctx = gsap.context(() => {
+      const words = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
+      const light = lightRef.current;
+      
+      if (words.length === 0 || !light) return;
 
-        if (!words.length || !light) {
-          console.warn('GSAP: Skip animation - missing targets', { words: words.length, light: !!light });
-          return;
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#about-wrapper',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1,
+          invalidateOnRefresh: true,
         }
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '#about-wrapper',
-            start: 'top top',
-            end: 'bottom bottom',
-            scrub: 1,
-            invalidateOnRefresh: true,
-          }
-        });
-
-        // REVERTED: Original correct timeline architecture
-        console.log('DEBUG_WORDS:', words, 'isArray:', Array.isArray(words), 'length:', words?.length, 'hasMap:', typeof words?.map);
-        tl.fromTo(words, 
-          { 
-            x: 40, 
-            opacity: 0, 
-            filter: 'blur(8px)',
-            textShadow: "0 0 0px hsl(var(--primary)/0)"
-          },
-          { 
-            x: 0, 
-            opacity: 1, 
-            filter: 'blur(0px)',
-            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-            stagger: 0.1, 
-            duration: 0.8, 
-            ease: 'power2.out' 
-          }
-        );
-
-        tl.to(light, {
-          opacity: 1,
-          duration: 0.8,
-          ease: 'sine.inOut'
-        }, ">-0.4");
       });
 
-      return () => ctx.revert();
-    }, 300); // Increased delay for stability
+      tl.fromTo(words, 
+        { 
+          x: 40, 
+          opacity: 0, 
+          filter: 'blur(8px)',
+          textShadow: "0 0 0px hsl(var(--primary)/0)"
+        },
+        { 
+          x: 0, 
+          opacity: 1, 
+          filter: 'blur(0px)',
+          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+          stagger: 0.1, 
+          duration: 0.8, 
+          ease: 'power2.out' 
+        }
+      );
 
-    return () => clearTimeout(timer);
+      tl.to(light, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'sine.inOut'
+      }, ">-0.4");
+    });
+
+    return () => ctx.revert();
   }, [aboutWords]);
 
   useEffect(() => {
@@ -486,14 +472,21 @@ export default function PortfolioPage() {
 
         <div id="about-wrapper" className="relative h-[200vh] z-20">
           <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
-            {/* Background Light */}
-            <div className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" />
+            {/* Background Light using ref */}
+            <div 
+              ref={lightRef}
+              className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" 
+            />
             
             <div className="max-w-5xl text-center relative z-10">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">Layer 02 // Digital Craftsman</span>
               <h2 className="text-[clamp(2rem,6vw,5rem)] font-serif italic font-bold leading-[1.2] tracking-tight flex flex-wrap justify-center gap-x-[0.4em] gap-y-[0.2em]">
                 {aboutWords?.map((word, i) => (
-                  <span key={i} className="about-word opacity-0 inline-block">
+                  <span 
+                    key={i} 
+                    ref={(el) => { wordRefs.current[i] = el; }}
+                    className="about-word opacity-0 inline-block"
+                  >
                     {word}
                   </span>
                 )) ?? null}
