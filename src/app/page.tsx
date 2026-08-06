@@ -438,59 +438,61 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // PINNED EXPERIENCE TIMELINE (Refined with Overlap)
+    // PINNED EXPERIENCE - NEW PROGRESS-BASED APPROACH
     if (pinnedSectionRef.current) {
-      const pinTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: pinnedSectionRef.current,
-          start: "top 80px",
-          end: "+=400%",
-          pin: true,
-          scrub: 1,
+      ScrollTrigger.create({
+        trigger: pinnedSectionRef.current,
+        start: "top 80px",
+        end: "+=400%",
+        pin: true,
+        scrub: 1,
+        onUpdate: (self) => {
+          const p = self.progress;
+
+          const getOpacity = (val: number, start: number, end: number, isOut = false) => {
+            const clamped = Math.max(start, Math.min(end, val));
+            if (isOut) return gsap.utils.mapRange(start, end, 1, 0, clamped);
+            return gsap.utils.mapRange(start, end, 0, 1, clamped);
+          };
+
+          // Calculation zones with 15% (0.15) overlap
+          // Zone 1: Stats (0.0 -> 0.35)
+          const opStats = p < 0.15 ? 1 : getOpacity(p, 0.15, 0.35, true);
+
+          // Zone 2: Tools (0.15 -> 0.60)
+          let opTools = 0;
+          if (p >= 0.15 && p <= 0.40) opTools = getOpacity(p, 0.15, 0.35);
+          else if (p > 0.40) opTools = getOpacity(p, 0.40, 0.60, true);
+
+          // Zone 3: Testimonial (0.40 -> 0.85)
+          let opTest = 0;
+          if (p >= 0.40 && p <= 0.65) opTest = getOpacity(p, 0.40, 0.60);
+          else if (p > 0.65) opTest = getOpacity(p, 0.65, 0.85, true);
+
+          // Zone 4: FAQ (0.65 -> 1.0)
+          const opFAQ = p < 0.65 ? 0 : getOpacity(p, 0.65, 0.85);
+
+          // Apply states via gsap.set for performance
+          gsap.set(statsRef.current, { opacity: opStats, pointerEvents: opStats > 0.5 ? 'auto' : 'none' });
+          gsap.set(toolsRef.current, { opacity: opTools, pointerEvents: opTools > 0.5 ? 'auto' : 'none' });
+          gsap.set(testimonialRef.current, { opacity: opTest, pointerEvents: opTest > 0.5 ? 'auto' : 'none' });
+          gsap.set(faqRef.current, { opacity: opFAQ, pointerEvents: opFAQ > 0.5 ? 'auto' : 'none', scale: gsap.utils.mapRange(0.65, 0.85, 0.95, 1, Math.max(0.65, Math.min(0.85, p))) });
+
+          // Trigger sub-animations once per cycle
+          if (p > 0.05 && !statsRef.current?.dataset.fired) {
+            statsRef.current!.dataset.fired = 'true';
+            gsap.from(statsValuesRef.current, { innerHTML: 0, duration: 1.5, snap: { innerHTML: 1 }, stagger: 0.1, ease: 'power2.out' });
+          }
+          if (p > 0.2 && !toolsRef.current?.dataset.fired) {
+            toolsRef.current!.dataset.fired = 'true';
+            gsap.from(toolsItemsRef.current, { y: 40, opacity: 0, stagger: 0.1, duration: 0.8, ease: 'power3.out' });
+          }
+          if (p > 0.45 && !testimonialRef.current?.dataset.fired) {
+            testimonialRef.current!.dataset.fired = 'true';
+            gsap.from(testimonialRef.current?.querySelector('p'), { y: 20, opacity: 0, duration: 1.2, ease: 'power2.out' });
+          }
         }
       });
-
-      // 1. STATS (Reveal and Count)
-      pinTl.to(statsRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 });
-      pinTl.from(statsValuesRef.current, {
-        innerHTML: 0,
-        duration: 2,
-        snap: { innerHTML: 1 },
-        stagger: 0.2
-      }, 0.5);
-      pinTl.to({}, { duration: 1 }); // Read time
-
-      // 2. TOOLS (Overlap Stats Out, Tools In)
-      pinTl.to(statsRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
-      pinTl.to(toolsRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 }, "-=0.7"); 
-      pinTl.from(toolsItemsRef.current, {
-        y: 40,
-        opacity: 0,
-        stagger: 0.1,
-        duration: 1
-      }, "-=0.5");
-      pinTl.to({}, { duration: 1 }); // Read time
-
-      // 3. TESTIMONIAL (Overlap Tools Out, Testimonial In)
-      pinTl.to(toolsRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
-      pinTl.to(testimonialRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 }, "-=0.7");
-      pinTl.from(testimonialRef.current?.querySelector('p'), {
-        y: 20,
-        opacity: 0,
-        duration: 1
-      }, "-=0.5");
-      pinTl.to({}, { duration: 1 }); // Read time
-
-      // 4. FAQ (Overlap Testimonial Out, FAQ In)
-      pinTl.to(testimonialRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
-      pinTl.to(faqRef.current, { 
-        opacity: 1, 
-        pointerEvents: 'auto', 
-        scale: 1, 
-        duration: 1.5,
-        ease: "back.out(1.7)"
-      }, "-=0.8");
-      pinTl.to({}, { duration: 1.5 }); // Final wait
     }
 
   }, { dependencies: [isMounted], scope: mainRef });
@@ -614,7 +616,7 @@ export default function PortfolioPage() {
 
           <div 
             ref={scrollIndicatorRef}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-0 pointer-events-none z-10"
+            className="absolute bottom-10 left-10 sm:left-1/2 sm:-translate-x-1/2 flex flex-col items-center gap-4 opacity-0 pointer-events-none z-10"
           >
             <span className="font-mono text-[9px] uppercase tracking-[0.6em] text-foreground/40">
               Scroll
@@ -677,7 +679,7 @@ export default function PortfolioPage() {
           <div className="container mx-auto px-6 md:px-12 h-full relative">
             
             {/* 1. STATS BLOCK */}
-            <div ref={statsRef} className="absolute inset-0 flex flex-col items-center justify-center opacity-0 pointer-events-none">
+            <div ref={statsRef} className="absolute inset-0 flex flex-col items-center justify-center opacity-1 pt-12">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 text-center w-full max-w-5xl">
                 <div className="flex flex-col">
                   <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary mb-1">[ EXP ]</span>
