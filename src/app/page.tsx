@@ -21,7 +21,6 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 }
 
-// Global Icons
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0-5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292.074.074 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.078.078 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
@@ -34,7 +33,6 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// LED Bitmap Library for 5x7 Grid
 const LED_BITMAPS: Record<string, number[][]> = {
   'V': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
   'E': [[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
@@ -256,11 +254,16 @@ export default function PortfolioPage() {
   const [reachedBottom, setReachedBottom] = useState(false);
   const [year, setYear] = useState(new Date().getFullYear());
 
-  const h1Line1Ref = useRef<HTMLDivElement>(null);
-  const h1Line2Ref = useRef<HTMLDivElement>(null);
-  const h1Line3Ref = useRef<HTMLDivElement>(null);
+  // Refs for Hero Animation
+  const heroLineRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // About Section Refs
+  // Refs for Works/Categories Animation
+  const worksContainerRef = useRef<HTMLDivElement>(null);
+  const worksTriggerRef = useRef<HTMLDivElement>(null);
+  const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  // Refs for About Animation
+  const aboutWrapperRef = useRef<HTMLDivElement>(null);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const lightRef = useRef<HTMLDivElement>(null);
 
@@ -280,32 +283,70 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   
+  // 1. Hero Entrance Animation
   useEffect(() => {
-    const tl = gsap.timeline({ delay: 0.5 });
-    [h1Line1Ref, h1Line2Ref, h1Line3Ref].forEach((ref, index) => {
-      if (ref.current) {
-        tl.fromTo(ref.current, 
+    if (typeof window === 'undefined') return;
+    
+    const ctx = gsap.context(() => {
+      const lines = heroLineRefs.current.filter(Boolean);
+      if (lines.length === 0) return;
+
+      const tl = gsap.timeline({ delay: 0.5 });
+      lines.forEach((el, index) => {
+        tl.fromTo(el, 
           { y: '100%' }, 
           { y: '0%', duration: 1.2, ease: 'expo.out' }, 
           index * 0.18
         );
-      }
+      });
     });
+
+    return () => ctx.revert();
   }, []);
 
-  // About Section Animation using Refs
+  // 2. Works Section Scrub Animation
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const ctx = gsap.context(() => {
-      const words = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
+      const cards = categoryRefs.current.filter(Boolean);
+      const worksContainer = worksContainerRef.current;
+      const worksTrigger = worksTriggerRef.current;
+
+      if (!worksContainer || !worksTrigger || cards.length === 0) return;
+
+      gsap.timeline({
+        scrollTrigger: {
+          trigger: worksTrigger,
+          start: "top bottom-=200", 
+          end: "top top+=80",       
+          scrub: true,
+        }
+      }).to(worksContainer, {
+        paddingTop: 8,
+        paddingBottom: 8,
+      }).to(cards, {
+        height: 64,
+      }, 0);
+    });
+
+    return () => ctx.revert();
+  }, []);
+
+  // 3. About Section Animation (Scrub + Lighting)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const ctx = gsap.context(() => {
+      const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
       const light = lightRef.current;
+      const wrapper = aboutWrapperRef.current;
       
-      if (words.length === 0 || !light) return;
+      if (targetWords.length === 0 || !light || !wrapper) return;
 
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: '#about-wrapper',
+          trigger: wrapper,
           start: 'top top',
           end: 'bottom bottom',
           scrub: 1,
@@ -313,7 +354,7 @@ export default function PortfolioPage() {
         }
       });
 
-      tl.fromTo(words, 
+      tl.fromTo(targetWords, 
         { 
           x: 40, 
           opacity: 0, 
@@ -364,26 +405,6 @@ export default function PortfolioPage() {
     return () => window.removeEventListener('wheel', handleWheel);
   }, [reachedBottom]);
 
-  useEffect(() => {
-    const cards = gsap.utils.toArray('.category-card');
-    const worksSection = document.querySelector('#works');
-    if (!worksSection) return;
-
-    gsap.timeline({
-      scrollTrigger: {
-        trigger: '#works-trigger',
-        start: "top bottom-=200", 
-        end: "top top+=80",       
-        scrub: true,
-      }
-    }).to(worksSection, {
-      paddingTop: 8,
-      paddingBottom: 8,
-    }).to(cards, {
-      height: 64,
-    }, 0);
-  }, []);
-
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label === activeCategory ? null : label);
   };
@@ -423,9 +444,9 @@ export default function PortfolioPage() {
                 <div className="w-16 h-px bg-primary/30" />
               </div>
               <h1 className="font-serif font-bold text-[clamp(2.5rem,5vw,5.5rem)] leading-tight tracking-tighter text-foreground">
-                <div className="overflow-hidden"><div ref={h1Line1Ref}>CRAFTING</div></div>
-                <div className="overflow-hidden"><div ref={h1Line2Ref}>VISUAL</div></div>
-                <div className="overflow-hidden"><div ref={h1Line3Ref}>STORYTELLING<span className="text-primary">.</span></div></div>
+                <div className="overflow-hidden"><div ref={(el) => { heroLineRefs.current[0] = el; }}>CRAFTING</div></div>
+                <div className="overflow-hidden"><div ref={(el) => { heroLineRefs.current[1] = el; }}>VISUAL</div></div>
+                <div className="overflow-hidden"><div ref={(el) => { heroLineRefs.current[2] = el; }}>STORYTELLING<span className="text-primary">.</span></div></div>
               </h1>
             </div>
             <div className="relative animate-image-reveal">
@@ -435,14 +456,15 @@ export default function PortfolioPage() {
         </section>
 
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
-          <div id="works-trigger" className="h-0 w-full" />
-          <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
+          <div ref={worksTriggerRef} id="works-trigger" className="h-0 w-full" />
+          <section ref={worksContainerRef} id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
             <div className="container mx-auto px-6 flex flex-wrap justify-center gap-12">
-              {categories.map((cat) => {
+              {categories.map((cat, index) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
                   <button 
                     key={cat.label} 
+                    ref={(el) => { categoryRefs.current[index] = el; }}
                     onClick={() => handleCategoryClick(cat.label)}
                     className={cn(
                       "category-card group relative overflow-hidden cursor-pointer w-full max-w-[140px] md:flex-1 h-16",
@@ -470,9 +492,8 @@ export default function PortfolioPage() {
           <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </div>
 
-        <div id="about-wrapper" className="relative h-[200vh] z-20">
+        <div ref={aboutWrapperRef} id="about-wrapper" className="relative h-[200vh] z-20">
           <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
-            {/* Background Light using ref */}
             <div 
               ref={lightRef}
               className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" 
