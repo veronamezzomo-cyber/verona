@@ -580,7 +580,7 @@ export default function PortfolioPage() {
         </div>
 
         {/* 1. STATS BAR */}
-        <section id="stats" ref={statsRef} className="relative z-20 py-24 border-t border-foreground/5 bg-background overflow-hidden">
+        <section id="stats" ref={statsRef} className="relative z-20 py-16 border-t border-foreground/5 bg-background overflow-hidden">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
               <div className="flex flex-col gap-2">
@@ -609,11 +609,11 @@ export default function PortfolioPage() {
         </section>
 
         {/* 2. TOOLS STACK */}
-        <section id="tools" ref={toolsRef} className="relative z-20 py-32 bg-secondary/5 border-t border-foreground/5">
+        <section id="tools" ref={toolsRef} className="relative z-20 py-20 bg-secondary/5 border-t border-foreground/5">
           <div className="container mx-auto px-6">
-            <div className="flex flex-col items-center mb-16">
+            <div className="flex flex-col items-center mb-10">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-4">[ TECH_STACK ]</span>
-              <h2 className="text-4xl md:text-6xl font-serif italic font-bold">The Creative Engine</h2>
+              <h2 className="text-4xl md:text-5xl font-serif italic font-bold">The Creative Engine</h2>
             </div>
             
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
@@ -626,13 +626,13 @@ export default function PortfolioPage() {
                 <div 
                   key={tool.name} 
                   ref={(el) => { toolsItemsRef.current[i] = el; }}
-                  className="flex flex-col items-center gap-6 p-10 bg-background border border-foreground/5 rounded-none group hover:border-primary/20 transition-all"
+                  className="flex flex-col items-center gap-6 p-6 bg-background border border-foreground/5 rounded-none group hover:border-primary/20 transition-all"
                 >
                   <div 
-                    className="w-16 h-16 flex items-center justify-center rounded-lg shadow-lg group-hover:scale-110 transition-transform"
+                    className="w-12 h-12 flex items-center justify-center rounded-lg shadow-lg group-hover:scale-110 transition-transform"
                     style={{ backgroundColor: tool.color, border: `2px solid ${tool.accent}` }}
                   >
-                    <span className="font-bold text-white text-xl">
+                    <span className="font-bold text-white text-lg">
                       {tool.name.split(' ').map(n => n[0]).join('')}
                     </span>
                   </div>
@@ -644,12 +644,12 @@ export default function PortfolioPage() {
         </section>
 
         {/* 3. TESTIMONIAL */}
-        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-32 border-t border-foreground/5 bg-background overflow-hidden">
+        <section id="testimonial" ref={testimonialRef} className="relative z-20 py-20 border-t border-foreground/5 bg-background overflow-hidden">
           <div className="container mx-auto px-6 max-w-4xl text-center">
-            <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">[ CLIENT_FEEDBACK ]</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-8 block">[ CLIENT_FEEDBACK ]</span>
             <div className="relative">
-              <Quote className="absolute -top-10 -left-10 w-20 h-20 text-foreground/5 -z-10" />
-              <p className="text-2xl md:text-4xl font-serif italic leading-relaxed text-foreground mb-8">
+              <Quote className="absolute -top-10 -left-10 w-12 h-12 text-foreground/5 -z-10" />
+              <p className="text-2xl md:text-3xl font-serif italic leading-relaxed text-foreground mb-8">
                 &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience that resonated perfectly with our audience.&quot;
               </p>
               <div className="flex flex-col items-center gap-2">
@@ -662,14 +662,14 @@ export default function PortfolioPage() {
         </section>
 
         {/* 4. FAQ TERMINAL */}
-        <section id="faq" ref={faqRef} className="relative z-20 py-32 border-t border-foreground/5 bg-background">
+        <section id="faq" ref={faqRef} className="relative z-20 py-20 border-t border-foreground/5 bg-background">
           <div className="container mx-auto px-6 max-w-4xl">
-            <div className="flex flex-col mb-16">
+            <div className="flex flex-col mb-8">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-4">[ ARCHIVE_FAQ ]</span>
               <h2 className="text-4xl font-serif italic font-bold">Common Queries</h2>
             </div>
 
-            <div className="bg-foreground text-background font-mono p-8 shadow-2xl relative overflow-hidden">
+            <div className="bg-foreground text-background font-mono p-6 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
               <div className="flex items-center justify-between mb-8 opacity-40">
                 <div className="flex gap-2">
@@ -711,7 +711,7 @@ export default function PortfolioPage() {
                 </div>
               </div>
 
-              <div className="mt-12 pt-6 border-t border-background/10 flex justify-between items-center opacity-40">
+              <div className="mt-8 pt-6 border-t border-background/10 flex justify-between items-center opacity-40">
                 <span className="text-[8px] tracking-[0.4em]">ROOT@VERONA:~/FAQ$ _</span>
                 <TerminalIcon className="w-4 h-4" />
               </div>
