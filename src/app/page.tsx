@@ -328,10 +328,10 @@ export default function PortfolioPage() {
           scrub: true,
         }
       }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
-        .to(cards, { height: 64 }, 0);
+        .to(cards, { height: 76 }, 0);
     }
 
-    // 3. About Section Animation (LOOP FIX)
+    // 3. About Section Animation
     const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
     
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
@@ -428,7 +428,7 @@ export default function PortfolioPage() {
                     ref={(el) => { categoryRefs.current[index] = el; }}
                     onClick={() => handleCategoryClick(cat.label)}
                     className={cn(
-                      "category-card group relative overflow-hidden cursor-pointer w-full max-w-[140px] md:flex-1 h-16",
+                      "category-card group relative overflow-hidden cursor-pointer w-full max-w-[170px] md:flex-1 h-20",
                       activeCategory === cat.label && "ring-2 ring-primary"
                     )}
                   >

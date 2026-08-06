@@ -103,7 +103,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
       );
     } else {
       gsap.to(containerRef.current, {
-        height: '100px',
+        height: '120px',
         duration: 0.8,
         ease: 'power3.inOut',
         overwrite: 'auto'
@@ -145,7 +145,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
       <svg 
         ref={connectorsRef}
         className="absolute top-0 left-0 w-full pointer-events-none overflow-visible z-[95]"
-        style={{ height: '100px' }} 
+        style={{ height: '120px' }} 
         aria-hidden="true"
       >
         <defs>
@@ -185,7 +185,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
           "relative w-full bg-background border-t border-b border-foreground/5 overflow-hidden transition-colors duration-700",
           isExpanded ? "z-[95]" : "z-10"
         )}
-        style={{ height: '100px' }}
+        style={{ height: '120px' }}
       >
         <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
