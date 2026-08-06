@@ -46,8 +46,7 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     date: '2023',
     videoUrl: 'https://i.imgur.com/ND3kmsW.mp4',
     category: ['motion', 'vlogs'],
-    startTime: 13,
-    coverImage: "https://i.imgur.com/leLxq09.png"
+    startTime: 13
   },
   {
     id: 'iamcooklo-humor-edit',

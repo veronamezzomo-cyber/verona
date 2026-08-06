@@ -238,6 +238,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
               loop
               playsInline
               hideControls
+              startTime={(vid as any).startTime}
             />
           ) : (
              <EditableImage 

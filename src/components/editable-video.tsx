@@ -48,27 +48,32 @@ export function EditableVideo({
 
     const seekAndPlay = async () => {
       try {
-        // Force state reset to ensure seek is accepted
+        // Ensure state is ready before seeking
         video.pause();
         video.currentTime = startTime;
         
-        // Only attempt play if it was intended (autoPlay or manual controls)
-        await video.play();
+        // Only attempt play if it was intended or is muted (autoplay friendly)
+        if (video.muted) {
+          await video.play();
+        }
       } catch (e) {
-        // Autoplay policy might block play()
+        // Autoplay policy might block play() if not muted or user hasn't interacted
       }
     };
 
     if (video.readyState >= 2) {
       seekAndPlay();
     } else {
-      video.addEventListener('loadeddata', seekAndPlay, { once: true });
+      const onLoadedData = () => {
+        seekAndPlay();
+      };
+      video.addEventListener('loadeddata', onLoadedData, { once: true });
+      return () => video.removeEventListener('loadeddata', onLoadedData);
     }
 
     // Manual Loop handling to return to startTime instead of 0:00
     const handleTimeUpdate = () => {
-      // If native loop is on, browser might jump to 0. We catch it.
-      if (video.currentTime < startTime - 1) {
+      if (video.currentTime < startTime - 0.5) {
         video.currentTime = startTime;
       }
     };
@@ -76,7 +81,6 @@ export function EditableVideo({
     video.addEventListener('timeupdate', handleTimeUpdate);
 
     return () => {
-      video.removeEventListener('loadeddata', seekAndPlay);
       video.removeEventListener('timeupdate', handleTimeUpdate);
     };
   }, [currentSrc, startTime]);
