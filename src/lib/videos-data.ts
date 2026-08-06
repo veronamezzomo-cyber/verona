@@ -36,5 +36,29 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     videoUrl: 'https://i.imgur.com/3r8dNuR_lq.mp4',
     category: 'talking',
     description: 'Focusing on sound design and visual clarity to maximize audience engagement in long-form conversations.'
+  },
+  {
+    id: 'motion-graphics-01',
+    title: 'Future Tech Opener',
+    date: '2024',
+    videoUrl: 'https://i.imgur.com/i33VokI.mp4',
+    category: 'motion',
+    description: 'Exploration of futuristic UI elements and fluid motion principles.'
+  },
+  {
+    id: 'vlog-edit-01',
+    title: 'Tokyo Nights',
+    date: '2023',
+    videoUrl: 'https://i.imgur.com/EDMdRG8_lq.mp4',
+    category: 'vlogs',
+    description: 'Color grading experiment focusing on neon aesthetics and urban atmosphere.'
+  },
+  {
+    id: 'commercial-spot',
+    title: 'Brand Story 2024',
+    date: '2024',
+    videoUrl: 'https://i.imgur.com/p23vehx_lq.mp4',
+    category: 'talking',
+    description: 'A professional brand documentary highlighting sustainable practices.'
   }
 ];

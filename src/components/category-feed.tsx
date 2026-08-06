@@ -424,7 +424,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
                 isVerticalFormat 
                   ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
-                  : "grid-cols-1 md:grid-cols-2"
+                  : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
               )}
             >
               {VIDEOS_DATA.map((item, index) => (
