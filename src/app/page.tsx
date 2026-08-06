@@ -362,7 +362,7 @@ export default function PortfolioPage() {
     );
     
     const TIMINGS: Record<string, { focus: number; apice: number }> = {
-      'hero-grok': { focus: 0, apice: 3 },
+      'hero-grok': { focus: 0, apice: 0 },
       'hero-me-in-one-min': { focus: 10, apice: 13 },
       'hero-cook': { focus: 20, apice: 0 },
       'hero-speed': { focus: 30, apice: 0 },
