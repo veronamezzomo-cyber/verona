@@ -99,6 +99,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   
   const focalFactorsRef = useRef<number[]>([0, 0, 0, 0, 0]);
   const currentFocusedIndexRef = useRef<number>(-1);
+  const cycleProgressRef = useRef<number>(0);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -175,7 +176,19 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
     const rotateFocus = () => {
       if (!isMountedRef.current) return;
-      const nextIndex = (currentFocusedIndexRef.current + 1) % videos.length;
+      
+      let nextIndex: number;
+      
+      // Lógica de Ciclo: Sequencial no primeiro ciclo, Aleatório depois.
+      if (cycleProgressRef.current < videos.length) {
+        nextIndex = cycleProgressRef.current;
+      } else {
+        // Modo aleatório, sem repetir o atual
+        do {
+          nextIndex = Math.floor(Math.random() * videos.length);
+        } while (nextIndex === currentFocusedIndexRef.current);
+      }
+
       const prevIndex = currentFocusedIndexRef.current;
 
       if (prevIndex !== -1) {
@@ -193,6 +206,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       });
 
       currentFocusedIndexRef.current = nextIndex;
+      cycleProgressRef.current++;
     };
 
     const timer = setTimeout(() => {
