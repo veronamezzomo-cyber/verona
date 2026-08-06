@@ -300,6 +300,7 @@ export default function PortfolioPage() {
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
   const [isBooting, setIsBooting] = useState(true);
   const [bootStep, setBootStep] = useState(0);
+  const [isHeaderTyped, setIsHeaderTyped] = useState(false);
   const [isTerminalClosed, setIsTerminalClosed] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
@@ -460,7 +461,7 @@ export default function PortfolioPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isBooting) return;
+    if (isBooting || !isHeaderTyped) return;
     if (e.key === 'ArrowUp') {
       e.preventDefault();
       setActiveFaqIndex(prev => (prev > 0 ? prev - 1 : Math.max(0, faqAvailableIndices.length - 1)));
@@ -802,30 +803,38 @@ export default function PortfolioPage() {
                           {/* Options */}
                           {faqAvailableIndices.length > 0 && (
                             <div className="pt-8 border-t border-white/5">
-                              <div className="text-[10px] uppercase tracking-widest text-white/20 mb-4">Available Queries</div>
-                              <div className="space-y-1">
-                                {faqAvailableIndices.map((qIdx, i) => (
-                                  <div 
-                                    key={qIdx}
-                                    onMouseEnter={() => setHoverFaqIndex(i)}
-                                    onMouseLeave={() => setHoverFaqIndex(null)}
-                                    className={cn(
-                                      "transition-colors flex items-start gap-2 py-0.5 outline-none",
-                                      activeFaqIndex === i ? "text-white font-bold" : "text-white/30"
-                                    )}
-                                  >
-                                    <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
-                                      {'>'}
-                                    </span>
-                                    <span className="uppercase text-xs tracking-tight">
-                                      {FAQ_DATA[qIdx].q}
-                                      {activeFaqIndex === i && (
-                                        <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
-                                      )}
-                                    </span>
-                                  </div>
-                                ))}
+                              <div className="text-[10px] uppercase tracking-widest text-white/20 mb-4">
+                                <TypewriterText 
+                                  text="Available Queries (Use Arrows + Enter)" 
+                                  onComplete={() => setIsHeaderTyped(true)}
+                                  speed={10}
+                                />
                               </div>
+                              {isHeaderTyped && (
+                                <div className="space-y-1">
+                                  {faqAvailableIndices.map((qIdx, i) => (
+                                    <div 
+                                      key={qIdx}
+                                      onMouseEnter={() => setHoverFaqIndex(i)}
+                                      onMouseLeave={() => setHoverFaqIndex(null)}
+                                      className={cn(
+                                        "transition-colors flex items-start gap-2 py-0.5 outline-none",
+                                        activeFaqIndex === i ? "text-white font-bold" : "text-white/30"
+                                      )}
+                                    >
+                                      <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
+                                        {'>'}
+                                      </span>
+                                      <span className="uppercase text-xs tracking-tight">
+                                        {FAQ_DATA[qIdx].q}
+                                        {activeFaqIndex === i && (
+                                          <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
+                                        )}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           )}
 
