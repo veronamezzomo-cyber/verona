@@ -335,25 +335,12 @@ export default function PortfolioPage() {
     const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
     
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
-      // Loop individual para contornar erro de mapeamento do GSAP em arrays
+      const tl = gsap.timeline({ delay: 0.2 });
       targetWords.forEach((word, i) => {
-        if (!word) return;
-        gsap.fromTo(word, 
-          { 
-            x: 40, 
-            opacity: 0, 
-            filter: 'blur(8px)',
-            textShadow: "0 0 0px hsl(var(--primary)/0)"
-          },
-          { 
-            x: 0, 
-            opacity: 1, 
-            filter: 'blur(0px)',
-            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-            duration: 0.8, 
-            delay: i * 0.1, 
-            ease: 'power2.out' 
-          }
+        tl.fromTo(word,
+          { x: 40, opacity: 0, filter: 'blur(8px)', textShadow: "0 0 0px hsl(var(--primary)/0)" },
+          { x: 0, opacity: 1, filter: 'blur(0px)', textShadow: "0 0 20px hsl(var(--primary)/0.5)", duration: 0.8, ease: 'power2.out' },
+          i * 0.1
         );
       });
 
