@@ -815,7 +815,7 @@ export default function PortfolioPage() {
                                     onMouseLeave={() => setHoverFaqIndex(null)}
                                     className={cn(
                                       "cursor-pointer transition-colors flex items-start gap-2 py-0.5 outline-none",
-                                      activeFaqIndex === i ? "text-white" : "text-white/30"
+                                      activeFaqIndex === i ? "text-white font-bold" : "text-white/30"
                                     )}
                                   >
                                     <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
