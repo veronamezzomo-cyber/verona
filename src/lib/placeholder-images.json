@@ -7,35 +7,35 @@
       "imageHint": "man portrait"
     },
     {
-      "id": "hero-cluster-1",
-      "description": "Portfolio Video 1",
-      "imageUrl": "https://i.imgur.com/ND3kmsW.mp4",
-      "imageHint": "cinematic edit",
-      "startTime": 13
+      "id": "hero-grok",
+      "description": "grok",
+      "imageUrl": "https://i.imgur.com/SRki5JL.mp4",
+      "imageHint": "kinetic typography"
     },
     {
-      "id": "hero-cluster-2",
-      "description": "Portfolio Video 2",
+      "id": "hero-me-in-one-min",
+      "description": "me in one min",
+      "imageUrl": "https://i.imgur.com/ND3kmsW.mp4",
+      "imageHint": "intro video",
+      "startTime": 10
+    },
+    {
+      "id": "hero-cook",
+      "description": "cook",
+      "imageUrl": "https://i.imgur.com/p23vehx.mp4",
+      "imageHint": "humor edit"
+    },
+    {
+      "id": "hero-speed",
+      "description": "speed",
+      "imageUrl": "https://i.imgur.com/aYp6QMo.mp4",
+      "imageHint": "viral style"
+    },
+    {
+      "id": "hero-pensen",
+      "description": "pensen",
       "imageUrl": "https://i.imgur.com/nCSE6MZ.mp4",
       "imageHint": "motion design"
-    },
-    {
-      "id": "hero-cluster-3",
-      "description": "Portfolio Video 3",
-      "imageUrl": "https://i.imgur.com/aYp6QMo.mp4",
-      "imageHint": "visual story"
-    },
-    {
-      "id": "hero-cluster-4",
-      "description": "Portfolio Video 4",
-      "imageUrl": "https://i.imgur.com/p23vehx.mp4",
-      "imageHint": "color grading"
-    },
-    {
-      "id": "hero-cluster-5",
-      "description": "Portfolio Video 5",
-      "imageUrl": "https://i.imgur.com/SRki5JL.mp4",
-      "imageHint": "digital art"
     },
     {
       "id": "cat-all",

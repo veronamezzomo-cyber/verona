@@ -327,8 +327,8 @@ const BOOT_LINES = [
 ];
 
 export default function PortfolioPage() {
-  const terminalRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
+  const terminalRef = useRef<HTMLDivElement>(null);
 
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
@@ -361,7 +361,10 @@ export default function PortfolioPage() {
     { id: 'cat-vlogs', label: 'vlogs' }
   ], []);
 
-  const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
+  const clusterVideos = useMemo(() => 
+    PlaceHolderImages.filter(i => 
+      ['hero-grok', 'hero-me-in-one-min', 'hero-cook', 'hero-speed', 'hero-pensen'].includes(i.id)
+    ), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
 
   useEffect(() => {
