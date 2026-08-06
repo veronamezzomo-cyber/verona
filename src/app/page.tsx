@@ -438,7 +438,7 @@ export default function PortfolioPage() {
         }
       }, 0.9);
 
-    // PINNED EXPERIENCE TIMELINE
+    // PINNED EXPERIENCE TIMELINE (Refined with Overlap)
     if (pinnedSectionRef.current) {
       const pinTl = gsap.timeline({
         scrollTrigger: {
@@ -458,30 +458,30 @@ export default function PortfolioPage() {
         snap: { innerHTML: 1 },
         stagger: 0.2
       }, 0.5);
-      pinTl.to({}, { duration: 1 }); // Wait time
+      pinTl.to({}, { duration: 1 }); // Read time
 
-      // 2. TOOLS (Stats Out, Tools In)
+      // 2. TOOLS (Overlap Stats Out, Tools In)
       pinTl.to(statsRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
-      pinTl.to(toolsRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 });
+      pinTl.to(toolsRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 }, "-=0.7"); 
       pinTl.from(toolsItemsRef.current, {
         y: 40,
         opacity: 0,
         stagger: 0.1,
         duration: 1
       }, "-=0.5");
-      pinTl.to({}, { duration: 1 }); // Wait time
+      pinTl.to({}, { duration: 1 }); // Read time
 
-      // 3. TESTIMONIAL (Tools Out, Testimonial In)
+      // 3. TESTIMONIAL (Overlap Tools Out, Testimonial In)
       pinTl.to(toolsRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
-      pinTl.to(testimonialRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 });
+      pinTl.to(testimonialRef.current, { opacity: 1, pointerEvents: 'auto', duration: 1 }, "-=0.7");
       pinTl.from(testimonialRef.current?.querySelector('p'), {
         y: 20,
         opacity: 0,
         duration: 1
       }, "-=0.5");
-      pinTl.to({}, { duration: 1 }); // Wait time
+      pinTl.to({}, { duration: 1 }); // Read time
 
-      // 4. FAQ (Testimonial Out, FAQ In)
+      // 4. FAQ (Overlap Testimonial Out, FAQ In)
       pinTl.to(testimonialRef.current, { opacity: 0, pointerEvents: 'none', duration: 1 });
       pinTl.to(faqRef.current, { 
         opacity: 1, 
@@ -489,8 +489,8 @@ export default function PortfolioPage() {
         scale: 1, 
         duration: 1.5,
         ease: "back.out(1.7)"
-      });
-      pinTl.to({}, { duration: 1.5 }); // Final wait time
+      }, "-=0.8");
+      pinTl.to({}, { duration: 1.5 }); // Final wait
     }
 
   }, { dependencies: [isMounted], scope: mainRef });
