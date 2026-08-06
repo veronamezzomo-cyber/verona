@@ -257,11 +257,12 @@ export default function PortfolioPage() {
 
   // Refs for Animations
   const heroLineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  
   const worksContainerRef = useRef<HTMLDivElement>(null);
   const worksTriggerRef = useRef<HTMLDivElement>(null);
-  const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const aboutWrapperRef = useRef<HTMLDivElement>(null);
-  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const lightRef = useRef<HTMLDivElement>(null);
 
   const aboutWords = useMemo(() => 
@@ -285,13 +286,13 @@ export default function PortfolioPage() {
     setIsMounted(true);
   }, []);
 
-  // GSAP Animations Context
+  // GSAP Context Management
   useLayoutEffect(() => {
-    if (!isMounted) return;
+    if (typeof window === 'undefined') return;
 
     const ctx = gsap.context(() => {
       // 1. Hero Entrance
-      const heroLines = heroLineRefs.current.filter(Boolean) as HTMLDivElement[];
+      const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
       if (heroLines.length > 0) {
         gsap.timeline({ delay: 0.5 })
           .fromTo(heroLines, 
@@ -301,30 +302,26 @@ export default function PortfolioPage() {
       }
 
       // 2. Works Section Scrub
-      const cards = categoryRefs.current.filter(Boolean) as HTMLButtonElement[];
-      const worksContainer = worksContainerRef.current;
-      const worksTrigger = worksTriggerRef.current;
-      if (worksContainer && worksTrigger && cards.length > 0) {
+      const cards = categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null);
+      if (worksContainerRef.current && worksTriggerRef.current && cards.length > 0) {
         gsap.timeline({
           scrollTrigger: {
-            trigger: worksTrigger,
+            trigger: worksTriggerRef.current,
             start: "top bottom-=200", 
             end: "top top+=80",       
             scrub: true,
           }
-        }).to(worksContainer, { paddingTop: 8, paddingBottom: 8 })
+        }).to(worksContainerRef.current, { paddingTop: 8, paddingBottom: 8 })
           .to(cards, { height: 64 }, 0);
       }
 
       // 3. About Section Scrub + Glow
-      const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
-      const light = lightRef.current;
-      const wrapper = aboutWrapperRef.current;
+      const targetWords = Array.from(wordRefs.current).filter((el): el is HTMLSpanElement => el !== null);
       
-      if (targetWords.length > 0 && light && wrapper) {
+      if (isMounted && targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
         const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: wrapper,
+            trigger: aboutWrapperRef.current,
             start: 'top top',
             end: 'bottom bottom',
             scrub: 1,
@@ -350,7 +347,7 @@ export default function PortfolioPage() {
           }
         );
 
-        tl.to(light, {
+        tl.to(lightRef.current, {
           opacity: 1,
           duration: 0.8,
           ease: 'sine.inOut'
@@ -524,4 +521,3 @@ export default function PortfolioPage() {
     </div>
   );
 }
-
