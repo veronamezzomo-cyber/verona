@@ -445,14 +445,12 @@ export default function PortfolioPage() {
           <CategoryFeed 
             category={activeCategory} 
             onClose={handleCloseFeed} 
-            cardElements={categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null).filter(Boolean)}
           />
         </div>
 
         <div ref={aboutWrapperRef} id="about-wrapper" className="relative h-[200vh] z-20">
           <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
             <div 
-              ref={lightRef}
               className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" 
             />
             

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
@@ -11,15 +11,6 @@ import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
 interface CategoryFeedProps {
   category: string | null;
   onClose: () => void;
-  cardElements?: HTMLButtonElement[];
-}
-
-interface LineCoord {
-  id: string;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
 }
 
 interface CyberTerminalProps {
@@ -202,13 +193,10 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
   );
 }
 
-export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryFeedProps) {
+export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const connectorsRef = useRef<SVGSVGElement>(null);
-  const pulseStopRef = useRef<SVGStopElement>(null);
   
-  const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
   const [clickCount, setClickCount] = useState(0);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
   const [terminalStatus, setTerminalStatus] = useState<'open' | 'minimized' | 'closed'>('open');
@@ -225,70 +213,6 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
     if (!category || category === 'all') return VIDEOS_DATA;
     return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
-
-  const updateLines = useCallback(() => {
-    // Log de depuração para rastrear o estado das props e refs
-    console.log('DEBUG updateLines:', { 
-      hasConnectors: !!connectorsRef.current, 
-      hasContainer: !!containerRef.current, 
-      cardElementsType: typeof cardElements,
-      cardElementsLength: cardElements?.length,
-      cardElementsRaw: cardElements 
-    });
-
-    // Proteção rigorosa contra valores nulos ou indefinidos
-    if (!connectorsRef.current || !containerRef.current || !cardElements || !Array.isArray(cardElements) || cardElements.length === 0) {
-      if (lineCoords.length > 0) setLineCoords([]);
-      return;
-    }
-
-    try {
-      const svgRect = connectorsRef.current.getBoundingClientRect();
-      const containerRect = containerRef.current.getBoundingClientRect();
-
-      // Ponto de destino (centro horizontal do container, topo do SVG)
-      const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-      const destY = 0;
-
-      // Mapeamento seguro verificando cada elemento individualmente
-      const coords = cardElements
-        .filter(card => card && typeof card.getBoundingClientRect === 'function')
-        .map(card => {
-          const cardRect = card.getBoundingClientRect();
-          const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
-          return {
-            id: label,
-            x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
-            y1: (cardRect.bottom - svgRect.top),
-            x2: destX,
-            y2: destY
-          };
-        });
-
-      setLineCoords(coords);
-    } catch (error) {
-      console.error('Error calculating line coordinates:', error);
-    }
-  }, [cardElements, lineCoords.length]);
-
-  useEffect(() => {
-    // Pequeno delay para garantir que o DOM terminou de assentar após o render
-    const timer = setTimeout(updateLines, 50);
-    window.addEventListener('resize', updateLines);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', updateLines);
-    };
-  }, [updateLines, isExpanded]);
-
-  useEffect(() => {
-    if (isExpanded && pulseStopRef.current) {
-      gsap.fromTo(pulseStopRef.current, 
-        { offset: "0%" }, 
-        { offset: "100%", duration: 0.8, ease: "power2.out" }
-      );
-    }
-  }, [category, isExpanded]);
 
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
@@ -346,37 +270,6 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
         )}
         style={{ height: '120px' }}
       >
-        <svg 
-          ref={connectorsRef} 
-          className="absolute top-0 left-0 w-full pointer-events-none overflow-visible" 
-          style={{ height: '80px', zIndex: 10 }}
-        >
-          <defs>
-            <linearGradient id="pulse-gradient" x1="0" y1="0" x2="0" y2="1">
-              <stop ref={pulseStopRef} offset="0%" stopColor="rgb(220, 38, 38)" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="rgb(220, 38, 38)" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {lineCoords.map((line, i) => {
-            const isActive = category === line.id;
-            return (
-              <line
-                key={i}
-                x1={line.x1}
-                y1={line.y1}
-                x2={line.x2}
-                y2={line.y2}
-                stroke={isActive ? "url(#pulse-gradient)" : "rgba(128, 128, 128, 0.15)"}
-                strokeWidth={isActive ? 1.5 : 1}
-                style={{ 
-                  opacity: isActive ? 0.6 : 0.15,
-                  transition: 'stroke 0.3s, stroke-width 0.3s, opacity 0.3s'
-                }}
-              />
-            );
-          })}
-        </svg>
-
         <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
             <span className={cn(
@@ -390,7 +283,7 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
               <h2 className="font-serif text-2xl md:text-3xl italic font-bold text-foreground lowercase leading-none">
                 {category || 'none'}
               </h2>
-              {category && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]" />}
+              {category && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.5)]" />}
             </div>
           </div>
           
@@ -401,7 +294,7 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
                 {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
                   <div key={i} className={cn(
                     "w-1.5 h-1.5 rounded-full border border-primary/30 transition-colors",
-                    i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" : ""
+                    i < clickCount ? "bg-primary border-primary shadow-[0_0_8px_rgba(220,38,38,0.5)]" : ""
                   )} />
                 ))}
               </div>
@@ -434,7 +327,7 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
           <div className="flex items-center justify-end py-10 px-12 border-b border-foreground/5 shrink-0">
             <button 
               onClick={onClose}
-              className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(var(--primary),0.2)]"
+              className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
             >
               Collapse Section <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
             </button>
@@ -562,7 +455,7 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
 
                 <div 
                   className={cn(
-                    "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
+                    "relative shadow-[0_0_100px_rgba(220,38,38,0.2)] border border-primary/30 bg-black shrink-0",
                     selectedProject.category.some(c => verticalCategories.includes(c)) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
                   )}
                   onClick={(e) => e.stopPropagation()}
@@ -625,16 +518,16 @@ export function CategoryFeed({ category, onClose, cardElements = [] }: CategoryF
           height: 4px;
         }
         .cyber-scrollbar::-webkit-scrollbar-track {
-          background: rgba(var(--primary), 0.05);
+          background: rgba(220, 38, 38, 0.05);
           border-radius: 10px;
         }
         .cyber-scrollbar::-webkit-scrollbar-thumb {
-          background: hsl(var(--primary));
+          background: #dc2626;
           border-radius: 10px;
-          box-shadow: 0 0 10px hsl(var(--primary));
+          box-shadow: 0 0 10px #dc2626;
         }
         .cyber-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: hsl(var(--primary));
+          background: #dc2626;
           height: 6px;
         }
       `}</style>
