@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { X, Lock, Sparkles, Cpu, Layers, Zap, Activity } from 'lucide-react';
+import { X, Lock, Sparkles, Cpu, Layers, Zap, Activity, Terminal } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -50,6 +50,78 @@ function MetadataItem({ label, value, icon: Icon, xFactor, yFactor, mousePos }: 
       <div className="flex flex-col">
         <span className="text-[8px] uppercase tracking-[0.2em] text-muted-foreground font-mono">{label}</span>
         <span className="text-[10px] uppercase font-bold text-foreground tracking-widest">{value}</span>
+      </div>
+    </div>
+  );
+}
+
+function CyberTerminal({ text }: { text: string }) {
+  const [display, setDisplay] = useState('');
+  const [phase, setPhase] = useState<'hello' | 'cls' | 'typing'>('hello');
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    
+    if (phase === 'hello') {
+      setDisplay('HELLO WORLD');
+      timeout = setTimeout(() => setPhase('cls'), 1200);
+    } else if (phase === 'cls') {
+      setDisplay('CLS');
+      timeout = setTimeout(() => {
+        setDisplay('');
+        setPhase('typing');
+      }, 400);
+    } else if (phase === 'typing') {
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i <= text.length) {
+          const content = text.substring(0, i);
+          const placeholders = '_'.repeat(text.length - i);
+          setDisplay(content + placeholders);
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 30);
+      return () => clearInterval(interval);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [phase, text]);
+
+  return (
+    <div className="w-full bg-black/60 border border-primary/20 backdrop-blur-xl p-6 font-mono relative overflow-hidden group">
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Terminal className="w-3 h-3 text-primary" />
+          <span className="text-[9px] uppercase tracking-[0.3em] text-primary/60 font-bold">Project Data Interface</span>
+        </div>
+        <div className="flex gap-1">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />
+          <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+          <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-pulse" />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start gap-4">
+          <span className="text-primary/40 text-[10px] select-none shrink-0">$ root@verona:~/logs/</span>
+          <div className="text-[11px] leading-relaxed tracking-wider text-foreground break-words uppercase">
+            {display}
+            <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-primary/10 flex justify-between items-center opacity-40">
+        <div className="flex gap-4 text-[8px] uppercase tracking-[0.2em]">
+          <span>Ln: 01</span>
+          <span>Col: {display.length}</span>
+          <span>Enc: UTF-8</span>
+        </div>
+        <div className="text-[8px] uppercase tracking-[0.2em]">Ready_</div>
       </div>
     </div>
   );
@@ -350,31 +422,38 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
               
               <div 
                 className={cn(
-                  "relative z-[60] shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black overflow-visible",
-                  isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[1000px] aspect-[16/9]"
+                  "relative z-[60] flex flex-col gap-0",
+                  isVerticalFormat ? "w-full max-w-[400px]" : "w-full max-w-[1000px]"
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
-                <EditableVideo 
-                  src={selectedProject.videoUrl} 
-                  storageKey={`theater-${selectedProject.id}`}
-                  fill
-                  className="object-cover"
-                  autoPlay
-                  controls
-                />
+                <div className={cn(
+                  "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black overflow-visible",
+                  isVerticalFormat ? "aspect-[2/3]" : "aspect-[16/9]"
+                )}>
+                  <EditableVideo 
+                    src={selectedProject.videoUrl} 
+                    storageKey={`theater-${selectedProject.id}`}
+                    fill
+                    className="object-cover"
+                    autoPlay
+                    controls
+                  />
 
-                <MetadataItem label="Software" value="After Effects" icon={Cpu} xFactor={-1} yFactor={-1} mousePos={mousePos} />
-                <MetadataItem label="Grade" value="DaVinci Resolve" icon={Activity} xFactor={1} yFactor={-1} mousePos={mousePos} />
-                <MetadataItem label="Master" value="4K / 60FPS" icon={Layers} xFactor={-1} yFactor={1} mousePos={mousePos} />
-                <MetadataItem label="Engine" value="ProRes 422" icon={Zap} xFactor={1} yFactor={1} mousePos={mousePos} />
+                  <MetadataItem label="Software" value="After Effects" icon={Cpu} xFactor={-1} yFactor={-1} mousePos={mousePos} />
+                  <MetadataItem label="Grade" value="DaVinci Resolve" icon={Activity} xFactor={1} yFactor={-1} mousePos={mousePos} />
+                  <MetadataItem label="Master" value="4K / 60FPS" icon={Layers} xFactor={-1} yFactor={1} mousePos={mousePos} />
+                  <MetadataItem label="Engine" value="ProRes 422" icon={Zap} xFactor={1} yFactor={1} mousePos={mousePos} />
 
-                <button 
-                  onClick={closeTheater}
-                  className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground hover:text-primary transition-colors"
-                >
-                  Close Archive <X className="w-4 h-4" />
-                </button>
+                  <button 
+                    onClick={closeTheater}
+                    className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground hover:text-primary transition-colors"
+                  >
+                    Close Archive <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <CyberTerminal text={selectedProject.description || 'HELLO WORLD'} />
               </div>
             </div>
           )}
