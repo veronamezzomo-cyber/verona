@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { X, Lock, Sparkles, Terminal, Minus, Square } from 'lucide-react';
+import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -22,7 +22,14 @@ interface LineCoord {
   y2: number;
 }
 
-function CyberTerminal({ text }: { text: string }) {
+interface CyberTerminalProps {
+  text: string;
+  onClose: () => void;
+  onMinimize: () => void;
+  isMinimized?: boolean;
+}
+
+function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminalProps) {
   const [history, setHistory] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -32,7 +39,6 @@ function CyberTerminal({ text }: { text: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Initial boot sequence
   useEffect(() => {
     setHistory([
       'VERONA_OS [Version 10.0.19045.4291]',
@@ -55,6 +61,7 @@ function CyberTerminal({ text }: { text: string }) {
   }, [history]);
 
   const onMouseDown = (e: React.MouseEvent) => {
+    if (isMinimized) return;
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -107,6 +114,9 @@ function CyberTerminal({ text }: { text: string }) {
       case 'about':
         response = 'VERONA STUDIO ENGINE V3.0 - BUILT FOR PERFORMANCE.';
         break;
+      case 'exit':
+        onClose();
+        return;
       default:
         response = `Command "${cmd}" not recognized. Check "help".`;
     }
@@ -114,6 +124,8 @@ function CyberTerminal({ text }: { text: string }) {
     setHistory(prev => [...prev, `C:\\Users\\Guest> ${inputValue}`, response, '']);
     setInputValue('');
   };
+
+  if (isMinimized) return null;
 
   return (
     <div 
@@ -126,14 +138,22 @@ function CyberTerminal({ text }: { text: string }) {
         onMouseDown={onMouseDown}
         className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-red-900/30 select-none cursor-move active:bg-[#222]"
       >
-        <div className="flex items-center gap-3 pointer-events-none">
-          <Terminal className="w-3 h-3 text-red-600 animate-pulse" />
-          <span className="text-[9px] uppercase tracking-[0.3em] text-red-600 font-bold">Verona_OS // Cmd_Console</span>
+        {/* Controls on the Left */}
+        <div className="flex items-center gap-3">
+          <X 
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            className="w-3.5 h-3.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" 
+          />
+          <Minus 
+            onClick={(e) => { e.stopPropagation(); onMinimize(); }}
+            className="w-3.5 h-3.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" 
+          />
+          <Square className="w-2.5 h-2.5 text-red-600/10 cursor-not-allowed" />
         </div>
-        <div className="flex items-center gap-4">
-          <Minus className="w-3 h-3 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" />
-          <Square className="w-2.5 h-2.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" />
-          <X className="w-3.5 h-3.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" />
+
+        <div className="flex items-center gap-2 pointer-events-none opacity-60">
+          <span className="text-[9px] uppercase tracking-[0.3em] text-red-600 font-bold">Verona_OS // Cmd_Console</span>
+          <Terminal className="w-3 h-3 text-red-600 animate-pulse" />
         </div>
       </div>
 
@@ -193,6 +213,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   const [clickCount, setClickCount] = useState(0);
   const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
+  const [terminalStatus, setTerminalStatus] = useState<'open' | 'minimized' | 'closed'>('open');
   const { toast } = useToast();
 
   const isExpanded = !!category;
@@ -274,6 +295,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
     }
     setClickCount(prev => prev + 1);
     setSelectedProject(item);
+    setTerminalStatus('open'); // Re-open terminal for new projects
   };
 
   const closeTheater = (e: React.MouseEvent) => {
@@ -474,6 +496,18 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Minimized Terminal Bar */}
+                {terminalStatus === 'minimized' && (
+                  <div 
+                    onClick={() => setTerminalStatus('open')}
+                    className="absolute bottom-10 left-10 z-[100] flex items-center gap-4 bg-black/80 border border-red-900/40 px-4 py-3 rounded-md cursor-pointer hover:bg-red-900/10 transition-all animate-in slide-in-from-bottom-5"
+                  >
+                    <Terminal className="w-4 h-4 text-red-600" />
+                    <span className="font-mono text-[9px] uppercase tracking-widest text-red-500">Cmd_Console (Minimized)</span>
+                    <Maximize2 className="w-3 h-3 text-red-600/40" />
+                  </div>
+                )}
+
                 {/* Video Window */}
                 <div className={cn(
                   "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
@@ -496,9 +530,15 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   </button>
                 </div>
 
-                {/* Detached Interactive Terminal Window */}
+                {/* Terminal Window Area */}
                 <div className="w-full max-w-[450px] shrink-0 self-center">
-                  <CyberTerminal text={selectedProject.description || 'HELLO WORLD'} />
+                  {terminalStatus === 'open' && (
+                    <CyberTerminal 
+                      text={selectedProject.description || 'HELLO WORLD'} 
+                      onClose={() => setTerminalStatus('closed')}
+                      onMinimize={() => setTerminalStatus('minimized')}
+                    />
+                  )}
                 </div>
               </div>
             </div>
