@@ -288,7 +288,7 @@ export default function PortfolioPage() {
 
   // GSAP Context Management
   useLayoutEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!isMounted || typeof window === 'undefined') return;
 
     const ctx = gsap.context(() => {
       // 1. Hero Entrance
@@ -315,10 +315,12 @@ export default function PortfolioPage() {
           .to(cards, { height: 64 }, 0);
       }
 
-      // 3. About Section Scrub + Glow
-      const targetWords = Array.from(wordRefs.current).filter((el): el is HTMLSpanElement => el !== null);
-      
-      if (isMounted && targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
+      // 3. About Section Animation (FAILING CONTEXT)
+      const targetWords = wordRefs.current 
+        ? Array.from(wordRefs.current).filter((el): el is HTMLSpanElement => el !== null)
+        : null;
+
+      if (targetWords && targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: aboutWrapperRef.current,
