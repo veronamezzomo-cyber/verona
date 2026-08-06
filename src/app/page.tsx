@@ -91,11 +91,9 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const [containerWidth, setContainerWidth] = useState(600);
   const orbitParamsRef = useRef<any[]>([]);
   
-  // Ref para controlar os fatores de foco individuais (0 a 1)
   const focalFactorsRef = useRef<number[]>([0, 0, 0, 0, 0]);
   const currentFocusedIndexRef = useRef<number>(-1);
 
-  // Responsiveness logic
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
@@ -257,13 +255,11 @@ export default function PortfolioPage() {
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const [reachedBottom, setReachedBottom] = useState(false);
   const [year, setYear] = useState(new Date().getFullYear());
-  const lastScrollYRef = useRef(0);
 
   const h1Line1Ref = useRef<HTMLDivElement>(null);
   const h1Line2Ref = useRef<HTMLDivElement>(null);
   const h1Line3Ref = useRef<HTMLDivElement>(null);
 
-  // Stable aboutWords array
   const aboutWords = useMemo(() => 
     "Behind every great story is someone obsessed with its details.".split(" "), 
   []);
@@ -282,46 +278,89 @@ export default function PortfolioPage() {
   
   useEffect(() => {
     const tl = gsap.timeline({ delay: 0.5 });
-    
     [h1Line1Ref, h1Line2Ref, h1Line3Ref].forEach((ref, index) => {
       if (ref.current) {
         tl.fromTo(ref.current, 
           { y: '100%' }, 
-          { 
-            y: '0%', 
-            duration: 1.2, 
-            ease: 'expo.out' 
-          }, 
+          { y: '0%', duration: 1.2, ease: 'expo.out' }, 
           index * 0.18
         );
       }
     });
   }, []);
 
+  // DIAGNOSTIC EFFECT FOR ABOUT SECTION
   useEffect(() => {
-    let ticking = false;
+    if (typeof window === 'undefined') return;
 
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const winHeight = window.innerHeight;
-          const docHeight = document.documentElement.scrollHeight;
-          const atBottom = (currentScrollY + winHeight) >= docHeight - 20;
-          
-          setReachedBottom(atBottom);
-          
-          if (!atBottom) {
-            setIsSecretVisible(false);
+    const timer = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        const words = gsap.utils.toArray<HTMLElement>('.about-word').filter(Boolean);
+        const light = document.querySelector('.about-light');
+        
+        // TEST 4: LOGS
+        console.log('--- DIAGNOSTIC START ---');
+        console.log('Words Array:', words);
+        console.log('Is Array:', Array.isArray(words));
+        console.log('Length:', words.length);
+        console.log('Light Element:', light);
+        console.log('--- DIAGNOSTIC END ---');
+
+        if (!words.length || !light) return;
+
+        // TEST 2 & 3: ISOLATED TIMELINE (Temporarily direct to avoid internal timeline issues)
+        // Testing if direct fromTo works to isolate the "null (reading 'map')"
+        gsap.fromTo(words, 
+          { 
+            x: 40, 
+            opacity: 0, 
+            filter: 'blur(8px)',
+            textShadow: "0 0 0px hsl(var(--primary)/0)"
+          },
+          { 
+            x: 0, 
+            opacity: 1, 
+            filter: 'blur(0px)',
+            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+            stagger: 0.1, 
+            duration: 0.8, 
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: '#about-wrapper',
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: 1,
+            }
           }
-          
-          lastScrollYRef.current = currentScrollY;
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
+        );
 
+        // Separate trigger for light to isolate
+        gsap.to(light, {
+          opacity: 1,
+          scrollTrigger: {
+            trigger: '#about-wrapper',
+            start: 'center top',
+            end: 'bottom bottom',
+            scrub: 1,
+          }
+        });
+      });
+
+      return () => ctx.revert();
+    }, 200); // Increased delay for stability
+
+    return () => clearTimeout(timer);
+  }, [aboutWords]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const winHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      const atBottom = (currentScrollY + winHeight) >= docHeight - 20;
+      setReachedBottom(atBottom);
+      if (!atBottom) setIsSecretVisible(false);
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -329,38 +368,11 @@ export default function PortfolioPage() {
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (!reachedBottom) return;
-      if (e.deltaY > 0) {
-        setIsSecretVisible(true);
-      } else if (e.deltaY < 0) {
-        setIsSecretVisible(false);
-      }
+      if (e.deltaY > 0) setIsSecretVisible(true);
+      else if (e.deltaY < 0) setIsSecretVisible(false);
     };
     window.addEventListener('wheel', handleWheel, { passive: true });
     return () => window.removeEventListener('wheel', handleWheel);
-  }, [reachedBottom]);
-
-  useEffect(() => {
-    let lastTouchY = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      lastTouchY = e.touches[0].clientY;
-    };
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!reachedBottom) return;
-      const currentY = e.touches[0].clientY;
-      const deltaY = lastTouchY - currentY;
-      if (deltaY > 5) {
-        setIsSecretVisible(true);
-      } else if (deltaY < -5) {
-        setIsSecretVisible(false);
-      }
-      lastTouchY = currentY;
-    };
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-    };
   }, [reachedBottom]);
 
   useEffect(() => {
@@ -368,88 +380,20 @@ export default function PortfolioPage() {
     const worksSection = document.querySelector('#works');
     if (!worksSection) return;
 
-    const tl = gsap.timeline({
+    gsap.timeline({
       scrollTrigger: {
         trigger: '#works-trigger',
         start: "top bottom-=200", 
         end: "top top+=80",       
         scrub: true,
-        invalidateOnRefresh: true,
       }
-    });
-
-    tl.to(worksSection, {
+    }).to(worksSection, {
       paddingTop: 8,
       paddingBottom: 8,
-      duration: 1,
-      ease: "none"
-    }, 0);
-
-    tl.to(cards, {
+    }).to(cards, {
       height: 64,
-      duration: 1,
-      ease: "none"
     }, 0);
-
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
   }, []);
-
-  // Corrected About Section Animation using stable scope and elements
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const ctx = gsap.context(() => {
-      const words = gsap.utils.toArray<HTMLElement>('.about-word').filter(Boolean);
-      const light = document.querySelector('.about-light');
-      
-      if (!words.length || !light) return;
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: '#about-wrapper',
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1,
-          invalidateOnRefresh: true,
-        }
-      });
-
-      tl.fromTo(words, 
-        { 
-          x: 40, 
-          opacity: 0, 
-          filter: 'blur(8px)',
-          textShadow: "0 0 0px hsl(var(--primary)/0)"
-        },
-        { 
-          x: 0, 
-          opacity: 1, 
-          filter: 'blur(0px)',
-          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-          stagger: 0.1, 
-          duration: 0.8, 
-          ease: 'power2.out' 
-        }
-      );
-
-      tl.to(light, {
-        opacity: 1,
-        duration: 0.8,
-        ease: 'sine.inOut'
-      }, ">-0.4");
-    });
-
-    return () => ctx.revert();
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 1050); 
-    return () => clearTimeout(timer);
-  }, [activeCategory]);
 
   const handleCategoryClick = (label: string) => {
     setActiveCategory(label === activeCategory ? null : label);
@@ -457,14 +401,6 @@ export default function PortfolioPage() {
 
   const handleCloseFeed = () => {
     setActiveCategory(null);
-  };
-
-  const scrollToWorks = () => {
-    gsap.to(window, {
-      scrollTo: '#works',
-      duration: 1.5,
-      ease: 'power3.inOut'
-    });
   };
 
   return (
@@ -476,8 +412,8 @@ export default function PortfolioPage() {
               LV<span className="text-primary">.</span>
             </Link>
             <div className="hidden lg:flex items-center gap-3 text-muted-foreground">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" style={{ animationDuration: '1.5s' }} />
-              <span className="tracking-[0.2em] font-mono text-[10px] uppercase">CURRENT LOCATION: BLUMENAU — SOUTH — BRAZIL</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              <span className="tracking-[0.2em] font-mono text-[10px] uppercase">CURRENT LOCATION: BRAZIL</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
@@ -490,61 +426,38 @@ export default function PortfolioPage() {
       </header>
 
       <main className="relative">
-        <section className="sticky top-0 z-0 flex flex-col items-center justify-center h-screen max-h-screen overflow-hidden pt-20 bg-background container mx-auto px-6 sm:px-8 lg:px-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center w-full flex-1">
-            <div className="flex flex-col gap-8 lg:gap-10 pl-1 sm:pl-2 lg:pl-4">
-              <div className="flex flex-col gap-2 lg:gap-4">
+        <section className="sticky top-0 z-0 flex flex-col items-center justify-center h-screen pt-20 bg-background container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full flex-1">
+            <div className="flex flex-col gap-8 pl-4">
+              <div className="flex flex-col gap-2">
                 <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">Video Editor</span>
                 <div className="w-16 h-px bg-primary/30" />
               </div>
-              
               <h1 className="font-serif font-bold text-[clamp(2.5rem,5vw,5.5rem)] leading-tight tracking-tighter text-foreground">
-                <div className="overflow-hidden">
-                  <div ref={h1Line1Ref}>CRAFTING</div>
-                </div>
-                <div className="overflow-hidden">
-                  <div ref={h1Line2Ref}>VISUAL</div>
-                </div>
-                <div className="overflow-hidden">
-                  <div ref={h1Line3Ref}>STORYTELLING<span className="text-primary">.</span></div>
-                </div>
+                <div className="overflow-hidden"><div ref={h1Line1Ref}>CRAFTING</div></div>
+                <div className="overflow-hidden"><div ref={h1Line2Ref}>VISUAL</div></div>
+                <div className="overflow-hidden"><div ref={h1Line3Ref}>STORYTELLING<span className="text-primary">.</span></div></div>
               </h1>
             </div>
             <div className="relative animate-image-reveal">
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
           </div>
-
-          <div className="pb-12 flex justify-center w-full">
-            <button 
-              onClick={scrollToWorks}
-              className="group flex flex-col items-center gap-4 transition-opacity hover:opacity-60"
-              aria-label="Scroll to works"
-            >
-              <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60">Scroll Down</span>
-              <div className="relative w-[1px] h-10 bg-foreground/30 overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-foreground animate-scroll-indicator" />
-              </div>
-            </button>
-          </div>
         </section>
 
-        <div className="relative z-10 flex flex-col bg-background transition-all duration-500 min-h-fit">
-          <div id="works-trigger" className="h-0 w-full pointer-events-none" />
-
+        <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
+          <div id="works-trigger" className="h-0 w-full" />
           <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
-            <div className="container mx-auto px-6 flex flex-wrap justify-center gap-4 md:gap-8 lg:gap-12">
+            <div className="container mx-auto px-6 flex flex-wrap justify-center gap-12">
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
-                const isActive = activeCategory === cat.label;
                 return (
                   <button 
                     key={cat.label} 
                     onClick={() => handleCategoryClick(cat.label)}
-                    aria-label={`View projects in ${cat.label}`}
                     className={cn(
-                      "category-card group relative overflow-hidden cursor-pointer transition-all duration-300 w-full max-w-[140px] md:max-w-none md:flex-1 h-16",
-                      isActive && "ring-2 ring-primary"
+                      "category-card group relative overflow-hidden cursor-pointer w-full max-w-[140px] md:flex-1 h-16",
+                      activeCategory === cat.label && "ring-2 ring-primary"
                     )}
                   >
                     {img && (
@@ -553,14 +466,11 @@ export default function PortfolioPage() {
                         alt={cat.label} 
                         storageKey={`cat-${cat.id}`}
                         fill
-                        className={cn(
-                          "object-cover object-center transition-transform duration-500",
-                          isActive ? "scale-110" : "group-hover:scale-105"
-                        )}
+                        className={cn("object-cover", activeCategory === cat.label && "scale-110")}
                       />
                     )}
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                    <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 pointer-events-none text-center px-1">
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20" />
+                    <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20">
                       {cat.label}
                     </span>
                   </button>
@@ -568,14 +478,12 @@ export default function PortfolioPage() {
               })}
             </div>
           </section>
-
           <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </div>
 
         <div id="about-wrapper" className="relative h-[200vh] z-20">
           <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
             <div className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" />
-            
             <div className="max-w-5xl text-center relative z-10">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">Layer 02 // Digital Craftsman</span>
               <h2 className="text-[clamp(2rem,6vw,5rem)] font-serif italic font-bold leading-[1.2] tracking-tight flex flex-wrap justify-center gap-x-[0.4em] gap-y-[0.2em]">
@@ -595,7 +503,6 @@ export default function PortfolioPage() {
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
             <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
           </div>
-          
           <div className="relative overflow-hidden">
              <div className={cn(
                   "overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center",
@@ -603,31 +510,19 @@ export default function PortfolioPage() {
                 )}>
                 <LEDTicker text="VERONA STUDIO" />
               </div>
-
               <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0">
                 <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex gap-8">
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Discord" target="_blank" rel="noopener noreferrer"><DiscordIcon className="h-5 w-5" /></Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary transition-colors" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer"><WhatsAppIcon className="h-5 w-5" /></Link>
-                    <Link href="mailto:contact@veronastudio.com" className="text-muted-foreground hover:text-primary transition-colors" aria-label="Email"><Mail className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
+                    <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
+                    <Link href="mailto:contact@veronastudio.com" className="text-muted-foreground hover:text-primary"><Mail className="h-5 w-5" /></Link>
                   </div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© {year} Leonardo Verona. Digital Craftsman</p>
+                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© {year} Leonardo Verona.</p>
                 </div>
               </footer>
           </div>
         </section>
       </main>
-
-      <style jsx global>{`
-        @keyframes scroll-indicator {
-          0% { transform: translateY(-100%); }
-          50% { transform: translateY(0%); }
-          100% { transform: translateY(100%); }
-        }
-        .animate-scroll-indicator {
-          animation: scroll-indicator 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-      `}</style>
     </div>
   );
 }
