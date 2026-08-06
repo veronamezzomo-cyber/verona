@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -292,17 +292,9 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   
-  const [cardElements, setCardElements] = useState<HTMLButtonElement[]>([]);
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      setCardElements(categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null));
-    }
-  }, [isMounted]);
 
   useGSAP(() => {
     if (!isMounted || typeof window === 'undefined') return;
@@ -453,7 +445,6 @@ export default function PortfolioPage() {
           <CategoryFeed 
             category={activeCategory} 
             onClose={handleCloseFeed} 
-            cardElements={cardElements}
           />
         </div>
 

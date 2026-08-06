@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
@@ -11,15 +11,6 @@ import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
 interface CategoryFeedProps {
   category: string | null;
   onClose: () => void;
-  cardElements: HTMLButtonElement[];
-}
-
-interface LineCoord {
-  id: string;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
 }
 
 interface CyberTerminalProps {
@@ -202,17 +193,15 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
   );
 }
 
-export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedProps) {
+export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const connectorsRef = useRef<SVGSVGElement>(null);
   const activeLayerLabelRef = useRef<HTMLSpanElement>(null);
   const headerDividerRef = useRef<HTMLDivElement>(null);
   const pickStyleTextRef = useRef<HTMLDivElement>(null);
   const compactStatusRef = useRef<HTMLDivElement>(null);
   
   const [clickCount, setClickCount] = useState(0);
-  const [lineCoords, setLineCoords] = useState<LineCoord[]>([]);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
   const [terminalStatus, setTerminalStatus] = useState<'open' | 'minimized' | 'closed'>('open');
   const { toast } = useToast();
@@ -228,44 +217,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
     if (!category || category === 'all') return VIDEOS_DATA;
     return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
-
-  const updateLines = useCallback(() => {
-    if (!connectorsRef.current || !containerRef.current || !cardElements.length) return;
-
-    const svgRect = connectorsRef.current.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
-
-    const destX = (containerRect.left + containerRect.width / 2) - svgRect.left;
-    const destY = 0;
-
-    const coords = cardElements.map(card => {
-      const cardRect = card.getBoundingClientRect();
-      const label = card.querySelector('span')?.textContent?.toLowerCase().trim() || '';
-      return {
-        id: label,
-        x1: (cardRect.left + cardRect.width / 2) - svgRect.left,
-        y1: cardRect.bottom - svgRect.top,
-        x2: destX,
-        y2: destY
-      };
-    });
-
-    setLineCoords(coords);
-  }, [cardElements]);
-
-  useEffect(() => {
-    if (isExpanded) {
-      const timer = setTimeout(() => {
-        updateLines();
-      }, 1050);
-      return () => clearTimeout(timer);
-    }
-  }, [isExpanded, category, updateLines]);
-
-  useEffect(() => {
-    window.addEventListener('resize', updateLines);
-    return () => window.removeEventListener('resize', updateLines);
-  }, [updateLines]);
 
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
@@ -315,43 +266,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
 
   return (
     <div className="relative">
-      <svg 
-        ref={connectorsRef}
-        className="absolute top-0 left-0 w-full pointer-events-none overflow-visible z-[95]"
-        style={{ height: '120px' }} 
-        aria-hidden="true"
-      >
-        <defs>
-          <filter id="glow-line">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-        {lineCoords.map((line, i) => {
-          const isActive = category === line.id;
-          return (
-            <line
-              key={i}
-              x1={line.x1}
-              y1={line.y1}
-              x2={line.x2}
-              y2={line.y2}
-              stroke="hsl(var(--primary))"
-              strokeWidth={isActive ? "2" : "1"}
-              strokeDasharray={isActive ? "10 100" : "4 4"}
-              className={cn(
-                "transition-all duration-500",
-                isActive ? "opacity-100" : "opacity-40"
-              )}
-              style={{ 
-                filter: isActive ? 'url(#glow-line)' : 'none',
-                animation: isActive ? 'energy-pulse 2s ease-in-out infinite' : 'dash-pulse 20s linear infinite'
-              }}
-            />
-          );
-        })}
-      </svg>
-
       <div 
         ref={containerRef}
         className={cn(
@@ -593,15 +507,6 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
       </div>
 
       <style jsx global>{`
-        @keyframes dash-pulse {
-          to { stroke-dashoffset: -100; }
-        }
-        @keyframes energy-pulse {
-          from { stroke-dashoffset: 110; opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          to { stroke-dashoffset: 0; opacity: 0; }
-        }
         @keyframes active-layer-blink {
           0%, 80%, 100% { opacity: 0.4; filter: none; }
           90% { opacity: 1; filter: drop-shadow(0 0 4px hsl(var(--primary))); }
