@@ -325,6 +325,14 @@ export default function PortfolioPage() {
     setIsMounted(true);
   }, []);
 
+  // Refresh ScrollTrigger when category feed opens/closes to prevent animation positioning bugs
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [activeCategory]);
+
   useGSAP(() => {
     if (!isMounted || typeof window === 'undefined') return;
 
@@ -380,20 +388,23 @@ export default function PortfolioPage() {
       scrollTrigger: {
         trigger: statsBarRef.current,
         start: "top 85%",
+        toggleActions: "play none none reverse"
       }
     });
 
     sectionTl.from(statsBarRef.current, { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" })
              .from(contentBlockRef.current, { opacity: 0, y: 30, duration: 1, ease: "power2.out" }, "-=0.4")
-             .from(terminalRef.current, { 
-                opacity: 0, 
-                scale: 0.98, 
-                duration: 1, 
-                ease: "power3.out",
-                onStart: () => {
-                  setTimeout(() => setIsBooting(false), 2000);
-                }
-             }, "-=0.6");
+             .fromTo(terminalRef.current, 
+                { opacity: 0, scale: 0.98 },
+                { 
+                  opacity: 1, 
+                  scale: 1, 
+                  duration: 1, 
+                  ease: "power3.out",
+                  onStart: () => {
+                    setTimeout(() => setIsBooting(false), 2000);
+                  }
+                }, "-=0.6");
 
   }, { dependencies: [isMounted], scope: mainRef });
 
