@@ -458,7 +458,6 @@ export default function PortfolioPage() {
 
       supportTl
         // 1. Stats Counter
-        .to(statsValuesRef.current, { innerHTML: 0, duration: 0.01, snap: { innerHTML: 1 } }, 0)
         .from(statsValuesRef.current, { innerHTML: 0, duration: 5, snap: { innerHTML: 1 }, stagger: 0.5, ease: 'power2.out' }, 0)
         .to({}, { duration: 8 }) // Pause on stats
         
@@ -843,7 +842,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
+        <section id="contact" className="relative z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
             <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6">Layer 03 // Final Call</span>
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
