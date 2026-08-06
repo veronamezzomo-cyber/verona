@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useLayoutEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -253,16 +253,13 @@ export default function PortfolioPage() {
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const [reachedBottom, setReachedBottom] = useState(false);
   const [year, setYear] = useState(new Date().getFullYear());
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Refs for Hero Animation
+  // Refs for Animations
   const heroLineRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  // Refs for Works/Categories Animation
   const worksContainerRef = useRef<HTMLDivElement>(null);
   const worksTriggerRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  // Refs for About Animation
   const aboutWrapperRef = useRef<HTMLDivElement>(null);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const lightRef = useRef<HTMLDivElement>(null);
@@ -283,104 +280,86 @@ export default function PortfolioPage() {
   const clusterVideos = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('hero-cluster-')), []);
   const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
   
-  // 1. Hero Entrance Animation
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const ctx = gsap.context(() => {
-      const lines = heroLineRefs.current.filter(Boolean);
-      if (lines.length === 0) return;
-
-      const tl = gsap.timeline({ delay: 0.5 });
-      lines.forEach((el, index) => {
-        tl.fromTo(el, 
-          { y: '100%' }, 
-          { y: '0%', duration: 1.2, ease: 'expo.out' }, 
-          index * 0.18
-        );
-      });
-    });
-
-    return () => ctx.revert();
+  // Initialization
+  useLayoutEffect(() => {
+    setIsMounted(true);
   }, []);
 
-  // 2. Works Section Scrub Animation
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
+  // GSAP Animations Context
+  useLayoutEffect(() => {
+    if (!isMounted) return;
 
     const ctx = gsap.context(() => {
+      // 1. Hero Entrance
+      const heroLines = heroLineRefs.current.filter(Boolean);
+      if (heroLines.length > 0) {
+        gsap.timeline({ delay: 0.5 })
+          .fromTo(heroLines, 
+            { y: '100%' }, 
+            { y: '0%', duration: 1.2, ease: 'expo.out', stagger: 0.18 }
+          );
+      }
+
+      // 2. Works Section Scrub
       const cards = categoryRefs.current.filter(Boolean);
       const worksContainer = worksContainerRef.current;
       const worksTrigger = worksTriggerRef.current;
+      if (worksContainer && worksTrigger && cards.length > 0) {
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: worksTrigger,
+            start: "top bottom-=200", 
+            end: "top top+=80",       
+            scrub: true,
+          }
+        }).to(worksContainer, { paddingTop: 8, paddingBottom: 8 })
+          .to(cards, { height: 64 }, 0);
+      }
 
-      if (!worksContainer || !worksTrigger || cards.length === 0) return;
-
-      gsap.timeline({
-        scrollTrigger: {
-          trigger: worksTrigger,
-          start: "top bottom-=200", 
-          end: "top top+=80",       
-          scrub: true,
-        }
-      }).to(worksContainer, {
-        paddingTop: 8,
-        paddingBottom: 8,
-      }).to(cards, {
-        height: 64,
-      }, 0);
-    });
-
-    return () => ctx.revert();
-  }, []);
-
-  // 3. About Section Animation (Scrub + Lighting)
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const ctx = gsap.context(() => {
+      // 3. About Section Scrub + Glow
       const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
       const light = lightRef.current;
       const wrapper = aboutWrapperRef.current;
       
-      if (targetWords.length === 0 || !light || !wrapper) return;
+      if (targetWords.length > 0 && light && wrapper) {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: wrapper,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1,
+            invalidateOnRefresh: true,
+          }
+        });
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: wrapper,
-          start: 'top top',
-          end: 'bottom bottom',
-          scrub: 1,
-          invalidateOnRefresh: true,
-        }
-      });
+        tl.fromTo(targetWords, 
+          { 
+            x: 40, 
+            opacity: 0, 
+            filter: 'blur(8px)',
+            textShadow: "0 0 0px hsl(var(--primary)/0)"
+          },
+          { 
+            x: 0, 
+            opacity: 1, 
+            filter: 'blur(0px)',
+            textShadow: "0 0 20px hsl(var(--primary)/0.5)",
+            stagger: 0.1, 
+            duration: 0.8, 
+            ease: 'power2.out' 
+          }
+        );
 
-      tl.fromTo(targetWords, 
-        { 
-          x: 40, 
-          opacity: 0, 
-          filter: 'blur(8px)',
-          textShadow: "0 0 0px hsl(var(--primary)/0)"
-        },
-        { 
-          x: 0, 
-          opacity: 1, 
-          filter: 'blur(0px)',
-          textShadow: "0 0 20px hsl(var(--primary)/0.5)",
-          stagger: 0.1, 
-          duration: 0.8, 
-          ease: 'power2.out' 
-        }
-      );
-
-      tl.to(light, {
-        opacity: 1,
-        duration: 0.8,
-        ease: 'sine.inOut'
-      }, ">-0.4");
+        tl.to(light, {
+          opacity: 1,
+          duration: 0.8,
+          ease: 'sine.inOut'
+        }, ">-0.4");
+      }
     });
 
     return () => ctx.revert();
-  }, [aboutWords]);
+  }, [isMounted]);
 
   useEffect(() => {
     const handleScroll = () => {
