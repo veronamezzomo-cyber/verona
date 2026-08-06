@@ -337,18 +337,8 @@ export default function PortfolioPage() {
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
       const tl = gsap.timeline({ delay: 0.2 });
       targetWords.forEach((word, i) => {
-        tl.fromTo(word,
-          { x: 40, opacity: 0, filter: 'blur(8px)', textShadow: "0 0 0px hsl(var(--primary)/0)" },
-          { x: 0, opacity: 1, filter: 'blur(0px)', textShadow: "0 0 20px hsl(var(--primary)/0.5)", duration: 0.8, ease: 'power2.out' },
-          i * 0.1
-        );
-      });
-
-      gsap.to(lightRef.current, {
-        opacity: 1,
-        duration: 0.8,
-        ease: 'sine.inOut',
-        delay: 0.4
+        tl.set(word, { x: 40, opacity: 0, filter: 'blur(8px)', textShadow: "0 0 0px hsl(var(--primary)/0)" })
+          .to(word, { x: 0, opacity: 1, filter: 'blur(0px)', textShadow: "0 0 20px hsl(var(--primary)/0.5)", duration: 0.8, ease: 'power2.out' }, i * 0.1);
       });
     }
   }, { dependencies: [isMounted, aboutWords], scope: mainRef });
