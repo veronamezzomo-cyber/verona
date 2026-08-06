@@ -289,7 +289,7 @@ export default function PortfolioPage() {
     });
   }, []);
 
-  // DIAGNOSTIC EFFECT FOR ABOUT SECTION
+  // About Section Animation - Advanced Diagnostic Version
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -298,19 +298,32 @@ export default function PortfolioPage() {
         const words = gsap.utils.toArray<HTMLElement>('.about-word').filter(Boolean);
         const light = document.querySelector('.about-light');
         
-        // TEST 4: LOGS
-        console.log('--- DIAGNOSTIC START ---');
-        console.log('Words Array:', words);
-        console.log('Is Array:', Array.isArray(words));
-        console.log('Length:', words.length);
-        console.log('Light Element:', light);
-        console.log('--- DIAGNOSTIC END ---');
+        // POINT 5: CRITICAL DIAGNOSTIC LOG
+        console.log('GSAP DIAGNOSTIC:', {
+          targets: words,
+          isArray: Array.isArray(words),
+          length: words.length,
+          mapMethod: words.map ? 'Exists' : 'NULL/MISSING',
+          lightElement: !!light
+        });
 
-        if (!words.length || !light) return;
+        if (!words.length || !light) {
+          console.warn('GSAP: Skip animation - missing targets', { words: words.length, light: !!light });
+          return;
+        }
 
-        // TEST 2 & 3: ISOLATED TIMELINE (Temporarily direct to avoid internal timeline issues)
-        // Testing if direct fromTo works to isolate the "null (reading 'map')"
-        gsap.fromTo(words, 
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#about-wrapper',
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 1,
+            invalidateOnRefresh: true,
+          }
+        });
+
+        // REVERTED: Original correct timeline architecture
+        tl.fromTo(words, 
           { 
             x: 40, 
             opacity: 0, 
@@ -324,30 +337,19 @@ export default function PortfolioPage() {
             textShadow: "0 0 20px hsl(var(--primary)/0.5)",
             stagger: 0.1, 
             duration: 0.8, 
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: '#about-wrapper',
-              start: 'top top',
-              end: 'bottom bottom',
-              scrub: 1,
-            }
+            ease: 'power2.out' 
           }
         );
 
-        // Separate trigger for light to isolate
-        gsap.to(light, {
+        tl.to(light, {
           opacity: 1,
-          scrollTrigger: {
-            trigger: '#about-wrapper',
-            start: 'center top',
-            end: 'bottom bottom',
-            scrub: 1,
-          }
-        });
+          duration: 0.8,
+          ease: 'sine.inOut'
+        }, ">-0.4");
       });
 
       return () => ctx.revert();
-    }, 200); // Increased delay for stability
+    }, 300); // Increased delay for stability
 
     return () => clearTimeout(timer);
   }, [aboutWords]);
@@ -483,7 +485,9 @@ export default function PortfolioPage() {
 
         <div id="about-wrapper" className="relative h-[200vh] z-20">
           <section id="about" className="sticky top-0 h-screen flex flex-col items-center justify-center bg-background border-t border-foreground/5 px-6 overflow-hidden">
+            {/* Background Light */}
             <div className="about-light absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[140%] h-[60%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.2)_0%,transparent_70%)] blur-[120px] opacity-0 pointer-events-none z-0" />
+            
             <div className="max-w-5xl text-center relative z-10">
               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-12 block">Layer 02 // Digital Craftsman</span>
               <h2 className="text-[clamp(2rem,6vw,5rem)] font-serif italic font-bold leading-[1.2] tracking-tight flex flex-wrap justify-center gap-x-[0.4em] gap-y-[0.2em]">
