@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-react';
 import { EditableVideo } from '@/components/editable-video';
 import { cn } from '@/lib/utils';
@@ -216,7 +216,16 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
   const { toast } = useToast();
 
   const isExpanded = !!category;
-  const isVerticalFormat = category === 'shorts' || category === 'talking';
+  
+  // Categorias de formato vertical (2:3)
+  const verticalCategories = ['shorts', 'talking'];
+  const isVerticalFormat = category ? verticalCategories.includes(category) : false;
+
+  // Filtragem dos vídeos baseada na categoria selecionada
+  const filteredVideos = useMemo(() => {
+    if (!category || category === 'all') return VIDEOS_DATA;
+    return VIDEOS_DATA.filter(video => video.category === category);
+  }, [category]);
 
   const updateLines = useCallback(() => {
     if (!connectorsRef.current || !containerRef.current || !cardElements.length) return;
@@ -427,7 +436,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
               )}
             >
-              {VIDEOS_DATA.map((item, index) => (
+              {filteredVideos.map((item, index) => (
                 <div 
                   key={item.id} 
                   className={cn(
@@ -440,7 +449,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                     onClick={() => handleInteraction(item)}
                     className={cn(
                       "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl rounded-none",
-                      isVerticalFormat 
+                      verticalCategories.includes(item.category)
                         ? "aspect-[2/3]" 
                         : "aspect-[16/9]",
                       clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30"
@@ -491,7 +500,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
               <div 
                 className={cn(
                   "relative z-[60] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
-                  isVerticalFormat ? "max-w-[1000px]" : "max-w-[1400px]"
+                  verticalCategories.includes(selectedProject.category) ? "max-w-[1000px]" : "max-w-[1400px]"
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -525,7 +534,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                 <div 
                   className={cn(
                     "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
-                    isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
+                    verticalCategories.includes(selectedProject.category) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
                   )}
                   onClick={(e) => e.stopPropagation()}
                 >
