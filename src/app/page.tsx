@@ -256,6 +256,11 @@ export default function PortfolioPage() {
   // Refs for Animations
   const mainRef = useRef<HTMLDivElement>(null);
   const heroLineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const hudRef = useRef<HTMLDivElement>(null);
+  const coordsRef = useRef<HTMLSpanElement>(null);
+  const statusBlockRef = useRef<HTMLDivElement>(null);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
   const categoryRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
   
@@ -287,15 +292,47 @@ export default function PortfolioPage() {
   useGSAP(() => {
     if (!isMounted || typeof window === 'undefined') return;
 
-    // 1. Hero Entrance
+    // 1. Hero Entrance Sequence (Orchestrated GSAP Timeline)
     const heroLines = heroLineRefs.current.filter((el): el is HTMLDivElement => el !== null);
+    const tl = gsap.timeline({ delay: 0.5 });
+
+    // FASE A (0—300ms) — System Boot
+    tl.to([hudRef.current, coordsRef.current, statusBlockRef.current], {
+      opacity: 1,
+      duration: 0.1,
+      ease: "none",
+      stagger: 0.05
+    }, 0);
+
+    // Boot Status Block fade out after 1.5s
+    tl.to(statusBlockRef.current, {
+      opacity: 0,
+      duration: 0.6,
+      ease: "power2.inOut"
+    }, 1.5);
+
+    // FASE B (300—900ms) — Cinematic Title Reveal
     if (heroLines.length > 0) {
-      gsap.timeline({ delay: 0.5 })
-        .fromTo(heroLines, 
-          { y: '100%' }, 
-          { y: '0%', duration: 1.2, ease: 'expo.out', stagger: 0.18 }
-        );
+      tl.fromTo(heroLines, 
+        { y: '100%' }, 
+        { 
+          y: '0%', 
+          duration: 1.2, 
+          ease: "expo.out", // Equivalent to cubic-bezier(0.16, 1, 0.3, 1)
+          stagger: 0.18 
+        }, 0.3);
     }
+
+    // FASE C (900ms+) — Context Reveal (Description & CTA)
+    tl.fromTo([descriptionRef.current, ctaRef.current],
+      { y: 12, opacity: 0 },
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.6, 
+        ease: 'power2.out',
+        stagger: 0.15
+      }, 0.9);
 
     // 2. Works Section Scrub
     const cards = categoryRefs.current.filter((el): el is HTMLButtonElement => el !== null);
@@ -315,9 +352,9 @@ export default function PortfolioPage() {
     const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
     
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
-      const tl = gsap.timeline({ delay: 0.2 });
+      const aboutTl = gsap.timeline({ delay: 0.2 });
       targetWords.forEach((word, i) => {
-        tl.set(word, { x: 40, opacity: 0, filter: 'blur(8px)', textShadow: "0 0 0px rgba(0,0,0,0)" })
+        aboutTl.set(word, { x: 40, opacity: 0, filter: 'blur(8px)', textShadow: "0 0 0px rgba(0,0,0,0)" })
           .to(word, { x: 0, opacity: 1, filter: 'blur(0px)', textShadow: "0 0 20px rgba(0,0,0,0.5)", duration: 0.8, ease: 'power2.out' }, i * 0.1);
       });
     }
@@ -383,40 +420,52 @@ export default function PortfolioPage() {
             
             {/* HUD & Text Column */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
-              {/* HUD Tag */}
-              <div className="flex items-center gap-4 mb-6 animate-in slide-in-from-left duration-700">
-                <div className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+              {/* HUD Tag & Coordinates (GSAP Controlled) */}
+              <div className="flex items-center gap-4 mb-6">
+                <div 
+                  ref={hudRef}
+                  className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full opacity-0"
+                >
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary font-bold">
                     [ 00 / EDITOR ]
                   </span>
                 </div>
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block">
+                <span 
+                  ref={coordsRef}
+                  className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block opacity-0"
+                >
                   COORDINATES: 23.5505° S, 46.6333° W
                 </span>
               </div>
 
-              {/* Serif Title */}
+              {/* Serif Title (GSAP Mask Reveal) */}
               <h1 className="font-serif font-bold text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
                 <div className="overflow-hidden">
-                  <div ref={(el) => { heroLineRefs.current[0] = el; }}>CRAFTING</div>
+                  <div ref={(el) => { heroLineRefs.current[0] = el; }} className="translate-y-full">CRAFTING</div>
                 </div>
                 <div className="overflow-hidden">
-                  <div ref={(el) => { heroLineRefs.current[1] = el; }}>VISUAL</div>
+                  <div ref={(el) => { heroLineRefs.current[1] = el; }} className="translate-y-full">VISUAL</div>
                 </div>
                 <div className="overflow-hidden">
-                  <div ref={(el) => { heroLineRefs.current[2] = el; }}>
+                  <div ref={(el) => { heroLineRefs.current[2] = el; }} className="translate-y-full">
                     STORYTELLING<span className="text-primary">.</span>
                   </div>
                 </div>
               </h1>
 
-              {/* Technical Description (3rd Level Hierarchy) */}
-              <div className="max-w-md animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
-                <p className="font-mono text-xs md:text-sm uppercase tracking-widest leading-relaxed text-foreground/40 italic">
+              {/* Technical Description & CTA (GSAP Controlled) */}
+              <div className="max-w-md">
+                <p 
+                  ref={descriptionRef}
+                  className="font-mono text-xs md:text-sm uppercase tracking-widest leading-relaxed text-foreground/40 italic opacity-0"
+                >
                   High-retention editing for creators who value storytelling over noise. Focused on pacing, motion, and visual rhythm.
                 </p>
-                <div className="mt-8 flex items-center gap-6">
+                <div 
+                  ref={ctaRef}
+                  className="mt-8 flex items-center gap-6 opacity-0"
+                >
                   <Button variant="link" className="p-0 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground hover:text-primary group">
                     View Archive <ArrowRight className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-2" />
                   </Button>
@@ -424,15 +473,18 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            {/* Video Cluster Column with Optical Offset */}
+            {/* Video Cluster Column (Intact) */}
             <div className="lg:col-span-5 relative flex justify-center lg:justify-end animate-image-reveal lg:-mr-12">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.05)_0%,transparent_70%)] pointer-events-none" />
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
           </div>
           
-          {/* Decorative Corner HUD Elements */}
-          <div className="absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-20">
+          {/* Decorative Corner HUD Elements (Animated Boot) */}
+          <div 
+            ref={statusBlockRef}
+            className="absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-0"
+          >
             <div className="font-mono text-[8px] uppercase tracking-[0.4em] flex flex-col gap-1">
               <span>System: Active</span>
               <span>Buffer: Locked</span>
