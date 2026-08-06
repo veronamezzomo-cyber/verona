@@ -20,7 +20,8 @@ import {
   Terminal as TerminalIcon,
   Quote,
   X,
-  Minus
+  Minus,
+  Square
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
@@ -264,7 +265,7 @@ function TypewriterText({ text }: { text: string }) {
     return () => clearInterval(timer);
   }, [text]);
 
-  return <span>{displayedText}<span className="w-1.5 h-4 bg-[#33ff33] inline-block ml-1 animate-cursor-blink" /></span>;
+  return <span>{displayedText}<span className="w-2 h-4 bg-white inline-block ml-0.5 align-middle animate-cursor-blink" /></span>;
 }
 
 const FAQ_DATA = [
@@ -700,34 +701,36 @@ export default function PortfolioPage() {
               >
                 <div 
                   className={cn(
-                    "bg-[#0a0a0a] border border-white/10 rounded-md overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300",
+                    "bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300",
                     !isTerminalFocused && "blur-[1px] hover:blur-0"
                   )}
                   style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
                 >
-                  {/* Title Bar (macOS style) */}
+                  {/* Title Bar (Windows style) */}
                   <div 
                     onMouseDown={handleMouseDown}
-                    className="bg-[#1a1a1a] h-9 px-4 flex items-center justify-between border-b border-white/5 cursor-grab active:cursor-grabbing select-none"
+                    className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none"
                   >
-                    <div className="flex gap-2">
-                      <div 
-                        onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }}
-                        className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] cursor-pointer hover:brightness-110" 
-                      />
-                      <div 
-                        onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }}
-                        className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] cursor-pointer hover:brightness-110" 
-                      />
-                      <div className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] cursor-not-allowed opacity-50" />
-                    </div>
                     <div className="flex items-center gap-2">
-                      <TerminalIcon className="w-3 h-3 text-white/20" />
-                      <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-white/20">ROOT@VERONA // ARCHIVE_CLI</span>
+                      <TerminalIcon className="w-4 h-4 text-white/60" />
+                      <span className="font-mono text-xs text-white/80">Command Prompt - Archive Console</span>
                     </div>
-                    <div className="flex gap-2 invisible md:visible">
-                      <Minus className="w-3 h-3 text-white/10" />
-                      <X className="w-3 h-3 text-white/10" />
+                    <div className="flex h-full">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }}
+                        className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors"
+                      >
+                        <Minus className="w-3.5 h-3.5 text-white" />
+                      </button>
+                      <button className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <Square className="w-3 h-3 text-white" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }}
+                        className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123] transition-colors group"
+                      >
+                        <X className="w-4 h-4 text-white" />
+                      </button>
                     </div>
                   </div>
 
@@ -738,20 +741,17 @@ export default function PortfolioPage() {
                       tabIndex={0}
                       onFocus={() => setIsTerminalFocused(true)}
                       onBlur={() => setIsTerminalFocused(false)}
-                      className="p-8 font-mono text-sm min-h-[420px] relative outline-none group"
+                      className="p-8 font-mono text-sm min-h-[420px] relative outline-none group bg-black"
                     >
-                      {/* Scanlines Effect */}
-                      <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] animate-rolling-scanlines" />
-
                       {/* Inactive Overlay */}
                       {!isTerminalFocused && (
                         <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-[2px] flex items-center justify-center cursor-pointer pointer-events-none">
-                          <span className="text-[10px] uppercase tracking-[0.4em] text-[#33ff33] opacity-60 animate-pulse">[ CLICK TO ACTIVATE TERMINAL ]</span>
+                          <span className="text-[10px] uppercase tracking-[0.4em] text-white opacity-60 animate-pulse">[ CLICK TO ACTIVATE TERMINAL ]</span>
                         </div>
                       )}
 
                       {isBooting ? (
-                        <div className="space-y-2 text-[#33ff33]/40">
+                        <div className="space-y-2 text-white/40">
                           <div>[BOOT]: INITIALIZING VERONA_ENGINE...</div>
                           <div className="animate-pulse">[INFO]: LOADING_CORE_MODULES [OK]</div>
                           <div className="animate-pulse" style={{ animationDelay: '0.2s' }}>[INFO]: SYNCING_ARCHIVE_DATA [OK]</div>
@@ -759,8 +759,9 @@ export default function PortfolioPage() {
                         </div>
                       ) : (
                         <div className="space-y-6">
-                          <div className="text-[#33ff33]/60 mb-8">
-                            VERONA OS v3.0 // ARCHIVE CONSOLE <br/>
+                          <div className="text-white/60 mb-8">
+                            VERONA OS v3.0 [Version 10.0.19045.4291] <br/>
+                            (c) Verona Corporation. All rights reserved. <br/><br/>
                             SELECT QUERY VIA ARROWS + ENTER OR CLICK:
                           </div>
 
@@ -769,9 +770,9 @@ export default function PortfolioPage() {
                             {faqHistory.map((item, i) => (
                               <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
                                 <div className="text-white/40 mb-1 flex items-center gap-2">
-                                  <span className="text-[#33ff33]">ROOT@VERONA:$</span> {item.q}
+                                  <span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}
                                 </div>
-                                <div className="text-[#33ff33] leading-relaxed pl-4 border-l border-[#33ff33]/20">
+                                <div className="text-white leading-relaxed pl-4 border-l border-white/20">
                                   <TypewriterText text={item.a} />
                                 </div>
                               </div>
@@ -794,7 +795,7 @@ export default function PortfolioPage() {
                                     onMouseLeave={() => setHoverFaqIndex(null)}
                                     className={cn(
                                       "cursor-pointer transition-all flex items-center gap-3 px-2 py-1 rounded-sm border border-transparent",
-                                      activeFaqIndex === i ? "text-[#33ff33] bg-[#33ff33]/5 border-[#33ff33]/10 translate-x-2" : 
+                                      activeFaqIndex === i ? "text-white bg-white/10 border-white/20 translate-x-2" : 
                                       hoverFaqIndex === i ? "text-white/80 bg-white/5" : "text-white/30"
                                     )}
                                   >
@@ -807,7 +808,7 @@ export default function PortfolioPage() {
                           )}
 
                           {faqAvailableIndices.length === 0 && (
-                            <div className="text-center py-12 text-[#33ff33]/20 italic border border-[#33ff33]/5 bg-[#33ff33]/[0.02] rounded">
+                            <div className="text-center py-12 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
                               --- SYSTEM NOMINAL. ALL QUERIES EXECUTED ---
                             </div>
                           )}
@@ -819,7 +820,7 @@ export default function PortfolioPage() {
                   {/* Status Bar */}
                   {!isTerminalMinimized && (
                     <div className="bg-[#1a1a1a] h-8 px-6 flex items-center justify-between border-t border-white/5 opacity-40">
-                       <span className="text-[8px] tracking-[0.4em] text-white">ROOT@VERONA:~/FAQ$ <span className="w-1.5 h-3 bg-[#33ff33] inline-block ml-1 animate-cursor-blink" /></span>
+                       <span className="text-[8px] tracking-[0.4em] text-white">C:\VERONA\ARCHIVE&gt; <span className="w-2 h-0.5 bg-white inline-block ml-0.5 align-baseline animate-cursor-blink" /></span>
                        <span className="text-[8px] tracking-[0.4em] text-white">STATUS: NOMINAL</span>
                     </div>
                   )}
