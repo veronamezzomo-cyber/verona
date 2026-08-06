@@ -131,7 +131,10 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
     <div 
       className="w-full bg-[#0a0a0a] border border-red-900/50 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] cursor-text select-none z-[70]"
       style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
-      onClick={() => inputRef.current?.focus()}
+      onClick={(e) => {
+        e.stopPropagation();
+        inputRef.current?.focus();
+      }}
     >
       <div 
         onMouseDown={onMouseDown}
@@ -294,10 +297,7 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
     setTerminalStatus('open');
   };
 
-  const closeTheater = (e: React.MouseEvent) => {
-    // We prevent closing when clicking the inner elements
-    // so we only close when clicking the overlay area.
-    e.stopPropagation();
+  const closeTheater = () => {
     setSelectedProject(null);
     setTerminalStatus('closed');
   };
@@ -497,7 +497,10 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
               >
                 {terminalStatus === 'minimized' && (
                   <div 
-                    onClick={() => setTerminalStatus('open')}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setTerminalStatus('open');
+                    }}
                     className="absolute bottom-10 left-10 z-[100] flex items-center gap-4 bg-black/80 border border-red-900/40 px-4 py-3 rounded-md cursor-pointer hover:bg-red-900/10 transition-all animate-in slide-in-from-bottom-5"
                   >
                     <Terminal className="w-4 h-4 text-red-600" />
@@ -506,7 +509,10 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   </div>
                 )}
 
-                <div className="w-full max-w-[450px] shrink-0 self-center">
+                <div 
+                  className="w-full max-w-[450px] shrink-0 self-center"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {terminalStatus === 'open' && (
                     <CyberTerminal 
                       text={selectedProject.description || 'HELLO WORLD'} 
@@ -516,10 +522,13 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   )}
                 </div>
 
-                <div className={cn(
-                  "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
-                  isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
-                )}>
+                <div 
+                  className={cn(
+                    "relative shadow-[0_0_100px_rgba(var(--primary),0.2)] border border-primary/30 bg-black shrink-0",
+                    isVerticalFormat ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
+                  )}
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <EditableVideo 
                     src={selectedProject.videoUrl} 
                     storageKey={`theater-${selectedProject.id}`}
@@ -530,7 +539,10 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                   />
 
                   <button 
-                    onClick={closeTheater}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeTheater();
+                    }}
                     className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground hover:text-primary transition-colors"
                   >
                     Close Archive <X className="w-4 h-4" />
