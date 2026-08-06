@@ -785,12 +785,6 @@ export default function PortfolioPage() {
                         </div>
                       ) : (
                         <div className="space-y-6">
-                          <div className="opacity-60">
-                            VERONA OS v3.0 [Version 10.0.19045.4291]<br/>
-                            (c) Verona Corporation. All rights reserved.<br/>
-                            SELECT QUERY VIA ARROWS + ENTER:
-                          </div>
-
                           {/* History */}
                           <div className="space-y-4">
                             {faqHistory.map((item, i) => (
