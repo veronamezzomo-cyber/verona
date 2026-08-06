@@ -296,12 +296,13 @@ export default function PortfolioPage() {
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3]);
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
-  const [hoverFaqIndex, setHoverFaqIndex] = useState<number | null>(null);
+  const [typedQuestionsCount, setTypedQuestionsCount] = useState(0);
+  const [isHeaderTyped, setIsHeaderTyped] = useState(false);
+  const [typedAvailableIndices, setTypedAvailableIndices] = useState<number>(-1);
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
   const [isBooting, setIsBooting] = useState(true);
   const [bootStep, setBootStep] = useState(0);
-  const [isHeaderTyped, setIsHeaderTyped] = useState(false);
-  const [typedQuestionsCount, setTypedQuestionsCount] = useState(0);
+  const [canStartBoot, setCanStartBoot] = useState(false);
   const [isTerminalClosed, setIsTerminalClosed] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
@@ -415,7 +416,10 @@ export default function PortfolioPage() {
                   opacity: 1, 
                   scale: 1, 
                   duration: 1, 
-                  ease: "power3.out"
+                  ease: "power3.out",
+                  onComplete: () => {
+                    setTimeout(() => setCanStartBoot(true), 1000);
+                  }
                 }, "-=0.6");
 
   }, { dependencies: [isMounted], scope: mainRef });
@@ -718,7 +722,7 @@ export default function PortfolioPage() {
                 <div 
                   ref={terminalRef} 
                   className={cn(
-                    "bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300",
+                    "bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 w-fit mx-auto",
                     isDragging && "transition-none"
                   )}
                   style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
@@ -758,14 +762,14 @@ export default function PortfolioPage() {
                       tabIndex={0}
                       onFocus={() => setIsTerminalFocused(true)}
                       onBlur={() => setIsTerminalFocused(false)}
-                      className="p-6 font-mono text-sm relative outline-none group bg-black text-white h-auto"
+                      className="p-8 font-mono text-sm relative outline-none group bg-black text-white h-auto"
                     >
                       {isBooting ? (
                         <div className="space-y-1">
                           {BOOT_LINES.slice(0, bootStep).map((line, idx) => (
                             <div key={idx} className="opacity-80">{line}</div>
                           ))}
-                          {bootStep < BOOT_LINES.length && (
+                          {canStartBoot && bootStep < BOOT_LINES.length && (
                             <TypewriterText 
                               text={BOOT_LINES[bootStep]} 
                               onComplete={() => {
@@ -798,10 +802,10 @@ export default function PortfolioPage() {
 
                           {/* Options */}
                           {faqAvailableIndices.length > 0 && (
-                            <div className="pt-2 border-t border-white/5 mt-2">
+                            <div className="mt-2">
                               <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">
                                 <TypewriterText 
-                                  text="Available Queries (Use Arrows + Enter)" 
+                                  text="Available Queries" 
                                   onComplete={() => setIsHeaderTyped(true)}
                                   speed={10}
                                 />
