@@ -291,7 +291,7 @@ export default function PortfolioPage() {
 
     const ctx = gsap.context(() => {
       // 1. Hero Entrance
-      const heroLines = heroLineRefs.current.filter(Boolean);
+      const heroLines = heroLineRefs.current.filter(Boolean) as HTMLDivElement[];
       if (heroLines.length > 0) {
         gsap.timeline({ delay: 0.5 })
           .fromTo(heroLines, 
@@ -301,7 +301,7 @@ export default function PortfolioPage() {
       }
 
       // 2. Works Section Scrub
-      const cards = categoryRefs.current.filter(Boolean);
+      const cards = categoryRefs.current.filter(Boolean) as HTMLButtonElement[];
       const worksContainer = worksContainerRef.current;
       const worksTrigger = worksTriggerRef.current;
       if (worksContainer && worksTrigger && cards.length > 0) {
@@ -359,7 +359,7 @@ export default function PortfolioPage() {
     });
 
     return () => ctx.revert();
-  }, [isMounted]);
+  }, [isMounted, aboutWords]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -524,3 +524,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
