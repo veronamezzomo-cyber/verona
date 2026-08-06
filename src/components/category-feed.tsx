@@ -273,8 +273,8 @@ export function CategoryFeed({ category, onClose, cardElements }: CategoryFeedPr
                     className={cn(
                       "relative bg-muted overflow-hidden transition-all duration-700",
                       isVerticalFormat 
-                        ? "h-[45vh] aspect-[9/16] w-auto" 
-                        : "w-[300px] md:w-[400px] h-[50vh]",
+                        ? "h-[50vh] aspect-[2/3] w-auto" 
+                        : "h-[45vh] aspect-[16/9] w-auto",
                       "[clip-path:polygon(0%_10%,10%_0%,100%_0%,100%_90%,90%_100%,0%_100%)]",
                       clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer"
                     )}
