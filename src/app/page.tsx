@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollToPlugin, ScrollTrigger, useGSAP);
+  gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 }
 
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -331,12 +331,13 @@ export default function PortfolioPage() {
         .to(cards, { height: 64 }, 0);
     }
 
-    // 3. About Section Animation (LOOP FIX - NO ScrollTrigger for Test)
+    // 3. About Section Animation (LOOP FIX)
     const targetWords = wordRefs.current.filter((el): el is HTMLSpanElement => el !== null);
     
     if (targetWords.length > 0 && lightRef.current && aboutWrapperRef.current) {
       // Loop individual para contornar erro de mapeamento do GSAP em arrays
       targetWords.forEach((word, i) => {
+        if (!word) return;
         gsap.fromTo(word, 
           { 
             x: 40, 
