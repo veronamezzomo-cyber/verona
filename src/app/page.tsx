@@ -146,6 +146,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     const TILT = 12 * (Math.PI / 180); // Inclinação sutil de 12 graus
     const cosT = Math.cos(TILT);
     const sinT = Math.sin(TILT);
+    const PARALLAX_INTENSITY = 0.45; // Reforçado para forçar sobreposição
     
     const animate = () => {
       const now = Date.now();
@@ -174,22 +175,19 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         // 4. Redistribuição Dinâmica (Suavizando buracos na órbita)
         let targetOffset;
         if (i === focusIdx) {
-          // Mantém o slot original como âncora para retorno estável
           targetOffset = i * (2 * Math.PI / videos.length);
         } else {
-          // Redistribui os outros 4 itens uniformemente (90 graus entre eles)
           const rank = i < focusIdx ? i : i - 1;
           targetOffset = rank * (2 * Math.PI / (videos.length - 1));
         }
         
-        // Suaviza a migração angular (lerp de ~1.2s)
         currentOffsetsRef.current[i] += (targetOffset - currentOffsetsRef.current[i]) * 0.05;
         
-        const angle = timeRef.current + currentOffsetsRef.current[i];
-        const depth = Math.sin(angle); 
+        const baseAngle = timeRef.current + currentOffsetsRef.current[i];
         
-        // ADICIONADO: Parallax por profundidade (Acelera na frente, desacelera atrás)
-        const effectiveAngle = angle + depth * 0.12;
+        // PARALLAX AGRESSIVO E SINCRONIZADO: O effectiveAngle dita TUDO (posição e profundidade)
+        const effectiveAngle = baseAngle + Math.sin(baseAngle) * PARALLAX_INTENSITY;
+        const visualDepth = Math.sin(effectiveAngle); // Depth baseada na posição visual real
         
         // 5. Posição Orbital Pura (com Inclinação Diagonal 3D)
         const rawX = Math.cos(effectiveAngle) * rx;
@@ -211,14 +209,15 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const x = currentOrbitalX * (1 - ff);
         const y = currentOrbitalY * (1 - ff);
 
-        // 7. PROFUNDIDADE E DESTAQUE
-        const baseScale = 0.9 + ((depth + 1) / 2) * 0.25;
+        // 7. PROFUNDIDADE E DESTAQUE SINCRONIZADOS
+        const baseScale = 0.9 + ((visualDepth + 1) / 2) * 0.25;
         const scale = baseScale * (1 - ff) + (1.25 * ff);
         
-        const baseBlur = (1 - (depth + 1) / 2) * 4;
+        const baseBlur = (1 - (visualDepth + 1) / 2) * 4;
         const blur = baseBlur * (1 - ff);
         
-        const baseZIndex = 50 + Math.round(depth * 50);
+        // Z-INDEX baseado na profundidade visual REAL
+        const baseZIndex = 50 + Math.round(visualDepth * 50);
         const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
 
         // Aplicação Direta via Style
@@ -226,7 +225,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         el.style.zIndex = zIndex.toString();
         el.style.filter = blur > 0.5 ? `blur(${blur}px)` : 'none';
         
-        const shadowOp = (Math.max(0, depth + 0.5) * 0.4) * (1 - ff) + 0.6 * ff;
+        const shadowOp = (Math.max(0, visualDepth + 0.5) * 0.4) * (1 - ff) + 0.6 * ff;
         el.style.boxShadow = `0 ${20 * shadowOp}px ${40 * shadowOp}px -10px rgba(0,0,0,${0.5 * shadowOp})`;
       });
       
