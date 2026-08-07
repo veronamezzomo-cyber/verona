@@ -432,79 +432,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          {selectedProject && (
-            <div 
-              className="absolute inset-0 z-50 flex items-center justify-center p-6 md:p-12 animate-in fade-in zoom-in-95 duration-500"
-              onClick={closeTheater}
-            >
-              <div className="absolute inset-0 bg-background/60 backdrop-blur-md" />
-              
-              <div 
-                className={cn(
-                  "relative z-[60] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
-                  selectedProject.category.some(c => verticalCategories.includes(c)) ? "max-w-[1000px]" : "max-w-[1400px]"
-                )}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Minimalized Terminal Indicator */}
-                {terminalStatus === 'minimized' && (
-                  <div 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setTerminalStatus('open');
-                    }}
-                    className="absolute bottom-10 left-10 z-[100] flex items-center gap-4 bg-black/80 border border-red-900/40 px-4 py-3 rounded-md cursor-pointer hover:bg-red-900/10 transition-all animate-in slide-in-from-bottom-5"
-                  >
-                    <Terminal className="w-4 h-4 text-red-600" />
-                    <span className="font-mono text-[9px] uppercase tracking-widest text-red-500">Cmd_Console (Minimized)</span>
-                    <Maximize2 className="w-3 h-3 text-red-600/40" />
-                  </div>
-                )}
-
-                <div 
-                  className="w-full max-w-[450px] shrink-0 self-center"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {terminalStatus === 'open' && (
-                    <CyberTerminal 
-                      text={selectedProject.description || 'HELLO WORLD'} 
-                      onClose={() => setTerminalStatus('closed')}
-                      onMinimize={() => setTerminalStatus('minimized')}
-                    />
-                  )}
-                </div>
-
-                <div 
-                  className={cn(
-                    "relative shadow-[0_0_100px_rgba(220,38,38,0.2)] border border-primary/30 bg-black shrink-0",
-                    selectedProject.category.some(c => verticalCategories.includes(c)) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
-                  )}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <EditableVideo 
-                    src={selectedProject.videoUrl} 
-                    storageKey={`theater-${selectedProject.id}`}
-                    fill
-                    className="object-cover"
-                    autoPlay
-                    controls
-                    startTime={selectedProject.startTime}
-                  />
-
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      closeTheater();
-                    }}
-                    className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground hover:text-primary transition-colors"
-                  >
-                    Close Archive <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 shrink-0">
             <div className="flex gap-8">
               <span className="flex items-center gap-2">
@@ -517,6 +444,79 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           </div>
         </div>
       </div>
+
+      {selectedProject && (
+        <div 
+          className="fixed inset-0 z-[200] flex items-center justify-center p-6 md:p-12 animate-in fade-in duration-500"
+          onClick={closeTheater}
+        >
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-2xl" />
+          
+          <div 
+            className={cn(
+              "relative z-[210] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
+              selectedProject.category.some(c => verticalCategories.includes(c)) ? "max-w-[1000px]" : "max-w-[1400px]"
+            )}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Minimalized Terminal Indicator */}
+            {terminalStatus === 'minimized' && (
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setTerminalStatus('open');
+                }}
+                className="absolute bottom-10 left-10 z-[220] flex items-center gap-4 bg-black/80 border border-red-900/40 px-4 py-3 rounded-md cursor-pointer hover:bg-red-900/10 transition-all animate-in slide-in-from-bottom-5"
+              >
+                <Terminal className="w-4 h-4 text-red-600" />
+                <span className="font-mono text-[9px] uppercase tracking-widest text-red-500">Cmd_Console (Minimized)</span>
+                <Maximize2 className="w-3 h-3 text-red-600/40" />
+              </div>
+            )}
+
+            <div 
+              className="w-full max-w-[450px] shrink-0 self-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {terminalStatus === 'open' && (
+                <CyberTerminal 
+                  text={selectedProject.description || 'HELLO WORLD'} 
+                  onClose={() => setTerminalStatus('closed')}
+                  onMinimize={() => setTerminalStatus('minimized')}
+                />
+              )}
+            </div>
+
+            <div 
+              className={cn(
+                "relative shadow-[0_0_100px_rgba(220,38,38,0.3)] border border-primary/30 bg-black shrink-0",
+                selectedProject.category.some(c => verticalCategories.includes(c)) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <EditableVideo 
+                src={selectedProject.videoUrl} 
+                storageKey={`theater-${selectedProject.id}`}
+                fill
+                className="object-cover"
+                autoPlay
+                controls
+                startTime={selectedProject.startTime}
+              />
+
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeTheater();
+                }}
+                className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-white hover:text-primary transition-colors"
+              >
+                Close Archive <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         @keyframes active-layer-blink {
