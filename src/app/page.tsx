@@ -16,7 +16,6 @@ import { useGSAP } from '@gsap/react';
 import { 
   Mail, 
   ArrowRight,
-  Maximize2,
   Terminal as TerminalIcon,
   Quote,
   X,
@@ -94,24 +93,24 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const requestRef = useRef<number>(0);
   const [containerWidth, setContainerWidth] = useState(600);
   
-  // Refs para controle de foco/roleta
-  const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
-  const currentFocusedIndexRef = useRef(0);
+  // Fatores de transição e interação
+  const expansionRef = useRef(0); // 0 -> 1 (Expansão inicial)
+  const hoverFactorRef = useRef(1); // 1 -> 1.3 (Aceleração por mouse)
+  const isHoveredRef = useRef(false);
+  const startTimeRef = useRef(Date.now());
 
-  // Geração de parâmetros orbitais estáveis
+  // Geração de parâmetros orbitais
   const orbitParams = useMemo(() => {
     const factor = containerWidth / 600;
     return videos.map((_, i) => ({
-      rx: Math.max(180, 420 * factor),
-      ry: Math.max(100, 240 * factor),
+      rx: Math.max(180, 280 * factor),
+      ry: Math.max(100, 160 * factor),
       offset: (i * 2 * Math.PI) / videos.length
     }));
   }, [videos.length, containerWidth]);
 
   const orbitParamsRef = useRef(orbitParams);
-  useEffect(() => {
-    orbitParamsRef.current = orbitParams;
-  }, [orbitParams]);
+  useEffect(() => { orbitParamsRef.current = orbitParams; }, [orbitParams]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -124,94 +123,56 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => observer.disconnect();
   }, []);
 
-  // Debug Effect: Medições reais do navegador
-  useEffect(() => {
-    if (videoRefs.current[0]) {
-      const cardRect = videoRefs.current[0].getBoundingClientRect();
-      console.log("DEBUG CLUSTER REAL-TIME:", {
-        containerWidth,
-        rxFinal: orbitParams[0].rx,
-        ryFinal: orbitParams[0].ry,
-        cardWidthPixels: cardRect.width,
-        cardHeightPixels: cardRect.height,
-        timestamp: Date.now()
-      });
-    }
-  }, [containerWidth, orbitParams]);
-
-  // Lógica de Troca de Foco (Roleta 10s)
-  useEffect(() => {
-    const rotateFocus = () => {
-      const prev = currentFocusedIndexRef.current;
-      const next = (prev + 1) % videos.length;
-      currentFocusedIndexRef.current = next;
-
-      // Transição suave dos fatores de foco via GSAP
-      gsap.to(focalFactorsRef.current[prev], { val: 0, duration: 1.5, ease: "expo.out" });
-      gsap.to(focalFactorsRef.current[next], { val: 1, duration: 1.5, ease: "expo.out" });
-    };
-
-    const interval = setInterval(rotateFocus, 10000);
-    return () => clearInterval(interval);
-  }, [videos.length]);
-
   // Motor de Animação rAF
   useEffect(() => {
-    // Constantes para Órbita 3D Diagonal
-    const TILT = 20 * (Math.PI / 180); // 20 graus de inclinação
-    const cosT = Math.cos(TILT);
-    const sinT = Math.sin(TILT);
-
+    const EXPANSION_DURATION = 800; // 0.8s
+    
     const animate = () => {
-      timeRef.current += 0.012; // Velocidade angular acelerada
+      const now = Date.now();
+      const elapsed = now - startTimeRef.current;
       
+      // 1. Fase de Expansão (Power2.out)
+      const expansionProgress = Math.min(1, elapsed / EXPANSION_DURATION);
+      expansionRef.current = 1 - Math.pow(1 - expansionProgress, 2); 
+
+      // 2. Interação Hover (Lerp suave)
+      const targetHover = isHoveredRef.current ? 1.3 : 1;
+      hoverFactorRef.current += (targetHover - hoverFactorRef.current) * 0.1;
+
+      // 3. Incremento Angular com "Respiração"
+      const breathing = Math.sin(timeRef.current * 0.1) * 0.0015;
+      const step = (0.005 + breathing) * hoverFactorRef.current;
+      timeRef.current += step;
+
       videoRefs.current.forEach((el, i) => {
         if (!el || !orbitParamsRef.current[i]) return;
         
         const { rx, ry, offset } = orbitParamsRef.current[i];
-        const baseAngle = timeRef.current + offset;
-        const depth = Math.sin(baseAngle); // -1 (atrás) a 1 (frente)
-        const ff = focalFactorsRef.current[i].val; // Fator de foco atual
+        const angle = timeRef.current + offset;
+        const depth = Math.sin(angle); // -1 a 1
         
-        // Variação de velocidade por profundidade (Parallax agressivo)
-        const effectiveAngle = baseAngle + depth * 0.35;
-        
-        // Coordenadas elípticas base 2D
-        let ox = Math.cos(effectiveAngle) * rx;
-        let oy = Math.sin(effectiveAngle) * ry;
+        // POSIÇÃO: Cascata inicial (offset 15px) interpolando para órbita
+        const initialX = i * 15;
+        const initialY = i * 15;
+        const orbitalX = Math.cos(angle) * rx;
+        const orbitalY = Math.sin(angle) * ry;
 
-        // APLICAÇÃO DE ÓRBITA 3D DIAGONAL (Rotação de Eixos)
-        const ox_rotated = ox * cosT - oy * sinT;
-        const oy_rotated = ox * sinT + oy * cosT;
-        
-        // Reforço 3D: Deslocamento vertical extra baseado no depth
-        ox = ox_rotated;
-        oy = oy_rotated + (depth * 15);
-        
-        // POSICIONAMENTO FINAL: Interpolação entre órbita e centro exato (0,0)
-        ox = ox * (1 - ff);
-        oy = oy * (1 - ff);
-        
-        // ESCALA: Interpola entre a escala de profundidade (0.75-1.25) e o foco (1.2)
-        const baseScale = 1.0 + depth * 0.25; 
-        const scale = baseScale * (1 - ff) + (1.2 * ff);
-        
-        // BLUR: Elimina o blur conforme o foco aumenta
-        const baseBlur = depth < 0 ? Math.abs(depth) * 6 : 0;
-        const blur = baseBlur * (1 - ff);
-        
-        // Z-INDEX: Interpolação contínua para evitar saltos
-        const baseZIndex = Math.round(50 + depth * 50);
-        const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
+        const x = initialX * (1 - expansionRef.current) + orbitalX * expansionRef.current;
+        const y = initialY * (1 - expansionRef.current) + orbitalY * expansionRef.current;
 
-        // Aplicação direta via style para performance
-        el.style.transform = `translate3d(calc(-50% + ${ox}px), calc(-50% + ${oy}px), 0) scale(${scale})`;
+        // PROFUNDIDADE: Escala 0.9 a 1.15 | Blur 0 a 4px
+        const scale = 0.9 + ((depth + 1) / 2) * 0.25;
+        const blur = (1 - (depth + 1) / 2) * 4;
+        const zIndex = 50 + Math.round(depth * 50);
+
+        // Aplicação direta
+        el.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
-        el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none';
+        el.style.filter = expansionRef.current > 0.5 && blur > 0.5 ? `blur(${blur}px)` : 'none';
         
-        // Sombra dinâmica contínua: combina profundidade natural e destaque focal
-        const shadowIntensity = Math.max(0, depth) * 0.6 + ff * 0.4;
-        el.style.boxShadow = `0 ${20 * shadowIntensity}px ${40 * shadowIntensity}px -10px rgba(0, 0, 0, ${0.5 * shadowIntensity})`;
+        // Sombra dinâmica baseada na profundidade
+        const shadowOp = Math.max(0, depth + 0.5) * 0.4;
+        el.style.boxShadow = `0 ${10 * shadowOp}px ${20 * shadowOp}px -5px rgba(0,0,0,${0.3 * shadowOp})`;
       });
       
       requestRef.current = requestAnimationFrame(animate);
@@ -219,11 +180,16 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, []); // Dependência vazia para manter o loop contínuo
+  }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] pointer-events-none px-6 sm:px-10 lg:px-16 overflow-visible">
-      <div className="absolute inset-0 pointer-events-auto" />
+    <div 
+      ref={containerRef} 
+      className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] overflow-visible"
+      onMouseEnter={() => { isHoveredRef.current = true; }}
+      onMouseLeave={() => { isHoveredRef.current = false; }}
+    >
+      <div className="absolute inset-0 pointer-events-none" />
       
       {/* Container de Ancoragem Central */}
       <div className="absolute top-1/2 left-1/2 w-0 h-0">
@@ -231,7 +197,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
           <div 
             key={vid.id}
             ref={(el) => { videoRefs.current[i] = el; }}
-            className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none transition-transform duration-700 hover:scale-105"
+            className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-auto transition-shadow duration-300"
             style={{ 
               transform: 'translate(-50%, -50%)',
               opacity: 1,
