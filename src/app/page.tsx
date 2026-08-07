@@ -124,7 +124,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => observer.disconnect();
   }, []);
 
-  // Lógica de Rodízio de Destaque (10s)
+  // Lógica de Rodízio de Destaque (6s)
   useEffect(() => {
     const rotateFocus = () => {
       const prev = currentFocusedIndexRef.current;
@@ -136,7 +136,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       gsap.to(focalFactorsRef.current[next], { val: 1, duration: 1.2, ease: "power2.inOut" });
     };
 
-    const interval = setInterval(rotateFocus, 10000);
+    const interval = setInterval(rotateFocus, 6000);
     return () => clearInterval(interval);
   }, [videos.length]);
 
