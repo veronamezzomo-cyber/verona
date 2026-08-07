@@ -7,16 +7,16 @@
       "imageHint": "man portrait"
     },
     {
-      "id": "hero-me-in-one-min",
-      "description": "me in one min",
-      "imageUrl": "https://i.imgur.com/ND3kmsW.mp4",
-      "imageHint": "intro video"
-    },
-    {
       "id": "hero-grok",
       "description": "grok",
       "imageUrl": "https://i.imgur.com/SRki5JL.mp4",
       "imageHint": "kinetic typography"
+    },
+    {
+      "id": "hero-me-in-one-min",
+      "description": "me in one min",
+      "imageUrl": "https://i.imgur.com/ND3kmsW.mp4",
+      "imageHint": "intro video"
     },
     {
       "id": "hero-cook",
