@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { EditableImage } from '@/components/editable-image';
 import { EditableVideo } from '@/components/editable-video';
@@ -146,7 +145,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     const TILT = 12 * (Math.PI / 180); // Inclinação sutil de 12 graus
     const cosT = Math.cos(TILT);
     const sinT = Math.sin(TILT);
-    const PARALLAX_INTENSITY = 0.45; // Reforçado para forçar sobreposição
+    const PARALLAX_INTENSITY = 0.45; 
     
     const animate = () => {
       const now = Date.now();
@@ -170,7 +169,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         if (!el) return;
         
         const { rx: baseRx, ry: baseRy } = orbitParams;
-        const ff = focalFactorsRef.current[i].val; // Fator de foco atual
+        const ff = focalFactorsRef.current[i].val; 
         
         // 4. Redistribuição Dinâmica (Suavizando buracos na órbita)
         let targetOffset;
@@ -184,12 +183,10 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         currentOffsetsRef.current[i] += (targetOffset - currentOffsetsRef.current[i]) * 0.05;
         
         const baseAngle = timeRef.current + currentOffsetsRef.current[i];
-        
-        // PARALLAX AGRESSIVO E SINCRONIZADO: O effectiveAngle dita TUDO (posição e profundidade)
         const effectiveAngle = baseAngle + Math.sin(baseAngle) * PARALLAX_INTENSITY;
-        const visualDepth = Math.sin(effectiveAngle); // Depth baseada na posição visual real
+        const visualDepth = Math.sin(effectiveAngle); 
         
-        // AJUSTE: Raios Individuais para Forçar Cruzamento de Trajetórias
+        // Raios Individuais por Item
         const rx = baseRx * (0.85 + (i % 3) * 0.1);
         const ry = baseRy * (0.85 + (i % 2) * 0.15);
         
@@ -209,22 +206,20 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const currentOrbitalX = initialX * (1 - expansionRef.current) + orbitalX * expansionRef.current;
         const currentOrbitalY = initialY * (1 - expansionRef.current) + orbitalY * expansionRef.current;
 
-        // POSICIONAMENTO FINAL: Atração para o Centro Exato (0,0) baseado em ff
+        // POSICIONAMENTO FINAL
         const x = currentOrbitalX * (1 - ff);
         const y = currentOrbitalY * (1 - ff);
 
-        // 7. PROFUNDIDADE E DESTAQUE SINCRONIZADOS
+        // 7. PROFUNDIDADE E DESTAQUE
         const baseScale = 0.9 + ((visualDepth + 1) / 2) * 0.25;
         const scale = baseScale * (1 - ff) + (1.25 * ff);
         
         const baseBlur = (1 - (visualDepth + 1) / 2) * 4;
         const blur = baseBlur * (1 - ff);
         
-        // Z-INDEX baseado na profundidade visual REAL
         const baseZIndex = 50 + Math.round(visualDepth * 50);
         const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
 
-        // Aplicação Direta via Style
         el.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = blur > 0.5 ? `blur(${blur}px)` : 'none';
@@ -262,7 +257,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
             }}
           >
             <EditableVideo 
-              src={vid.imageUrl} 
+              src={vid.videoUrl} 
               storageKey={vid.id}
               fill
               className="object-cover"
@@ -279,6 +274,21 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     </div>
   );
 }
+
+const FAQ_DATA = [
+  { q: "What is your average turnaround time?", a: "For short-form content (Reels/Shorts), expect a 24-48h turnaround. Long-form projects usually take 4-7 business days depending on complexity." },
+  { q: "How many revisions are included?", a: "Every project includes two major revision rounds. Minor tweaks are unlimited until the final delivery feels perfect." },
+  { q: "Which tech stack do you use?", a: "Premiere Pro & After Effects are my core tools, that's where 90% of the work happens. I also have experience with DaVinci Resolve and CapCut, but I stick to my core workflow for consistency and speed. For sound, I run on an Epidemic Sound subscription, so every project gets copyright-free music and SFX." },
+  { q: "Do you offer professional color grading?", a: "Yes, every project goes through a color grading pass to match the tone and mood you're going for, cinematic, warm, moody, whatever fits the story best." },
+  { q: "Do you accept international payments?", a: "Yes, I work with clients worldwide. Payments are handled through Wise for international transfers, keeping fees low and everything transparent on both ends." }
+];
+
+const BOOT_LINES = [
+  "[BOOT]: INITIALIZING VERONA_ENGINE...",
+  "[INFO]: LOADING_CORE_MODULES [OK]",
+  "[INFO]: SYNCING_ARCHIVE_DATA [OK]",
+  "[INFO]: ESTABLISHING_SECURE_CONN [OK]"
+];
 
 function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { text: string, onComplete?: () => void, speed?: number, showCursor?: boolean }) {
   const [displayedText, setDisplayedText] = useState('');
@@ -313,7 +323,7 @@ function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { t
     setDisplayedText('');
     type();
     
-    return () => clearTimeout(timeoutId);
+    return () => timeoutId && clearTimeout(timeoutId);
   }, [text, speed, onComplete]);
 
   return (
@@ -324,33 +334,15 @@ function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { t
   );
 }
 
-const FAQ_DATA = [
-  { q: "What is your average turnaround time?", a: "For short-form content (Reels/Shorts), expect a 24-48h turnaround. Long-form projects usually take 4-7 business days depending on complexity." },
-  { q: "How many revisions are included?", a: "Every project includes two major revision rounds. Minor tweaks are unlimited until the final delivery feels perfect." },
-  { q: "Which tech stack do you use?", a: "Premiere Pro & After Effects are my core tools, that's where 90% of the work happens. I also have experience with DaVinci Resolve and CapCut, but I stick to my core workflow for consistency and speed. For sound, I run on an Epidemic Sound subscription, so every project gets copyright-free music and SFX." },
-  { q: "Do you offer professional color grading?", a: "Yes, every project goes through a color grading pass to match the tone and mood you're going for, cinematic, warm, moody, whatever fits the story best." },
-  { q: "Do you accept international payments?", a: "Yes, I work with clients worldwide. Payments are handled through Wise for international transfers, keeping fees low and everything transparent on both ends." }
-];
-
-const BOOT_LINES = [
-  "[BOOT]: INITIALIZING VERONA_ENGINE...",
-  "[INFO]: LOADING_CORE_MODULES [OK]",
-  "[INFO]: SYNCING_ARCHIVE_DATA [OK]",
-  "[INFO]: ESTABLISHING_SECURE_CONN [OK]"
-];
-
-export default function PortfolioPage() {
-  const mainRef = useRef<HTMLDivElement>(null);
-  const terminalRef = useRef<HTMLDivElement>(null);
-
+export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [year, setYear] = useState<number>(2024);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
-  const [reachedBottom, setReachedBottom] = useState(false);
-  const [year] = useState(new Date().getFullYear());
-  const [isMounted, setIsMounted] = useState(false);
+  const mainRef = useRef<HTMLDivElement>(null);
   
+  // Terminal States
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
-  const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>([0, 1, 2, 3, 4]);
+  const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>(FAQ_DATA.map((_, i) => i));
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   const [typedQuestionsCount, setTypedQuestionsCount] = useState(0);
   const [isHeaderTyped, setIsHeaderTyped] = useState(false);
@@ -363,203 +355,98 @@ export default function PortfolioPage() {
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const terminalRef = useRef<HTMLDivElement>(null);
 
-  const categories = useMemo(() => [
-    { id: 'cat-all', label: 'all' },
-    { id: 'cat-shorts', label: 'shorts' },
-    { id: 'cat-long', label: 'long' },
-    { id: 'cat-motion', label: 'motion' },
-    { id: 'cat-talking', label: 'talking' },
-    { id: 'cat-vlogs', label: 'vlogs' }
-  ], []);
-
-  const clusterVideos = useMemo(() => {
-    const raw = PlaceHolderImages.filter(i => 
-      ['hero-grok', 'hero-me-in-one-min', 'hero-cook', 'hero-speed', 'hero-pensen'].includes(i.id)
-    );
+  useEffect(() => {
+    setYear(new Date().getFullYear());
     
-    const TIMINGS: Record<string, { focus: number; apice: number }> = {
-      'hero-grok': { focus: 0, apice: 0 },
-      'hero-me-in-one-min': { focus: 10, apice: 13 },
-      'hero-cook': { focus: 20, apice: 0 },
-      'hero-speed': { focus: 30, apice: 0 },
-      'hero-pensen': { focus: 40, apice: 5 },
-    };
-
-    return raw.map(vid => ({
-      ...vid,
-      startTime: TIMINGS[vid.id] ? TIMINGS[vid.id].apice - TIMINGS[vid.id].focus : 0
-    }));
-  }, []);
-
-  const catImages = useMemo(() => PlaceHolderImages.filter(i => i.id.startsWith('cat-')), []);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 100);
+    const timer = setTimeout(() => setCanStartBoot(true), 1000);
     return () => clearTimeout(timer);
-  }, [activeCategory]);
-
-  useGSAP(() => {
-    if (!isMounted || typeof window === 'undefined' || !mainRef.current) return;
-
-    const heroLineRefs = document.querySelectorAll('.hero-line');
-    const hudRef = document.querySelector('.hud-ref');
-    const coordsRef = document.querySelector('.coords-ref');
-    const statusBlockRef = document.querySelector('.status-block-ref');
-    const ctaRef = document.querySelector('.cta-ref');
-    const scrollIndicatorRef = document.querySelector('.scroll-indicator-ref');
-    const statsBarRef = document.querySelector('.stats-bar-ref');
-    const contentBlockRef = document.querySelector('.content-block-ref');
-    const termRef = document.querySelector('.terminal-reveal-ref');
-
-    const tl = gsap.timeline({ delay: 0.5 });
-
-    tl.to([hudRef, coordsRef, statusBlockRef], {
-      opacity: 1,
-      duration: 0.1,
-      ease: "none",
-      stagger: 0.05
-    }, 0);
-
-    tl.to(statusBlockRef, {
-      opacity: 0,
-      duration: 0.6,
-      ease: "power2.inOut"
-    }, 1.5);
-
-    if (heroLineRefs.length > 0) {
-      tl.fromTo(heroLineRefs, 
-        { y: '100%' }, 
-        { 
-          y: '0%', 
-          duration: 1.2, 
-          ease: "expo.out", 
-          stagger: 0.18 
-        }, 0.3);
-    }
-
-    tl.fromTo(ctaRef,
-      { y: 12, opacity: 0 },
-      { 
-        y: 0, 
-        opacity: 1, 
-        duration: 0.8, 
-        ease: 'power2.out',
-        onComplete: () => {
-          if (scrollIndicatorRef) {
-            gsap.fromTo(scrollIndicatorRef,
-              { opacity: 0, y: 10 },
-              { opacity: 1, y: 0, duration: 1 }
-            );
-          }
-        }
-      }, 0.9);
-
-    const sectionTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: statsBarRef,
-        start: "top 85%",
-        toggleActions: "play none none reverse"
-      }
-    });
-
-    sectionTl.from(statsBarRef, { opacity: 0, y: 20, duration: 0.8, ease: "power2.out" })
-             .from(contentBlockRef, { opacity: 0, y: 30, duration: 1, ease: "power2.out" }, "-=0.4")
-             .fromTo(termRef, 
-                { opacity: 0, scale: 0.98 },
-                { 
-                  opacity: 1, 
-                  scale: 1, 
-                  duration: 1, 
-                  ease: "power3.out",
-                  onComplete: () => {
-                    setTimeout(() => setCanStartBoot(true), 1000);
-                  }
-                }, "-=0.6");
-
-  }, { dependencies: [isMounted], scope: mainRef });
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const winHeight = window.innerHeight;
-      const docHeight = document.documentElement.scrollHeight;
-      const atBottom = (currentScrollY + winHeight) >= docHeight - 20;
-      setReachedBottom(atBottom);
-      if (!atBottom) setIsSecretVisible(false);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => handleScroll();
   }, []);
 
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      if (!reachedBottom) return;
-      if (e.deltaY > 0) setIsSecretVisible(true);
-      else if (e.deltaY < 0) setIsSecretVisible(false);
-    };
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [reachedBottom]);
-
-  const handleCategoryClick = (label: string) => {
-    setActiveCategory(label === activeCategory ? null : label);
+  const handleCategoryClick = (category: string) => {
+    setActiveCategory(category);
+    gsap.to(window, {
+      duration: 1,
+      scrollTo: { y: "#works", offsetY: 80 },
+      ease: "power3.inOut"
+    });
   };
 
   const handleCloseFeed = () => {
     setActiveCategory(null);
   };
 
-  const handleTerminalAction = () => {
-    if (faqAvailableIndices.length === 0 || typedQuestionsCount < faqAvailableIndices.length) return;
-    const qIdx = faqAvailableIndices[activeFaqIndex];
-    const item = FAQ_DATA[qIdx];
-    setFaqHistory(prev => [...prev, item]);
-    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== activeFaqIndex));
+  const categories = [
+    { id: 'all', label: 'All' },
+    { id: 'shorts', label: 'Shorts' },
+    { id: 'long', label: 'Long-Form' },
+    { id: 'motion', label: 'Motion' },
+    { id: 'talking', label: 'Talking Heads' },
+    { id: 'vlogs', label: 'Vlogs' }
+  ];
+
+  const catImages = [
+    { id: 'all', imageUrl: 'https://i.imgur.com/lj2mU6F.png' },
+    { id: 'shorts', imageUrl: 'https://i.imgur.com/ehRTGR0.png' },
+    { id: 'long', imageUrl: 'https://i.imgur.com/jAja7gP.png' },
+    { id: 'motion', imageUrl: 'https://i.imgur.com/leLxq09.png' },
+    { id: 'talking', imageUrl: 'https://i.imgur.com/2u5rbjn.png' },
+    { id: 'vlogs', imageUrl: 'https://i.imgur.com/85wpzam.png' }
+  ];
+
+  const clusterVideos = [
+    { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 },
+    { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 13 },
+    { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 },
+    { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 },
+    { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 }
+  ];
+
+  const handleTerminalAction = (index: number) => {
+    const qIdx = faqAvailableIndices[index];
+    setFaqHistory(prev => [...prev, FAQ_DATA[qIdx]]);
+    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== index));
     setActiveFaqIndex(0);
     setTypedQuestionsCount(0);
     setIsHeaderTyped(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (isBooting || !isHeaderTyped || typedQuestionsCount < faqAvailableIndices.length) return;
-    if (e.key === 'ArrowUp') {
+    if (!isTerminalFocused || isBooting) return;
+
+    if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setActiveFaqIndex(prev => (prev > 0 ? prev - 1 : Math.max(0, faqAvailableIndices.length - 1)));
-    } else if (e.key === 'ArrowDown') {
+      setActiveFaqIndex(prev => (prev + 1) % faqAvailableIndices.length);
+    } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setActiveFaqIndex(prev => (prev < faqAvailableIndices.length - 1 ? prev + 1 : 0));
+      setActiveFaqIndex(prev => (prev - 1 + faqAvailableIndices.length) % faqAvailableIndices.length);
     } else if (e.key === 'Enter') {
-      handleTerminalAction();
+      e.preventDefault();
+      if (faqAvailableIndices.length > 0) {
+        handleTerminalAction(activeFaqIndex);
+      }
     }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (isTerminalMinimized) return;
     setIsDragging(true);
-    setDragStart({ x: e.clientX - faqPos.x, y: e.clientY - faqPos.y });
+    setDragStart({
+      x: e.clientX - faqPos.x,
+      y: e.clientY - faqPos.y
+    });
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !terminalRef.current) return;
-      const dx = e.clientX - dragStart.x;
-      const dy = e.clientY - dragStart.y;
-      terminalRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
-    };
-
-    const handleMouseUp = (e: MouseEvent) => {
       if (!isDragging) return;
-      const dx = e.clientX - dragStart.x;
-      const dy = e.clientY - dragStart.y;
-      setFaqPos({ x: dx, y: dy });
-      setIsDragging(false);
+      setFaqPos({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
     };
+    const handleMouseUp = () => setIsDragging(false);
 
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
@@ -569,7 +456,30 @@ export default function PortfolioPage() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragStart, faqPos.x, faqPos.y]);
+  }, [isDragging, dragStart]);
+
+  useGSAP(() => {
+    gsap.from(".hero-line", {
+      y: 100,
+      opacity: 0,
+      duration: 1,
+      stagger: 0.2,
+      ease: "power4.out"
+    });
+
+    gsap.to(".hud-ref", { opacity: 1, duration: 1, delay: 1 });
+    gsap.to(".coords-ref", { opacity: 1, duration: 1, delay: 1.2 });
+    gsap.to(".cta-ref", { opacity: 1, duration: 1, delay: 1.4 });
+    gsap.to(".status-block-ref", { opacity: 1, duration: 1, delay: 1.6 });
+    gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
+
+    ScrollTrigger.create({
+      trigger: "#contact",
+      start: "top bottom",
+      onEnter: () => setIsSecretVisible(true),
+      onLeaveBack: () => setIsSecretVisible(false)
+    });
+  }, { scope: mainRef });
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
@@ -581,7 +491,7 @@ export default function PortfolioPage() {
             </Link>
             <div className="hidden lg:flex items-center gap-3 text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="tracking-[0.2em] font-mono text-[7.5px] uppercase">SYS_ONLINE // BRAZIL</span>
+              <span className="tracking-[0.2em] font-mono text-[7.5px] uppercase">SYS_ONLINE // SOUTH BRAZIL</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 font-mono text-[8px] uppercase tracking-widest">
@@ -623,11 +533,11 @@ export default function PortfolioPage() {
               </h1>
 
               <div className="max-w-md">
-                <div className="cta-ref mt-6 flex items-center gap-6 opacity-0">
+                <Link href="#works" className="cta-ref mt-6 flex items-center gap-6 opacity-0">
                   <Button variant="link" className="p-0 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground hover:text-primary group">
                     View Archive <ArrowRight className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-2" />
                   </Button>
-                </div>
+                </Link>
               </div>
             </div>
 
@@ -913,7 +823,9 @@ export default function PortfolioPage() {
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
             <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6">Layer 03 // Final Call</span>
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
-            <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
+            <Link href="mailto:00mezzomo@gmail.com">
+              <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
+            </Link>
           </div>
           <div className="relative overflow-hidden">
              <div className={cn(
@@ -925,7 +837,7 @@ export default function PortfolioPage() {
               <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5 shrink-0">
                 <div className="w-full px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex gap-8">
-                    <Link href="#" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
+                    <Link href="https://discord.com/users/299338458231603202" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
                     <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
                     <Link href="mailto:contact@veronastudio.com" className="text-muted-foreground hover:text-primary"><Mail className="h-5 w-5" /></Link>
                   </div>
@@ -938,3 +850,4 @@ export default function PortfolioPage() {
     </div>
   );
 }
+
