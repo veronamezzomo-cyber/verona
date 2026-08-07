@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -157,16 +156,16 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         let ox = Math.cos(angle) * rx;
         let oy = Math.sin(angle) * ry;
         
-        // Destaque de Posição: Puxa o item levemente para o centro quando em foco
-        ox = ox * (1 - ff * 0.3);
-        oy = oy * (1 - ff * 0.3);
+        // Destaque de Posição: Puxa o item fortemente para o centro quando em foco (85%)
+        ox = ox * (1 - ff * 0.85);
+        oy = oy * (1 - ff * 0.85);
         
         // Profundidade (DOF) original
         const depth = Math.sin(angle); // -1 (atrás) a 1 (frente)
         
-        // Escala: Combina a escala de profundidade com o bônus de foco (até 1.4x)
+        // Escala: Combina a escala de profundidade com o bônus de foco (até 1.2x)
         const baseScale = 1.0 + depth * 0.25; 
-        const scale = baseScale * (1 - ff) + (1.4 * ff);
+        const scale = baseScale * (1 - ff) + (1.2 * ff);
         
         // Blur: Elimina o blur conforme o foco aumenta
         const baseBlur = depth < 0 ? Math.abs(depth) * 6 : 0;
