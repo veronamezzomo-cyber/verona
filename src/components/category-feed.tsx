@@ -22,6 +22,109 @@ interface CyberTerminalProps {
   isMinimized?: boolean;
 }
 
+const GLYPHS = '0123456789ABCDEF!@#$%^&*()_+<>?:';
+
+const CyberText = ({ 
+  text, 
+  variant = 'decrypt', 
+  delay = 500, 
+  speed = 30, 
+  className,
+  corrupt = false,
+  trigger = true
+}: { 
+  text: string, 
+  variant?: 'type' | 'decrypt', 
+  delay?: number, 
+  speed?: number, 
+  className?: string,
+  corrupt?: boolean,
+  trigger?: boolean
+}) => {
+  const [display, setDisplay] = useState('');
+  const [isDone, setIsDone] = useState(false);
+  const reducedMotion = typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
+
+  useEffect(() => {
+    if (!trigger) return;
+    if (reducedMotion) {
+      setDisplay(text);
+      setIsDone(true);
+      return;
+    }
+
+    let timeoutId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout;
+    
+    setDisplay('');
+    setIsDone(false);
+    
+    timeoutId = setTimeout(() => {
+      if (variant === 'type') {
+        let i = 0;
+        intervalId = setInterval(() => {
+          if (i <= text.length) {
+            setDisplay(text.slice(0, i));
+            i++;
+          } else {
+            clearInterval(intervalId);
+            setIsDone(true);
+          }
+        }, speed);
+      } else {
+        let iterations = 0;
+        intervalId = setInterval(() => {
+          setDisplay(
+            text.split('').map((char, index) => {
+              if (index < iterations) return text[index];
+              return GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+            }).join('')
+          );
+          if (iterations >= text.length) {
+            clearInterval(intervalId);
+            setIsDone(true);
+          }
+          iterations += 1/3;
+        }, speed);
+      }
+    }, delay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(intervalId);
+    };
+  }, [text, variant, delay, speed, trigger, reducedMotion]);
+
+  useEffect(() => {
+    if (!corrupt || !isDone || reducedMotion) return;
+    
+    const triggerCorruption = () => {
+      const charIndex = Math.floor(Math.random() * text.length);
+      const original = text;
+      
+      const corrupted = original.split('');
+      corrupted[charIndex] = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      setDisplay(corrupted.join(''));
+      
+      setTimeout(() => {
+        setDisplay(original);
+      }, 150);
+      
+      setTimeout(triggerCorruption, 8000 + Math.random() * 7000);
+    };
+
+    const timer = setTimeout(triggerCorruption, 8000 + Math.random() * 7000);
+    return () => clearTimeout(timer);
+  }, [corrupt, isDone, text, reducedMotion]);
+
+  return (
+    <span className={className} aria-label={text}>
+      <span aria-hidden="true">{display}</span>
+      <span className="sr-only">{text}</span>
+    </span>
+  );
+};
+
 function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminalProps) {
   const [history, setHistory] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -198,7 +301,6 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const feedItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   
   const [clickCount, setClickCount] = useState(0);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
@@ -207,7 +309,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
   const isExpanded = !!category;
   const verticalCategories = ['shorts', 'talking'];
-  const isVerticalFormat = category ? verticalCategories.includes(category) : false;
 
   const filteredVideos = useMemo(() => {
     if (!category || category === 'all') return VIDEOS_DATA;
@@ -240,22 +341,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         { y: 60, opacity: 0, filter: 'blur(10px)' },
         { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1, delay: 0.5, ease: 'power4.out' }
       );
-
-      // Staggered reveal with exposure peak
-      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!isReduced) {
-        gsap_real.fromTo(".feed-text-ref", 
-          { filter: 'brightness(4) contrast(1.5)', opacity: 0 },
-          { 
-            filter: 'brightness(1) contrast(1)', 
-            opacity: 1, 
-            duration: 0.8, 
-            stagger: 0.05,
-            delay: 0.8,
-            ease: "power2.out" 
-          }
-        );
-      }
     } else {
       gsap_real.to(containerRef.current, {
         height: '120px',
@@ -293,23 +378,30 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       >
         <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
-            <span className={cn(
+            <CyberText 
+              text="Active Layer" 
+              variant="decrypt" 
+              delay={500} 
+              corrupt 
+              className={cn(
                 "font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold",
                 isExpanded && "animate-active-layer-blink"
               )}
-            >
-              Active Layer
-            </span>
+            />
             <div className="flex items-center gap-2">
-              <h2 className="font-serif text-2xl md:text-3xl italic font-bold text-foreground lowercase leading-none">
-                {category || 'none'}
-              </h2>
+              <CyberText 
+                text={category || 'none'} 
+                variant="type" 
+                delay={500} 
+                speed={40}
+                className="font-serif text-2xl md:text-3xl italic font-bold text-foreground lowercase leading-none" 
+              />
               {category && <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(220,38,38,0.5)]" />}
             </div>
           </div>
           
           <div className="flex flex-col gap-1 mt-1">
-            <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground">Session Status</span>
+            <CyberText text="Session Status" variant="decrypt" delay={700} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground" />
             <div className="flex items-center gap-2">
               <div className="flex gap-1">
                 {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
@@ -327,7 +419,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         {!isExpanded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
             <div className="flex flex-col items-center gap-1 mb-1">
-              <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60 font-bold">System Online</span>
+              <CyberText text="System Online" variant="decrypt" delay={500} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60 font-bold" />
             </div>
             
             <div className="flex flex-col items-center gap-2 animate-pulse">
@@ -349,7 +441,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             <div className="hidden md:block" />
 
             <div className="flex flex-col gap-2 items-center text-center">
-               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">[ PORTFOLIO_LOAD: 22% ]</span>
+               <CyberText text="[ PORTFOLIO_LOAD: 22% ]" variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold" />
                <div className="w-full max-w-[300px] h-1.5 bg-foreground/5 relative overflow-hidden">
                   <div className="absolute inset-0 bg-primary/20" />
                   <div className="absolute top-0 left-0 bottom-0 bg-primary w-[22%] shadow-[0_0_10px_rgba(220,38,38,0.5)]" />
@@ -379,7 +471,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                         ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                         : cn(
                             "gap-12 md:gap-16 lg:gap-24",
-                            isVerticalFormat 
+                            category && verticalCategories.includes(category)
                               ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
                               : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                           )
@@ -441,11 +533,20 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                     </div>
                     
-                    <div className="flex items-center justify-between px-2 feed-text-ref">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors truncate">
-                        {item.title}
-                      </span>
-                      <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60 shrink-0">{item.date}</span>
+                    <div className="flex items-center justify-between px-2">
+                      <CyberText 
+                        text={item.title} 
+                        variant="decrypt" 
+                        delay={800 + index * 50} 
+                        className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors truncate" 
+                      />
+                      <CyberText 
+                        text={item.date} 
+                        variant="decrypt" 
+                        delay={1000 + index * 50} 
+                        corrupt 
+                        className="font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/60 shrink-0" 
+                      />
                     </div>
                   </div>
                 );
@@ -456,12 +557,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 shrink-0">
             <div className="flex gap-8">
               <span className="flex items-center gap-2">
-                Status: <span className="animate-pulse text-foreground/60">Simultaneous Processing</span>
+                Status: <CyberText text="Simultaneous Processing" variant="decrypt" delay={500} />
               </span>
-              <span>Buffer: Dynamic Grid</span>
-              <span>V-Sync: Active</span>
+              <CyberText text="Buffer: Dynamic Grid" variant="decrypt" delay={600} />
+              <CyberText text="V-Sync: Active" variant="decrypt" delay={700} />
             </div>
-            <div>© Verona Studio • Visual Engine v3.0 // LUXURY EDITION</div>
+            <CyberText text="© VERONA STUDIO • VISUAL ENGINE V3.0 // LUXURY EDITION" variant="decrypt" delay={500} corrupt />
           </div>
         </div>
       </div>

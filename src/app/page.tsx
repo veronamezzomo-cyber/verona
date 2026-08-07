@@ -26,6 +26,109 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 }
 
+const GLYPHS = '0123456789ABCDEF!@#$%^&*()_+<>?:';
+
+const CyberText = ({ 
+  text, 
+  variant = 'decrypt', 
+  delay = 500, 
+  speed = 30, 
+  className,
+  corrupt = false,
+  trigger = true
+}: { 
+  text: string, 
+  variant?: 'type' | 'decrypt', 
+  delay?: number, 
+  speed?: number, 
+  className?: string,
+  corrupt?: boolean,
+  trigger?: boolean
+}) => {
+  const [display, setDisplay] = useState('');
+  const [isDone, setIsDone] = useState(false);
+  const reducedMotion = typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
+
+  useEffect(() => {
+    if (!trigger) return;
+    if (reducedMotion) {
+      setDisplay(text);
+      setIsDone(true);
+      return;
+    }
+
+    let timeoutId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout;
+    
+    setDisplay('');
+    setIsDone(false);
+    
+    timeoutId = setTimeout(() => {
+      if (variant === 'type') {
+        let i = 0;
+        intervalId = setInterval(() => {
+          if (i <= text.length) {
+            setDisplay(text.slice(0, i));
+            i++;
+          } else {
+            clearInterval(intervalId);
+            setIsDone(true);
+          }
+        }, speed);
+      } else {
+        let iterations = 0;
+        intervalId = setInterval(() => {
+          setDisplay(
+            text.split('').map((char, index) => {
+              if (index < iterations) return text[index];
+              return GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+            }).join('')
+          );
+          if (iterations >= text.length) {
+            clearInterval(intervalId);
+            setIsDone(true);
+          }
+          iterations += 1/3;
+        }, speed);
+      }
+    }, delay);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(intervalId);
+    };
+  }, [text, variant, delay, speed, trigger, reducedMotion]);
+
+  useEffect(() => {
+    if (!corrupt || !isDone || reducedMotion) return;
+    
+    const triggerCorruption = () => {
+      const charIndex = Math.floor(Math.random() * text.length);
+      const original = text;
+      
+      const corrupted = original.split('');
+      corrupted[charIndex] = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      setDisplay(corrupted.join(''));
+      
+      setTimeout(() => {
+        setDisplay(original);
+      }, 150);
+      
+      setTimeout(triggerCorruption, 8000 + Math.random() * 7000);
+    };
+
+    const timer = setTimeout(triggerCorruption, 8000 + Math.random() * 7000);
+    return () => clearTimeout(timer);
+  }, [corrupt, isDone, text, reducedMotion]);
+
+  return (
+    <span className={className} aria-label={text}>
+      <span aria-hidden="true">{display}</span>
+      <span className="sr-only">{text}</span>
+    </span>
+  );
+};
+
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 18.27 18.27 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0-5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 1 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292.074.074 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.078.078 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
@@ -76,7 +179,13 @@ function DigitalClock() {
 
   return (
     <div className="flex flex-col items-center md:items-start gap-1">
-      <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60">[ BRAZIL_TIME ]</span>
+      <CyberText 
+        text="[ BRAZIL_TIME ]" 
+        variant="decrypt" 
+        delay={500} 
+        corrupt 
+        className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60" 
+      />
       <span className="font-mono text-[11px] tracking-[0.2em] text-foreground/80 tabular-nums">
         {time || '00:00:00'}
       </span>
@@ -534,7 +643,6 @@ export default function Home() {
   }, []);
 
   useGSAP(() => {
-    // Initial reveal animation (NÃO ALTERADO)
     gsap.to(".hero-line", {
       y: 0,
       opacity: 1,
@@ -543,21 +651,14 @@ export default function Home() {
       ease: "power4.out"
     });
 
-    // Sub-elements animations
-    gsap.to(".hud-ref", { opacity: 1, duration: 1, delay: 1 });
-    gsap.to(".coords-ref", { opacity: 1, duration: 1, delay: 1.2 });
-    gsap.to(".cta-ref", { opacity: 1, duration: 1, delay: 1.4 });
-    gsap.to(".status-block-ref", { opacity: 1, duration: 1, delay: 1.6 });
+    gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
 
-    // Scroll-linked Skew effect
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!isReduced) {
       const skewTargets = ".skew-text-ref";
       
       const updateSkew = () => {
-        // Use a hidden global proxy to access velocity if lenis is active
-        // But here we'll use a safer approach since Lenis is in layout
         const velocity = ScrollTrigger.create({ trigger: "body" }).getVelocity() / 3000;
         const clampedSkew = Math.max(-0.5, Math.min(0.5, velocity));
         
@@ -586,9 +687,15 @@ export default function Home() {
             <Link href="/" className="text-lg font-bold tracking-tighter font-serif italic text-foreground">
               LV<span className="text-primary">.</span>
             </Link>
-            <div className="hidden lg:flex items-center gap-3 text-muted-foreground">
+            <div className="hidden lg:flex items-center gap-3 text-muted-foreground hud-reveal opacity-0">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="tracking-[0.2em] font-mono text-[7.5px] uppercase">SYS_ONLINE // SOUTH BRAZIL</span>
+              <CyberText 
+                text="SYS_ONLINE // SOUTH BRAZIL" 
+                variant="decrypt" 
+                delay={800} 
+                corrupt 
+                className="tracking-[0.2em] font-mono text-[7.5px] uppercase" 
+              />
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 font-mono text-[8px] uppercase tracking-widest">
@@ -604,15 +711,23 @@ export default function Home() {
           <div className="w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               <div className="flex items-center gap-4 mb-6">
-                <div className="hud-ref flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full opacity-0">
+                <div className="hud-reveal flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full opacity-0">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">
-                    [ 00 / EDITOR ]
-                  </span>
+                  <CyberText 
+                    text="[ 00 / EDITOR ]" 
+                    variant="decrypt" 
+                    delay={600} 
+                    corrupt 
+                    className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold" 
+                  />
                 </div>
-                <span className="coords-ref font-mono text-[7.5px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block opacity-0">
-                  COORDINATES: 23.5505° S, 46.6333° W
-                </span>
+                <CyberText 
+                  text="COORDINATES: 23.5505° S, 46.6333° W" 
+                  variant="decrypt" 
+                  delay={1000} 
+                  corrupt 
+                  className="hud-reveal opacity-0 font-mono text-[7.5px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block" 
+                />
               </div>
 
               <h1 className="font-serif font-bold text-[clamp(2rem,5.6vw,5.2rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
@@ -630,7 +745,7 @@ export default function Home() {
               </h1>
 
               <div className="max-w-md">
-                <Link href="#works" className="cta-ref mt-6 flex items-center gap-6 opacity-0">
+                <Link href="#works" className="hud-reveal mt-6 flex items-center gap-6 opacity-0">
                   <Button variant="link" className="p-0 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground hover:text-primary group">
                     View Archive <ArrowRight className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-2" />
                   </Button>
@@ -644,11 +759,11 @@ export default function Home() {
             </div>
           </div>
           
-          <div className="status-block-ref absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-0">
+          <div className="hud-reveal absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-0">
             <div className="font-mono text-[8px] uppercase tracking-[0.4em] flex flex-col gap-1">
-              <span>System: Active</span>
-              <span>Buffer: Locked</span>
-              <span>Layer: 01_Hero</span>
+              <CyberText text="System: Active" variant="decrypt" delay={1200} corrupt />
+              <CyberText text="Buffer: Locked" variant="decrypt" delay={1300} />
+              <CyberText text="Layer: 01_Hero" variant="decrypt" delay={1400} />
             </div>
           </div>
 
@@ -704,24 +819,24 @@ export default function Home() {
         <section className="py-24 bg-background overflow-hidden border-t border-foreground/5">
           <div className="w-full px-6 md:px-12">
             
-            <div className="stats-bar-ref flex justify-center border-b border-foreground/5 pb-10 mb-20">
+            <div className="flex justify-center border-b border-foreground/5 pb-10 mb-20">
               <div className="flex flex-wrap gap-12 md:gap-24 items-center">
                 <div className="flex flex-col items-center">
-                  <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ YEARS ]</span>
+                  <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1" />
                   <span className="text-2xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+6</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ CLIENTS ]</span>
+                  <CyberText text="[ CLIENTS ]" variant="decrypt" delay={600} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1" />
                   <span className="text-2xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+12</span>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ PROJECTS ]</span>
+                  <CyberText text="[ PROJECTS ]" variant="decrypt" delay={700} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1" />
                   <span className="text-2xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+80</span>
                 </div>
               </div>
             </div>
 
-            <div className="content-block-ref grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-end">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-end">
               <div className="lg:col-span-9">
                 <div className="relative">
                   <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
@@ -731,15 +846,15 @@ export default function Home() {
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-px bg-primary" />
                     <div className="flex flex-col">
-                      <span className="font-mono text-[10px] uppercase tracking-widest font-bold">James Huang</span>
-                      <span className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60">Creative Director @ Void Studio</span>
+                      <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[10px] uppercase tracking-widest font-bold" />
+                      <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60" />
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="lg:col-span-3 flex flex-col gap-8 items-center lg:items-end">
-                <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary">[ POWERED_BY ]</span>
+                <CyberText text="[ POWERED_BY ]" variant="decrypt" delay={500} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" />
                 <div className="flex flex-col gap-6 w-full lg:w-auto">
                   {[
                     { name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
@@ -947,7 +1062,7 @@ export default function Home() {
                   
                   <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                     <DigitalClock />
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© {year} Leonardo Verona.</p>
+                    <CyberText text={`© ${year} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" />
                   </div>
                 </div>
               </footer>
