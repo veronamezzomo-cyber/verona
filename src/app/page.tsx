@@ -169,7 +169,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       videoRefs.current.forEach((el, i) => {
         if (!el) return;
         
-        const { rx, ry } = orbitParams;
+        const { rx: baseRx, ry: baseRy } = orbitParams;
         const ff = focalFactorsRef.current[i].val; // Fator de foco atual
         
         // 4. Redistribuição Dinâmica (Suavizando buracos na órbita)
@@ -188,6 +188,10 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         // PARALLAX AGRESSIVO E SINCRONIZADO: O effectiveAngle dita TUDO (posição e profundidade)
         const effectiveAngle = baseAngle + Math.sin(baseAngle) * PARALLAX_INTENSITY;
         const visualDepth = Math.sin(effectiveAngle); // Depth baseada na posição visual real
+        
+        // AJUSTE: Raios Individuais para Forçar Cruzamento de Trajetórias
+        const rx = baseRx * (0.85 + (i % 3) * 0.1);
+        const ry = baseRy * (0.85 + (i % 2) * 0.15);
         
         // 5. Posição Orbital Pura (com Inclinação Diagonal 3D)
         const rawX = Math.cos(effectiveAngle) * rx;
