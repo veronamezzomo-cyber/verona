@@ -188,9 +188,12 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const angle = timeRef.current + currentOffsetsRef.current[i];
         const depth = Math.sin(angle); 
         
+        // ADICIONADO: Parallax por profundidade (Acelera na frente, desacelera atrás)
+        const effectiveAngle = angle + depth * 0.12;
+        
         // 5. Posição Orbital Pura (com Inclinação Diagonal 3D)
-        const rawX = Math.cos(angle) * rx;
-        const rawY = Math.sin(angle) * ry;
+        const rawX = Math.cos(effectiveAngle) * rx;
+        const rawY = Math.sin(effectiveAngle) * ry;
         
         // Rotação de eixos (TILT 12 deg)
         const orbitalX = rawX * cosT - rawY * sinT;
