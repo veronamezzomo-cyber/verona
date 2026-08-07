@@ -574,17 +574,17 @@ export default function PortfolioPage() {
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
-        <div className="container mx-auto px-6 md:px-12 h-full flex items-center justify-between">
-          <div className="flex items-center gap-12">
-            <Link href="/" className="text-xl font-bold tracking-tighter font-serif italic text-foreground">
+        <div className="w-full px-6 md:px-12 h-full flex items-center justify-between">
+          <div className="flex items-center gap-10">
+            <Link href="/" className="text-lg font-bold tracking-tighter font-serif italic text-foreground">
               LV<span className="text-primary">.</span>
             </Link>
             <div className="hidden lg:flex items-center gap-3 text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="tracking-[0.2em] font-mono text-[10px] uppercase">SYS_ONLINE // BRAZIL</span>
+              <span className="tracking-[0.2em] font-mono text-[7.5px] uppercase">SYS_ONLINE // BRAZIL</span>
             </div>
           </div>
-          <nav className="hidden md:flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
+          <nav className="hidden md:flex items-center gap-6 font-mono text-[8px] uppercase tracking-widest">
             <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
             <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
             <ThemeToggle />
@@ -594,21 +594,21 @@ export default function PortfolioPage() {
 
       <main ref={mainRef} className="relative">
         <section className="relative z-0 h-screen w-full flex items-center justify-center bg-background overflow-hidden">
-          <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          <div className="w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               <div className="flex items-center gap-4 mb-6">
                 <div className="hud-ref flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full opacity-0">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary font-bold">
+                  <span className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold">
                     [ 00 / EDITOR ]
                   </span>
                 </div>
-                <span className="coords-ref font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block opacity-0">
+                <span className="coords-ref font-mono text-[7.5px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block opacity-0">
                   COORDINATES: 23.5505° S, 46.6333° W
                 </span>
               </div>
 
-              <h1 className="font-serif font-bold text-[clamp(2.5rem,7vw,6.5rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
+              <h1 className="font-serif font-bold text-[clamp(2rem,5.6vw,5.2rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
                 <div className="overflow-hidden">
                   <div className="hero-line translate-y-full">CRAFTING</div>
                 </div>
@@ -655,7 +655,7 @@ export default function PortfolioPage() {
 
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
           <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
-            <div className="container mx-auto px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
+            <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
@@ -692,7 +692,7 @@ export default function PortfolioPage() {
         </div>
 
         <section className="py-24 bg-background overflow-hidden border-t border-foreground/5">
-          <div className="container mx-auto px-6 md:px-12">
+          <div className="w-full px-6 md:px-12">
             
             <div className="stats-bar-ref flex justify-center border-b border-foreground/5 pb-10 mb-20">
               <div className="flex flex-wrap gap-12 md:gap-24 items-center">
@@ -922,8 +922,8 @@ export default function PortfolioPage() {
                 )}>
                 <LEDTicker text="VERONA STUDIO" />
               </div>
-              <footer className="py-12 px-6 bg-background/95 border-t border-foreground/5 shrink-0">
-                <div className="container mx-auto md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
+              <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5 shrink-0">
+                <div className="w-full px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex gap-8">
                     <Link href="#" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
                     <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
