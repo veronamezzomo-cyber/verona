@@ -156,14 +156,14 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         let ox = Math.cos(angle) * rx;
         let oy = Math.sin(angle) * ry;
         
-        // Destaque de Posição: Puxa o item fortemente para o centro quando em foco (85%)
-        ox = ox * (1 - ff * 0.85);
-        oy = oy * (1 - ff * 0.85);
+        // POSICIONAMENTO CENTRAL: Puxa o item para o CENTRO EXATO (0,0) conforme ff -> 1
+        ox = ox * (1 - ff);
+        oy = oy * (1 - ff);
         
         // Profundidade (DOF) original
         const depth = Math.sin(angle); // -1 (atrás) a 1 (frente)
         
-        // Escala: Combina a escala de profundidade com o bônus de foco (até 1.2x)
+        // Escala: Combina a escala de profundidade com o bônus de foco (máximo 1.2x no centro)
         const baseScale = 1.0 + depth * 0.25; 
         const scale = baseScale * (1 - ff) + (1.2 * ff);
         
@@ -171,7 +171,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const baseBlur = depth < 0 ? Math.abs(depth) * 6 : 0;
         const blur = baseBlur * (1 - ff);
         
-        // Z-Index: Interpolação contínua entre profundidade e foco heroico
+        // Z-Index: Interpolação contínua para garantir que o focado fique por cima
         const baseZIndex = Math.round(50 + depth * 50);
         const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
 
