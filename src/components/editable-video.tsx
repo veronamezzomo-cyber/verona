@@ -30,6 +30,9 @@ export function EditableVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasSeekedRef = useRef(false);
 
+  // Check if this is the theater mode instance
+  const isTheaterMode = storageKey.startsWith('theater-');
+
   useEffect(() => {
     const saved = sessionStorage.getItem(`vid_${storageKey}`);
     if (saved) {
@@ -37,6 +40,20 @@ export function EditableVideo({
       hasSeekedRef.current = false;
     }
   }, [storageKey]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (isTheaterMode) {
+      video.muted = false;
+      video.volume = 0.3;
+      setIsMuted(false);
+    } else {
+      video.muted = true;
+      setIsMuted(true);
+    }
+  }, [isTheaterMode, currentSrc]);
 
   useEffect(() => {
     const video = videoRef.current;

@@ -212,6 +212,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
 
+  // Reset theater mode when category changes
+  useEffect(() => {
+    setSelectedProject(null);
+    setTerminalStatus('open');
+  }, [category]);
+
   useEffect(() => {
     if (!containerRef.current || !contentRef.current) return;
 
@@ -322,7 +328,15 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="flex items-center justify-end py-10 px-12 border-b border-foreground/5 shrink-0">
+          <div className="flex items-center justify-between py-10 px-12 border-b border-foreground/5 shrink-0">
+            <div className="flex flex-col gap-2">
+               <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">[ PORTFOLIO_LOAD: 22% ]</span>
+               <div className="w-[300px] h-1.5 bg-foreground/5 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-primary/20" />
+                  <div className="absolute top-0 left-0 bottom-0 bg-primary w-[22%] shadow-[0_0_10px_rgba(220,38,38,0.5)]" />
+               </div>
+            </div>
+
             <button 
               onClick={onClose}
               className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
@@ -432,6 +446,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Minimalized Terminal Indicator */}
                 {terminalStatus === 'minimized' && (
                   <div 
                     onClick={(e) => {
