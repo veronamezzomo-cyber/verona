@@ -358,7 +358,7 @@ export default function PortfolioPage() {
   const [isBooting, setIsBooting] = useState(true);
   const [bootStep, setBootStep] = useState(0);
   const [canStartBoot, setCanStartBoot] = useState(false);
-  const [isTerminalClosed, setIsTerminalClosed] = useState(true);
+  const [isTerminalClosed, setIsTerminalClosed] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
