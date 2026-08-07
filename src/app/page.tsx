@@ -148,7 +148,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     const sinT = Math.sin(TILT);
 
     const animate = () => {
-      timeRef.current += 0.0045; // Velocidade angular base ajustada
+      timeRef.current += 0.012; // Velocidade angular acelerada
       
       videoRefs.current.forEach((el, i) => {
         if (!el || !orbitParamsRef.current[i]) return;
@@ -158,9 +158,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const depth = Math.sin(baseAngle); // -1 (atrás) a 1 (frente)
         const ff = focalFactorsRef.current[i].val; // Fator de foco atual
         
-        // Variação de velocidade por profundidade (Parallax)
-        // O item acelera 15% na frente e desacelera atrás
-        const effectiveAngle = baseAngle + depth * 0.15;
+        // Variação de velocidade por profundidade (Parallax agressivo)
+        const effectiveAngle = baseAngle + depth * 0.35;
         
         // Coordenadas elípticas base 2D
         let ox = Math.cos(effectiveAngle) * rx;
@@ -174,8 +173,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         ox = ox_rotated;
         oy = oy_rotated + (depth * 15);
         
-        // POSICIONAMENTO FINAL: Interpolação total entre órbita e centro exato (0,0)
-        // Se ff = 1, a posição resultante é 0,0. Se ff = 0, a posição é orbital
+        // POSICIONAMENTO FINAL: Interpolação entre órbita e centro exato (0,0)
         ox = ox * (1 - ff);
         oy = oy * (1 - ff);
         
@@ -459,7 +457,7 @@ export default function PortfolioPage() {
       if (!atBottom) setIsSecretVisible(false);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => handleScroll();
   }, []);
 
   useEffect(() => {
@@ -519,12 +517,9 @@ export default function PortfolioPage() {
 
     const handleMouseUp = (e: MouseEvent) => {
       if (!isDragging) return;
-      const rect = terminalRef.current?.getBoundingClientRect();
-      if (rect) {
-        const dx = e.clientX - dragStart.x;
-        const dy = e.clientY - dragStart.y;
-        setFaqPos({ x: dx, y: dy });
-      }
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      setFaqPos({ x: dx, y: dy });
       setIsDragging(false);
     };
 
@@ -536,7 +531,7 @@ export default function PortfolioPage() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragStart]);
+  }, [isDragging, dragStart, faqPos.x, faqPos.y]);
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
