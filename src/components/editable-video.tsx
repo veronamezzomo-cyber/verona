@@ -61,10 +61,12 @@ export function EditableVideo({
           finalStart = finalStart % duration;
         }
 
-        video.pause();
-        video.currentTime = finalStart;
+        // Only seek if we are far from the target to avoid infinite loops
+        if (Math.abs(video.currentTime - finalStart) > 0.5) {
+          video.currentTime = finalStart;
+        }
         
-        if (video.muted || autoPlayProp) {
+        if (video.paused && (video.muted || autoPlayProp)) {
           await video.play().catch(() => {});
         }
       } catch (e) {}
@@ -72,13 +74,18 @@ export function EditableVideo({
 
     if (video.readyState >= 1) {
       seekAndPlay();
-    } else {
-      const onLoadedMetadata = () => {
-        seekAndPlay();
-      };
-      video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
-      return () => video.removeEventListener('loadedmetadata', onLoadedMetadata);
     }
+
+    const onLoadedMetadata = () => seekAndPlay();
+    const onCanPlay = () => seekAndPlay();
+
+    video.addEventListener('loadedmetadata', onLoadedMetadata);
+    video.addEventListener('canplay', onCanPlay);
+
+    return () => {
+      video.removeEventListener('loadedmetadata', onLoadedMetadata);
+      video.removeEventListener('canplay', onCanPlay);
+    };
   }, [currentSrc, startTime, autoPlayProp]);
 
   const validateAndApply = async () => {
@@ -123,7 +130,7 @@ export function EditableVideo({
         preload="auto"
         aria-hidden="true"
         controls={props.controls}
-        autoPlay={startTime === undefined ? true : undefined}
+        autoPlay={true}
         loop={props.loop}
       />
       
