@@ -98,12 +98,12 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
   const currentFocusedIndexRef = useRef(0);
 
-  // Geração de parâmetros orbitais estáveis
+  // Geração de parâmetros orbitais estáveis com raio expandido e mínimo garantido
   const orbitParams = useMemo(() => {
     const factor = containerWidth / 600;
     return videos.map((_, i) => ({
-      rx: 260 * factor,
-      ry: 140 * factor,
+      rx: Math.max(180, 420 * factor), // Raio X expandido e com mínimo de 180px
+      ry: Math.max(100, 240 * factor), // Raio Y expandido e com mínimo de 100px
       offset: (i * 2 * Math.PI) / videos.length
     }));
   }, [videos.length, containerWidth]);
@@ -320,7 +320,7 @@ export default function PortfolioPage() {
   const [isBooting, setIsBooting] = useState(true);
   const [bootStep, setBootStep] = useState(0);
   const [canStartBoot, setCanStartBoot] = useState(false);
-  const [isTerminalClosed, setIsTerminalClosed] = useState(false);
+  const [isTerminalClosed, setIsTerminalClosed] = useState(true);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
   const [faqPos, setFaqPos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -593,7 +593,7 @@ export default function PortfolioPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-5 relative flex justify-center lg:justify-end animate-image-reveal lg:-mr-12">
+            <div className="lg:col-span-5 relative flex justify-center lg:justify-end animate-image-reveal overflow-visible">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.05)_0%,transparent_70%)] pointer-events-none" />
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
