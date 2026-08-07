@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -143,27 +142,42 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
   // Motor de Animação rAF
   useEffect(() => {
+    // Constantes para Órbita 3D Diagonal
+    const TILT = 20 * (Math.PI / 180); // 20 graus de inclinação
+    const cosT = Math.cos(TILT);
+    const sinT = Math.sin(TILT);
+
     const animate = () => {
-      timeRef.current += 0.002; // Velocidade angular lenta e hipnótica
+      timeRef.current += 0.002; // Velocidade angular base
       
       videoRefs.current.forEach((el, i) => {
         if (!el || !orbitParamsRef.current[i]) return;
         
         const { rx, ry, offset } = orbitParamsRef.current[i];
-        const angle = timeRef.current + offset;
+        const baseAngle = timeRef.current + offset;
+        const depth = Math.sin(baseAngle); // -1 (atrás) a 1 (frente)
         const ff = focalFactorsRef.current[i].val; // Fator de foco atual
         
-        // Coordenadas elípticas base (Sempre calculadas para evitar saltos ao trocar de papel)
-        const orbitalX = Math.cos(angle) * rx;
-        const orbitalY = Math.sin(angle) * ry;
+        // Variação de velocidade por profundidade (Parallax)
+        // O item acelera 15% na frente e desacelera atrás
+        const effectiveAngle = baseAngle + depth * 0.15;
+        
+        // Coordenadas elípticas base 2D
+        let ox = Math.cos(effectiveAngle) * rx;
+        let oy = Math.sin(effectiveAngle) * ry;
+
+        // APLICAÇÃO DE ÓRBITA 3D DIAGONAL (Rotação de Eixos)
+        const ox_rotated = ox * cosT - oy * sinT;
+        const oy_rotated = ox * sinT + oy * cosT;
+        
+        // Reforço 3D: Deslocamento vertical extra baseado no depth
+        ox = ox_rotated;
+        oy = oy_rotated + (depth * 15);
         
         // POSICIONAMENTO FINAL: Interpolação total entre órbita e centro exato (0,0)
-        // Se ff = 1, a posição resultante é 0,0. Se ff = 0, a posição é orbitalX,orbitalY.
-        const ox = orbitalX * (1 - ff);
-        const oy = orbitalY * (1 - ff);
-        
-        // Profundidade (DOF) original
-        const depth = Math.sin(angle); // -1 (atrás) a 1 (frente)
+        // Se ff = 1, a posição resultante é 0,0. Se ff = 0, a posição é orbital
+        ox = ox * (1 - ff);
+        oy = oy * (1 - ff);
         
         // ESCALA: Interpola entre a escala de profundidade (0.75-1.25) e o foco (1.2)
         const baseScale = 1.0 + depth * 0.25; 
@@ -173,7 +187,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const baseBlur = depth < 0 ? Math.abs(depth) * 6 : 0;
         const blur = baseBlur * (1 - ff);
         
-        // Z-INDEX: Interpolação contínua para garantir que o focado fique por cima sem saltos
+        // Z-INDEX: Interpolação contínua para evitar saltos
         const baseZIndex = Math.round(50 + depth * 50);
         const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
 
