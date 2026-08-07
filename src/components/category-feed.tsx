@@ -5,12 +5,9 @@ import { X, Lock, Sparkles, Terminal, Minus, Square, Maximize2 } from 'lucide-re
 import { EditableVideo } from '@/components/editable-video';
 import { EditableImage } from '@/components/editable-image';
 import { cn } from '@/lib/utils';
-import gsap from 'react-gsap'; // Note: In project files it was 'gsap', but dependencies show 'gsap'. Standard import.
+import gsap_real from 'gsap';
 import { useToast } from '@/hooks/use-toast';
 import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
-
-// Note: Re-importing GSAP standard to match project structure
-import gsap_real from 'gsap';
 
 interface CategoryFeedProps {
   category: string | null;

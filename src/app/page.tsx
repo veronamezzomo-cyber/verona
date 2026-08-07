@@ -346,8 +346,8 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleCategoryClick = (category: string) => {
-    setActiveCategory(category);
+  const handleCategoryClick = (categoryId: string) => {
+    setActiveCategory(categoryId);
     gsap.to(window, {
       duration: 1,
       scrollTo: { y: "#works", offsetY: 80 },
@@ -440,6 +440,23 @@ export default function Home() {
     };
   }, [isDragging, dragStart]);
 
+  useEffect(() => {
+    const handleScrollIntent = (e: WheelEvent) => {
+      const scrollPos = window.innerHeight + window.scrollY;
+      const bottomLimit = document.documentElement.scrollHeight - 30;
+      const isAtBottom = scrollPos >= bottomLimit;
+
+      if (isAtBottom && e.deltaY > 0) {
+        setIsSecretVisible(true);
+      } else if (e.deltaY < 0) {
+        setIsSecretVisible(false);
+      }
+    };
+
+    window.addEventListener('wheel', handleScrollIntent, { passive: true });
+    return () => window.removeEventListener('wheel', handleScrollIntent);
+  }, []);
+
   useGSAP(() => {
     gsap.to(".hero-line", {
       y: 0,
@@ -454,13 +471,6 @@ export default function Home() {
     gsap.to(".cta-ref", { opacity: 1, duration: 1, delay: 1.4 });
     gsap.to(".status-block-ref", { opacity: 1, duration: 1, delay: 1.6 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
-
-    ScrollTrigger.create({
-      trigger: "#contact",
-      start: "top bottom",
-      onEnter: () => setIsSecretVisible(true),
-      onLeaveBack: () => setIsSecretVisible(false)
-    });
   }, { scope: mainRef });
 
   return (
@@ -552,11 +562,11 @@ export default function Home() {
                 const img = catImages.find(i => i.id === cat.id);
                 return (
                   <button 
-                    key={cat.label} 
-                    onClick={() => handleCategoryClick(cat.label)}
+                    key={cat.id} 
+                    onClick={() => handleCategoryClick(cat.id)}
                     className={cn(
                       "category-card group relative overflow-hidden cursor-pointer w-full md:flex-1 h-20 max-w-full md:max-w-[220px]",
-                      activeCategory === cat.label && "ring-2 ring-primary"
+                      activeCategory === cat.id && "ring-2 ring-primary"
                     )}
                   >
                     {img && (
@@ -565,7 +575,7 @@ export default function Home() {
                         alt={cat.label} 
                         storageKey={`cat-${cat.id}`}
                         fill
-                        className={cn("object-cover", activeCategory === cat.label && "scale-110")}
+                        className={cn("object-cover", activeCategory === cat.id && "scale-110")}
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20" />
