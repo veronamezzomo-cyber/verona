@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -42,30 +43,29 @@ export function EditableVideo({
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || startTime === undefined) return;
+    if (!video || startTime === undefined || isNaN(startTime)) return;
 
     const seekAndPlay = async () => {
       try {
+        if (!video.duration || isNaN(video.duration)) return;
+
         let finalStart = startTime;
+        const duration = video.duration;
         
+        // Wrap-around logic for negative offsets
         if (finalStart < 0) {
-          const duration = video.duration;
-          if (duration > 0) {
-            while (finalStart < 0) {
-              finalStart += duration;
-            }
-          } else {
-            finalStart = 0;
+          while (finalStart < 0) {
+            finalStart += duration;
           }
-        } else if (video.duration > 0) {
-          finalStart = finalStart % video.duration;
+        } else {
+          finalStart = finalStart % duration;
         }
 
         video.pause();
         video.currentTime = finalStart;
         
-        if (video.muted) {
-          await video.play();
+        if (video.muted || autoPlayProp) {
+          await video.play().catch(() => {});
         }
       } catch (e) {}
     };
@@ -79,7 +79,7 @@ export function EditableVideo({
       video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
       return () => video.removeEventListener('loadedmetadata', onLoadedMetadata);
     }
-  }, [currentSrc, startTime]);
+  }, [currentSrc, startTime, autoPlayProp]);
 
   const validateAndApply = async () => {
     if (!newUrl.trim()) return;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -97,7 +98,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const [containerWidth, setContainerWidth] = useState(600);
   const orbitParamsRef = useRef<any[]>([]);
   
-  const focalFactorsRef = useRef<number[]>([0, 0, 0, 0, 0]);
+  const focalFactorsRef = useRef<number[]>(Array(videos.length).fill(0));
   const currentFocusedIndexRef = useRef<number>(-1);
   const cycleProgressRef = useRef<number>(0);
 
@@ -139,7 +140,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       timeRef.current += 0.006;
       const expansion = expansionRef.current;
 
-      itemRefs.current.filter(Boolean).forEach((el, i) => {
+      itemRefs.current.forEach((el, i) => {
         if (!el) return;
 
         const p = orbitParamsRef.current[i];
