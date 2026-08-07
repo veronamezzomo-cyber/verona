@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -358,12 +359,12 @@ export default function PortfolioPage() {
 
   const clusterVideos = useMemo(() => {
     const raw = PlaceHolderImages.filter(i => 
-      ['hero-grok', 'hero-me-in-one-min', 'hero-cook', 'hero-speed', 'hero-pensen'].includes(i.id)
+      ['hero-me-in-one-min', 'hero-grok', 'hero-cook', 'hero-speed', 'hero-pensen'].includes(i.id)
     );
     
     const TIMINGS: Record<string, { focus: number; apice: number }> = {
-      'hero-grok': { focus: 0, apice: 0 },
-      'hero-me-in-one-min': { focus: 10, apice: 13 },
+      'hero-me-in-one-min': { focus: 0, apice: 13 },
+      'hero-grok': { focus: 10, apice: 0 },
       'hero-cook': { focus: 20, apice: 0 },
       'hero-speed': { focus: 30, apice: 0 },
       'hero-pensen': { focus: 40, apice: 5 },
