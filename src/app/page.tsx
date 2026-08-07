@@ -90,7 +90,25 @@ function LEDTicker({ text }: { text: string }) {
 
 function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const timeRef = useRef(0);
+  const requestRef = useRef<number>(0);
   const [containerWidth, setContainerWidth] = useState(600);
+
+  // Geração de parâmetros orbitais estáveis
+  const orbitParams = useMemo(() => {
+    const factor = containerWidth / 600;
+    return videos.map((_, i) => ({
+      rx: 260 * factor,
+      ry: 140 * factor,
+      offset: (i * 2 * Math.PI) / videos.length
+    }));
+  }, [videos.length, containerWidth]);
+
+  const orbitParamsRef = useRef(orbitParams);
+  useEffect(() => {
+    orbitParamsRef.current = orbitParams;
+  }, [orbitParams]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -100,22 +118,58 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       }
     });
     observer.observe(containerRef.current);
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
+  // Motor de Animação rAF
+  useEffect(() => {
+    const animate = () => {
+      timeRef.current += 0.002; // Velocidade angular lenta e hipnótica
+      
+      videoRefs.current.forEach((el, i) => {
+        if (!el || !orbitParamsRef.current[i]) return;
+        
+        const { rx, ry, offset } = orbitParamsRef.current[i];
+        const angle = timeRef.current + offset;
+        
+        // Coordenadas elípticas
+        const ox = Math.cos(angle) * rx;
+        const oy = Math.sin(angle) * ry;
+        
+        // Profundidade (DOF)
+        const depth = Math.sin(angle); // -1 (atrás) a 1 (frente)
+        const scale = 1.0 + depth * 0.1; // 0.9 a 1.1
+        const blur = depth < 0 ? Math.abs(depth) * 3 : 0;
+        const zIndex = Math.round(50 + depth * 50);
+
+        // Aplicação direta via style para performance
+        el.style.transform = `translate3d(calc(-50% + ${ox}px), calc(-50% + ${oy}px), 0) scale(${scale})`;
+        el.style.zIndex = zIndex.toString();
+        el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none';
+      });
+      
+      requestRef.current = requestAnimationFrame(animate);
+    };
+
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, []); // Dependência vazia para manter o loop contínuo
+
   return (
-    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none px-6 sm:px-10 lg:px-16">
+    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] pointer-events-none px-6 sm:px-10 lg:px-16 overflow-visible">
       <div className="absolute inset-0 pointer-events-auto" />
-      <div className="relative flex items-center justify-center gap-4 sm:gap-6 md:gap-8">
+      
+      {/* Container de Ancoragem Central */}
+      <div className="absolute top-1/2 left-1/2 w-0 h-0">
         {videos.map((vid, i) => (
           <div 
             key={vid.id}
-            className="w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none transition-transform duration-700 hover:scale-105"
+            ref={(el) => { videoRefs.current[i] = el; }}
+            className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none transition-transform duration-700 hover:scale-105"
             style={{ 
-              zIndex: 50 + i,
-              opacity: 1
+              transform: 'translate(-50%, -50%)',
+              opacity: 1,
+              willChange: 'transform, filter'
             }}
           >
             <EditableVideo 
