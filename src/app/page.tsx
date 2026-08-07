@@ -109,7 +109,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         setContainerWidth(entry.contentRect.width);
       }
     });
-    observer.observe(containerWidth);
+    observer.observe(containerRef.current);
     return () => {
       observer.disconnect();
       isMountedRef.current = false;
@@ -219,7 +219,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         onComplete: () => {
           if (!isMountedRef.current) return;
           rotateFocus();
-          focusInterval = setInterval(rotateFocus, 10000);
+          focusInterval = setInterval(rotateFocus, 6000);
         }
       });
     }, 300);
