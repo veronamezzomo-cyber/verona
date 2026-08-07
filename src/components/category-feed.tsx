@@ -212,6 +212,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     return VIDEOS_DATA.filter(video => video.category.includes(category));
   }, [category]);
 
+  const closeTheater = useCallback(() => {
+    setSelectedProject(null);
+    setTerminalStatus('closed');
+  }, []);
+
   // Reset theater mode when category changes
   useEffect(() => {
     setSelectedProject(null);
@@ -257,11 +262,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     setClickCount(prev => prev + 1);
     setSelectedProject(item);
     setTerminalStatus('open');
-  };
-
-  const closeTheater = () => {
-    setSelectedProject(null);
-    setTerminalStatus('closed');
   };
 
   return (
@@ -446,18 +446,19 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       </div>
 
       {selectedProject && (
-        <div 
-          className="fixed inset-0 z-[200] flex items-center justify-center p-6 md:p-12 animate-in fade-in duration-500"
-          onClick={closeTheater}
-        >
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-2xl" />
+        <div className="fixed inset-0 z-[200] flex items-center justify-center animate-in fade-in duration-500">
+          {/* Fundo escurecido que captura o clique de fechamento em 100% da tela */}
+          <div 
+            className="absolute inset-0 bg-black/95 backdrop-blur-2xl cursor-pointer" 
+            onClick={closeTheater}
+          />
           
+          {/* Container de conteúdo que ignora cliques no fundo mas centraliza os elementos */}
           <div 
             className={cn(
-              "relative z-[210] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full",
+              "relative z-[210] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full p-6 md:p-12 pointer-events-none",
               selectedProject.category.some(c => verticalCategories.includes(c)) ? "max-w-[1000px]" : "max-w-[1400px]"
             )}
-            onClick={(e) => e.stopPropagation()}
           >
             {/* Minimalized Terminal Indicator */}
             {terminalStatus === 'minimized' && (
@@ -466,7 +467,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   e.stopPropagation();
                   setTerminalStatus('open');
                 }}
-                className="absolute bottom-10 left-10 z-[220] flex items-center gap-4 bg-black/80 border border-red-900/40 px-4 py-3 rounded-md cursor-pointer hover:bg-red-900/10 transition-all animate-in slide-in-from-bottom-5"
+                className="absolute bottom-10 left-10 z-[220] flex items-center gap-4 bg-black/80 border border-red-900/40 px-4 py-3 rounded-md cursor-pointer hover:bg-red-900/10 transition-all animate-in slide-in-from-bottom-5 pointer-events-auto"
               >
                 <Terminal className="w-4 h-4 text-red-600" />
                 <span className="font-mono text-[9px] uppercase tracking-widest text-red-500">Cmd_Console (Minimized)</span>
@@ -475,7 +476,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             )}
 
             <div 
-              className="w-full max-w-[450px] shrink-0 self-center"
+              className="w-full max-w-[450px] shrink-0 self-center pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {terminalStatus === 'open' && (
@@ -489,7 +490,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
             <div 
               className={cn(
-                "relative shadow-[0_0_100px_rgba(220,38,38,0.3)] border border-primary/30 bg-black shrink-0",
+                "relative shadow-[0_0_100px_rgba(220,38,38,0.3)] border border-primary/30 bg-black shrink-0 pointer-events-auto",
                 selectedProject.category.some(c => verticalCategories.includes(c)) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
               )}
               onClick={(e) => e.stopPropagation()}
