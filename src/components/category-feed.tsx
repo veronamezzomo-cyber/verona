@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
@@ -7,6 +6,7 @@ import { EditableVideo } from '@/components/editable-video';
 import { EditableImage } from '@/components/editable-image';
 import { cn } from '@/lib/utils';
 import gsap_real from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { useToast } from '@/hooks/use-toast';
 import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
 
@@ -198,6 +198,7 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const feedItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   
   const [clickCount, setClickCount] = useState(0);
   const [selectedProject, setSelectedProject] = useState<ProjectVideo | null>(null);
@@ -218,13 +219,12 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     setTerminalStatus('closed');
   }, []);
 
-  // Reset theater mode when category changes
   useEffect(() => {
     setSelectedProject(null);
     setTerminalStatus('open');
   }, [category]);
 
-  useEffect(() => {
+  useGSAP(() => {
     if (!containerRef.current || !contentRef.current) return;
 
     if (isExpanded) {
@@ -240,6 +240,22 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         { y: 60, opacity: 0, filter: 'blur(10px)' },
         { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1, delay: 0.5, ease: 'power4.out' }
       );
+
+      // Staggered reveal with exposure peak
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!isReduced) {
+        gsap_real.fromTo(".feed-text-ref", 
+          { filter: 'brightness(4) contrast(1.5)', opacity: 0 },
+          { 
+            filter: 'brightness(1) contrast(1)', 
+            opacity: 1, 
+            duration: 0.8, 
+            stagger: 0.05,
+            delay: 0.8,
+            ease: "power2.out" 
+          }
+        );
+      }
     } else {
       gsap_real.to(containerRef.current, {
         height: '120px',
@@ -329,7 +345,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          {/* Header Barra de Progresso e Botão */}
           <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-10 px-12 border-b border-foreground/5 shrink-0 gap-6">
             <div className="hidden md:block" />
 
@@ -426,7 +441,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                     </div>
                     
-                    <div className="flex items-center justify-between px-2">
+                    <div className="flex items-center justify-between px-2 feed-text-ref">
                       <span className="font-mono text-[10px] uppercase tracking-widest text-foreground font-bold border-b border-transparent group-hover:border-primary transition-colors truncate">
                         {item.title}
                       </span>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -52,6 +52,82 @@ const LED_BITMAPS: Record<string, number[][]> = {
   'I': [[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1]],
   ' ': [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]],
 };
+
+function DigitalClock() {
+  const [time, setTime] = useState('');
+  
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: 'America/Sao_Paulo',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      setTime(new Intl.DateTimeFormat('en-US', options).format(now));
+    };
+    
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center md:items-start gap-1">
+      <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60">[ BRAZIL_TIME ]</span>
+      <span className="font-mono text-[11px] tracking-[0.2em] text-foreground/80 tabular-nums">
+        {time || '00:00:00'}
+      </span>
+    </div>
+  );
+}
+
+function MagneticCTA({ children, className }: { children: React.ReactNode, className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (typeof window === 'undefined' || !ref.current) return;
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    
+    if (isReduced || isTouch) return;
+
+    const el = ref.current;
+    const xTo = gsap.quickTo(el, "x", { duration: 0.8, ease: "elastic.out(1, 0.3)" });
+    const yTo = gsap.quickTo(el, "y", { duration: 0.8, ease: "elastic.out(1, 0.3)" });
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { left, top, width, height } = el.getBoundingClientRect();
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
+      const distanceX = clientX - centerX;
+      const distanceY = clientY - centerY;
+      
+      const distance = Math.hypot(distanceX, distanceY);
+      const threshold = 120;
+
+      if (distance < threshold) {
+        xTo(distanceX * 0.35);
+        yTo(distanceY * 0.35);
+      } else {
+        xTo(0);
+        yTo(0);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, { scope: ref });
+
+  return (
+    <div ref={ref} className={cn("inline-block", className)}>
+      {children}
+    </div>
+  );
+}
 
 function LEDTicker({ text }: { text: string }) {
   const characters = (text.toUpperCase() + " ").split('');
@@ -458,6 +534,7 @@ export default function Home() {
   }, []);
 
   useGSAP(() => {
+    // Initial reveal animation (NÃO ALTERADO)
     gsap.to(".hero-line", {
       y: 0,
       opacity: 1,
@@ -466,11 +543,39 @@ export default function Home() {
       ease: "power4.out"
     });
 
+    // Sub-elements animations
     gsap.to(".hud-ref", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".coords-ref", { opacity: 1, duration: 1, delay: 1.2 });
     gsap.to(".cta-ref", { opacity: 1, duration: 1, delay: 1.4 });
     gsap.to(".status-block-ref", { opacity: 1, duration: 1, delay: 1.6 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
+
+    // Scroll-linked Skew effect
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!isReduced) {
+      const skewTargets = ".skew-text-ref";
+      
+      const updateSkew = () => {
+        // Use a hidden global proxy to access velocity if lenis is active
+        // But here we'll use a safer approach since Lenis is in layout
+        const velocity = ScrollTrigger.create({ trigger: "body" }).getVelocity() / 3000;
+        const clampedSkew = Math.max(-0.5, Math.min(0.5, velocity));
+        
+        gsap.to(skewTargets, {
+          skewY: clampedSkew,
+          duration: 0.4,
+          overwrite: "auto",
+          ease: "power3.out"
+        });
+      };
+      
+      ScrollTrigger.addEventListener("refresh", updateSkew);
+      gsap.ticker.add(updateSkew);
+      return () => {
+        ScrollTrigger.removeEventListener("refresh", updateSkew);
+        gsap.ticker.remove(updateSkew);
+      };
+    }
   }, { scope: mainRef });
 
   return (
@@ -579,7 +684,10 @@ export default function Home() {
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20" />
-                    <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20">
+                    <span 
+                      className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 hover-glitch"
+                      data-text={cat.label}
+                    >
                       {cat.label}
                     </span>
                   </button>
@@ -600,15 +708,15 @@ export default function Home() {
               <div className="flex flex-wrap gap-12 md:gap-24 items-center">
                 <div className="flex flex-col items-center">
                   <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ YEARS ]</span>
-                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80">+6</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+6</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ CLIENTS ]</span>
-                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80">+12</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+12</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1">[ PROJECTS ]</span>
-                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80">+80</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+80</span>
                 </div>
               </div>
             </div>
@@ -617,7 +725,7 @@ export default function Home() {
               <div className="lg:col-span-9">
                 <div className="relative">
                   <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
-                  <p className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8">
+                  <p className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
                     &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
                   </p>
                   <div className="flex items-center gap-4">
@@ -813,9 +921,13 @@ export default function Home() {
 
         <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background">
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
-            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
+            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com">
-              <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground">Let&apos;s Talk</Button>
+              <MagneticCTA>
+                <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] transition-shadow">
+                  Let&apos;s Talk
+                </Button>
+              </MagneticCTA>
             </Link>
           </div>
           <div className="relative overflow-hidden">
@@ -832,7 +944,11 @@ export default function Home() {
                     <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
                     <Link href="mailto:contact@veronastudio.com" className="text-muted-foreground hover:text-primary"><Mail className="h-5 w-5" /></Link>
                   </div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© {year} Leonardo Verona.</p>
+                  
+                  <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+                    <DigitalClock />
+                    <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">© {year} Leonardo Verona.</p>
+                  </div>
                 </div>
               </footer>
           </div>
