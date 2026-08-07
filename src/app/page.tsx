@@ -127,7 +127,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
   useEffect(() => {
     orbitParamsRef.current = orbitParams;
-    // Update focal factors array length if videos change
     if (focalFactorsRef.current.length !== videos.length) {
       focalFactorsRef.current = Array(videos.length).fill(0);
     }
@@ -144,7 +143,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       timeRef.current += 0.006;
       const expansion = expansionRef.current;
 
-      itemRefs.current.forEach((el, i) => {
+      videos.forEach((_, i) => {
+        const el = itemRefs.current[i];
         if (!el || i >= orbitParamsRef.current.length) return;
 
         const p = orbitParamsRef.current[i];

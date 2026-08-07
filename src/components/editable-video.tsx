@@ -35,24 +35,27 @@ export function EditableVideo({
   const [error, setError] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const hasSeekedRef = useRef(false);
 
   useEffect(() => {
     const saved = sessionStorage.getItem(`vid_${storageKey}`);
-    if (saved) setCurrentSrc(saved);
+    if (saved) {
+      setCurrentSrc(saved);
+      hasSeekedRef.current = false;
+    }
   }, [storageKey]);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || startTime === undefined || isNaN(startTime)) return;
+    if (!video || startTime === undefined || isNaN(startTime) || hasSeekedRef.current) return;
 
     const seekAndPlay = async () => {
       try {
-        if (!video.duration || isNaN(video.duration)) return;
+        if (!video.duration || isNaN(video.duration) || hasSeekedRef.current) return;
 
         let finalStart = startTime;
         const duration = video.duration;
         
-        // Wrap-around logic for negative offsets
         if (finalStart < 0) {
           while (finalStart < 0) {
             finalStart += duration;
@@ -61,10 +64,8 @@ export function EditableVideo({
           finalStart = finalStart % duration;
         }
 
-        // Only seek if we are far from the target to avoid infinite loops
-        if (Math.abs(video.currentTime - finalStart) > 0.5) {
-          video.currentTime = finalStart;
-        }
+        video.currentTime = finalStart;
+        hasSeekedRef.current = true;
         
         if (video.paused && (video.muted || autoPlayProp)) {
           await video.play().catch(() => {});
@@ -98,6 +99,7 @@ export function EditableVideo({
       new URL(newUrl);
       setCurrentSrc(newUrl);
       sessionStorage.setItem(`vid_${storageKey}`, newUrl);
+      hasSeekedRef.current = false;
       setIsOpen(false);
       setNewUrl('');
     } catch (e) {
@@ -127,11 +129,11 @@ export function EditableVideo({
         )}
         muted={isMuted}
         playsInline
+        autoPlay={true}
+        loop={props.loop}
         preload="auto"
         aria-hidden="true"
         controls={props.controls}
-        autoPlay={true}
-        loop={props.loop}
       />
       
       {!hideControls && (
