@@ -98,12 +98,12 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
   const currentFocusedIndexRef = useRef(0);
 
-  // Geração de parâmetros orbitais estáveis com raio expandido e mínimo garantido
+  // Geração de parâmetros orbitais estáveis
   const orbitParams = useMemo(() => {
     const factor = containerWidth / 600;
     return videos.map((_, i) => ({
-      rx: Math.max(180, 420 * factor), // Raio X expandido e com mínimo de 180px
-      ry: Math.max(100, 240 * factor), // Raio Y expandido e com mínimo de 100px
+      rx: Math.max(180, 420 * factor),
+      ry: Math.max(100, 240 * factor),
       offset: (i * 2 * Math.PI) / videos.length
     }));
   }, [videos.length, containerWidth]);
@@ -123,6 +123,21 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Debug Effect: Medições reais do navegador
+  useEffect(() => {
+    if (videoRefs.current[0]) {
+      const cardRect = videoRefs.current[0].getBoundingClientRect();
+      console.log("DEBUG CLUSTER REAL-TIME:", {
+        containerWidth,
+        rxFinal: orbitParams[0].rx,
+        ryFinal: orbitParams[0].ry,
+        cardWidthPixels: cardRect.width,
+        cardHeightPixels: cardRect.height,
+        timestamp: Date.now()
+      });
+    }
+  }, [containerWidth, orbitParams]);
 
   // Lógica de Troca de Foco (Roleta 10s)
   useEffect(() => {
@@ -871,7 +886,7 @@ export default function PortfolioPage() {
           </div>
         </section>
 
-        <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col border-t border-foreground/5 bg-background">
+        <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background">
           <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
             <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary mb-6">Layer 03 // Final Call</span>
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12">Ready to tell<br />your story?</h2>
