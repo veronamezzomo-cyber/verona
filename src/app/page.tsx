@@ -601,7 +601,7 @@ export default function Home() {
     setIsDragging(true);
     setDragStart({
       x: e.clientX - faqPos.x,
-      y: e.clientY - faqPos.y
+      y: e.clientY - dragStart.y
     });
   };
 
@@ -816,10 +816,10 @@ export default function Home() {
           />
         </div>
 
-        <section className="py-24 bg-background overflow-hidden border-t border-foreground/5">
+        <section className="py-[10px] bg-background overflow-hidden border-t border-foreground/5">
           <div className="w-full px-6 md:px-12">
             
-            <div className="flex justify-center border-b border-foreground/5 pb-10 mb-20">
+            <div className="flex justify-center border-b border-foreground/5 py-[10px] mb-12">
               <div className="flex flex-wrap gap-12 md:gap-24 items-center">
                 <div className="flex flex-col items-center">
                   <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary mb-1" />
