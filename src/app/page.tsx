@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -152,26 +153,27 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const angle = timeRef.current + offset;
         const ff = focalFactorsRef.current[i].val; // Fator de foco atual
         
-        // Coordenadas elípticas base
-        let ox = Math.cos(angle) * rx;
-        let oy = Math.sin(angle) * ry;
+        // Coordenadas elípticas base (Sempre calculadas para evitar saltos ao trocar de papel)
+        const orbitalX = Math.cos(angle) * rx;
+        const orbitalY = Math.sin(angle) * ry;
         
-        // POSICIONAMENTO CENTRAL: Puxa o item para o CENTRO EXATO (0,0) conforme ff -> 1
-        ox = ox * (1 - ff);
-        oy = oy * (1 - ff);
+        // POSICIONAMENTO FINAL: Interpolação total entre órbita e centro exato (0,0)
+        // Se ff = 1, a posição resultante é 0,0. Se ff = 0, a posição é orbitalX,orbitalY.
+        const ox = orbitalX * (1 - ff);
+        const oy = orbitalY * (1 - ff);
         
         // Profundidade (DOF) original
         const depth = Math.sin(angle); // -1 (atrás) a 1 (frente)
         
-        // Escala: Combina a escala de profundidade com o bônus de foco (máximo 1.2x no centro)
+        // ESCALA: Interpola entre a escala de profundidade (0.75-1.25) e o foco (1.2)
         const baseScale = 1.0 + depth * 0.25; 
         const scale = baseScale * (1 - ff) + (1.2 * ff);
         
-        // Blur: Elimina o blur conforme o foco aumenta
+        // BLUR: Elimina o blur conforme o foco aumenta
         const baseBlur = depth < 0 ? Math.abs(depth) * 6 : 0;
         const blur = baseBlur * (1 - ff);
         
-        // Z-Index: Interpolação contínua para garantir que o focado fique por cima
+        // Z-INDEX: Interpolação contínua para garantir que o focado fique por cima sem saltos
         const baseZIndex = Math.round(50 + depth * 50);
         const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
 
