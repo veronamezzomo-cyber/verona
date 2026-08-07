@@ -556,7 +556,7 @@ export default function Home() {
         </section>
 
         <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
-          <section id="works" className="w-full py-12 sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
+          <section id="works" className="w-full py-[10px] sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
