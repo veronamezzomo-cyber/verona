@@ -90,20 +90,9 @@ function LEDTicker({ text }: { text: string }) {
 
 function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const timeRef = useRef(0);
-  const expansionRef = useRef(0);
-  const hasStartedRef = useRef(false);
-  const isMountedRef = useRef(true);
   const [containerWidth, setContainerWidth] = useState(600);
-  const orbitParamsRef = useRef<any[]>([]);
-  
-  const focalFactorsRef = useRef<number[]>(Array(videos.length).fill(0));
-  const currentFocusedIndexRef = useRef<number>(-1);
-  const cycleProgressRef = useRef<number>(0);
 
   useEffect(() => {
-    isMountedRef.current = true;
     if (!containerRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -113,157 +102,37 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     observer.observe(containerRef.current);
     return () => {
       observer.disconnect();
-      isMountedRef.current = false;
     };
   }, []);
 
-  const orbitScale = Math.min(containerWidth / 600, 1);
-  
-  const orbitParams = useMemo(() => videos.map((_, i) => ({
-    rx: (220 + Math.sin(i * 1.5) * 50) * orbitScale,
-    ry: (160 + Math.cos(i * 2.2) * 40) * orbitScale,
-    offset: (i * (Math.PI * 2)) / videos.length
-  })), [videos, orbitScale]);
-
-  useEffect(() => {
-    orbitParamsRef.current = orbitParams;
-    if (focalFactorsRef.current.length !== videos.length) {
-      focalFactorsRef.current = Array(videos.length).fill(0);
-    }
-  }, [orbitParams, videos]);
-
-  useEffect(() => {
-    if (hasStartedRef.current) return;
-
-    let requestRef: number;
-    let focusInterval: NodeJS.Timeout;
-
-    const animate = () => {
-      if (!isMountedRef.current) return;
-      timeRef.current += 0.006;
-      const expansion = expansionRef.current;
-
-      videos.forEach((_, i) => {
-        const el = itemRefs.current[i];
-        if (!el || i >= orbitParamsRef.current.length) return;
-
-        const p = orbitParamsRef.current[i];
-        if (!p) return;
-        
-        const ff = focalFactorsRef.current[i] || 0;
-        const angle = timeRef.current + p.offset;
-        
-        const ox = Math.cos(angle) * p.rx;
-        const oy = Math.sin(angle) * p.ry;
-        const cx = i * 8;
-        const cy = i * -8;
-
-        const baseX = ox * expansion + cx * (1 - expansion);
-        const baseY = oy * expansion + cy * (1 - expansion);
-
-        const tx = baseX * (1 - ff);
-        const ty = baseY * (1 - ff);
-
-        const depth = Math.sin(angle);
-        const normalZ = Math.floor(50 + depth * 40);
-        const zIndex = Math.floor(normalZ * (1 - ff) + 150 * ff);
-        const currentScale = 0.9 + (0.5 * ff);
-        const blur = (depth < 0 ? Math.abs(depth) * 4 : 0) * (1 - ff);
-
-        el.style.transform = `translate3d(calc(-50% + ${tx}px), calc(-50% + ${ty}px), 0) scale(${currentScale})`;
-        el.style.zIndex = zIndex.toString();
-        el.style.filter = `blur(${blur}px)`;
-        el.style.opacity = '1';
-      });
-
-      requestRef = requestAnimationFrame(animate);
-    };
-
-    const rotateFocus = () => {
-      if (!isMountedRef.current) return;
-      
-      let nextIndex: number;
-      
-      if (cycleProgressRef.current < videos.length) {
-        nextIndex = cycleProgressRef.current;
-      } else {
-        do {
-          nextIndex = Math.floor(Math.random() * videos.length);
-        } while (nextIndex === currentFocusedIndexRef.current);
-      }
-
-      const prevIndex = currentFocusedIndexRef.current;
-
-      if (prevIndex !== -1) {
-        gsap.to(focalFactorsRef.current, {
-          [prevIndex]: 0,
-          duration: 1.5,
-          ease: 'expo.out'
-        });
-      }
-
-      gsap.to(focalFactorsRef.current, {
-        [nextIndex]: 1,
-        duration: 1.5,
-        ease: 'expo.out'
-      });
-
-      currentFocusedIndexRef.current = nextIndex;
-      cycleProgressRef.current++;
-    };
-
-    const timer = setTimeout(() => {
-      if (!isMountedRef.current) return;
-      hasStartedRef.current = true;
-      requestRef = requestAnimationFrame(animate);
-
-      gsap.to(expansionRef, {
-        current: 1,
-        duration: 1.2,
-        ease: 'power2.out',
-        onComplete: () => {
-          if (!isMountedRef.current) return;
-          rotateFocus();
-          focusInterval = setInterval(rotateFocus, 10000);
-        }
-      });
-    }, 300);
-
-    return () => {
-      if (requestRef) cancelAnimationFrame(requestRef);
-      if (focusInterval) clearInterval(focusInterval);
-      clearTimeout(timer);
-    };
-  }, [videos]);
-
   return (
-    <div className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none px-6 sm:px-10 lg:px-16">
+    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] flex items-center justify-center pointer-events-none px-6 sm:px-10 lg:px-16">
       <div className="absolute inset-0 pointer-events-auto" />
-      {videos.map((vid, i) => (
-        <div 
-          key={vid.id}
-          ref={(el) => { itemRefs.current[i] = el; }}
-          className="absolute top-1/2 left-1/2 w-28 h-28 sm:w-36 sm:h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none"
-          style={{ 
-            transform: `translate3d(calc(-50% + ${i * 8}px), calc(-50% + ${i * -8}px), 0) scale(0.9)`,
-            zIndex: 50 + i,
-            opacity: 1
-          }}
-        >
-          <EditableVideo 
-            src={vid.imageUrl} 
-            storageKey={vid.id}
-            fill
-            className="object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            hideControls
-            startTime={vid.startTime}
-          />
-        </div>
-      ))}
+      <div className="relative flex items-center justify-center gap-4 sm:gap-6 md:gap-8">
+        {videos.map((vid, i) => (
+          <div 
+            key={vid.id}
+            className="w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-none transition-transform duration-700 hover:scale-105"
+            style={{ 
+              zIndex: 50 + i,
+              opacity: 1
+            }}
+          >
+            <EditableVideo 
+              src={vid.imageUrl} 
+              storageKey={vid.id}
+              fill
+              className="object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              hideControls
+              startTime={vid.startTime}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
