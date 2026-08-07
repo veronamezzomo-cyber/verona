@@ -136,16 +136,23 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const ox = Math.cos(angle) * rx;
         const oy = Math.sin(angle) * ry;
         
-        // Profundidade (DOF)
+        // Profundidade (DOF) intensificada
         const depth = Math.sin(angle); // -1 (atrás) a 1 (frente)
-        const scale = 1.0 + depth * 0.1; // 0.9 a 1.1
-        const blur = depth < 0 ? Math.abs(depth) * 3 : 0;
+        const scale = 1.0 + depth * 0.25; // 0.75 a 1.25
+        const blur = depth < 0 ? Math.abs(depth) * 6 : 0; // 0 a 6px
         const zIndex = Math.round(50 + depth * 50);
 
         // Aplicação direta via style para performance
         el.style.transform = `translate3d(calc(-50% + ${ox}px), calc(-50% + ${oy}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none';
+        
+        // Sombra dinâmica para reforçar sobreposição na frente
+        if (depth > 0.5) {
+          el.style.boxShadow = '0 35px 70px -15px rgba(0, 0, 0, 0.6)';
+        } else {
+          el.style.boxShadow = ''; // Restaura shadow-2xl do Tailwind
+        }
       });
       
       requestRef.current = requestAnimationFrame(animate);
