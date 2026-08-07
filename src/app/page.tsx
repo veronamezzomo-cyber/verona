@@ -94,6 +94,10 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const timeRef = useRef(0);
   const requestRef = useRef<number>(0);
   const [containerWidth, setContainerWidth] = useState(600);
+  
+  // Refs para controle de foco/roleta
+  const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
+  const currentFocusedIndexRef = useRef(0);
 
   // Geração de parâmetros orbitais estáveis
   const orbitParams = useMemo(() => {
@@ -121,6 +125,22 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => observer.disconnect();
   }, []);
 
+  // Lógica de Troca de Foco (Roleta 10s)
+  useEffect(() => {
+    const rotateFocus = () => {
+      const prev = currentFocusedIndexRef.current;
+      const next = (prev + 1) % videos.length;
+      currentFocusedIndexRef.current = next;
+
+      // Transição suave dos fatores de foco via GSAP
+      gsap.to(focalFactorsRef.current[prev], { val: 0, duration: 1.5, ease: "expo.out" });
+      gsap.to(focalFactorsRef.current[next], { val: 1, duration: 1.5, ease: "expo.out" });
+    };
+
+    const interval = setInterval(rotateFocus, 10000);
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
   // Motor de Animação rAF
   useEffect(() => {
     const animate = () => {
@@ -131,27 +151,41 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         
         const { rx, ry, offset } = orbitParamsRef.current[i];
         const angle = timeRef.current + offset;
+        const ff = focalFactorsRef.current[i].val; // Fator de foco atual
         
-        // Coordenadas elípticas
-        const ox = Math.cos(angle) * rx;
-        const oy = Math.sin(angle) * ry;
+        // Coordenadas elípticas base
+        let ox = Math.cos(angle) * rx;
+        let oy = Math.sin(angle) * ry;
         
-        // Profundidade (DOF) intensificada
+        // Destaque de Posição: Puxa o item levemente para o centro quando em foco
+        ox = ox * (1 - ff * 0.3);
+        oy = oy * (1 - ff * 0.3);
+        
+        // Profundidade (DOF) original
         const depth = Math.sin(angle); // -1 (atrás) a 1 (frente)
-        const scale = 1.0 + depth * 0.25; // 0.75 a 1.25
-        const blur = depth < 0 ? Math.abs(depth) * 6 : 0; // 0 a 6px
-        const zIndex = Math.round(50 + depth * 50);
+        
+        // Escala: Combina a escala de profundidade com o bônus de foco (até 1.4x)
+        const baseScale = 1.0 + depth * 0.25; 
+        const scale = baseScale * (1 - ff) + (1.4 * ff);
+        
+        // Blur: Elimina o blur conforme o foco aumenta
+        const baseBlur = depth < 0 ? Math.abs(depth) * 6 : 0;
+        const blur = baseBlur * (1 - ff);
+        
+        // Z-Index: Impulso massivo quando em foco
+        const baseZIndex = Math.round(50 + depth * 50);
+        const zIndex = ff > 0.5 ? 200 + i : baseZIndex;
 
         // Aplicação direta via style para performance
         el.style.transform = `translate3d(calc(-50% + ${ox}px), calc(-50% + ${oy}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
         el.style.filter = blur > 0 ? `blur(${blur}px)` : 'none';
         
-        // Sombra dinâmica para reforçar sobreposição na frente
-        if (depth > 0.5) {
-          el.style.boxShadow = '0 35px 70px -15px rgba(0, 0, 0, 0.6)';
+        // Sombra dinâmica intensificada pelo foco
+        if (depth > 0.5 || ff > 0.5) {
+          el.style.boxShadow = `0 ${35 + ff * 15}px ${70 + ff * 30}px -15px rgba(0, 0, 0, ${0.6 + ff * 0.2})`;
         } else {
-          el.style.boxShadow = ''; // Restaura shadow-2xl do Tailwind
+          el.style.boxShadow = ''; 
         }
       });
       
