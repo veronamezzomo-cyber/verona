@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -110,7 +109,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         setContainerWidth(entry.contentRect.width);
       }
     });
-    observer.observe(containerRef.current);
+    observer.observe(containerWidth);
     return () => {
       observer.disconnect();
       isMountedRef.current = false;

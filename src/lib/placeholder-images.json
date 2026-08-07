@@ -10,8 +10,7 @@
       "id": "hero-me-in-one-min",
       "description": "me in one min",
       "imageUrl": "https://i.imgur.com/ND3kmsW.mp4",
-      "imageHint": "intro video",
-      "startTime": 13
+      "imageHint": "intro video"
     },
     {
       "id": "hero-grok",
