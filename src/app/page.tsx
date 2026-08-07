@@ -102,19 +102,16 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   // Sistema de Foco Central (Rodízio)
   const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
   const currentFocusedIndexRef = useRef(0);
+  const currentOffsetsRef = useRef(videos.map((_, i) => (i * 2 * Math.PI) / videos.length));
 
-  // Parâmetros orbitais dinâmicos
+  // Parâmetros orbitais dinâmicos (raios)
   const orbitParams = useMemo(() => {
     const factor = containerWidth / 600;
-    return videos.map((_, i) => ({
+    return {
       rx: Math.max(180, 280 * factor),
-      ry: Math.max(100, 160 * factor),
-      offset: (i * 2 * Math.PI) / videos.length
-    }));
-  }, [videos.length, containerWidth]);
-
-  const orbitParamsRef = useRef(orbitParams);
-  useEffect(() => { orbitParamsRef.current = orbitParams; }, [orbitParams]);
+      ry: Math.max(100, 160 * factor)
+    };
+  }, [containerWidth]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -146,10 +143,14 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   // Motor de Animação rAF
   useEffect(() => {
     const EXPANSION_DURATION = 800;
+    const TILT = 12 * (Math.PI / 180); // Inclinação sutil de 12 graus
+    const cosT = Math.cos(TILT);
+    const sinT = Math.sin(TILT);
     
     const animate = () => {
       const now = Date.now();
       const elapsed = now - startTimeRef.current;
+      const focusIdx = currentFocusedIndexRef.current;
       
       // 1. Expansão Inicial
       const expansionProgress = Math.min(1, elapsed / EXPANSION_DURATION);
@@ -165,18 +166,37 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       timeRef.current += step;
 
       videoRefs.current.forEach((el, i) => {
-        if (!el || !orbitParamsRef.current[i]) return;
+        if (!el) return;
         
-        const { rx, ry, offset } = orbitParamsRef.current[i];
-        const angle = timeRef.current + offset;
-        const depth = Math.sin(angle); // -1 (trás) a 1 (frente)
-        const ff = focalFactorsRef.current[i].val; // Fator de foco atual do item
+        const { rx, ry } = orbitParams;
+        const ff = focalFactorsRef.current[i].val; // Fator de foco atual
         
-        // Posição Orbital Pura
-        const orbitalX = Math.cos(angle) * rx;
-        const orbitalY = Math.sin(angle) * ry;
+        // 4. Redistribuição Dinâmica (Suavizando buracos na órbita)
+        let targetOffset;
+        if (i === focusIdx) {
+          // Mantém o slot original como âncora para retorno estável
+          targetOffset = i * (2 * Math.PI / videos.length);
+        } else {
+          // Redistribui os outros 4 itens uniformemente (90 graus entre eles)
+          const rank = i < focusIdx ? i : i - 1;
+          targetOffset = rank * (2 * Math.PI / (videos.length - 1));
+        }
         
-        // Posição Inicial (Cascata)
+        // Suaviza a migração angular (lerp de ~1.2s)
+        currentOffsetsRef.current[i] += (targetOffset - currentOffsetsRef.current[i]) * 0.05;
+        
+        const angle = timeRef.current + currentOffsetsRef.current[i];
+        const depth = Math.sin(angle); 
+        
+        // 5. Posição Orbital Pura (com Inclinação Diagonal 3D)
+        const rawX = Math.cos(angle) * rx;
+        const rawY = Math.sin(angle) * ry;
+        
+        // Rotação de eixos (TILT 12 deg)
+        const orbitalX = rawX * cosT - rawY * sinT;
+        const orbitalY = rawX * sinT + rawY * cosT;
+        
+        // 6. Posição Inicial (Cascata)
         const initialX = i * 15;
         const initialY = i * 15;
 
@@ -188,16 +208,13 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const x = currentOrbitalX * (1 - ff);
         const y = currentOrbitalY * (1 - ff);
 
-        // PROFUNDIDADE E DESTAQUE
-        // Escala: interpolar entre profundidade orbital (0.9 a 1.15) e destaque central (1.25)
+        // 7. PROFUNDIDADE E DESTAQUE
         const baseScale = 0.9 + ((depth + 1) / 2) * 0.25;
         const scale = baseScale * (1 - ff) + (1.25 * ff);
         
-        // Blur: eliminar blur conforme o foco aumenta
         const baseBlur = (1 - (depth + 1) / 2) * 4;
         const blur = baseBlur * (1 - ff);
         
-        // Z-Index: subir para topo da pilha conforme o foco aumenta
         const baseZIndex = 50 + Math.round(depth * 50);
         const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
 
@@ -206,7 +223,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         el.style.zIndex = zIndex.toString();
         el.style.filter = blur > 0.5 ? `blur(${blur}px)` : 'none';
         
-        // Sombra Dinâmica
         const shadowOp = (Math.max(0, depth + 0.5) * 0.4) * (1 - ff) + 0.6 * ff;
         el.style.boxShadow = `0 ${20 * shadowOp}px ${40 * shadowOp}px -10px rgba(0,0,0,${0.5 * shadowOp})`;
       });
@@ -216,7 +232,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, []);
+  }, [orbitParams, videos.length]);
 
   return (
     <div 
