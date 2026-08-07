@@ -92,18 +92,15 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const requestRef = useRef<number>(0);
   const [containerWidth, setContainerWidth] = useState(600);
   
-  // Fatores de transição e interação
   const expansionRef = useRef(0);
   const hoverFactorRef = useRef(1);
   const isHoveredRef = useRef(false);
   const startTimeRef = useRef(Date.now());
   
-  // Sistema de Foco Central (Rodízio)
   const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
   const currentFocusedIndexRef = useRef(0);
   const currentOffsetsRef = useRef(videos.map((_, i) => (i * 2 * Math.PI) / videos.length));
 
-  // Parâmetros orbitais dinâmicos (raios)
   const orbitParams = useMemo(() => {
     const factor = containerWidth / 600;
     return {
@@ -123,14 +120,12 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => observer.disconnect();
   }, []);
 
-  // Lógica de Rodízio de Destaque (6s)
   useEffect(() => {
     const rotateFocus = () => {
       const prev = currentFocusedIndexRef.current;
       const next = (prev + 1) % videos.length;
       currentFocusedIndexRef.current = next;
 
-      // Transição suave dos focalFactors
       gsap.to(focalFactorsRef.current[prev], { val: 0, duration: 1.2, ease: "power2.inOut" });
       gsap.to(focalFactorsRef.current[next], { val: 1, duration: 1.2, ease: "power2.inOut" });
     };
@@ -139,10 +134,9 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => clearInterval(interval);
   }, [videos.length]);
 
-  // Motor de Animação rAF
   useEffect(() => {
     const EXPANSION_DURATION = 800;
-    const TILT = 12 * (Math.PI / 180); // Inclinação sutil de 12 graus
+    const TILT = 12 * (Math.PI / 180); 
     const cosT = Math.cos(TILT);
     const sinT = Math.sin(TILT);
     const PARALLAX_INTENSITY = 0.45; 
@@ -152,15 +146,12 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       const elapsed = now - startTimeRef.current;
       const focusIdx = currentFocusedIndexRef.current;
       
-      // 1. Expansão Inicial
       const expansionProgress = Math.min(1, elapsed / EXPANSION_DURATION);
       expansionRef.current = 1 - Math.pow(1 - expansionProgress, 2); 
 
-      // 2. Interação Hover (Lerp)
       const targetHover = isHoveredRef.current ? 1.3 : 1;
       hoverFactorRef.current += (targetHover - hoverFactorRef.current) * 0.1;
 
-      // 3. Incremento Angular com "Respiração"
       const breathing = Math.sin(timeRef.current * 0.1) * 0.0015;
       const step = (0.005 + breathing) * hoverFactorRef.current;
       timeRef.current += step;
@@ -171,7 +162,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const { rx: baseRx, ry: baseRy } = orbitParams;
         const ff = focalFactorsRef.current[i].val; 
         
-        // 4. Redistribuição Dinâmica (Suavizando buracos na órbita)
         let targetOffset;
         if (i === focusIdx) {
           targetOffset = i * (2 * Math.PI / videos.length);
@@ -186,31 +176,24 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const effectiveAngle = baseAngle + Math.sin(baseAngle) * PARALLAX_INTENSITY;
         const visualDepth = Math.sin(effectiveAngle); 
         
-        // Raios Individuais por Item
         const rx = baseRx * (0.85 + (i % 3) * 0.1);
         const ry = baseRy * (0.85 + (i % 2) * 0.15);
         
-        // 5. Posição Orbital Pura (com Inclinação Diagonal 3D)
         const rawX = Math.cos(effectiveAngle) * rx;
         const rawY = Math.sin(effectiveAngle) * ry;
         
-        // Rotação de eixos (TILT 12 deg)
         const orbitalX = rawX * cosT - rawY * sinT;
         const orbitalY = rawX * sinT + rawY * cosT;
         
-        // 6. Posição Inicial (Cascata)
         const initialX = i * 15;
         const initialY = i * 15;
 
-        // Mistura Expansão -> Órbita
         const currentOrbitalX = initialX * (1 - expansionRef.current) + orbitalX * expansionRef.current;
         const currentOrbitalY = initialY * (1 - expansionRef.current) + orbitalY * expansionRef.current;
 
-        // POSICIONAMENTO FINAL
         const x = currentOrbitalX * (1 - ff);
         const y = currentOrbitalY * (1 - ff);
 
-        // 7. PROFUNDIDADE E DESTAQUE
         const baseScale = 0.9 + ((visualDepth + 1) / 2) * 0.25;
         const scale = baseScale * (1 - ff) + (1.25 * ff);
         
@@ -340,7 +323,6 @@ export default function Home() {
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
   
-  // Terminal States
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>(FAQ_DATA.map((_, i) => i));
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
@@ -459,9 +441,9 @@ export default function Home() {
   }, [isDragging, dragStart]);
 
   useGSAP(() => {
-    gsap.from(".hero-line", {
-      y: 100,
-      opacity: 0,
+    gsap.to(".hero-line", {
+      y: 0,
+      opacity: 1,
       duration: 1,
       stagger: 0.2,
       ease: "power4.out"
@@ -520,13 +502,13 @@ export default function Home() {
 
               <h1 className="font-serif font-bold text-[clamp(2rem,5.6vw,5.2rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
                 <div className="overflow-hidden">
-                  <div className="hero-line translate-y-full">CRAFTING</div>
+                  <div className="hero-line translate-y-full opacity-0">CRAFTING</div>
                 </div>
                 <div className="overflow-hidden">
-                  <div className="hero-line translate-y-full">VISUAL</div>
+                  <div className="hero-line translate-y-full opacity-0">VISUAL</div>
                 </div>
                 <div className="overflow-hidden">
-                  <div className="hero-line translate-y-full">
+                  <div className="hero-line translate-y-full opacity-0">
                     STORYTELLING<span className="text-primary">.</span>
                   </div>
                 </div>
@@ -850,4 +832,3 @@ export default function Home() {
     </div>
   );
 }
-
