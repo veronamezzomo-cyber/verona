@@ -94,12 +94,16 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const [containerWidth, setContainerWidth] = useState(600);
   
   // Fatores de transição e interação
-  const expansionRef = useRef(0); // 0 -> 1 (Expansão inicial)
-  const hoverFactorRef = useRef(1); // 1 -> 1.3 (Aceleração por mouse)
+  const expansionRef = useRef(0);
+  const hoverFactorRef = useRef(1);
   const isHoveredRef = useRef(false);
   const startTimeRef = useRef(Date.now());
+  
+  // Sistema de Foco Central (Rodízio)
+  const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
+  const currentFocusedIndexRef = useRef(0);
 
-  // Geração de parâmetros orbitais
+  // Parâmetros orbitais dinâmicos
   const orbitParams = useMemo(() => {
     const factor = containerWidth / 600;
     return videos.map((_, i) => ({
@@ -123,19 +127,35 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     return () => observer.disconnect();
   }, []);
 
+  // Lógica de Rodízio de Destaque (10s)
+  useEffect(() => {
+    const rotateFocus = () => {
+      const prev = currentFocusedIndexRef.current;
+      const next = (prev + 1) % videos.length;
+      currentFocusedIndexRef.current = next;
+
+      // Transição suave dos focalFactors
+      gsap.to(focalFactorsRef.current[prev], { val: 0, duration: 1.2, ease: "power2.inOut" });
+      gsap.to(focalFactorsRef.current[next], { val: 1, duration: 1.2, ease: "power2.inOut" });
+    };
+
+    const interval = setInterval(rotateFocus, 10000);
+    return () => clearInterval(interval);
+  }, [videos.length]);
+
   // Motor de Animação rAF
   useEffect(() => {
-    const EXPANSION_DURATION = 800; // 0.8s
+    const EXPANSION_DURATION = 800;
     
     const animate = () => {
       const now = Date.now();
       const elapsed = now - startTimeRef.current;
       
-      // 1. Fase de Expansão (Power2.out)
+      // 1. Expansão Inicial
       const expansionProgress = Math.min(1, elapsed / EXPANSION_DURATION);
       expansionRef.current = 1 - Math.pow(1 - expansionProgress, 2); 
 
-      // 2. Interação Hover (Lerp suave)
+      // 2. Interação Hover (Lerp)
       const targetHover = isHoveredRef.current ? 1.3 : 1;
       hoverFactorRef.current += (targetHover - hoverFactorRef.current) * 0.1;
 
@@ -149,30 +169,46 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         
         const { rx, ry, offset } = orbitParamsRef.current[i];
         const angle = timeRef.current + offset;
-        const depth = Math.sin(angle); // -1 a 1
+        const depth = Math.sin(angle); // -1 (trás) a 1 (frente)
+        const ff = focalFactorsRef.current[i].val; // Fator de foco atual do item
         
-        // POSIÇÃO: Cascata inicial (offset 15px) interpolando para órbita
-        const initialX = i * 15;
-        const initialY = i * 15;
+        // Posição Orbital Pura
         const orbitalX = Math.cos(angle) * rx;
         const orbitalY = Math.sin(angle) * ry;
+        
+        // Posição Inicial (Cascata)
+        const initialX = i * 15;
+        const initialY = i * 15;
 
-        const x = initialX * (1 - expansionRef.current) + orbitalX * expansionRef.current;
-        const y = initialY * (1 - expansionRef.current) + orbitalY * expansionRef.current;
+        // Mistura Expansão -> Órbita
+        const currentOrbitalX = initialX * (1 - expansionRef.current) + orbitalX * expansionRef.current;
+        const currentOrbitalY = initialY * (1 - expansionRef.current) + orbitalY * expansionRef.current;
 
-        // PROFUNDIDADE: Escala 0.9 a 1.15 | Blur 0 a 4px
-        const scale = 0.9 + ((depth + 1) / 2) * 0.25;
-        const blur = (1 - (depth + 1) / 2) * 4;
-        const zIndex = 50 + Math.round(depth * 50);
+        // POSICIONAMENTO FINAL: Atração para o Centro Exato (0,0) baseado em ff
+        const x = currentOrbitalX * (1 - ff);
+        const y = currentOrbitalY * (1 - ff);
 
-        // Aplicação direta
+        // PROFUNDIDADE E DESTAQUE
+        // Escala: interpolar entre profundidade orbital (0.9 a 1.15) e destaque central (1.25)
+        const baseScale = 0.9 + ((depth + 1) / 2) * 0.25;
+        const scale = baseScale * (1 - ff) + (1.25 * ff);
+        
+        // Blur: eliminar blur conforme o foco aumenta
+        const baseBlur = (1 - (depth + 1) / 2) * 4;
+        const blur = baseBlur * (1 - ff);
+        
+        // Z-Index: subir para topo da pilha conforme o foco aumenta
+        const baseZIndex = 50 + Math.round(depth * 50);
+        const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
+
+        // Aplicação Direta via Style
         el.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`;
         el.style.zIndex = zIndex.toString();
-        el.style.filter = expansionRef.current > 0.5 && blur > 0.5 ? `blur(${blur}px)` : 'none';
+        el.style.filter = blur > 0.5 ? `blur(${blur}px)` : 'none';
         
-        // Sombra dinâmica baseada na profundidade
-        const shadowOp = Math.max(0, depth + 0.5) * 0.4;
-        el.style.boxShadow = `0 ${10 * shadowOp}px ${20 * shadowOp}px -5px rgba(0,0,0,${0.3 * shadowOp})`;
+        // Sombra Dinâmica
+        const shadowOp = (Math.max(0, depth + 0.5) * 0.4) * (1 - ff) + 0.6 * ff;
+        el.style.boxShadow = `0 ${20 * shadowOp}px ${40 * shadowOp}px -10px rgba(0,0,0,${0.5 * shadowOp})`;
       });
       
       requestRef.current = requestAnimationFrame(animate);
@@ -189,9 +225,8 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
       onMouseEnter={() => { isHoveredRef.current = true; }}
       onMouseLeave={() => { isHoveredRef.current = false; }}
     >
-      <div className="absolute inset-0 pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-auto" />
       
-      {/* Container de Ancoragem Central */}
       <div className="absolute top-1/2 left-1/2 w-0 h-0">
         {videos.map((vid, i) => (
           <div 
