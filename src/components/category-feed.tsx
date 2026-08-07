@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
@@ -328,21 +329,26 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="flex items-center justify-between py-10 px-12 border-b border-foreground/5 shrink-0">
-            <div className="flex flex-col gap-2">
+          {/* Header Barra de Progresso e Botão */}
+          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-10 px-12 border-b border-foreground/5 shrink-0 gap-6">
+            <div className="hidden md:block" />
+
+            <div className="flex flex-col gap-2 items-center text-center">
                <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold">[ PORTFOLIO_LOAD: 22% ]</span>
-               <div className="w-[300px] h-1.5 bg-foreground/5 relative overflow-hidden">
+               <div className="w-full max-w-[300px] h-1.5 bg-foreground/5 relative overflow-hidden">
                   <div className="absolute inset-0 bg-primary/20" />
                   <div className="absolute top-0 left-0 bottom-0 bg-primary w-[22%] shadow-[0_0_10px_rgba(220,38,38,0.5)]" />
                </div>
             </div>
 
-            <button 
-              onClick={onClose}
-              className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
-            >
-              Collapse Section <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
-            </button>
+            <div className="flex justify-center md:justify-end">
+              <button 
+                onClick={onClose}
+                className="font-mono text-[10px] uppercase tracking-widest hover:text-primary gap-2 flex items-center transition-all group px-8 py-4 border border-foreground/10 rounded-full pointer-events-auto hover:bg-primary/5 hover:border-primary/20 hover:shadow-[0_0_15px_rgba(220,38,38,0.2)]"
+              >
+                Collapse Section <X className="h-4 w-4 transition-transform group-hover:rotate-90" />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 relative overflow-y-auto scrollbar-hide pointer-events-auto pb-20 px-6 md:px-12 lg:px-24">
@@ -447,20 +453,17 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
       {selectedProject && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center animate-in fade-in duration-500">
-          {/* Fundo escurecido que captura o clique de fechamento em 100% da tela */}
           <div 
             className="absolute inset-0 bg-black/95 backdrop-blur-2xl cursor-pointer" 
             onClick={closeTheater}
           />
           
-          {/* Container de conteúdo que ignora cliques no fundo mas centraliza os elementos */}
           <div 
             className={cn(
               "relative z-[210] flex flex-col-reverse md:flex-row items-center justify-center gap-8 w-full p-6 md:p-12 pointer-events-none",
               selectedProject.category.some(c => verticalCategories.includes(c)) ? "max-w-[1000px]" : "max-w-[1400px]"
             )}
           >
-            {/* Minimalized Terminal Indicator */}
             {terminalStatus === 'minimized' && (
               <div 
                 onClick={(e) => {
