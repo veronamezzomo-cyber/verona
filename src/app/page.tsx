@@ -148,7 +148,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
     const sinT = Math.sin(TILT);
 
     const animate = () => {
-      timeRef.current += 0.002; // Velocidade angular base
+      timeRef.current += 0.0045; // Velocidade angular base ajustada
       
       videoRefs.current.forEach((el, i) => {
         if (!el || !orbitParamsRef.current[i]) return;
