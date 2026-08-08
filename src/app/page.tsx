@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
@@ -706,9 +707,9 @@ export default function Home() {
     gsap.to(".testimonial-line", {
       y: 0,
       opacity: 1,
-      duration: 1.2,
-      stagger: 0.15,
-      ease: "power4.out",
+      duration: 1,
+      stagger: 0.05,
+      ease: "power3.out",
       scrollTrigger: {
         trigger: ".testimonial-trigger-ref",
         start: "top 85%",
@@ -902,15 +903,23 @@ export default function Home() {
               <div className="relative testimonial-trigger-ref">
                 <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
                 <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
-                  <div className="overflow-hidden">
-                    <div className="testimonial-line translate-y-full opacity-0">
-                      &quot;Leonardo&apos;s edits <span className="text-primary">kept people watching longer</span>.
-                    </div>
+                  <div className="flex flex-wrap items-baseline">
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">&quot;Leonardo&apos;s</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">edits</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">kept</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">people</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">watching</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">longer.</span></span>
                   </div>
-                  <div className="overflow-hidden">
-                    <div className="testimonial-line translate-y-full opacity-0">
-                      Our <span className="text-primary">retention improved</span> right after he took over.&quot;
-                    </div>
+                  <div className="flex flex-wrap items-baseline mt-2">
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">Our</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">retention</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">improved</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">right</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">after</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">he</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">took</span></span>
+                    <span className="overflow-hidden inline-block"><span className="testimonial-line inline-block translate-y-full opacity-0">over.&quot;</span></span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
