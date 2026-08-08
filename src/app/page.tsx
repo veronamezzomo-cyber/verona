@@ -535,7 +535,10 @@ export default function Home() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const terminalRef = useRef<HTMLDivElement>(null);
 
-  const [poweredIcons, setPoweredIcons] = useState(ALL_TECH.slice(0, 4));
+  const [poweredIcons, setPoweredIcons] = useState(ALL_TECH.slice(0, 8));
+  const [winnerName, setWinnerName] = useState<string | null>(null);
+  const [isRolling, setIsRolling] = useState(false);
+  const [winnerIndex, setWinnerIndex] = useState<number | null>(null);
   const techIconsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -559,22 +562,39 @@ export default function Home() {
   };
 
   const handleRoll = () => {
-    if (!techIconsRef.current) return;
+    if (isRolling) return;
+    setIsRolling(true);
+    setWinnerName(null);
+    setWinnerIndex(null);
+
+    const winner = ALL_TECH[Math.floor(Math.random() * ALL_TECH.length)];
+    const sequenceSize = 60;
+    const sequence = Array.from({ length: sequenceSize }, () => ALL_TECH[Math.floor(Math.random() * ALL_TECH.length)]);
     
-    gsap.to(techIconsRef.current.children, {
-      rotateY: 360,
-      duration: 0.6,
-      stagger: 0.1,
-      ease: "back.out(1.7)",
-      onComplete: () => {
-        const currentIds = poweredIcons.map(icon => icon.id);
-        const available = ALL_TECH.filter(tech => !currentIds.includes(tech.id));
-        const shuffled = [...available].sort(() => 0.5 - Math.random());
-        const nextIcons = shuffled.slice(0, 4);
-        setPoweredIcons(nextIcons);
-        gsap.set(techIconsRef.current?.children || [], { rotateY: 0 });
-      }
-    });
+    const wIdx = sequenceSize - 5;
+    sequence[wIdx] = winner;
+    
+    setPoweredIcons(sequence);
+    setWinnerIndex(wIdx);
+    
+    const iconStep = 88; // 64 (w-16) + 24 (gap-6)
+    const containerWidth = 320;
+    const targetX = (containerWidth / 2) - (wIdx * iconStep + 32);
+
+    if (techIconsRef.current) {
+      gsap.fromTo(techIconsRef.current, 
+        { x: 0 },
+        {
+          x: targetX,
+          duration: 5,
+          ease: "power4.out",
+          onComplete: () => {
+            setWinnerName(winner.name);
+            setIsRolling(false);
+          }
+        }
+      );
+    }
   };
 
   const categories = [
@@ -884,22 +904,45 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-8 items-start">
-                <CyberText text="[ POWERED_BY ]" variant="decrypt" delay={500} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" />
-                <div ref={techIconsRef} className="flex gap-4">
-                  {poweredIcons.map((tech) => (
-                    <div 
-                      key={tech.id} 
-                      className="w-14 h-14 flex items-center justify-center rounded-full shadow-xl transition-transform"
-                      style={{ backgroundColor: tech.bg }}
-                    >
-                      <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
-                    </div>
-                  ))}
+              <div className="flex flex-col gap-8 items-center text-center w-full">
+                <CyberText 
+                  text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} 
+                  variant="decrypt" 
+                  delay={500} 
+                  corrupt={!isRolling} 
+                  className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" 
+                />
+                
+                <div className="relative w-full max-w-[320px] h-24 overflow-hidden bg-foreground/[0.02] border-x border-foreground/10 flex items-center justify-center">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-primary/40 z-20" />
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent z-10" />
+
+                  <div 
+                    ref={techIconsRef} 
+                    className="flex gap-6 absolute left-0 items-center will-change-transform"
+                  >
+                    {poweredIcons.map((tech, i) => (
+                      <div 
+                        key={`${tech.id}-${i}`} 
+                        className={cn(
+                          "w-16 h-16 flex items-center justify-center rounded-full shadow-2xl transition-all duration-700 shrink-0",
+                          !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-4 ring-primary" : "opacity-10 grayscale scale-75") : "opacity-100 scale-100"
+                        )}
+                        style={{ backgroundColor: tech.bg }}
+                      >
+                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
                 <div className="mt-4">
-                  <button className="sparkle-button" onClick={handleRoll}>
-                    <span>Roll Archive</span>
+                  <button 
+                    className={cn("sparkle-button", isRolling && "opacity-50 pointer-events-none")} 
+                    onClick={handleRoll}
+                    disabled={isRolling}
+                  >
+                    <span>{isRolling ? "Rolling..." : "Roll Archive"}</span>
                     <svg className="star-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
                     </svg>
