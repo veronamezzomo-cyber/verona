@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
@@ -287,11 +288,14 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const expansionRef = useRef(0);
   const hoverFactorRef = useRef(1);
   const isHoveredRef = useRef(false);
-  const startTimeRef = useRef(Date.now());
-  
-  const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
   const currentFocusedIndexRef = useRef(0);
   const currentOffsetsRef = useRef(videos.map((_, i) => (i * 2 * Math.PI) / videos.length));
+  const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
+
+  // Animates expansionRef from 0 to 1 on mount
+  useEffect(() => {
+    gsap.to(expansionRef, { current: 1, duration: 1.5, ease: "power2.out" });
+  }, []);
 
   const orbitParams = useMemo(() => {
     const factor = containerWidth / 600;
@@ -327,20 +331,13 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   }, [videos.length]);
 
   useEffect(() => {
-    const EXPANSION_DURATION = 800;
     const TILT = 12 * (Math.PI / 180); 
     const cosT = Math.cos(TILT);
     const sinT = Math.sin(TILT);
     const PARALLAX_INTENSITY = 0.45; 
     
     const animate = () => {
-      const now = Date.now();
-      const elapsed = now - startTimeRef.current;
       const focusIdx = currentFocusedIndexRef.current;
-      
-      const expansionProgress = Math.min(1, elapsed / EXPANSION_DURATION);
-      expansionRef.current = 1 - Math.pow(1 - expansionProgress, 2); 
-
       const targetHover = isHoveredRef.current ? 1.3 : 1;
       hoverFactorRef.current += (targetHover - hoverFactorRef.current) * 0.1;
 
@@ -374,17 +371,12 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const rawX = Math.cos(effectiveAngle) * rx;
         const rawY = Math.sin(effectiveAngle) * ry;
         
-        const orbitalX = rawX * cosT - rawY * sinT;
-        const orbitalY = rawX * sinT + rawY * cosT;
-        
-        const initialX = i * 15;
-        const initialY = i * 15;
+        // Aplicação do multiplicador de expansão para burst a partir do centro
+        const orbitalX = (rawX * cosT - rawY * sinT) * expansionRef.current;
+        const orbitalY = (rawX * sinT + rawY * cosT) * expansionRef.current;
 
-        const currentOrbitalX = initialX * (1 - expansionRef.current) + orbitalX * expansionRef.current;
-        const currentOrbitalY = initialY * (1 - expansionRef.current) + orbitalY * expansionRef.current;
-
-        const x = currentOrbitalX * (1 - ff);
-        const y = currentOrbitalY * (1 - ff);
+        const x = orbitalX * (1 - ff);
+        const y = orbitalY * (1 - ff);
 
         const baseScale = 0.9 + ((visualDepth + 1) / 2) * 0.25;
         const scale = baseScale * (1 - ff) + (1.25 * ff);
