@@ -291,7 +291,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   const currentOffsetsRef = useRef(videos.map((_, i) => (i * 2 * Math.PI) / videos.length));
   const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
 
-  // Animates expansionRef from 0 to 1 on mount
   useEffect(() => {
     gsap.to(expansionRef, { current: 1, duration: 1.5, ease: "power2.out" });
   }, []);
@@ -370,7 +369,6 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
         const rawX = Math.cos(effectiveAngle) * rx;
         const rawY = Math.sin(effectiveAngle) * ry;
         
-        // Aplicação do multiplicador de expansão para burst a partir do centro
         const orbitalX = (rawX * cosT - rawY * sinT) * expansionRef.current;
         const orbitalY = (rawX * sinT + rawY * cosT) * expansionRef.current;
 
@@ -522,7 +520,7 @@ export default function Home() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const terminalRef = useRef<HTMLDivElement>(null);
 
-  const [poweredIcons, setPoweredIcons] = useState(ALL_TECH.slice(0, 8));
+  const [poweredIcons, setPoweredIcons] = useState(ALL_TECH);
   const [winnerName, setWinnerName] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [winnerIndex, setWinnerIndex] = useState<number | null>(null);
@@ -530,7 +528,6 @@ export default function Home() {
 
   useEffect(() => {
     setYear(new Date().getFullYear());
-    
     const timer = setTimeout(() => setCanStartBoot(true), 1000);
     return () => clearTimeout(timer);
   }, []);
@@ -564,7 +561,7 @@ export default function Home() {
     setPoweredIcons(sequence);
     setWinnerIndex(wIdx);
     
-    const iconStep = 88; // 64 (w-16) + 24 (gap-6)
+    const iconStep = 88; 
     const containerWidth = 320;
     const targetX = (containerWidth / 2) - (wIdx * iconStep + 32);
 
@@ -583,6 +580,121 @@ export default function Home() {
       );
     }
   };
+
+  const handleTerminalAction = (index: number) => {
+    const qIdx = faqAvailableIndices[index];
+    setFaqHistory(prev => [...prev, FAQ_DATA[qIdx]]);
+    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== index));
+    setActiveFaqIndex(0);
+    setTypedQuestionsCount(0);
+    setIsHeaderTyped(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isTerminalFocused || isBooting) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveFaqIndex(prev => (prev + 1) % faqAvailableIndices.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveFaqIndex(prev => (prev - 1 + faqAvailableIndices.length) % faqAvailableIndices.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (faqAvailableIndices.length > 0) {
+        handleTerminalAction(activeFaqIndex);
+      }
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isTerminalMinimized) return;
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX - faqPos.x,
+      y: e.clientY - faqPos.y
+    });
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      setFaqPos({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    };
+    const handleMouseUp = () => setIsDragging(false);
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragStart, faqPos]);
+
+  useEffect(() => {
+    const handleScrollIntent = (e: WheelEvent) => {
+      const scrollPos = window.innerHeight + window.scrollY;
+      const bottomLimit = document.documentElement.scrollHeight - 30;
+      const isAtBottom = scrollPos >= bottomLimit;
+      if (isAtBottom && e.deltaY > 0) {
+        setIsSecretVisible(true);
+      } else if (e.deltaY < 0) {
+        setIsSecretVisible(false);
+      }
+    };
+    window.addEventListener('wheel', handleScrollIntent, { passive: true });
+    return () => window.removeEventListener('wheel', handleScrollIntent);
+  }, []);
+
+  useGSAP(() => {
+    gsap.to(".hero-line", {
+      y: 0,
+      opacity: 1,
+      duration: 1,
+      stagger: 0.2,
+      ease: "power4.out"
+    });
+    gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
+    gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
+
+    gsap.to(".testimonial-word", {
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      stagger: 0.05,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".testimonial-trigger-ref",
+        start: "top 85%",
+        once: true
+      }
+    });
+
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!isReduced) {
+      const skewTargets = ".skew-text-ref";
+      const updateSkew = () => {
+        const velocity = ScrollTrigger.create({ trigger: "body" }).getVelocity() / 3000;
+        const clampedSkew = Math.max(-0.5, Math.min(0.5, velocity));
+        gsap.to(skewTargets, {
+          skewY: clampedSkew,
+          duration: 0.4,
+          overwrite: "auto",
+          ease: "power3.out"
+        });
+      };
+      ScrollTrigger.addEventListener("refresh", updateSkew);
+      gsap.ticker.add(updateSkew);
+      return () => {
+        ScrollTrigger.removeEventListener("refresh", updateSkew);
+        gsap.ticker.remove(updateSkew);
+      };
+    }
+  }, { scope: mainRef });
 
   const categories = [
     { id: 'all', label: 'All' },
@@ -609,128 +721,6 @@ export default function Home() {
     { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 },
     { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 }
   ];
-
-  const handleTerminalAction = (index: number) => {
-    const qIdx = faqAvailableIndices[index];
-    setFaqHistory(prev => [...prev, FAQ_DATA[qIdx]]);
-    setFaqAvailableIndices(prev => prev.filter((_, i) => i !== index));
-    setActiveFaqIndex(0);
-    setTypedQuestionsCount(0);
-    setIsHeaderTyped(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isTerminalFocused || isBooting) return;
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setActiveFaqIndex(prev => (prev + 1) % faqAvailableIndices.length);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setActiveFaqIndex(prev => (prev - 1 + faqAvailableIndices.length) % faqAvailableIndices.length);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (faqAvailableIndices.length > 0) {
-        handleTerminalAction(activeFaqIndex);
-      }
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (isTerminalMinimized) return;
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - faqPos.x,
-      y: e.clientY - dragStart.y
-    });
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      setFaqPos({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      });
-    };
-    const handleMouseUp = () => setIsDragging(false);
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragStart]);
-
-  useEffect(() => {
-    const handleScrollIntent = (e: WheelEvent) => {
-      const scrollPos = window.innerHeight + window.scrollY;
-      const bottomLimit = document.documentElement.scrollHeight - 30;
-      const isAtBottom = scrollPos >= bottomLimit;
-
-      if (isAtBottom && e.deltaY > 0) {
-        setIsSecretVisible(true);
-      } else if (e.deltaY < 0) {
-        setIsSecretVisible(false);
-      }
-    };
-
-    window.addEventListener('wheel', handleScrollIntent, { passive: true });
-    return () => window.removeEventListener('wheel', handleScrollIntent);
-  }, []);
-
-  useGSAP(() => {
-    gsap.to(".hero-line", {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      stagger: 0.2,
-      ease: "power4.out"
-    });
-
-    gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
-    gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
-
-    gsap.to(".testimonial-line", {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      stagger: 0.08,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: ".testimonial-trigger-ref",
-        start: "top 85%",
-        once: true
-      }
-    });
-
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!isReduced) {
-      const skewTargets = ".skew-text-ref";
-      
-      const updateSkew = () => {
-        const velocity = ScrollTrigger.create({ trigger: "body" }).getVelocity() / 3000;
-        const clampedSkew = Math.max(-0.5, Math.min(0.5, velocity));
-        
-        gsap.to(skewTargets, {
-          skewY: clampedSkew,
-          duration: 0.4,
-          overwrite: "auto",
-          ease: "power3.out"
-        });
-      };
-      
-      ScrollTrigger.addEventListener("refresh", updateSkew);
-      gsap.ticker.add(updateSkew);
-      return () => {
-        ScrollTrigger.removeEventListener("refresh", updateSkew);
-        gsap.ticker.remove(updateSkew);
-      };
-    }
-  }, { scope: mainRef });
 
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
@@ -828,7 +818,7 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="relative z-10 flex flex-col bg-background transition-all duration-500">
+        <div className="relative z-10 flex flex-col bg-background">
           <section id="works" className="w-full py-[10px] sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat) => {
@@ -877,22 +867,26 @@ export default function Home() {
                 <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
                 <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
                   <div className="flex flex-wrap items-baseline">
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">"Leonardo's</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">edits</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">kept</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">people</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">watching</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">longer.</span></span>
+                    {`"Leonardo's edits kept people watching longer.`.split(' ').map((word, i) => (
+                      <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
+                        <span className="testimonial-word inline-block translate-y-full opacity-0">
+                          {word.includes('kept') || word.includes('people') || word.includes('watching') || word.includes('longer') ? (
+                            <span className="text-primary">{word}</span>
+                          ) : word}
+                        </span>
+                      </span>
+                    ))}
                   </div>
                   <div className="flex flex-wrap items-baseline mt-2">
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">Our</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">retention</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">improved</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">right</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">after</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">he</span></span>
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">took</span></span>
-                    <span className="overflow-hidden inline-block"><span className="testimonial-line inline-block translate-y-full opacity-0">over."</span></span>
+                    {`Our retention improved right after he took over."`.split(' ').map((word, i) => (
+                      <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
+                        <span className="testimonial-word inline-block translate-y-full opacity-0">
+                          {word.includes('retention') || word.includes('improved') ? (
+                            <span className="text-primary">{word}</span>
+                          ) : word}
+                        </span>
+                      </span>
+                    ))}
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -950,148 +944,64 @@ export default function Home() {
                       <svg className="star-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
                       </svg>
-                      <svg className="star-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                      </svg>
-                      <svg className="star-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                      </svg>
-                      <svg className="star-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                      </svg>
-                      <svg className="star-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                      </svg>
                     </button>
                   </div>
                 </div>
 
                 {!isTerminalClosed && (
-                  <div 
-                    className={cn(
-                      "flex-1 w-full max-w-lg transition-all duration-500 terminal-reveal-ref",
-                      isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto"
-                    )}
-                  >
+                  <div className={cn("flex-1 w-full max-w-lg transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto")}>
                     <div 
                       ref={terminalRef} 
-                      className={cn(
-                        "bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 w-full",
-                        isDragging && "transition-none"
-                      )}
+                      className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 w-full", isDragging && "transition-none")}
                       style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
                     >
-                      <div 
-                        onMouseDown={handleMouseDown}
-                        className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none"
-                      >
+                      <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none">
                         <div className="flex items-center gap-2">
                           <TerminalIcon className="w-4 h-4 text-white/60" />
                           <span className="font-mono text-xs text-white/80">Command Prompt - Archive Console</span>
                         </div>
                         <div className="flex h-full">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }}
-                            className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors"
-                          >
+                          <button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors">
                             <Minus className="w-3.5 h-3.5 text-white" />
                           </button>
-                          <button className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors">
-                            <Square className="w-3 h-3 text-white" />
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }}
-                            className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123] transition-colors group"
-                          >
+                          <button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123] transition-colors">
                             <X className="w-4 h-4 text-white" />
                           </button>
                         </div>
                       </div>
-
                       {!isTerminalMinimized && (
-                        <div 
-                          onKeyDown={handleKeyDown}
-                          tabIndex={0}
-                          onFocus={() => setIsTerminalFocused(true)}
-                          onBlur={() => setIsTerminalFocused(false)}
-                          className="p-8 font-mono text-sm relative outline-none group bg-black text-white h-auto"
-                        >
+                        <div onKeyDown={handleKeyDown} tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-8 font-mono text-sm relative outline-none bg-black text-white h-auto">
                           {isBooting ? (
                             <div className="space-y-1">
                               {BOOT_LINES.slice(0, bootStep).map((line, idx) => (
                                 <div key={idx} className="opacity-80">{line}</div>
                               ))}
                               {canStartBoot && bootStep < BOOT_LINES.length && (
-                                <TypewriterText 
-                                  text={BOOT_LINES[bootStep]} 
-                                  onComplete={() => {
-                                    setTimeout(() => {
-                                      if (bootStep === BOOT_LINES.length - 1) {
-                                        setIsBooting(false);
-                                      } else {
-                                        setBootStep(s => s + 1);
-                                      }
-                                    }, 150);
-                                  }} 
-                                />
+                                <TypewriterText text={BOOT_LINES[bootStep]} onComplete={() => setTimeout(() => { if (bootStep === BOOT_LINES.length - 1) setIsBooting(false); else setBootStep(s => s + 1); }, 150)} />
                               )}
                             </div>
                           ) : (
                             <div className="space-y-2">
-                              <div className="space-y-2">
-                                {faqHistory.map((item, i) => (
-                                  <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
-                                    <div className="text-white/40 mb-1 flex items-center gap-2">
-                                      <span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}
-                                    </div>
-                                    <div className="text-white leading-relaxed pl-4 border-l border-white/20">
-                                      <TypewriterText text={item.a} />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-
+                              {faqHistory.map((item, i) => (
+                                <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
+                                  <div className="text-white/40 mb-1 flex items-center gap-2"><span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}</div>
+                                  <div className="text-white leading-relaxed pl-4 border-l border-white/20"><TypewriterText text={item.a} /></div>
+                                </div>
+                              ))}
                               {faqAvailableIndices.length > 0 && (
                                 <div className="mt-0">
                                   <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">
-                                    <TypewriterText 
-                                      text="Available Queries" 
-                                      onComplete={() => setIsHeaderTyped(true)}
-                                      speed={10}
-                                      showCursor={false}
-                                    />
+                                    <TypewriterText text="Available Queries" onComplete={() => setIsHeaderTyped(true)} speed={10} showCursor={false} />
                                   </div>
                                   {isHeaderTyped && (
                                     <div className="space-y-1">
                                       {faqAvailableIndices.map((qIdx, i) => (
-                                        <div 
-                                          key={qIdx}
-                                          className={cn(
-                                            "transition-colors flex items-start gap-2 py-0.5 outline-none",
-                                            activeFaqIndex === i ? "text-white font-bold" : "text-white/30"
-                                          )}
-                                        >
+                                        <div key={qIdx} className={cn("transition-colors flex items-start gap-2 py-0.5 outline-none", activeFaqIndex === i ? "text-white font-bold" : "text-white/30")}>
                                           {i <= typedQuestionsCount ? (
                                             <>
-                                              <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
-                                                {'>'}
-                                              </span>
+                                              <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>{'>'}</span>
                                               <span className="uppercase text-xs tracking-tight">
-                                                {i === typedQuestionsCount ? (
-                                                  <TypewriterText 
-                                                    text={FAQ_DATA[qIdx].q}
-                                                    speed={5}
-                                                    showCursor={false}
-                                                    onComplete={() => setTypedQuestionsCount(prev => prev + 1)}
-                                                  />
-                                                ) : (
-                                                  <span>
-                                                    {FAQ_DATA[qIdx].q}
-                                                    {activeFaqIndex === i && (
-                                                      <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
-                                                    )}
-                                                  </span>
-                                                )}
+                                                {i === typedQuestionsCount ? <TypewriterText text={FAQ_DATA[qIdx].q} speed={5} showCursor={false} onComplete={() => setTypedQuestionsCount(prev => prev + 1)} /> : <span>{FAQ_DATA[qIdx].q}{activeFaqIndex === i && <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />}</span>}
                                               </span>
                                             </>
                                           ) : null}
@@ -1101,21 +1011,8 @@ export default function Home() {
                                   )}
                                 </div>
                               )}
-
-                              {faqAvailableIndices.length === 0 && (
-                                <div className="text-center py-4 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
-                                  --- SYSTEM NOMINAL. ALL QUERIES EXECUTED ---
-                                </div>
-                              )}
                             </div>
                           )}
-                        </div>
-                      )}
-                      
-                      {!isTerminalMinimized && (
-                        <div className="bg-[#1a1a1a] h-8 px-6 flex items-center justify-between border-t border-white/5 opacity-40">
-                           <span className="text-[8px] tracking-[0.4em] text-white">C:\VERONA\ARCHIVE&gt; <span className="w-2 h-0.5 bg-white inline-block ml-0.5 align-baseline animate-cursor-blink" /></span>
-                           <span className="text-[8px] tracking-[0.4em] text-white">STATUS: NOMINAL</span>
                         </div>
                       )}
                     </div>
@@ -1145,7 +1042,7 @@ export default function Home() {
         </section>
 
         <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background">
-          <div className="flex-1 flex flex-col justify-center items-center text-center px-6">
+          <div className="flex-1 flex flex-col justify-end items-center text-center px-6 pb-24 md:pb-32">
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com">
               <MagneticCTA>
@@ -1156,10 +1053,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="relative overflow-hidden">
-             <div className={cn(
-                  "overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center",
-                  isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0"
-                )}>
+             <div className={cn("overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
                 <LEDTicker text="VERONA STUDIO" />
               </div>
               <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5 shrink-0">
@@ -1169,7 +1063,6 @@ export default function Home() {
                     <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
                     <Link href="mailto:00mezzomo@gmail.com" className="text-muted-foreground hover:text-primary"><Mail className="h-5 w-5" /></Link>
                   </div>
-                  
                   <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                     <DigitalClock />
                     <CyberText text={`© ${year} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" />
