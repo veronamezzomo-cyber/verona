@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   description: 'Selected works and professional portfolio of Leonardo Verona, specialized in cinematic storytelling and motion design.',
   keywords: ['Video Editor', 'Motion Design', 'Color Grading', 'Portfolio', 'Leonardo Verona', 'Cinematic', 'Visual Storytelling'],
   authors: [{ name: 'Leonardo Verona' }],
+  icons: {
+    icon: 'https://i.imgur.com/PtZIyxm.png',
+  },
   openGraph: {
     title: 'Leonardo Verona | Video Editor Portfolio',
     description: 'Expert cinematic visual storytelling and video editing.',
