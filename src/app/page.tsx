@@ -889,7 +889,8 @@ export default function Home() {
               <div className="relative">
                 <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
                 <p className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
-                  &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
+                  &quot;Leonardo&apos;s edits <span className="text-primary">kept people watching longer</span>.<br />
+                  Our <span className="text-primary">retention improved</span> right after he took over.&quot;
                 </p>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-px bg-primary" />
