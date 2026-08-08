@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
@@ -873,24 +872,7 @@ export default function Home() {
         <section className="py-[10px] bg-background overflow-hidden border-t border-foreground/5">
           <div className="w-full px-6 md:px-12">
             
-            <div className="flex justify-center border-b border-foreground/5 py-[10px] mb-12">
-              <div className="flex flex-wrap gap-16 md:gap-32 items-center">
-                <div className="flex flex-col items-center">
-                  <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+6</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <CyberText text="[ CLIENTS ]" variant="decrypt" delay={600} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+12</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <CyberText text="[ PROJECTS ]" variant="decrypt" delay={700} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+80</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-12 mb-32">
+            <div className="flex flex-col gap-12 mb-16">
               <div className="relative testimonial-trigger-ref">
                 <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
                 <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
@@ -922,7 +904,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full">
+              <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full mb-12">
                 <div className="flex flex-col gap-8 items-center text-center flex-1 w-full max-w-lg">
                   <CyberText 
                     text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} 
@@ -1141,6 +1123,24 @@ export default function Home() {
                 )}
               </div>
             </div>
+
+            <div className="flex justify-center border-t border-foreground/5 py-12">
+              <div className="flex flex-wrap gap-16 md:gap-32 items-center">
+                <div className="flex flex-col items-center">
+                  <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
+                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+6</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <CyberText text="[ CLIENTS ]" variant="decrypt" delay={600} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
+                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+12</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <CyberText text="[ PROJECTS ]" variant="decrypt" delay={700} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
+                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+80</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
