@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
@@ -708,7 +707,7 @@ export default function Home() {
       y: 0,
       opacity: 1,
       duration: 1,
-      stagger: 0.05,
+      stagger: 0.08,
       ease: "power3.out",
       scrollTrigger: {
         trigger: ".testimonial-trigger-ref",
@@ -904,7 +903,7 @@ export default function Home() {
                 <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
                 <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
                   <div className="flex flex-wrap items-baseline">
-                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">&quot;Leonardo&apos;s</span></span>
+                    <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">"Leonardo's</span></span>
                     <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">edits</span></span>
                     <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">kept</span></span>
                     <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0 text-primary">people</span></span>
@@ -919,7 +918,7 @@ export default function Home() {
                     <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">after</span></span>
                     <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">he</span></span>
                     <span className="overflow-hidden inline-block mr-[0.25em]"><span className="testimonial-line inline-block translate-y-full opacity-0">took</span></span>
-                    <span className="overflow-hidden inline-block"><span className="testimonial-line inline-block translate-y-full opacity-0">over.&quot;</span></span>
+                    <span className="overflow-hidden inline-block"><span className="testimonial-line inline-block translate-y-full opacity-0">over."</span></span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -1159,7 +1158,7 @@ export default function Home() {
             <Link href="mailto:00mezzomo@gmail.com">
               <MagneticCTA>
                 <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] transition-shadow">
-                  Let&apos;s Talk
+                  Let's Talk
                 </Button>
               </MagneticCTA>
             </Link>
@@ -1176,7 +1175,7 @@ export default function Home() {
                   <div className="flex gap-8">
                     <Link href="https://discord.com/users/299338458231603202" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
                     <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
-                    <Link href="mailto:contact@veronastudio.com" className="text-muted-foreground hover:text-primary"><Mail className="h-5 w-5" /></Link>
+                    <Link href="mailto:00mezzomo@gmail.com" className="text-muted-foreground hover:text-primary"><Mail className="h-5 w-5" /></Link>
                   </div>
                   
                   <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
