@@ -28,6 +28,17 @@ if (typeof window !== 'undefined') {
 
 const GLYPHS = '0123456789ABCDEF!@#$%^&*()_+<>?:';
 
+const ALL_TECH = [
+  { id: 'pr', name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
+  { id: 'ae', name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
+  { id: 'ps', name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
+  { id: 'ai', name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' },
+  { id: 'dr', name: 'DaVinci', label: 'Dr', bg: '#0F0F0F', text: '#FF0000' },
+  { id: 'me', name: 'Encoder', label: 'Me', bg: '#00005B', text: '#9999FF' },
+  { id: 'au', name: 'Audition', label: 'Au', bg: '#011E23', text: '#00FFCC' },
+  { id: 'id', name: 'InDesign', label: 'Id', bg: '#49021F', text: '#FF3366' }
+];
+
 const CyberText = ({ 
   text, 
   variant = 'decrypt', 
@@ -524,6 +535,9 @@ export default function Home() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const terminalRef = useRef<HTMLDivElement>(null);
 
+  const [poweredIcons, setPoweredIcons] = useState(ALL_TECH.slice(0, 4));
+  const techIconsRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setYear(new Date().getFullYear());
     
@@ -542,6 +556,25 @@ export default function Home() {
 
   const handleCloseFeed = () => {
     setActiveCategory(null);
+  };
+
+  const handleRoll = () => {
+    if (!techIconsRef.current) return;
+    
+    gsap.to(techIconsRef.current.children, {
+      rotateY: 360,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: "back.out(1.7)",
+      onComplete: () => {
+        const currentIds = poweredIcons.map(icon => icon.id);
+        const available = ALL_TECH.filter(tech => !currentIds.includes(tech.id));
+        const shuffled = [...available].sort(() => 0.5 - Math.random());
+        const nextIcons = shuffled.slice(0, 4);
+        setPoweredIcons(nextIcons);
+        gsap.set(techIconsRef.current?.children || [], { rotateY: 0 });
+      }
+    });
   };
 
   const categories = [
@@ -836,42 +869,56 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32 items-end">
-              <div className="lg:col-span-9">
-                <div className="relative">
-                  <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
-                  <p className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
-                    &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
-                  </p>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-px bg-primary" />
-                    <div className="flex flex-col">
-                      <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[10px] uppercase tracking-widest font-bold" />
-                      <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60" />
-                    </div>
+            <div className="flex flex-col gap-12 mb-32">
+              <div className="relative">
+                <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
+                <p className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
+                  &quot;Leonardo has an eye for pacing that is rare to find. He transformed our raw footage into a cinematic experience.&quot;
+                </p>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-px bg-primary" />
+                  <div className="flex flex-col">
+                    <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[10px] uppercase tracking-widest font-bold" />
+                    <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60" />
                   </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-3 flex flex-col gap-8 items-center lg:items-end">
+              <div className="flex flex-col gap-8 items-start">
                 <CyberText text="[ POWERED_BY ]" variant="decrypt" delay={500} corrupt className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" />
-                <div className="flex flex-col gap-6 w-full lg:w-auto">
-                  {[
-                    { name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
-                    { name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
-                    { name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
-                    { name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
-                  ].map((tech) => (
-                    <div key={tech.name} className="flex items-center gap-4 group justify-center lg:justify-end">
-                      <span className="font-serif italic text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300">{tech.name}</span>
-                      <div 
-                        className="w-14 h-14 flex items-center justify-center rounded shadow-xl transition-transform group-hover:scale-110"
-                        style={{ backgroundColor: tech.bg }}
-                      >
-                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
-                      </div>
+                <div ref={techIconsRef} className="flex gap-4">
+                  {poweredIcons.map((tech) => (
+                    <div 
+                      key={tech.id} 
+                      className="w-14 h-14 flex items-center justify-center rounded-full shadow-xl transition-transform"
+                      style={{ backgroundColor: tech.bg }}
+                    >
+                      <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
                     </div>
                   ))}
+                </div>
+                <div className="mt-4">
+                  <button className="sparkle-button" onClick={handleRoll}>
+                    <span>Roll Archive</span>
+                    <svg className="star-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                    </svg>
+                    <svg className="star-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                    </svg>
+                    <svg className="star-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                    </svg>
+                    <svg className="star-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                    </svg>
+                    <svg className="star-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                    </svg>
+                    <svg className="star-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
