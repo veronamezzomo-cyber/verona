@@ -32,11 +32,7 @@ const ALL_TECH = [
   { id: 'pr', name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
   { id: 'ae', name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
   { id: 'ps', name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
-  { id: 'ai', name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' },
-  { id: 'dr', name: 'DaVinci', label: 'Dr', bg: '#0F0F0F', text: '#FF0000' },
-  { id: 'me', name: 'Encoder', label: 'Me', bg: '#00005B', text: '#9999FF' },
-  { id: 'au', name: 'Audition', label: 'Au', bg: '#011E23', text: '#00FFCC' },
-  { id: 'id', name: 'InDesign', label: 'Id', bg: '#49021F', text: '#FF3366' }
+  { id: 'ai', name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
 ];
 
 const CyberText = ({ 
@@ -1162,3 +1158,4 @@ export default function Home() {
     </div>
   );
 }
+
