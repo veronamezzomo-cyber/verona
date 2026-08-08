@@ -703,6 +703,19 @@ export default function Home() {
     gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
 
+    gsap.to(".testimonial-line", {
+      y: 0,
+      opacity: 1,
+      duration: 1.2,
+      stagger: 0.15,
+      ease: "power4.out",
+      scrollTrigger: {
+        trigger: ".testimonial-trigger-ref",
+        start: "top 85%",
+        once: true
+      }
+    });
+
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!isReduced) {
       const skewTargets = ".skew-text-ref";
@@ -886,12 +899,20 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-12 mb-32">
-              <div className="relative">
+              <div className="relative testimonial-trigger-ref">
                 <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
-                <p className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
-                  &quot;Leonardo&apos;s edits <span className="text-primary">kept people watching longer</span>.<br />
-                  Our <span className="text-primary">retention improved</span> right after he took over.&quot;
-                </p>
+                <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
+                  <div className="overflow-hidden">
+                    <div className="testimonial-line translate-y-full opacity-0">
+                      &quot;Leonardo&apos;s edits <span className="text-primary">kept people watching longer</span>.
+                    </div>
+                  </div>
+                  <div className="overflow-hidden">
+                    <div className="testimonial-line translate-y-full opacity-0">
+                      Our <span className="text-primary">retention improved</span> right after he took over.&quot;
+                    </div>
+                  </div>
+                </div>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-px bg-primary" />
                   <div className="flex flex-col">
