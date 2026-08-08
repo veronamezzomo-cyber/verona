@@ -872,7 +872,7 @@ export default function Home() {
         <section className="py-[10px] bg-background overflow-hidden border-t border-foreground/5">
           <div className="w-full px-6 md:px-12">
             
-            <div className="flex flex-col gap-12 mb-16">
+            <div className="flex flex-col gap-12 mb-4">
               <div className="relative testimonial-trigger-ref">
                 <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
                 <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
@@ -1124,7 +1124,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex justify-center border-t border-foreground/5 py-12">
+            <div className="flex justify-center border-t border-foreground/5 py-8">
               <div className="flex flex-wrap gap-16 md:gap-32 items-center">
                 <div className="flex flex-col items-center">
                   <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
