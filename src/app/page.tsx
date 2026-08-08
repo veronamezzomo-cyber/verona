@@ -865,10 +865,10 @@ export default function Home() {
           />
         </div>
 
-        <section className="py-[14px] bg-background overflow-hidden border-t border-foreground/5">
+        <section className="py-[10px] bg-background overflow-hidden border-t border-foreground/5">
           <div className="w-full px-6 md:px-12">
             
-            <div className="flex justify-center border-b border-foreground/5 py-[14px] mb-12">
+            <div className="flex justify-center border-b border-foreground/5 py-[10px] mb-12">
               <div className="flex flex-wrap gap-16 md:gap-32 items-center">
                 <div className="flex flex-col items-center">
                   <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
@@ -900,223 +900,225 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-8 items-center text-center w-full">
-                <CyberText 
-                  text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} 
-                  variant="decrypt" 
-                  delay={500} 
-                  corrupt={!isRolling} 
-                  className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" 
-                />
-                
-                <div className="relative w-full max-w-[320px] h-24 overflow-hidden bg-foreground/[0.02] border-x border-foreground/10 flex items-center justify-center">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-primary/40 z-20" />
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent z-10" />
+              <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full">
+                <div className="flex flex-col gap-8 items-center text-center flex-1 w-full max-w-lg">
+                  <CyberText 
+                    text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} 
+                    variant="decrypt" 
+                    delay={500} 
+                    corrupt={!isRolling} 
+                    className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" 
+                  />
+                  
+                  <div className="relative w-full max-w-[320px] h-24 overflow-hidden bg-foreground/[0.02] border-x border-foreground/10 flex items-center justify-center">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-primary/40 z-20" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent z-10" />
 
-                  <div 
-                    ref={techIconsRef} 
-                    className="flex gap-6 absolute left-0 items-center will-change-transform"
-                  >
-                    {poweredIcons.map((tech, i) => (
-                      <div 
-                        key={`${tech.id}-${i}`} 
-                        className={cn(
-                          "w-16 h-16 flex items-center justify-center rounded-full shadow-2xl transition-all duration-700 shrink-0",
-                          !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-4 ring-primary" : "opacity-10 grayscale scale-75") : "opacity-100 scale-100"
-                        )}
-                        style={{ backgroundColor: tech.bg }}
-                      >
-                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <button 
-                    className={cn("sparkle-button", isRolling && "opacity-50 pointer-events-none")} 
-                    onClick={handleRoll}
-                    disabled={isRolling}
-                  >
-                    <span>{isRolling ? "Rolling..." : "Roll Archive"}</span>
-                    <svg className="star-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                    </svg>
-                    <svg className="star-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                    </svg>
-                    <svg className="star-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                    </svg>
-                    <svg className="star-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                    </svg>
-                    <svg className="star-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                    </svg>
-                    <svg className="star-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {!isTerminalClosed && (
-              <div 
-                className={cn(
-                  "mx-auto transition-all duration-500 terminal-reveal-ref",
-                  isTerminalMinimized ? "h-10 opacity-60 w-80" : "opacity-100 h-auto w-fit"
-                )}
-              >
-                <div 
-                  ref={terminalRef} 
-                  className={cn(
-                    "bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 w-fit mx-auto",
-                    isDragging && "transition-none"
-                  )}
-                  style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
-                >
-                  <div 
-                    onMouseDown={handleMouseDown}
-                    className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none"
-                  >
-                    <div className="flex items-center gap-2">
-                      <TerminalIcon className="w-4 h-4 text-white/60" />
-                      <span className="font-mono text-xs text-white/80">Command Prompt - Archive Console</span>
-                    </div>
-                    <div className="flex h-full">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }}
-                        className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors"
-                      >
-                        <Minus className="w-3.5 h-3.5 text-white" />
-                      </button>
-                      <button className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors">
-                        <Square className="w-3 h-3 text-white" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }}
-                        className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123] transition-colors group"
-                      >
-                        <X className="w-4 h-4 text-white" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {!isTerminalMinimized && (
                     <div 
-                      onKeyDown={handleKeyDown}
-                      tabIndex={0}
-                      onFocus={() => setIsTerminalFocused(true)}
-                      onBlur={() => setIsTerminalFocused(false)}
-                      className="p-8 font-mono text-sm relative outline-none group bg-black text-white h-auto"
+                      ref={techIconsRef} 
+                      className="flex gap-6 absolute left-0 items-center will-change-transform"
                     >
-                      {isBooting ? (
-                        <div className="space-y-1">
-                          {BOOT_LINES.slice(0, bootStep).map((line, idx) => (
-                            <div key={idx} className="opacity-80">{line}</div>
-                          ))}
-                          {canStartBoot && bootStep < BOOT_LINES.length && (
-                            <TypewriterText 
-                              text={BOOT_LINES[bootStep]} 
-                              onComplete={() => {
-                                setTimeout(() => {
-                                  if (bootStep === BOOT_LINES.length - 1) {
-                                    setIsBooting(false);
-                                  } else {
-                                    setBootStep(s => s + 1);
-                                  }
-                                }, 150);
-                              }} 
-                            />
+                      {poweredIcons.map((tech, i) => (
+                        <div 
+                          key={`${tech.id}-${i}`} 
+                          className={cn(
+                            "w-16 h-16 flex items-center justify-center rounded-full shadow-2xl transition-all duration-700 shrink-0",
+                            !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-4 ring-primary" : "opacity-10 grayscale scale-75") : "opacity-100 scale-100"
                           )}
+                          style={{ backgroundColor: tech.bg }}
+                        >
+                          <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
                         </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="space-y-2">
-                            {faqHistory.map((item, i) => (
-                              <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
-                                <div className="text-white/40 mb-1 flex items-center gap-2">
-                                  <span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}
-                                </div>
-                                <div className="text-white leading-relaxed pl-4 border-l border-white/20">
-                                  <TypewriterText text={item.a} />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                      ))}
+                    </div>
+                  </div>
 
-                          {faqAvailableIndices.length > 0 && (
-                            <div className="mt-0">
-                              <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">
+                  <div className="mt-4">
+                    <button 
+                      className={cn("sparkle-button", isRolling && "opacity-50 pointer-events-none")} 
+                      onClick={handleRoll}
+                      disabled={isRolling}
+                    >
+                      <span>{isRolling ? "Rolling..." : "Roll Archive"}</span>
+                      <svg className="star-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                      </svg>
+                      <svg className="star-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                      </svg>
+                      <svg className="star-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                      </svg>
+                      <svg className="star-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                      </svg>
+                      <svg className="star-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                      </svg>
+                      <svg className="star-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                {!isTerminalClosed && (
+                  <div 
+                    className={cn(
+                      "flex-1 w-full max-w-lg transition-all duration-500 terminal-reveal-ref",
+                      isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto"
+                    )}
+                  >
+                    <div 
+                      ref={terminalRef} 
+                      className={cn(
+                        "bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 w-full",
+                        isDragging && "transition-none"
+                      )}
+                      style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
+                    >
+                      <div 
+                        onMouseDown={handleMouseDown}
+                        className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none"
+                      >
+                        <div className="flex items-center gap-2">
+                          <TerminalIcon className="w-4 h-4 text-white/60" />
+                          <span className="font-mono text-xs text-white/80">Command Prompt - Archive Console</span>
+                        </div>
+                        <div className="flex h-full">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }}
+                            className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors"
+                          >
+                            <Minus className="w-3.5 h-3.5 text-white" />
+                          </button>
+                          <button className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <Square className="w-3 h-3 text-white" />
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }}
+                            className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123] transition-colors group"
+                          >
+                            <X className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {!isTerminalMinimized && (
+                        <div 
+                          onKeyDown={handleKeyDown}
+                          tabIndex={0}
+                          onFocus={() => setIsTerminalFocused(true)}
+                          onBlur={() => setIsTerminalFocused(false)}
+                          className="p-8 font-mono text-sm relative outline-none group bg-black text-white h-auto"
+                        >
+                          {isBooting ? (
+                            <div className="space-y-1">
+                              {BOOT_LINES.slice(0, bootStep).map((line, idx) => (
+                                <div key={idx} className="opacity-80">{line}</div>
+                              ))}
+                              {canStartBoot && bootStep < BOOT_LINES.length && (
                                 <TypewriterText 
-                                  text="Available Queries" 
-                                  onComplete={() => setIsHeaderTyped(true)}
-                                  speed={10}
-                                  showCursor={false}
+                                  text={BOOT_LINES[bootStep]} 
+                                  onComplete={() => {
+                                    setTimeout(() => {
+                                      if (bootStep === BOOT_LINES.length - 1) {
+                                        setIsBooting(false);
+                                      } else {
+                                        setBootStep(s => s + 1);
+                                      }
+                                    }, 150);
+                                  }} 
                                 />
+                              )}
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              <div className="space-y-2">
+                                {faqHistory.map((item, i) => (
+                                  <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
+                                    <div className="text-white/40 mb-1 flex items-center gap-2">
+                                      <span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}
+                                    </div>
+                                    <div className="text-white leading-relaxed pl-4 border-l border-white/20">
+                                      <TypewriterText text={item.a} />
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                              {isHeaderTyped && (
-                                <div className="space-y-1">
-                                  {faqAvailableIndices.map((qIdx, i) => (
-                                    <div 
-                                      key={qIdx}
-                                      className={cn(
-                                        "transition-colors flex items-start gap-2 py-0.5 outline-none",
-                                        activeFaqIndex === i ? "text-white font-bold" : "text-white/30"
-                                      )}
-                                    >
-                                      {i <= typedQuestionsCount ? (
-                                        <>
-                                          <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
-                                            {'>'}
-                                          </span>
-                                          <span className="uppercase text-xs tracking-tight">
-                                            {i === typedQuestionsCount ? (
-                                              <TypewriterText 
-                                                text={FAQ_DATA[qIdx].q}
-                                                speed={5}
-                                                showCursor={false}
-                                                onComplete={() => setTypedQuestionsCount(prev => prev + 1)}
-                                              />
-                                            ) : (
-                                              <span>
-                                                {FAQ_DATA[qIdx].q}
-                                                {activeFaqIndex === i && (
-                                                  <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
+
+                              {faqAvailableIndices.length > 0 && (
+                                <div className="mt-0">
+                                  <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">
+                                    <TypewriterText 
+                                      text="Available Queries" 
+                                      onComplete={() => setIsHeaderTyped(true)}
+                                      speed={10}
+                                      showCursor={false}
+                                    />
+                                  </div>
+                                  {isHeaderTyped && (
+                                    <div className="space-y-1">
+                                      {faqAvailableIndices.map((qIdx, i) => (
+                                        <div 
+                                          key={qIdx}
+                                          className={cn(
+                                            "transition-colors flex items-start gap-2 py-0.5 outline-none",
+                                            activeFaqIndex === i ? "text-white font-bold" : "text-white/30"
+                                          )}
+                                        >
+                                          {i <= typedQuestionsCount ? (
+                                            <>
+                                              <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>
+                                                {'>'}
+                                              </span>
+                                              <span className="uppercase text-xs tracking-tight">
+                                                {i === typedQuestionsCount ? (
+                                                  <TypewriterText 
+                                                    text={FAQ_DATA[qIdx].q}
+                                                    speed={5}
+                                                    showCursor={false}
+                                                    onComplete={() => setTypedQuestionsCount(prev => prev + 1)}
+                                                  />
+                                                ) : (
+                                                  <span>
+                                                    {FAQ_DATA[qIdx].q}
+                                                    {activeFaqIndex === i && (
+                                                      <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />
+                                                    )}
+                                                  </span>
                                                 )}
                                               </span>
-                                            )}
-                                          </span>
-                                        </>
-                                      ) : null}
+                                            </>
+                                          ) : null}
+                                        </div>
+                                      ))}
                                     </div>
-                                  ))}
+                                  )}
+                                </div>
+                              )}
+
+                              {faqAvailableIndices.length === 0 && (
+                                <div className="text-center py-4 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
+                                  --- SYSTEM NOMINAL. ALL QUERIES EXECUTED ---
                                 </div>
                               )}
                             </div>
                           )}
-
-                          {faqAvailableIndices.length === 0 && (
-                            <div className="text-center py-4 text-white/20 italic border border-white/5 bg-white/[0.02] rounded">
-                              --- SYSTEM NOMINAL. ALL QUERIES EXECUTED ---
-                            </div>
-                          )}
+                        </div>
+                      )}
+                      
+                      {!isTerminalMinimized && (
+                        <div className="bg-[#1a1a1a] h-8 px-6 flex items-center justify-between border-t border-white/5 opacity-40">
+                           <span className="text-[8px] tracking-[0.4em] text-white">C:\VERONA\ARCHIVE&gt; <span className="w-2 h-0.5 bg-white inline-block ml-0.5 align-baseline animate-cursor-blink" /></span>
+                           <span className="text-[8px] tracking-[0.4em] text-white">STATUS: NOMINAL</span>
                         </div>
                       )}
                     </div>
-                  )}
-                  
-                  {!isTerminalMinimized && (
-                    <div className="bg-[#1a1a1a] h-8 px-6 flex items-center justify-between border-t border-white/5 opacity-40">
-                       <span className="text-[8px] tracking-[0.4em] text-white">C:\VERONA\ARCHIVE&gt; <span className="w-2 h-0.5 bg-white inline-block ml-0.5 align-baseline animate-cursor-blink" /></span>
-                       <span className="text-[8px] tracking-[0.4em] text-white">STATUS: NOMINAL</span>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </section>
 
@@ -1158,4 +1160,3 @@ export default function Home() {
     </div>
   );
 }
-
