@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -18,8 +18,7 @@ import {
   Terminal as TerminalIcon,
   Quote,
   X,
-  Minus,
-  Square
+  Minus
 } from 'lucide-react';
 
 if (typeof window !== 'undefined') {
