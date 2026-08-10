@@ -155,7 +155,6 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
     if (!target.closest('.terminal-header') || isMinimized) return;
     
     setIsDragging(true);
-    // Captura o deslocamento entre o mouse e o topo-esquerda do elemento
     setDragStart({
       x: e.clientX - position.x,
       y: e.clientY - position.y
@@ -222,7 +221,7 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 
   return (
     <div 
-      className="w-full bg-[#0a0a0a] border border-red-900/50 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] cursor-auto select-text z-[70]"
+      className="w-full bg-card border border-primary/30 backdrop-blur-2xl font-mono relative overflow-hidden flex flex-col shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] cursor-auto select-text z-[70]"
       style={{ transform: `translate(${position.x}px, ${position.y}px)` }}
       onClick={(e) => {
         e.stopPropagation();
@@ -231,45 +230,45 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
     >
       <div 
         onMouseDown={onMouseDown}
-        className="terminal-header flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-red-900/30 select-none cursor-move active:bg-[#222]"
+        className="terminal-header flex items-center justify-between px-4 py-2 bg-muted border-b border-primary/10 select-none cursor-move active:bg-muted/80"
       >
         <div className="flex items-center gap-3">
           <X 
             onClick={(e) => { e.stopPropagation(); onClose(); }}
-            className="w-3.5 h-3.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" 
+            className="w-3.5 h-3.5 text-primary/60 hover:text-primary cursor-pointer transition-colors" 
           />
           <Minus 
             onClick={(e) => { e.stopPropagation(); onMinimize(); }}
-            className="w-3.5 h-3.5 text-red-600/40 hover:text-red-600 cursor-pointer transition-colors" 
+            className="w-3.5 h-3.5 text-primary/60 hover:text-primary cursor-pointer transition-colors" 
           />
-          <Square className="w-2.5 h-2.5 text-red-600/10 cursor-not-allowed" />
+          <Square className="w-2.5 h-2.5 text-primary/10 cursor-not-allowed" />
         </div>
 
         <div className="flex items-center gap-2 pointer-events-none opacity-60">
-          <span className="text-[9px] uppercase tracking-[0.3em] text-red-600 font-bold">Verona_OS // Cmd_Console</span>
-          <Terminal className="w-3 h-3 text-red-600 animate-pulse" />
+          <span className="text-[9px] uppercase tracking-[0.3em] text-primary font-bold">Verona_OS // Cmd_Console</span>
+          <Terminal className="w-3 h-3 text-primary animate-pulse" />
         </div>
       </div>
 
       <div 
         ref={scrollRef}
-        className="p-6 flex-1 h-[380px] md:h-[450px] relative overflow-y-auto scrollbar-hide"
+        className="p-6 flex-1 h-[380px] md:h-[250px] relative overflow-y-auto cyber-scrollbar"
       >
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
         
         <div className="flex flex-col relative z-10">
           {history.map((line, i) => (
-            <div key={i} className="text-[11px] leading-snug tracking-wider text-red-500/80 break-words mb-1 uppercase">
+            <div key={i} className="text-[11px] leading-snug tracking-wider text-primary/80 break-words mb-1 uppercase">
               {line}
             </div>
           ))}
           
           <form onSubmit={handleCommand} className="flex items-center gap-2">
-            <span className="text-red-600/60 text-[11px] shrink-0">C:\Users\Guest&gt;</span>
+            <span className="text-primary/60 text-[11px] shrink-0">C:\Users\Guest&gt;</span>
             <input
               ref={inputRef}
               type="text"
-              className="bg-transparent border-none outline-none text-red-500 text-[11px] w-full p-0 uppercase"
+              className="bg-transparent border-none outline-none text-primary text-[11px] w-full p-0 uppercase"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               autoFocus
@@ -278,15 +277,15 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
         </div>
       </div>
 
-      <div className="px-6 py-3 border-t border-red-900/10 flex justify-between items-center bg-black/60 select-none">
-        <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-red-600/40">
+      <div className="px-6 py-3 border-t border-primary/10 flex justify-between items-center bg-background/60 select-none">
+        <div className="flex gap-6 text-[8px] uppercase tracking-[0.2em] text-primary/40">
           <span>Mode: Interactive</span>
           <span>Ln: {history.length}</span>
           <span>I/O: Active</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-600/40 animate-pulse" />
-          <span className="text-[8px] uppercase tracking-[0.3em] text-red-600/60">Ready_</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+          <span className="text-[8px] uppercase tracking-[0.3em] text-primary/60">Ready_</span>
         </div>
       </div>
     </div>
@@ -568,7 +567,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
       {selectedProject && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center animate-in fade-in duration-500">
           <div 
-            className="absolute inset-0 bg-black/95 backdrop-blur-2xl cursor-pointer" 
+            className="absolute inset-0 bg-background/95 backdrop-blur-2xl cursor-pointer" 
             onClick={closeTheater}
           />
           
@@ -584,11 +583,11 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   e.stopPropagation();
                   setTerminalStatus('open');
                 }}
-                className="absolute bottom-10 left-10 z-[220] flex items-center gap-4 bg-black/80 border border-red-900/40 px-4 py-3 rounded-md cursor-pointer hover:bg-red-900/10 transition-all animate-in slide-in-from-bottom-5 pointer-events-auto"
+                className="absolute bottom-10 left-10 z-[220] flex items-center gap-4 bg-background/80 border border-primary/40 px-4 py-3 rounded-md cursor-pointer hover:bg-primary/10 transition-all animate-in slide-in-from-bottom-5 pointer-events-auto"
               >
-                <Terminal className="w-4 h-4 text-red-600" />
-                <span className="font-mono text-[9px] uppercase tracking-widest text-red-500">Cmd_Console (Minimized)</span>
-                <Maximize2 className="w-3 h-3 text-red-600/40" />
+                <Terminal className="w-4 h-4 text-primary" />
+                <span className="font-mono text-[9px] uppercase tracking-widest text-primary">Cmd_Console (Minimized)</span>
+                <Maximize2 className="w-3 h-3 text-primary/40" />
               </div>
             )}
 
@@ -607,7 +606,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
 
             <div 
               className={cn(
-                "relative shadow-[0_0_100px_rgba(220,38,38,0.3)] border border-primary/30 bg-black shrink-0 pointer-events-auto",
+                "relative shadow-[0_0_100px_rgba(var(--primary),0.3)] border border-primary/30 bg-black shrink-0 pointer-events-auto",
                 selectedProject.category.some(c => verticalCategories.includes(c)) ? "w-full max-w-[400px] aspect-[2/3]" : "w-full max-w-[900px] aspect-[16/9]"
               )}
               onClick={(e) => e.stopPropagation()}
@@ -627,7 +626,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   e.stopPropagation();
                   closeTheater();
                 }}
-                className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-white hover:text-primary transition-colors"
+                className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-foreground hover:text-primary transition-colors"
               >
                 Close Archive <X className="h-4 w-4" />
               </button>
@@ -650,16 +649,16 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           height: 4px;
         }
         .cyber-scrollbar::-webkit-scrollbar-track {
-          background: rgba(220, 38, 38, 0.05);
+          background: rgba(var(--primary), 0.05);
           border-radius: 10px;
         }
         .cyber-scrollbar::-webkit-scrollbar-thumb {
-          background: #dc2626;
+          background: hsl(var(--primary));
           border-radius: 10px;
-          box-shadow: 0 0 10px #dc2626;
+          box-shadow: 0 0 10px hsla(var(--primary), 0.5);
         }
         .cyber-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #dc2626;
+          background: hsl(var(--primary));
         }
       `}</style>
     </div>

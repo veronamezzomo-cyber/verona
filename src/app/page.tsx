@@ -1034,7 +1034,7 @@ export default function Home() {
 
         {/* CONTACT & FOOTER LAYER (Z-40) */}
         <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform">
-          <div className="flex-1 flex flex-col justify-center items-center text-center px-6 pt-20 pb-12">
+          <div className="flex-1 flex flex-col justify-end items-center text-center px-6 pt-20 pb-12">
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com">
               <MagneticCTA>
