@@ -137,12 +137,6 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 
   useEffect(() => {
     setHistory([
-      'VERONA_OS [Version 10.0.19045.4291]',
-      '(c) Verona Corporation. All rights reserved.',
-      '',
-      'Initializing secure connection to archive...',
-      'Connection established. Status: encrypted.',
-      '',
       `[ARCHIVE_LOG]: ${text}`,
       '',
       'Type "help" for a list of available commands.',
@@ -458,13 +452,13 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          <div className="flex-1 relative overflow-y-auto scrollbar-hide pointer-events-auto pb-10 px-6 md:px-12 lg:px-24 cyber-scrollbar">
+          <div className="flex-1 relative overflow-y-auto pointer-events-auto pb-10 px-6 md:px-12 lg:px-24 cyber-scrollbar">
             <div 
               className={cn(
                 "transition-all duration-700",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
                 category === 'shorts' 
-                  ? "flex flex-nowrap overflow-x-auto gap-6 pb-6 pt-12 px-4 scroll-smooth" 
+                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-12 px-4 scroll-smooth" 
                   : cn(
                       "grid max-w-[1600px] mx-auto pt-12",
                       category === 'all'
@@ -480,13 +474,15 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             >
               {filteredVideos.map((item, index) => {
                 const itemIsVertical = item.category.some(c => verticalCategories.includes(c));
+                const isShortOrTalking = item.category.some(c => ['shorts', 'talking'].includes(c));
+                
                 return (
                   <div 
                     key={item.id} 
                     className={cn(
                       "flex flex-col gap-4 group transform transition-all duration-700",
                       isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-                      category === 'shorts' && "flex-shrink-0 w-[200px] sm:w-[220px] md:w-[260px]"
+                      category === 'shorts' && "flex-shrink-0 w-[180px] sm:w-[200px] md:w-[240px]"
                     )}
                     style={{ transitionDelay: `${index * 150}ms` }}
                   >
@@ -495,7 +491,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                       className={cn(
                         "relative bg-muted overflow-hidden transition-all duration-700 border border-foreground/5 shadow-2xl rounded-none",
                         itemIsVertical ? "aspect-[2/3]" : "aspect-[16/9]",
-                        clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30"
+                        clickCount >= 8 ? "grayscale opacity-50 cursor-not-allowed" : "cursor-pointer hover:border-primary/30",
+                        isShortOrTalking && "scale-95"
                       )}
                     >
                       {item.coverImage ? (
@@ -553,7 +550,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               })}
             </div>
 
-            <div className="mt-20 py-8 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6">
+            <div className="mt-12 py-8 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6">
               <div className="flex gap-8 flex-wrap justify-center">
                 <span className="flex items-center gap-2">
                   Status: <CyberText text="Simultaneous Processing" variant="decrypt" delay={500} />
@@ -646,15 +643,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         .animate-active-layer-blink {
           animation: active-layer-blink 2s ease-in-out infinite;
         }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
         
         .cyber-scrollbar::-webkit-scrollbar {
+          width: 4px;
           height: 4px;
         }
         .cyber-scrollbar::-webkit-scrollbar-track {
@@ -668,7 +659,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         }
         .cyber-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #dc2626;
-          height: 6px;
         }
       `}</style>
     </div>
