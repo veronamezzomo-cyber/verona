@@ -843,12 +843,12 @@ export default function Home() {
         </section>
 
         {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) */}
-        <section className="stack-section sticky top-0 z-[30] min-h-screen w-full bg-background border-t border-foreground/5 pt-24 pb-12 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
-          <div className="w-full px-6 md:px-12">
-            {/* James Huang Testimonial */}
-            <div className="relative testimonial-trigger-ref mb-12 max-w-5xl mx-auto">
+        <section className="stack-section sticky top-0 z-[30] min-h-screen w-full bg-background border-t border-foreground/5 py-24 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+          <div className="w-full px-6 md:px-12 lg:px-24 flex flex-col h-full">
+            {/* James Huang Testimonial - Impactful Header */}
+            <div className="relative testimonial-trigger-ref mb-20 max-w-5xl">
               <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
-              <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
+              <div className="text-4xl md:text-7xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
                 <div className="flex flex-wrap items-baseline">
                   {"Leonardo's edits kept people watching longer.".split(' ').map((word, i) => (
                     <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
@@ -868,54 +868,33 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-px bg-primary" />
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-px bg-primary" />
                 <div className="flex flex-col">
-                  <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[10px] uppercase tracking-widest font-bold" />
+                  <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[11px] uppercase tracking-widest font-bold" />
                   <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60" />
                 </div>
               </div>
             </div>
 
-            {/* Roulette and Terminal side-by-side */}
-            <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full mb-8">
-              <div className="flex flex-col gap-8 items-center text-center flex-1 w-full max-w-lg">
-                <CyberText text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" />
-                
-                <div className="relative w-full max-w-[320px] h-24 overflow-hidden bg-foreground/[0.02] border-x border-foreground/10 flex items-center justify-center">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-primary/40 z-20" />
-                  <div ref={techIconsRef} className="flex gap-6 absolute left-0 items-center will-change-transform">
-                    {poweredIcons.map((tech, i) => (
-                      <div key={`${tech.id}-${i}`} className={cn("w-16 h-16 flex items-center justify-center rounded-full shadow-2xl transition-all duration-700 shrink-0", !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-4 ring-primary" : "opacity-10 grayscale scale-75") : "opacity-100 scale-100")} style={{ backgroundColor: tech.bg }}>
-                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <button className={cn("sparkle-button", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
-                    <span>{isRolling ? "Rolling..." : "Roll Archive"}</span>
-                    <svg className="star-1" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                  </button>
-                </div>
-              </div>
-
+            {/* Interaction Grid - Structured Workstation */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 w-full flex-1 items-start mb-16">
+              {/* Terminal Console - Authority & Insight */}
               {!isTerminalClosed && (
-                <div className={cn("flex-1 w-full max-w-lg transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto")}>
+                <div className={cn("lg:col-span-7 w-full transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto")}>
                   <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] w-full", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
-                    <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none">
+                    <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-10 px-4 flex items-center justify-between border-b border-white/10 cursor-move select-none">
                       <div className="flex items-center gap-2">
                         <TerminalIcon className="w-4 h-4 text-white/60" />
-                        <span className="font-mono text-xs text-white/80">Command Prompt - Archive Console</span>
+                        <span className="font-mono text-xs text-white/80">archive_console.exe</span>
                       </div>
                       <div className="flex h-full">
-                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-10 h-8 flex items-center justify-center hover:bg-white/10"><Minus className="w-3.5 h-3.5 text-white" /></button>
-                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123]"><X className="w-4 h-4 text-white" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-10 h-10 flex items-center justify-center hover:bg-white/10"><Minus className="w-3.5 h-3.5 text-white" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-10 h-10 flex items-center justify-center hover:bg-[#e81123]"><X className="w-4 h-4 text-white" /></button>
                       </div>
                     </div>
                     {!isTerminalMinimized && (
-                      <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-8 font-mono text-sm relative outline-none bg-black text-white min-h-[300px] overflow-y-auto">
+                      <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-8 font-mono text-sm relative outline-none bg-black text-white min-h-[400px] overflow-y-auto">
                         {isBooting ? (
                           <div className="space-y-1">
                             {BOOT_LINES.slice(0, bootStep).map((line, idx) => (<div key={idx} className="opacity-80">{line}</div>))}
@@ -926,17 +905,17 @@ export default function Home() {
                             {faqHistory.map((item, i) => (
                               <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
                                 <div className="text-white/40 mb-1 flex items-center gap-2"><span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}</div>
-                                <div className="text-white leading-relaxed pl-4 border-l border-white/20"><TypewriterText text={item.a} /></div>
+                                <div className="text-white leading-relaxed pl-4 border-l border-white/20 font-light"><TypewriterText text={item.a} /></div>
                               </div>
                             ))}
                             {faqAvailableIndices.length > 0 && (
-                              <div className="mt-4">
-                                <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">Available Queries</div>
-                                <div className="space-y-1">
+                              <div className="mt-6 pt-6 border-t border-white/5">
+                                <div className="text-[10px] uppercase tracking-widest text-white/20 mb-3 font-bold">Select Inquiry:</div>
+                                <div className="space-y-2">
                                   {faqAvailableIndices.map((qIdx, i) => (
-                                    <div key={qIdx} className={cn("transition-colors flex items-start gap-2 py-0.5 cursor-pointer", activeFaqIndex === i ? "text-white font-bold" : "text-white/30")} onClick={() => handleTerminalAction(i)}>
-                                      <span>{'>'}</span>
-                                      <span className="uppercase text-xs">{FAQ_DATA[qIdx].q}</span>
+                                    <div key={qIdx} className={cn("transition-all flex items-start gap-3 py-1 cursor-pointer group", activeFaqIndex === i ? "text-white" : "text-white/30 hover:text-white/60")} onClick={() => handleTerminalAction(i)}>
+                                      <span className="text-primary group-hover:translate-x-1 transition-transform">{'>'}</span>
+                                      <span className="uppercase text-xs tracking-wider">{FAQ_DATA[qIdx].q}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -949,22 +928,53 @@ export default function Home() {
                   </div>
                 </div>
               )}
+
+              {/* Roulette & Tech - Visual Engine */}
+              <div className="lg:col-span-5 flex flex-col gap-10 items-center lg:items-end text-center lg:text-right w-full">
+                <div className="flex flex-col gap-2 items-center lg:items-end">
+                   <CyberText text={winnerName ? `[ ENGINE: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold" />
+                   <div className="w-12 h-0.5 bg-primary" />
+                </div>
+                
+                <div className="relative w-full max-w-[340px] h-28 overflow-hidden bg-foreground/[0.03] border border-foreground/10 flex items-center justify-center rounded-sm">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-primary/60 z-20" />
+                  <div ref={techIconsRef} className="flex gap-8 absolute left-0 items-center will-change-transform">
+                    {poweredIcons.map((tech, i) => (
+                      <div key={`${tech.id}-${i}`} className={cn("w-16 h-16 flex items-center justify-center rounded-sm shadow-2xl transition-all duration-700 shrink-0", !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-2 ring-primary bg-opacity-100" : "opacity-5 grayscale scale-75") : "opacity-100 scale-100")} style={{ backgroundColor: tech.bg }}>
+                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-2">
+                  <button className={cn("sparkle-button scale-110", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
+                    <span>{isRolling ? "Syncing..." : "Roll Archive"}</span>
+                    <svg className="star-1" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Stats Bar */}
-            <div className="flex justify-center border-t border-foreground/5 py-12">
-              <div className="flex flex-wrap gap-16 md:gap-32 items-center">
-                <div className="flex flex-col items-center">
-                  <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+6</span>
+            {/* Stats Bar - Unified System Tray */}
+            <div className="flex justify-between items-center border-t border-foreground/10 py-10 mt-auto">
+              <div className="flex flex-col gap-1">
+                <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[8px] uppercase tracking-widest text-primary font-bold" />
+                <div className="text-[10px] font-mono text-muted-foreground/40">VERONA_STUDIO_V3 // SOUTH_BR</div>
+              </div>
+              
+              <div className="flex flex-wrap gap-12 md:gap-24 items-center">
+                <div className="flex flex-col items-center md:items-end">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60 mb-1">Years</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90 skew-text-ref">+6</span>
                 </div>
-                <div className="flex flex-col items-center">
-                  <CyberText text="[ CLIENTS ]" variant="decrypt" delay={600} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+12</span>
+                <div className="flex flex-col items-center md:items-end">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60 mb-1">Clients</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90 skew-text-ref">+12</span>
                 </div>
-                <div className="flex flex-col items-center">
-                  <CyberText text="[ PROJECTS ]" variant="decrypt" delay={700} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-80 skew-text-ref">+80</span>
+                <div className="flex flex-col items-center md:items-end">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60 mb-1">Projects</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90 skew-text-ref">+80</span>
                 </div>
               </div>
             </div>
