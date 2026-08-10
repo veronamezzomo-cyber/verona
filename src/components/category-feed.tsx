@@ -155,10 +155,11 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
     if (!target.closest('.terminal-header') || isMinimized) return;
     
     setIsDragging(true);
-    setPosition(prev => ({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    }));
+    // Captura o deslocamento entre o mouse e o topo-esquerda do elemento
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    });
   };
 
   useEffect(() => {
