@@ -498,7 +498,8 @@ function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { t
 }
 
 export default function Home() {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>('all');
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [year, setYear] = useState<number>(2024);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -531,6 +532,7 @@ export default function Home() {
 
   const handleCategoryClick = (categoryId: string) => {
     setActiveCategory(categoryId);
+    setHasInteracted(true);
     gsap.to(window, {
       duration: 1,
       scrollTo: { y: "#works-section", offsetY: 0 },
@@ -822,7 +824,7 @@ export default function Home() {
 
         {/* WORKS & FEED LAYER (Z-20) */}
         <section id="works-section" className="stack-section sticky top-0 z-[20] min-h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
-          <div className="relative w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90]">
+          <div className="sticky top-20 w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90]">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
@@ -832,7 +834,7 @@ export default function Home() {
                     onClick={() => handleCategoryClick(cat.id)}
                     className={cn(
                       "category-card group relative overflow-hidden cursor-pointer w-full md:flex-1 h-20 max-w-full md:max-w-[220px]",
-                      activeCategory === cat.id && "ring-2 ring-primary"
+                      hasInteracted && activeCategory === cat.id && "ring-2 ring-primary"
                     )}
                   >
                     {img && (
@@ -841,7 +843,7 @@ export default function Home() {
                         alt={cat.label} 
                         storageKey={`cat-${cat.id}`}
                         fill
-                        className={cn("object-cover", activeCategory === cat.id && "scale-110")}
+                        className={cn("object-cover", hasInteracted && activeCategory === cat.id && "scale-110")}
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20" />
@@ -860,7 +862,7 @@ export default function Home() {
         <section className="stack-section sticky top-0 z-[30] min-h-screen w-full bg-background border-t border-foreground/5 pt-24 pb-12 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
           <div className="w-full px-6 md:px-12">
             {/* James Huang Testimonial */}
-            <div className="relative testimonial-trigger-ref mb-24 max-w-5xl mx-auto">
+            <div className="relative testimonial-trigger-ref mb-12 max-w-5xl mx-auto">
               <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
               <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
                 <div className="flex flex-wrap items-baseline">
@@ -892,7 +894,7 @@ export default function Home() {
             </div>
 
             {/* Roulette and Terminal side-by-side */}
-            <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full mb-16">
+            <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full mb-8">
               <div className="flex flex-col gap-8 items-center text-center flex-1 w-full max-w-lg">
                 <CyberText text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" />
                 
@@ -966,7 +968,7 @@ export default function Home() {
             </div>
 
             {/* Stats Bar */}
-            <div className="flex justify-center border-t border-foreground/5 py-12 mt-12">
+            <div className="flex justify-center border-t border-foreground/5 py-12">
               <div className="flex flex-wrap gap-16 md:gap-32 items-center">
                 <div className="flex flex-col items-center">
                   <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
