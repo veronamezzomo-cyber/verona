@@ -882,10 +882,10 @@ export default function Home() {
               </div>
 
               {/* Right Side: Interaction Block (Powered By + Compact Terminal) */}
-              <div className="lg:col-span-5 flex flex-col gap-8 h-full">
+              <div className="lg:col-span-5 flex flex-col gap-6 h-full mt-4">
                 {/* Roulette & Tech - Integrated in the right column */}
-                <div className="flex flex-col gap-4 items-center lg:items-end text-center lg:text-right w-full">
-                  <div className="flex flex-col gap-1 items-center lg:items-end">
+                <div className="flex flex-col gap-4 items-center text-center w-full">
+                  <div className="flex flex-col gap-1 items-center">
                     <CyberText text={winnerName ? `[ ENGINE: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold" />
                     <div className="w-10 h-px bg-primary" />
                   </div>
@@ -924,7 +924,7 @@ export default function Home() {
                         </div>
                       </div>
                       {!isTerminalMinimized && (
-                        <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-4 font-mono text-[11px] relative outline-none bg-black text-white overflow-y-auto flex-1 min-h-[300px]">
+                        <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-4 font-mono text-[11px] relative outline-none bg-black text-white overflow-y-auto flex-1 min-h-[250px]">
                           {isBooting ? (
                             <div className="space-y-1">
                               {BOOT_LINES.slice(0, bootStep).map((line, idx) => (<div key={idx} className="opacity-80">{line}</div>))}
@@ -962,7 +962,7 @@ export default function Home() {
             </div>
 
             {/* Stats Bar - Pushed to the bottom of the viewport area */}
-            <div className="flex justify-between items-center border-t border-foreground/10 pt-6 mt-4">
+            <div className="flex justify-between items-center border-t border-foreground/10 pt-6 mt-4 shrink-0">
               <div className="flex flex-col gap-0.5">
                 <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold" />
                 <div className="text-[10px] font-mono text-muted-foreground/40">VERONA_V3 // VIEWPORT_MODE</div>
