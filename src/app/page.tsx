@@ -842,13 +842,13 @@ export default function Home() {
           <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </section>
 
-        {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) */}
-        <section className="stack-section sticky top-0 z-[30] min-h-screen w-full bg-background border-t border-foreground/5 py-24 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
-          <div className="w-full px-6 md:px-12 lg:px-24 flex flex-col h-full">
-            {/* James Huang Testimonial - Impactful Header */}
-            <div className="relative testimonial-trigger-ref mb-20 max-w-5xl">
-              <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
-              <div className="text-4xl md:text-7xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
+        {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) - Viewport Minimalista */}
+        <section id="archive-section" className="stack-section sticky top-0 z-[30] h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="w-full h-full pt-20 px-6 md:px-12 lg:px-24 flex flex-col justify-between pb-8">
+            {/* James Huang Testimonial - Compact */}
+            <div className="relative testimonial-trigger-ref mt-4 max-w-4xl">
+              <Quote className="absolute -top-6 -left-4 w-12 h-12 text-foreground/5 pointer-events-none -z-10" />
+              <div className="text-2xl md:text-4xl lg:text-5xl font-serif italic leading-tight text-foreground mb-4 skew-text-ref">
                 <div className="flex flex-wrap items-baseline">
                   {"Leonardo's edits kept people watching longer.".split(' ').map((word, i) => (
                     <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
@@ -858,7 +858,7 @@ export default function Home() {
                     </span>
                   ))}
                 </div>
-                <div className="flex flex-wrap items-baseline mt-4">
+                <div className="flex flex-wrap items-baseline mt-1">
                   {"Our retention improved right after he took over.".split(' ').map((word, i) => (
                     <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
                       <span className="testimonial-word inline-block translate-y-full opacity-0">
@@ -868,54 +868,54 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-px bg-primary" />
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-px bg-primary" />
                 <div className="flex flex-col">
-                  <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[11px] uppercase tracking-widest font-bold" />
-                  <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60" />
+                  <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[9px] uppercase tracking-widest font-bold" />
+                  <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[7px] uppercase tracking-widest text-muted-foreground/60" />
                 </div>
               </div>
             </div>
 
-            {/* Interaction Grid - Structured Workstation */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 w-full flex-1 items-start mb-16">
-              {/* Terminal Console - Authority & Insight */}
+            {/* Interaction Grid - Compact Proportions */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full items-start mb-4">
+              {/* Terminal Console */}
               {!isTerminalClosed && (
                 <div className={cn("lg:col-span-7 w-full transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto")}>
-                  <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] w-full", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
-                    <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-10 px-4 flex items-center justify-between border-b border-white/10 cursor-move select-none">
+                  <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-xl w-full", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
+                    <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-8 px-4 flex items-center justify-between border-b border-white/10 cursor-move select-none">
                       <div className="flex items-center gap-2">
-                        <TerminalIcon className="w-4 h-4 text-white/60" />
-                        <span className="font-mono text-xs text-white/80">archive_console.exe</span>
+                        <TerminalIcon className="w-3 h-3 text-white/60" />
+                        <span className="font-mono text-[10px] text-white/80">archive_console.exe</span>
                       </div>
                       <div className="flex h-full">
-                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-10 h-10 flex items-center justify-center hover:bg-white/10"><Minus className="w-3.5 h-3.5 text-white" /></button>
-                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-10 h-10 flex items-center justify-center hover:bg-[#e81123]"><X className="w-4 h-4 text-white" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-8 h-8 flex items-center justify-center hover:bg-white/10"><Minus className="w-3 h-3 text-white" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-8 h-8 flex items-center justify-center hover:bg-[#e81123]"><X className="w-3 h-3 text-white" /></button>
                       </div>
                     </div>
                     {!isTerminalMinimized && (
-                      <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-8 font-mono text-sm relative outline-none bg-black text-white min-h-[400px] overflow-y-auto">
+                      <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-4 font-mono text-[11px] relative outline-none bg-black text-white min-h-[300px] lg:min-h-[350px] overflow-y-auto">
                         {isBooting ? (
                           <div className="space-y-1">
                             {BOOT_LINES.slice(0, bootStep).map((line, idx) => (<div key={idx} className="opacity-80">{line}</div>))}
-                            {canStartBoot && bootStep < BOOT_LINES.length && (<TypewriterText text={BOOT_LINES[bootStep]} onComplete={() => setTimeout(() => { if (bootStep === BOOT_LINES.length - 1) setIsBooting(false); else setBootStep(s => s + 1); }, 150)} />)}
+                            {canStartBoot && bootStep < BOOT_LINES.length && (<TypewriterText text={BOOT_LINES[bootStep]} speed={10} onComplete={() => setTimeout(() => { if (bootStep === BOOT_LINES.length - 1) setIsBooting(false); else setBootStep(s => s + 1); }, 100)} />)}
                           </div>
                         ) : (
-                          <div className="space-y-4">
+                          <div className="space-y-3">
                             {faqHistory.map((item, i) => (
                               <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
                                 <div className="text-white/40 mb-1 flex items-center gap-2"><span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}</div>
-                                <div className="text-white leading-relaxed pl-4 border-l border-white/20 font-light"><TypewriterText text={item.a} /></div>
+                                <div className="text-white leading-relaxed pl-4 border-l border-white/20 font-light"><TypewriterText text={item.a} speed={10} /></div>
                               </div>
                             ))}
                             {faqAvailableIndices.length > 0 && (
-                              <div className="mt-6 pt-6 border-t border-white/5">
-                                <div className="text-[10px] uppercase tracking-widest text-white/20 mb-3 font-bold">Select Inquiry:</div>
-                                <div className="space-y-2">
+                              <div className="mt-4 pt-4 border-t border-white/5">
+                                <div className="text-[8px] uppercase tracking-widest text-white/20 mb-2 font-bold">Select Inquiry:</div>
+                                <div className="space-y-1">
                                   {faqAvailableIndices.map((qIdx, i) => (
-                                    <div key={qIdx} className={cn("transition-all flex items-start gap-3 py-1 cursor-pointer group", activeFaqIndex === i ? "text-white" : "text-white/30 hover:text-white/60")} onClick={() => handleTerminalAction(i)}>
+                                    <div key={qIdx} className={cn("transition-all flex items-start gap-2 py-0.5 cursor-pointer group", activeFaqIndex === i ? "text-white" : "text-white/30 hover:text-white/60")} onClick={() => handleTerminalAction(i)}>
                                       <span className="text-primary group-hover:translate-x-1 transition-transform">{'>'}</span>
-                                      <span className="uppercase text-xs tracking-wider">{FAQ_DATA[qIdx].q}</span>
+                                      <span className="uppercase text-[10px] tracking-wider">{FAQ_DATA[qIdx].q}</span>
                                     </div>
                                   ))}
                                 </div>
@@ -929,52 +929,52 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Roulette & Tech - Visual Engine */}
-              <div className="lg:col-span-5 flex flex-col gap-10 items-center lg:items-end text-center lg:text-right w-full">
-                <div className="flex flex-col gap-2 items-center lg:items-end">
-                   <CyberText text={winnerName ? `[ ENGINE: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[9px] uppercase tracking-[0.4em] text-primary font-bold" />
-                   <div className="w-12 h-0.5 bg-primary" />
+              {/* Roulette & Tech - Compact */}
+              <div className="lg:col-span-5 flex flex-col gap-6 items-center lg:items-end text-center lg:text-right w-full lg:mt-4">
+                <div className="flex flex-col gap-1 items-center lg:items-end">
+                   <CyberText text={winnerName ? `[ ENGINE: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary font-bold" />
+                   <div className="w-8 h-px bg-primary" />
                 </div>
                 
-                <div className="relative w-full max-w-[340px] h-28 overflow-hidden bg-foreground/[0.03] border border-foreground/10 flex items-center justify-center rounded-sm">
+                <div className="relative w-full max-w-[280px] h-20 overflow-hidden bg-foreground/[0.03] border border-foreground/10 flex items-center justify-center rounded-sm">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-primary/60 z-20" />
-                  <div ref={techIconsRef} className="flex gap-8 absolute left-0 items-center will-change-transform">
+                  <div ref={techIconsRef} className="flex gap-6 absolute left-0 items-center will-change-transform">
                     {poweredIcons.map((tech, i) => (
-                      <div key={`${tech.id}-${i}`} className={cn("w-16 h-16 flex items-center justify-center rounded-sm shadow-2xl transition-all duration-700 shrink-0", !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-2 ring-primary bg-opacity-100" : "opacity-5 grayscale scale-75") : "opacity-100 scale-100")} style={{ backgroundColor: tech.bg }}>
-                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
+                      <div key={`${tech.id}-${i}`} className={cn("w-12 h-12 flex items-center justify-center rounded-sm shadow-xl transition-all duration-700 shrink-0", !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-110 z-30 ring-1 ring-primary bg-opacity-100" : "opacity-5 grayscale scale-75") : "opacity-100 scale-100")} style={{ backgroundColor: tech.bg }}>
+                        <span className="font-sans font-bold text-sm" style={{ color: tech.text }}>{tech.label}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="mt-2">
-                  <button className={cn("sparkle-button scale-110", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
-                    <span>{isRolling ? "Syncing..." : "Roll Archive"}</span>
+                <div>
+                  <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
+                    <span className="text-[10px]">{isRolling ? "Syncing..." : "Roll Archive"}</span>
                     <svg className="star-1" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Stats Bar - Unified System Tray */}
-            <div className="flex justify-between items-center border-t border-foreground/10 py-10 mt-auto">
-              <div className="flex flex-col gap-1">
-                <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[8px] uppercase tracking-widest text-primary font-bold" />
-                <div className="text-[10px] font-mono text-muted-foreground/40">VERONA_STUDIO_V3 // SOUTH_BR</div>
+            {/* Stats Bar - High Density */}
+            <div className="flex justify-between items-center border-t border-foreground/10 pt-6">
+              <div className="flex flex-col gap-0.5">
+                <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[7px] uppercase tracking-widest text-primary font-bold" />
+                <div className="text-[8px] font-mono text-muted-foreground/40">VERONA_V3 // VIEWPORT_MODE</div>
               </div>
               
-              <div className="flex flex-wrap gap-12 md:gap-24 items-center">
+              <div className="flex flex-wrap gap-8 md:gap-16 items-center">
                 <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60 mb-1">Years</span>
-                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90 skew-text-ref">+6</span>
+                  <span className="text-[8px] font-mono uppercase tracking-[0.3em] text-primary/60">Years</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-90">+6</span>
                 </div>
                 <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60 mb-1">Clients</span>
-                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90 skew-text-ref">+12</span>
+                  <span className="text-[8px] font-mono uppercase tracking-[0.3em] text-primary/60">Clients</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-90">+12</span>
                 </div>
                 <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60 mb-1">Projects</span>
-                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90 skew-text-ref">+80</span>
+                  <span className="text-[8px] font-mono uppercase tracking-[0.3em] text-primary/60">Projects</span>
+                  <span className="text-2xl font-bold font-mono tracking-tighter opacity-90">+80</span>
                 </div>
               </div>
             </div>
