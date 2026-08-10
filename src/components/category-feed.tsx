@@ -458,21 +458,21 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             </div>
           </div>
 
-          <div className="flex-1 relative overflow-y-auto scrollbar-hide pointer-events-auto pb-20 px-6 md:px-12 lg:px-24">
+          <div className="flex-1 relative overflow-y-auto scrollbar-hide pointer-events-auto pb-10 px-6 md:px-12 lg:px-24 cyber-scrollbar">
             <div 
               className={cn(
                 "transition-all duration-700",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
                 category === 'shorts' 
-                  ? "flex flex-nowrap overflow-x-auto gap-8 pb-10 pt-12 px-4 scroll-smooth cyber-scrollbar" 
+                  ? "flex flex-nowrap overflow-x-auto gap-6 pb-6 pt-12 px-4 scroll-smooth" 
                   : cn(
                       "grid max-w-[1600px] mx-auto pt-12",
                       category === 'all'
                         ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                         : cn(
-                            "gap-12 md:gap-16 lg:gap-24",
+                            "gap-10 md:gap-12 lg:gap-16",
                             category && verticalCategories.includes(category)
-                              ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
+                              ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5" 
                               : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                           )
                     )
@@ -484,9 +484,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                   <div 
                     key={item.id} 
                     className={cn(
-                      "flex flex-col gap-6 group transform transition-all duration-700",
+                      "flex flex-col gap-4 group transform transition-all duration-700",
                       isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-                      category === 'shorts' && "flex-shrink-0 w-[260px] sm:w-[280px] md:w-[320px]"
+                      category === 'shorts' && "flex-shrink-0 w-[200px] sm:w-[220px] md:w-[260px]"
                     )}
                     style={{ transitionDelay: `${index * 150}ms` }}
                   >
@@ -552,17 +552,17 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 );
               })}
             </div>
-          </div>
 
-          <div className="py-6 pl-24 pr-12 border-t border-foreground/5 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 shrink-0">
-            <div className="flex gap-8">
-              <span className="flex items-center gap-2">
-                Status: <CyberText text="Simultaneous Processing" variant="decrypt" delay={500} />
-              </span>
-              <CyberText text="Buffer: Dynamic Grid" variant="decrypt" delay={600} />
-              <CyberText text="V-Sync: Active" variant="decrypt" delay={700} />
+            <div className="mt-20 py-8 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6">
+              <div className="flex gap-8 flex-wrap justify-center">
+                <span className="flex items-center gap-2">
+                  Status: <CyberText text="Simultaneous Processing" variant="decrypt" delay={500} />
+                </span>
+                <CyberText text="Buffer: Dynamic Grid" variant="decrypt" delay={600} />
+                <CyberText text="V-Sync: Active" variant="decrypt" delay={700} />
+              </div>
+              <CyberText text="© VERONA STUDIO • VISUAL ENGINE V3.0 // LUXURY EDITION" variant="decrypt" delay={500} corrupt />
             </div>
-            <CyberText text="© VERONA STUDIO • VISUAL ENGINE V3.0 // LUXURY EDITION" variant="decrypt" delay={500} corrupt />
           </div>
         </div>
       </div>

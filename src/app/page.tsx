@@ -749,6 +749,11 @@ export default function Home() {
     { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 }
   ];
 
+  const starClass = cn(
+    "transition-opacity duration-300 opacity-0",
+    !isRolling && "group-hover:opacity-100"
+  );
+
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative overflow-x-clip">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
@@ -958,14 +963,14 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
+                    <button className={cn("sparkle-button scale-90 group", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
                       <span className="text-[11px]">{isRolling ? "Syncing..." : "Roll"}</span>
-                      <svg className="star-1" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className="star-2" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className="star-3" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className="star-4" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className="star-5" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className="star-6" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-1", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-2", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-3", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-4", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-5", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-6", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                     </button>
                   </div>
                 </div>
@@ -1029,7 +1034,7 @@ export default function Home() {
 
         {/* CONTACT & FOOTER LAYER (Z-40) */}
         <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform">
-          <div className="flex-1 flex flex-col justify-end items-center text-center px-6 pb-24 md:pb-32">
+          <div className="flex-1 flex flex-col justify-center items-center text-center px-6 pt-20 pb-12">
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com">
               <MagneticCTA>
