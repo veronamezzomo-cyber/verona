@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { EditableImage } from '@/components/editable-image';
 import { EditableVideo } from '@/components/editable-video';
+import { EditableImage } from '@/components/editable-image';
 import { CategoryFeed } from '@/components/category-feed';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
@@ -506,8 +506,6 @@ export default function Home() {
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>(FAQ_DATA.map((_, i) => i));
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
-  const [typedQuestionsCount, setTypedQuestionsCount] = useState(0);
-  const [isHeaderTyped, setIsHeaderTyped] = useState(false);
   const [isTerminalFocused, setIsTerminalFocused] = useState(false);
   const [isBooting, setIsBooting] = useState(true);
   const [bootStep, setBootStep] = useState(0);
@@ -535,7 +533,7 @@ export default function Home() {
     setActiveCategory(categoryId);
     gsap.to(window, {
       duration: 1,
-      scrollTo: { y: "#works", offsetY: 80 },
+      scrollTo: { y: "#works-section", offsetY: 0 },
       ease: "power3.inOut"
     });
   };
@@ -585,8 +583,6 @@ export default function Home() {
     setFaqHistory(prev => [...prev, FAQ_DATA[qIdx]]);
     setFaqAvailableIndices(prev => prev.filter((_, i) => i !== index));
     setActiveFaqIndex(0);
-    setTypedQuestionsCount(0);
-    setIsHeaderTyped(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -650,6 +646,7 @@ export default function Home() {
   }, []);
 
   useGSAP(() => {
+    // Hero Elements
     gsap.to(".hero-line", {
       y: 0,
       opacity: 1,
@@ -660,16 +657,39 @@ export default function Home() {
     gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
 
+    // Stacking Layers Effect
+    const sections = gsap.utils.toArray<HTMLElement>('.stack-section');
+    sections.forEach((section, i) => {
+      const isLast = i === sections.length - 1;
+      
+      if (!isLast) {
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            gsap.set(section, {
+              scale: 1 - progress * 0.05,
+              filter: `brightness(${1 - progress * 0.4})`,
+            });
+          }
+        });
+      }
+    });
+
+    // Testimonial Word Animation
     gsap.to(".testimonial-word", {
       y: 0,
       opacity: 1,
-      duration: 0.8,
+      duration: 0.5,
       stagger: 0.05,
-      ease: "power3.out",
+      ease: "power2.out",
       scrollTrigger: {
         trigger: ".testimonial-trigger-ref",
-        start: "top 85%",
-        once: true
+        start: "top 80%",
+        toggleActions: "play none none reverse"
       }
     });
 
@@ -722,7 +742,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative">
+    <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative overflow-x-clip">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
         <div className="w-full px-6 md:px-12 h-full flex items-center justify-between">
           <div className="flex items-center gap-10">
@@ -741,15 +761,16 @@ export default function Home() {
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 font-mono text-[8px] uppercase tracking-widest">
-            <Link href="#works" className="text-foreground/70 hover:text-foreground">Works</Link>
-            <Link href="#contact" className="text-foreground/70 hover:text-foreground">Contact</Link>
+            <Link href="#works-section" className="text-foreground/70 hover:text-foreground">Works</Link>
+            <Link href="#contact-section" className="text-foreground/70 hover:text-foreground">Contact</Link>
             <ThemeToggle />
           </nav>
         </div>
       </header>
 
       <main ref={mainRef} className="relative">
-        <section className="relative z-0 h-screen w-full flex items-center justify-center bg-background overflow-hidden">
+        {/* HERO LAYER (Z-10) */}
+        <section className="stack-section sticky top-0 z-[10] h-screen w-full flex items-center justify-center bg-background overflow-hidden will-change-transform">
           <div className="w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               <div className="flex items-center gap-4 mb-6">
@@ -763,13 +784,6 @@ export default function Home() {
                     className="font-mono text-[8px] uppercase tracking-[0.3em] text-primary font-bold" 
                   />
                 </div>
-                <CyberText 
-                  text="COORDINATES: 23.5505° S, 46.6333° W" 
-                  variant="decrypt" 
-                  delay={1000} 
-                  corrupt 
-                  className="hud-reveal opacity-0 font-mono text-[7.5px] uppercase tracking-[0.2em] text-muted-foreground/40 hidden sm:block" 
-                />
               </div>
 
               <h1 className="font-serif font-bold text-[clamp(2rem,5.6vw,5.2rem)] leading-[0.9] tracking-tighter text-foreground mb-8">
@@ -787,7 +801,7 @@ export default function Home() {
               </h1>
 
               <div className="max-w-md">
-                <Link href="#works" className="hud-reveal mt-6 flex items-center gap-6 opacity-0">
+                <Link href="#works-section" className="hud-reveal mt-6 flex items-center gap-6 opacity-0">
                   <Button variant="link" className="p-0 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground hover:text-primary group">
                     View Archive <ArrowRight className="ml-2 w-3 h-3 transition-transform group-hover:translate-x-2" />
                   </Button>
@@ -796,29 +810,19 @@ export default function Home() {
             </div>
 
             <div className="lg:col-span-5 relative flex justify-center lg:justify-end animate-image-reveal overflow-visible">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.05)_0%,transparent_70%)] pointer-events-none" />
               <FloatingVideoCluster videos={clusterVideos} />
             </div>
           </div>
           
-          <div className="hud-reveal absolute bottom-10 left-10 pointer-events-none hidden md:block opacity-0">
-            <div className="font-mono text-[8px] uppercase tracking-[0.4em] flex flex-col gap-1">
-              <CyberText text="System: Active" variant="decrypt" delay={1200} corrupt />
-              <CyberText text="Buffer: Locked" variant="decrypt" delay={1300} />
-              <CyberText text="Layer: 01_Hero" variant="decrypt" delay={1400} />
-            </div>
-          </div>
-
           <div className="scroll-indicator-ref absolute bottom-10 left-10 sm:left-1/2 sm:-translate-x-1/2 flex flex-col items-center gap-4 opacity-0 pointer-events-none z-10">
-            <span className="font-mono text-[9px] uppercase tracking-[0.6em] text-foreground/40">
-              Scroll
-            </span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.6em] text-foreground/40">Scroll</span>
             <div className="w-px h-12 bg-gradient-to-b from-primary/60 to-transparent shadow-[0_0_8px_rgba(var(--primary),0.3)]" />
           </div>
         </section>
 
-        <div className="relative z-10 flex flex-col bg-background">
-          <section id="works" className="w-full py-[10px] sticky top-20 z-[90] bg-background border-b border-t border-foreground/5 shadow-sm">
+        {/* WORKS & FEED LAYER (Z-20) */}
+        <section id="works-section" className="stack-section sticky top-0 z-[20] min-h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
+          <div className="relative w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90]">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
@@ -841,186 +845,128 @@ export default function Home() {
                       />
                     )}
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20" />
-                    <span 
-                      className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 hover-glitch"
-                      data-text={cat.label}
-                    >
+                    <span className="absolute inset-0 flex items-center justify-center text-white font-serif font-bold text-[10px] uppercase tracking-widest z-20 hover-glitch" data-text={cat.label}>
                       {cat.label}
                     </span>
                   </button>
                 );
               })}
             </div>
-          </section>
-          <CategoryFeed 
-            category={activeCategory} 
-            onClose={handleCloseFeed} 
-          />
-        </div>
+          </div>
+          <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
+        </section>
 
-        <section className="py-[10px] bg-background overflow-hidden border-t border-foreground/5">
+        {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) */}
+        <section className="stack-section sticky top-0 z-[30] min-h-screen w-full bg-background border-t border-foreground/5 pt-24 pb-12 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
           <div className="w-full px-6 md:px-12">
-            
-            <div className="flex flex-col gap-12 mb-4">
-              <div className="relative testimonial-trigger-ref">
-                <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
-                <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
-                  <div className="flex flex-wrap items-baseline">
-                    {`"Leonardo's edits kept people watching longer.`.split(' ').map((word, i) => (
-                      <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
-                        <span className="testimonial-word inline-block translate-y-full opacity-0">
-                          {word.includes('kept') || word.includes('people') || word.includes('watching') || word.includes('longer') ? (
-                            <span className="text-primary">{word}</span>
-                          ) : word}
-                        </span>
+            {/* James Huang Testimonial */}
+            <div className="relative testimonial-trigger-ref mb-24 max-w-5xl mx-auto">
+              <Quote className="absolute -top-12 -left-8 w-24 h-24 text-foreground/5 pointer-events-none -z-10" />
+              <div className="text-3xl md:text-6xl font-serif italic leading-[1.05] text-foreground mb-8 skew-text-ref">
+                <div className="flex flex-wrap items-baseline">
+                  {"Leonardo's edits kept people watching longer.".split(' ').map((word, i) => (
+                    <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
+                      <span className="testimonial-word inline-block translate-y-full opacity-0">
+                        {word.match(/edits|people|watching|longer/) ? <span className="text-primary">{word}</span> : word}
                       </span>
-                    ))}
-                  </div>
-                  <div className="flex flex-wrap items-baseline mt-2">
-                    {`Our retention improved right after he took over."`.split(' ').map((word, i) => (
-                      <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
-                        <span className="testimonial-word inline-block translate-y-full opacity-0">
-                          {word.includes('retention') || word.includes('improved') ? (
-                            <span className="text-primary">{word}</span>
-                          ) : word}
-                        </span>
-                      </span>
-                    ))}
-                  </div>
+                    </span>
+                  ))}
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-px bg-primary" />
-                  <div className="flex flex-col">
-                    <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[10px] uppercase tracking-widest font-bold" />
-                    <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60" />
-                  </div>
+                <div className="flex flex-wrap items-baseline mt-4">
+                  {"Our retention improved right after he took over.".split(' ').map((word, i) => (
+                    <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
+                      <span className="testimonial-word inline-block translate-y-full opacity-0">
+                        {word.match(/retention|improved/) ? <span className="text-primary">{word}</span> : word}
+                      </span>
+                    </span>
+                  ))}
                 </div>
               </div>
-
-              <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full mb-12">
-                <div className="flex flex-col gap-8 items-center text-center flex-1 w-full max-w-lg">
-                  <CyberText 
-                    text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} 
-                    variant="decrypt" 
-                    delay={500} 
-                    corrupt={!isRolling} 
-                    className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" 
-                  />
-                  
-                  <div className="relative w-full max-w-[320px] h-24 overflow-hidden bg-foreground/[0.02] border-x border-foreground/10 flex items-center justify-center">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-primary/40 z-20" />
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent z-10" />
-
-                    <div 
-                      ref={techIconsRef} 
-                      className="flex gap-6 absolute left-0 items-center will-change-transform"
-                    >
-                      {poweredIcons.map((tech, i) => (
-                        <div 
-                          key={`${tech.id}-${i}`} 
-                          className={cn(
-                            "w-16 h-16 flex items-center justify-center rounded-full shadow-2xl transition-all duration-700 shrink-0",
-                            !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-4 ring-primary" : "opacity-10 grayscale scale-75") : "opacity-100 scale-100"
-                          )}
-                          style={{ backgroundColor: tech.bg }}
-                        >
-                          <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <button 
-                      className={cn("sparkle-button", isRolling && "opacity-50 pointer-events-none")} 
-                      onClick={handleRoll}
-                      disabled={isRolling}
-                    >
-                      <span>{isRolling ? "Rolling..." : "Roll Archive"}</span>
-                      <svg className="star-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                      </svg>
-                      <svg className="star-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/>
-                      </svg>
-                    </button>
-                  </div>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-px bg-primary" />
+                <div className="flex flex-col">
+                  <CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[10px] uppercase tracking-widest font-bold" />
+                  <CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[9px] uppercase tracking-widest text-muted-foreground/60" />
                 </div>
-
-                {!isTerminalClosed && (
-                  <div className={cn("flex-1 w-full max-w-lg transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto")}>
-                    <div 
-                      ref={terminalRef} 
-                      className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-300 w-full", isDragging && "transition-none")}
-                      style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}
-                    >
-                      <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none">
-                        <div className="flex items-center gap-2">
-                          <TerminalIcon className="w-4 h-4 text-white/60" />
-                          <span className="font-mono text-xs text-white/80">Command Prompt - Archive Console</span>
-                        </div>
-                        <div className="flex h-full">
-                          <button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-10 h-8 flex items-center justify-center hover:bg-white/10 transition-colors">
-                            <Minus className="w-3.5 h-3.5 text-white" />
-                          </button>
-                          <button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123] transition-colors">
-                            <X className="w-4 h-4 text-white" />
-                          </button>
-                        </div>
-                      </div>
-                      {!isTerminalMinimized && (
-                        <div onKeyDown={handleKeyDown} tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-8 font-mono text-sm relative outline-none bg-black text-white h-auto">
-                          {isBooting ? (
-                            <div className="space-y-1">
-                              {BOOT_LINES.slice(0, bootStep).map((line, idx) => (
-                                <div key={idx} className="opacity-80">{line}</div>
-                              ))}
-                              {canStartBoot && bootStep < BOOT_LINES.length && (
-                                <TypewriterText text={BOOT_LINES[bootStep]} onComplete={() => setTimeout(() => { if (bootStep === BOOT_LINES.length - 1) setIsBooting(false); else setBootStep(s => s + 1); }, 150)} />
-                              )}
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              {faqHistory.map((item, i) => (
-                                <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
-                                  <div className="text-white/40 mb-1 flex items-center gap-2"><span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}</div>
-                                  <div className="text-white leading-relaxed pl-4 border-l border-white/20"><TypewriterText text={item.a} /></div>
-                                </div>
-                              ))}
-                              {faqAvailableIndices.length > 0 && (
-                                <div className="mt-0">
-                                  <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">
-                                    <TypewriterText text="Available Queries" onComplete={() => setIsHeaderTyped(true)} speed={10} showCursor={false} />
-                                  </div>
-                                  {isHeaderTyped && (
-                                    <div className="space-y-1">
-                                      {faqAvailableIndices.map((qIdx, i) => (
-                                        <div key={qIdx} className={cn("transition-colors flex items-start gap-2 py-0.5 outline-none", activeFaqIndex === i ? "text-white font-bold" : "text-white/30")}>
-                                          {i <= typedQuestionsCount ? (
-                                            <>
-                                              <span className={cn("shrink-0", activeFaqIndex === i ? "text-white" : "text-white/20")}>{'>'}</span>
-                                              <span className="uppercase text-xs tracking-tight">
-                                                {i === typedQuestionsCount ? <TypewriterText text={FAQ_DATA[qIdx].q} speed={5} showCursor={false} onComplete={() => setTypedQuestionsCount(prev => prev + 1)} /> : <span>{FAQ_DATA[qIdx].q}{activeFaqIndex === i && <span className="w-2 h-4 bg-white inline-block ml-1 align-middle animate-cursor-blink" />}</span>}
-                                              </span>
-                                            </>
-                                          ) : null}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
-            <div className="flex justify-center border-t border-foreground/5 py-8">
+            {/* Roulette and Terminal side-by-side */}
+            <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-12 w-full mb-16">
+              <div className="flex flex-col gap-8 items-center text-center flex-1 w-full max-w-lg">
+                <CyberText text={winnerName ? `[ POWERED_BY: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary" />
+                
+                <div className="relative w-full max-w-[320px] h-24 overflow-hidden bg-foreground/[0.02] border-x border-foreground/10 flex items-center justify-center">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[2px] h-full bg-primary/40 z-20" />
+                  <div ref={techIconsRef} className="flex gap-6 absolute left-0 items-center will-change-transform">
+                    {poweredIcons.map((tech, i) => (
+                      <div key={`${tech.id}-${i}`} className={cn("w-16 h-16 flex items-center justify-center rounded-full shadow-2xl transition-all duration-700 shrink-0", !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-125 z-30 ring-4 ring-primary" : "opacity-10 grayscale scale-75") : "opacity-100 scale-100")} style={{ backgroundColor: tech.bg }}>
+                        <span className="font-sans font-bold text-xl" style={{ color: tech.text }}>{tech.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <button className={cn("sparkle-button", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
+                    <span>{isRolling ? "Rolling..." : "Roll Archive"}</span>
+                    <svg className="star-1" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              {!isTerminalClosed && (
+                <div className={cn("flex-1 w-full max-w-lg transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 h-auto")}>
+                  <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-[0_30px_60px_-12px_rgba(0,0,0,0.5)] w-full", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
+                    <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-8 px-3 flex items-center justify-between border-b border-white/10 cursor-move select-none">
+                      <div className="flex items-center gap-2">
+                        <TerminalIcon className="w-4 h-4 text-white/60" />
+                        <span className="font-mono text-xs text-white/80">Command Prompt - Archive Console</span>
+                      </div>
+                      <div className="flex h-full">
+                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-10 h-8 flex items-center justify-center hover:bg-white/10"><Minus className="w-3.5 h-3.5 text-white" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-10 h-8 flex items-center justify-center hover:bg-[#e81123]"><X className="w-4 h-4 text-white" /></button>
+                      </div>
+                    </div>
+                    {!isTerminalMinimized && (
+                      <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-8 font-mono text-sm relative outline-none bg-black text-white min-h-[300px] overflow-y-auto">
+                        {isBooting ? (
+                          <div className="space-y-1">
+                            {BOOT_LINES.slice(0, bootStep).map((line, idx) => (<div key={idx} className="opacity-80">{line}</div>))}
+                            {canStartBoot && bootStep < BOOT_LINES.length && (<TypewriterText text={BOOT_LINES[bootStep]} onComplete={() => setTimeout(() => { if (bootStep === BOOT_LINES.length - 1) setIsBooting(false); else setBootStep(s => s + 1); }, 150)} />)}
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {faqHistory.map((item, i) => (
+                              <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-500">
+                                <div className="text-white/40 mb-1 flex items-center gap-2"><span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {item.q}</div>
+                                <div className="text-white leading-relaxed pl-4 border-l border-white/20"><TypewriterText text={item.a} /></div>
+                              </div>
+                            ))}
+                            {faqAvailableIndices.length > 0 && (
+                              <div className="mt-4">
+                                <div className="text-[10px] uppercase tracking-widest text-white/20 mb-2">Available Queries</div>
+                                <div className="space-y-1">
+                                  {faqAvailableIndices.map((qIdx, i) => (
+                                    <div key={qIdx} className={cn("transition-colors flex items-start gap-2 py-0.5 cursor-pointer", activeFaqIndex === i ? "text-white font-bold" : "text-white/30")} onClick={() => handleTerminalAction(i)}>
+                                      <span>{'>'}</span>
+                                      <span className="uppercase text-xs">{FAQ_DATA[qIdx].q}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Stats Bar */}
+            <div className="flex justify-center border-t border-foreground/5 py-12 mt-12">
               <div className="flex flex-wrap gap-16 md:gap-32 items-center">
                 <div className="flex flex-col items-center">
                   <CyberText text="[ YEARS ]" variant="decrypt" delay={500} corrupt className="font-mono text-[11px] uppercase tracking-[0.4em] text-primary mb-1" />
@@ -1036,11 +982,11 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
           </div>
         </section>
 
-        <section id="contact" className="sticky top-0 z-[30] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background">
+        {/* CONTACT & FOOTER LAYER (Z-40) */}
+        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform">
           <div className="flex-1 flex flex-col justify-end items-center text-center px-6 pb-24 md:pb-32">
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com">
@@ -1051,12 +997,13 @@ export default function Home() {
               </MagneticCTA>
             </Link>
           </div>
-          <div className="relative overflow-hidden">
+          
+          <div className="relative overflow-hidden shrink-0">
              <div className={cn("overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
                 <LEDTicker text="VERONA STUDIO" />
               </div>
-              <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5 shrink-0">
-                <div className="w-full px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
+              <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5">
+                <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="flex gap-8">
                     <Link href="https://discord.com/users/299338458231603202" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
                     <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
