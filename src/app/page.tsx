@@ -844,7 +844,7 @@ export default function Home() {
 
         {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) - Viewport Minimalista */}
         <section id="archive-section" className="stack-section sticky top-0 z-[30] h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-          <div className="w-full h-full pt-20 px-6 md:px-12 lg:px-24 flex flex-col justify-between pb-6">
+          <div className="w-full h-full pt-20 px-6 md:px-12 lg:px-24 flex flex-col justify-between pb-8">
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-start flex-1 mt-6">
               {/* Left Side: James Huang Testimonial */}
@@ -882,15 +882,15 @@ export default function Home() {
               </div>
 
               {/* Right Side: Interaction Block (Powered By + Compact Terminal) */}
-              <div className="lg:col-span-5 flex flex-col gap-6 h-full mt-4">
+              <div className="lg:col-span-5 flex flex-col gap-6 h-full mt-4 items-center">
                 {/* Roulette & Tech - Integrated in the right column */}
-                <div className="flex flex-col gap-4 items-center text-center w-full">
+                <div className="flex flex-col gap-4 items-center text-center w-full max-w-[350px]">
                   <div className="flex flex-col gap-1 items-center">
                     <CyberText text={winnerName ? `[ ENGINE: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold" />
                     <div className="w-10 h-px bg-primary" />
                   </div>
                   
-                  <div className="relative w-full max-w-[320px] h-24 overflow-hidden bg-foreground/[0.03] border border-foreground/10 flex items-center justify-center rounded-sm">
+                  <div className="relative w-full h-24 overflow-hidden bg-foreground/[0.03] border border-foreground/10 flex items-center justify-center rounded-sm">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-primary/60 z-20" />
                     <div ref={techIconsRef} className="flex gap-6 absolute left-0 items-center will-change-transform">
                       {poweredIcons.map((tech, i) => (
@@ -905,14 +905,19 @@ export default function Home() {
                     <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
                       <span className="text-[11px]">{isRolling ? "Syncing..." : "Roll Archive"}</span>
                       <svg className="star-1" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className="star-2" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className="star-3" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className="star-4" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className="star-5" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className="star-6" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                     </button>
                   </div>
                 </div>
 
-                {/* Compact Terminal Console - Directly below tech roulette */}
+                {/* Compact Terminal Console - Fixed height to avoid jumps */}
                 {!isTerminalClosed && (
-                  <div className={cn("w-full transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100 flex-1")}>
-                    <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-2xl w-full h-full flex flex-col", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
+                  <div className={cn("w-full transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100")}>
+                    <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-2xl w-full h-[220px] flex flex-col", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
                       <div onMouseDown={handleMouseDown} className="bg-[#1a1a1a] h-8 px-4 flex items-center justify-between border-b border-white/10 cursor-move select-none shrink-0">
                         <div className="flex items-center gap-2">
                           <TerminalIcon className="w-3 h-3 text-white/60" />
@@ -924,7 +929,7 @@ export default function Home() {
                         </div>
                       </div>
                       {!isTerminalMinimized && (
-                        <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-4 font-mono text-[11px] relative outline-none bg-black text-white overflow-y-auto flex-1 min-h-[250px]">
+                        <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-4 font-mono text-[11px] relative outline-none bg-black text-white overflow-y-auto flex-1 scrollbar-hide">
                           {isBooting ? (
                             <div className="space-y-1">
                               {BOOT_LINES.slice(0, bootStep).map((line, idx) => (<div key={idx} className="opacity-80">{line}</div>))}
@@ -939,7 +944,7 @@ export default function Home() {
                                 </div>
                               ))}
                               {faqAvailableIndices.length > 0 && (
-                                <div className="mt-4 pt-4 border-t border-white/5">
+                                <div className={cn(faqHistory.length > 0 ? "mt-4 pt-4 border-t border-white/5" : "mt-0 pt-0")}>
                                   <div className="text-[9px] uppercase tracking-widest text-white/20 mb-3 font-bold">Select Inquiry:</div>
                                   <div className="space-y-1.5">
                                     {faqAvailableIndices.map((qIdx, i) => (
@@ -961,26 +966,26 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Stats Bar - Pushed to the bottom of the viewport area */}
-            <div className="flex justify-between items-center border-t border-foreground/10 pt-6 mt-4 shrink-0">
-              <div className="flex flex-col gap-0.5">
-                <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold" />
-                <div className="text-[10px] font-mono text-muted-foreground/40">VERONA_V3 // VIEWPORT_MODE</div>
+            {/* Stats Bar - Centralized and elevated for evidence */}
+            <div className="flex flex-col items-center gap-8 border-t border-foreground/10 pt-10 mt-6 shrink-0 w-full">
+              <div className="flex flex-wrap justify-center gap-12 md:gap-32 items-center">
+                <div className="flex flex-col items-center">
+                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Years</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+6</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Clients</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+12</span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Projects</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+80</span>
+                </div>
               </div>
               
-              <div className="flex flex-wrap gap-12 md:gap-24 items-center">
-                <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60">Years</span>
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-90">+6</span>
-                </div>
-                <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60">Clients</span>
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-90">+12</span>
-                </div>
-                <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary/60">Projects</span>
-                  <span className="text-3xl font-bold font-mono tracking-tighter opacity-90">+80</span>
-                </div>
+              <div className="flex flex-col items-center gap-1 opacity-40">
+                <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold" />
+                <div className="text-[8px] font-mono text-muted-foreground uppercase tracking-[0.2em]">VERONA_V3 // VIEWPORT_MODE</div>
               </div>
             </div>
           </div>
