@@ -34,6 +34,28 @@ const ALL_TECH = [
   { id: 'ai', name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
 ];
 
+function Counter({ value, duration = 2 }: { value: number, duration?: number }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+
+  useGSAP(() => {
+    gsap.to({ val: 0 }, {
+      val: value,
+      duration,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: ref.current,
+        start: "top 95%",
+      },
+      onUpdate: function() {
+        setCount(Math.floor(this.targets()[0].val));
+      }
+    });
+  }, { dependencies: [value] });
+
+  return <span ref={ref}>{count}</span>;
+}
+
 const CyberText = ({ 
   text, 
   variant = 'decrypt', 
@@ -842,16 +864,35 @@ export default function Home() {
           <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </section>
 
-        {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) - Viewport Minimalista */}
+        {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) */}
         <section id="archive-section" className="stack-section sticky top-0 z-[30] h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-          <div className="w-full h-full pt-20 px-6 md:px-12 lg:px-24 flex flex-col justify-between pb-8">
+          <div className="w-full h-full pt-20 px-6 md:px-12 lg:px-24 flex flex-col items-center pb-8">
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-start flex-1 mt-6">
+            {/* Stats Bar - Centralized at the top of the content area */}
+            <div className="flex flex-col items-center gap-4 mb-6 shrink-0 w-full animate-in fade-in slide-in-from-top-4 duration-1000">
+              <div className="flex flex-wrap justify-center gap-12 md:gap-32 items-center">
+                <div className="flex flex-col items-center">
+                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Years</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+<Counter value={6} /></span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Clients</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+<Counter value={12} /></span>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Projects</span>
+                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+<Counter value={80} /></span>
+                </div>
+              </div>
+              <div className="w-24 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-start flex-1">
               {/* Left Side: James Huang Testimonial */}
               <div className="lg:col-span-7 flex flex-col justify-center h-full">
                 <div className="relative testimonial-trigger-ref max-w-4xl">
                   <Quote className="absolute -top-10 -left-6 w-16 h-12 text-foreground/5 pointer-events-none -z-10" />
-                  <div className="text-3xl md:text-5xl lg:text-6xl font-serif italic leading-[1.1] text-foreground mb-6 skew-text-ref">
+                  <div className="text-3xl md:text-5xl font-serif italic leading-[1.1] text-foreground mb-6 skew-text-ref">
                     <div className="flex flex-wrap items-baseline">
                       {"Leonardo's edits kept people watching longer.".split(' ').map((word, i) => (
                         <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
@@ -882,8 +923,7 @@ export default function Home() {
               </div>
 
               {/* Right Side: Interaction Block (Powered By + Compact Terminal) */}
-              <div className="lg:col-span-5 flex flex-col gap-6 h-full mt-4 items-center">
-                {/* Roulette & Tech - Integrated in the right column */}
+              <div className="lg:col-span-5 flex flex-col gap-4 h-full items-center">
                 <div className="flex flex-col gap-4 items-center text-center w-full max-w-[350px]">
                   <div className="flex flex-col gap-1 items-center">
                     <CyberText text={winnerName ? `[ ENGINE: ${winnerName.toUpperCase()} ]` : "[ POWERED_BY ]"} variant="decrypt" delay={500} corrupt={!isRolling} className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold" />
@@ -894,8 +934,24 @@ export default function Home() {
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-primary/60 z-20" />
                     <div ref={techIconsRef} className="flex gap-6 absolute left-0 items-center will-change-transform">
                       {poweredIcons.map((tech, i) => (
-                        <div key={`${tech.id}-${i}`} className={cn("w-16 h-16 flex items-center justify-center rounded-sm shadow-xl transition-all duration-700 shrink-0", !isRolling && winnerName ? (tech.name === winnerName && i === winnerIndex ? "scale-110 z-30 ring-1 ring-primary bg-opacity-100" : "opacity-5 grayscale scale-75") : "opacity-100 scale-100")} style={{ backgroundColor: tech.bg }}>
-                          <span className="font-sans font-bold text-lg" style={{ color: tech.text }}>{tech.label}</span>
+                        <div 
+                          key={`${tech.id}-${i}`} 
+                          className={cn(
+                            "group w-16 h-16 flex items-center justify-center rounded-sm shadow-xl transition-all duration-700 shrink-0", 
+                            !isRolling && winnerName 
+                              ? (tech.name === winnerName && i === winnerIndex 
+                                  ? "scale-110 z-30 ring-1 ring-primary bg-opacity-100" 
+                                  : "opacity-5 grayscale scale-75") 
+                              : "opacity-100 scale-100"
+                          )} 
+                          style={{ backgroundColor: tech.bg }}
+                        >
+                          <span className="font-sans font-bold text-lg flex items-center gap-2 px-2" style={{ color: tech.text }}>
+                            {tech.label}
+                            <span className="max-w-0 overflow-hidden group-hover:max-w-[120px] transition-all duration-500 whitespace-nowrap opacity-0 group-hover:opacity-100 text-[10px] uppercase tracking-tighter">
+                              {tech.name}
+                            </span>
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -903,7 +959,7 @@ export default function Home() {
 
                   <div>
                     <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
-                      <span className="text-[11px]">{isRolling ? "Syncing..." : "Roll Archive"}</span>
+                      <span className="text-[11px]">{isRolling ? "Syncing..." : "Roll"}</span>
                       <svg className="star-1" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                       <svg className="star-2" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                       <svg className="star-3" viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
@@ -914,7 +970,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Compact Terminal Console - Fixed height to avoid jumps */}
+                {/* Compact Terminal Console */}
                 {!isTerminalClosed && (
                   <div className={cn("w-full transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100")}>
                     <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-2xl w-full h-[220px] flex flex-col", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
@@ -929,7 +985,7 @@ export default function Home() {
                         </div>
                       </div>
                       {!isTerminalMinimized && (
-                        <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-4 font-mono text-[11px] relative outline-none bg-black text-white overflow-y-auto flex-1 scrollbar-hide">
+                        <div tabIndex={0} onFocus={() => setIsTerminalFocused(true)} onBlur={() => setIsTerminalFocused(false)} className="p-4 font-mono text-[11px] relative outline-none bg-black text-white overflow-y-auto flex-1 cyber-scrollbar">
                           {isBooting ? (
                             <div className="space-y-1">
                               {BOOT_LINES.slice(0, bootStep).map((line, idx) => (<div key={idx} className="opacity-80">{line}</div>))}
@@ -943,19 +999,17 @@ export default function Home() {
                                   <div className="text-white leading-relaxed pl-4 border-l border-white/20 font-light"><TypewriterText text={item.a} speed={10} /></div>
                                 </div>
                               ))}
-                              {faqAvailableIndices.length > 0 && (
-                                <div className={cn(faqHistory.length > 0 ? "mt-4 pt-4 border-t border-white/5" : "mt-0 pt-0")}>
-                                  <div className="text-[9px] uppercase tracking-widest text-white/20 mb-3 font-bold">Select Inquiry:</div>
-                                  <div className="space-y-1.5">
-                                    {faqAvailableIndices.map((qIdx, i) => (
-                                      <div key={qIdx} className={cn("transition-all flex items-start gap-2 py-0.5 cursor-pointer group", activeFaqIndex === i ? "text-white" : "text-white/30 hover:text-white/60")} onClick={() => handleTerminalAction(i)}>
-                                        <span className="text-primary group-hover:translate-x-1 transition-transform">{'>'}</span>
-                                        <span className="uppercase text-[11px] tracking-wider">{FAQ_DATA[qIdx].q}</span>
-                                      </div>
-                                    ))}
-                                  </div>
+                              <div className="mt-0 pt-0">
+                                <div className="text-[9px] uppercase tracking-widest text-white/20 mb-3 font-bold">Select Inquiry:</div>
+                                <div className="space-y-1.5">
+                                  {faqAvailableIndices.map((qIdx, i) => (
+                                    <div key={qIdx} className={cn("transition-all flex items-start gap-2 py-0.5 cursor-pointer group", activeFaqIndex === i ? "text-white" : "text-white/30 hover:text-white/60")} onClick={() => handleTerminalAction(i)}>
+                                      <span className="text-primary group-hover:translate-x-1 transition-transform">{'>'}</span>
+                                      <span className="uppercase text-[11px] tracking-wider">{FAQ_DATA[qIdx].q}</span>
+                                    </div>
+                                  ))}
                                 </div>
-                              )}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -965,28 +1019,10 @@ export default function Home() {
                 )}
               </div>
             </div>
-
-            {/* Stats Bar - Centralized and elevated for evidence */}
-            <div className="flex flex-col items-center gap-8 border-t border-foreground/10 pt-10 mt-6 shrink-0 w-full">
-              <div className="flex flex-wrap justify-center gap-12 md:gap-32 items-center">
-                <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Years</span>
-                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+6</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Clients</span>
-                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+12</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-mono uppercase tracking-[0.4em] text-primary/60 mb-1">Projects</span>
-                  <span className="text-4xl font-bold font-mono tracking-tighter opacity-90">+80</span>
-                </div>
-              </div>
-              
-              <div className="flex flex-col items-center gap-1 opacity-40">
-                <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold" />
-                <div className="text-[8px] font-mono text-muted-foreground uppercase tracking-[0.2em]">VERONA_V3 // VIEWPORT_MODE</div>
-              </div>
+            
+            <div className="flex flex-col items-center gap-1 opacity-40 mt-auto shrink-0">
+              <CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold" />
+              <div className="text-[8px] font-mono text-muted-foreground uppercase tracking-[0.2em]">VERONA_V3 // VIEWPORT_MODE</div>
             </div>
           </div>
         </section>
@@ -1024,6 +1060,20 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      <style jsx global>{`
+        .cyber-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .cyber-scrollbar::-webkit-scrollbar-track {
+          background: rgba(220, 38, 38, 0.05);
+        }
+        .cyber-scrollbar::-webkit-scrollbar-thumb {
+          background: #dc2626;
+          border-radius: 10px;
+          box-shadow: 0 0 10px #dc2626;
+        }
+      `}</style>
     </div>
   );
 }
