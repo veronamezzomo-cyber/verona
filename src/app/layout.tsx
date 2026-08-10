@@ -29,7 +29,13 @@ export const metadata: Metadata = {
   keywords: ['Video Editor', 'Motion Design', 'Color Grading', 'Portfolio', 'Leonardo Verona', 'Cinematic', 'Visual Storytelling'],
   authors: [{ name: 'Leonardo Verona' }],
   icons: {
-    icon: 'https://i.imgur.com/PtZIyxm.png',
+    icon: [
+      { url: 'https://i.imgur.com/dbHLAzR.png', sizes: '32x32', type: 'image/png' },
+      { url: 'https://i.imgur.com/dbHLAzR.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: 'https://i.imgur.com/dbHLAzR.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   openGraph: {
     title: 'Leonardo Verona | Video Editor Portfolio',
