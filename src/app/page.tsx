@@ -535,7 +535,7 @@ export default function Home() {
     setHasInteracted(true);
     gsap.to(window, {
       duration: 1,
-      scrollTo: { y: "#works-section", offsetY: 0 },
+      scrollTo: { y: "#works-section", offsetY: 80 },
       ease: "power3.inOut"
     });
   };
@@ -585,22 +585,6 @@ export default function Home() {
     setFaqHistory(prev => [...prev, FAQ_DATA[qIdx]]);
     setFaqAvailableIndices(prev => prev.filter((_, i) => i !== index));
     setActiveFaqIndex(0);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isTerminalFocused || isBooting) return;
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setActiveFaqIndex(prev => (prev + 1) % faqAvailableIndices.length);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setActiveFaqIndex(prev => (prev - 1 + faqAvailableIndices.length) % faqAvailableIndices.length);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (faqAvailableIndices.length > 0) {
-        handleTerminalAction(activeFaqIndex);
-      }
-    }
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {

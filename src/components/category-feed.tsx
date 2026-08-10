@@ -161,10 +161,10 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
     if (!target.closest('.terminal-header') || isMinimized) return;
     
     setIsDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    });
+    setPosition(prev => ({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y
+    }));
   };
 
   useEffect(() => {
@@ -376,7 +376,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '120px' }}
       >
-        <div className="absolute top-4 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
+        <div className="absolute top-28 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
           <div className="flex flex-col gap-1">
             <CyberText 
               text="Active Layer" 
@@ -437,7 +437,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-10 px-12 border-b border-foreground/5 shrink-0 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-10 pt-28 px-12 border-b border-foreground/5 shrink-0 gap-6">
             <div className="hidden md:block" />
 
             <div className="flex flex-col gap-2 items-center text-center">
