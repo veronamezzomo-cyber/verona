@@ -1051,17 +1051,29 @@ export default function Home() {
               </div>
               <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5">
                 <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
-                  <div className="flex items-center gap-0 border border-foreground/5 rounded-sm overflow-hidden bg-foreground/[0.02]">
-                    <Link href="https://discord.com/users/299338458231603202" className="px-5 py-3 border-r border-foreground/5 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group">
-                      <DiscordIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
-                    </Link>
-                    <Link href="#" className="px-5 py-3 border-r border-foreground/5 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group">
-                      <WhatsAppIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
-                    </Link>
-                    <Link href="mailto:00mezzomo@gmail.com" className="px-5 py-3 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group">
-                      <Mail className="h-4 w-4 transition-transform group-hover:scale-110" />
-                    </Link>
-                  </div>
+                  <ul className="flex gap-4 items-center">
+                    <li className="relative group icon-content">
+                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#7289da] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Discord</div>
+                      <Link href="https://discord.com/users/299338458231603202" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="discord">
+                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#7289da] transition-all duration-300 group-hover:h-full"></div>
+                        <DiscordIcon className="h-5 w-5 relative z-10" />
+                      </Link>
+                    </li>
+                    <li className="relative group icon-content">
+                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#25d366] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">WhatsApp</div>
+                      <Link href="#" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="whatsapp">
+                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#25d366] transition-all duration-300 group-hover:h-full"></div>
+                        <WhatsAppIcon className="h-5 w-5 relative z-10" />
+                      </Link>
+                    </li>
+                    <li className="relative group icon-content">
+                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-primary text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Email</div>
+                      <Link href="mailto:00mezzomo@gmail.com" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="email">
+                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-primary transition-all duration-300 group-hover:h-full"></div>
+                        <Mail className="h-5 w-5 relative z-10" />
+                      </Link>
+                    </li>
+                  </ul>
                   <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                     <DigitalClock />
                     <CyberText text={`© ${year} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" />
