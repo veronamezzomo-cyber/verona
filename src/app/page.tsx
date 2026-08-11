@@ -964,7 +964,7 @@ export default function Home() {
 
                   <div>
                     <button className={cn("sparkle-button scale-90 group", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
-                      <span className="text-[11px]">{isRolling ? "Syncing..." : "Roll"}</span>
+                      <span className="text-[11px]">{isRolling ? "Syncing..." : "roll"}</span>
                       <svg className={cn("star-1", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                       <svg className={cn("star-2", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                       <svg className={cn("star-3", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
@@ -1051,10 +1051,16 @@ export default function Home() {
               </div>
               <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5">
                 <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
-                  <div className="flex gap-8">
-                    <Link href="https://discord.com/users/299338458231603202" className="text-muted-foreground hover:text-primary"><DiscordIcon className="h-5 w-5" /></Link>
-                    <Link href="#" className="text-muted-foreground hover:text-primary"><WhatsAppIcon className="h-5 w-5" /></Link>
-                    <Link href="mailto:00mezzomo@gmail.com" className="text-muted-foreground hover:text-primary"><Mail className="h-5 w-5" /></Link>
+                  <div className="flex items-center gap-0 border border-foreground/5 rounded-sm overflow-hidden bg-foreground/[0.02]">
+                    <Link href="https://discord.com/users/299338458231603202" className="px-5 py-3 border-r border-foreground/5 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group">
+                      <DiscordIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
+                    </Link>
+                    <Link href="#" className="px-5 py-3 border-r border-foreground/5 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group">
+                      <WhatsAppIcon className="h-4 w-4 transition-transform group-hover:scale-110" />
+                    </Link>
+                    <Link href="mailto:00mezzomo@gmail.com" className="px-5 py-3 text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all group">
+                      <Mail className="h-4 w-4 transition-transform group-hover:scale-110" />
+                    </Link>
                   </div>
                   <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                     <DigitalClock />
