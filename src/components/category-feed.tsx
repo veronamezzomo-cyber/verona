@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
@@ -137,10 +138,12 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
 
   useEffect(() => {
     setHistory([
-      `[ARCHIVE_LOG]: ${text}`,
-      '',
-      'Type "help" for a list of available commands.',
-      ''
+      `>> INITIATING SOURCE READ...`,
+      `[PROJECT_DESCRIPTION]:`,
+      text,
+      `----------------------------------------`,
+      `[SYSTEM_READY]: CONNECTION_STABLE`,
+      `[PROMPT]: TYPE "HELP" FOR COMMANDS`
     ]);
   }, [text]);
 
@@ -257,21 +260,35 @@ function CyberTerminal({ text, onClose, onMinimize, isMinimized }: CyberTerminal
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
         
         <div className="flex flex-col relative z-10">
-          {history.map((line, i) => (
-            <div key={i} className="text-[11px] leading-snug tracking-wider text-primary/80 break-words mb-1 uppercase">
-              {line}
-            </div>
-          ))}
+          {history.map((line, i) => {
+            const isMeta = line.startsWith('>') || line.startsWith('[');
+            const isDivider = line.startsWith('---');
+            const isPath = line.includes('C:\\');
+            const isBody = !isMeta && !isDivider && !isPath;
+
+            return (
+              <div key={i} className={cn(
+                "text-[10px] md:text-[11px] tracking-[0.1em] break-words uppercase",
+                isMeta ? "text-primary/30 font-bold mb-2 mt-4 first:mt-0" : "text-primary/90",
+                isBody ? "text-primary/90 leading-relaxed mb-6 normal-case font-light pl-3 border-l-2 border-primary/10 italic" : "",
+                isDivider ? "opacity-20 my-4" : "",
+                isPath ? "text-primary/50 mt-4 font-bold" : ""
+              )}>
+                {line}
+              </div>
+            );
+          })}
           
-          <form onSubmit={handleCommand} className="flex items-center gap-2">
-            <span className="text-primary/60 text-[11px] shrink-0">C:\Users\Guest&gt;</span>
+          <form onSubmit={handleCommand} className="flex items-center gap-2 mt-4 pt-4 border-t border-primary/5">
+            <span className="text-primary/40 text-[10px] shrink-0 font-bold">C:\Users\Guest&gt;</span>
             <input
               ref={inputRef}
               type="text"
-              className="bg-transparent border-none outline-none text-primary text-[11px] w-full p-0 uppercase"
+              className="bg-transparent border-none outline-none text-primary text-[11px] w-full p-0 uppercase placeholder:text-primary/10"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               autoFocus
+              placeholder="Waiting for input..."
             />
           </form>
         </div>

@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Conteúdo curado do portfólio.
  * Centraliza os metadados dos vídeos reais com suporte a múltiplas categorias.
