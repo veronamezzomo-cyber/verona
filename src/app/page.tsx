@@ -743,7 +743,7 @@ export default function Home() {
 
   const clusterVideos = [
     { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 },
-    { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 13 },
+    { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 0 },
     { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 },
     { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 },
     { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 }
