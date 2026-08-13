@@ -1,19 +1,23 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { EditableVideo } from '@/components/editable-video';
 import { EditableImage } from '@/components/editable-image';
 import { CategoryFeed } from '@/components/category-feed';
+import { CyberText } from '@/components/cyber-text';
+import { DigitalClock } from '@/components/digital-clock';
+import { LEDTicker } from '@/components/led-ticker';
+import { FloatingVideoCluster } from '@/components/floating-video-cluster';
+import { MagneticCTA } from '@/components/magnetic-cta';
+import { SocialIcons } from '@/components/social-icons';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { 
-  Mail, 
   ArrowRight,
   Terminal as TerminalIcon,
   Quote,
@@ -24,8 +28,6 @@ import {
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 }
-
-const GLYPHS = '0123456789ABCDEF!@#$%^&*()_+<>?:';
 
 const ALL_TECH = [
   { id: 'pr', name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
@@ -47,417 +49,13 @@ function Counter({ value, duration = 2 }: { value: number, duration?: number }) 
         trigger: ref.current,
         start: "top 95%",
       },
-      onUpdate: function() {
+      onUpdate: function(this: any) {
         setCount(Math.floor(this.targets()[0].val));
       }
     });
   }, { dependencies: [value] });
 
   return <span ref={ref}>{count}</span>;
-}
-
-const CyberText = ({ 
-  text, 
-  variant = 'decrypt', 
-  delay = 500, 
-  speed = 30, 
-  className,
-  corrupt = false,
-  trigger = true
-}: { 
-  text: string, 
-  variant?: 'type' | 'decrypt', 
-  delay?: number, 
-  speed?: number, 
-  className?: string,
-  corrupt?: boolean,
-  trigger?: boolean
-}) => {
-  const [display, setDisplay] = useState('');
-  const [isDone, setIsDone] = useState(false);
-  const reducedMotion = typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
-
-  useEffect(() => {
-    if (!trigger) return;
-    if (reducedMotion) {
-      setDisplay(text);
-      setIsDone(true);
-      return;
-    }
-
-    let timeoutId: NodeJS.Timeout;
-    let intervalId: NodeJS.Timeout;
-    
-    setDisplay('');
-    setIsDone(false);
-    
-    timeoutId = setTimeout(() => {
-      if (variant === 'type') {
-        let i = 0;
-        intervalId = setInterval(() => {
-          if (i <= text.length) {
-            setDisplay(text.slice(0, i));
-            i++;
-          } else {
-            clearInterval(intervalId);
-            setIsDone(true);
-          }
-        }, speed);
-      } else {
-        let iterations = 0;
-        intervalId = setInterval(() => {
-          setDisplay(
-            text.split('').map((char, index) => {
-              if (index < iterations) return text[index];
-              return GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-            }).join('')
-          );
-          if (iterations >= text.length) {
-            clearInterval(intervalId);
-            setIsDone(true);
-          }
-          iterations += 1/3;
-        }, speed);
-      }
-    }, delay);
-
-    return () => {
-      clearTimeout(timeoutId);
-      clearInterval(intervalId);
-    };
-  }, [text, variant, delay, speed, trigger, reducedMotion]);
-
-  useEffect(() => {
-    if (!corrupt || !isDone || reducedMotion) return;
-    
-    const triggerCorruption = () => {
-      const charIndex = Math.floor(Math.random() * text.length);
-      const original = text;
-      
-      const corrupted = original.split('');
-      corrupted[charIndex] = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-      setDisplay(corrupted.join(''));
-      
-      setTimeout(() => {
-        setDisplay(original);
-      }, 150);
-      
-      setTimeout(triggerCorruption, 8000 + Math.random() * 7000);
-    };
-
-    const timer = setTimeout(triggerCorruption, 8000 + Math.random() * 7000);
-    return () => clearTimeout(timer);
-  }, [corrupt, isDone, text, reducedMotion]);
-
-  return (
-    <span className={className} aria-label={text}>
-      <span aria-hidden="true">{display}</span>
-      <span className="sr-only">{text}</span>
-    </span>
-  );
-};
-
-const DiscordIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19.27 4.73C17.78 4.05 16.2 3.56 14.53 3.32a.066.066 0 0 0-.07.03c-.2.36-.43.83-.58 1.18-1.77-.26-3.53-.26-5.26 0-.16-.35-.4-.82-.6-1.18a.066.066 0 0 0-.07-.03c-1.67.24-3.25.73-4.74 1.41a.067.067 0 0 0-.03.03C.32 8.52-.45 12.22.25 15.86a.07.07 0 0 0 .03.05c2.1 1.54 4.12 2.48 6.1 3.09a.07.07 0 0 0 .08-.02c.47-.64.88-1.32 1.23-2.04a.07.07 0 0 0-.04-.09c-.67-.26-1.3-.57-1.9-.94a.07.07 0 0 1-.01-.12c.13-.1.26-.2.38-.3a.07.07 0 0 1 .07-.01c3.94 1.8 8.19 1.8 12.09 0a.07.07 0 0 1 .07.01c.12.1.25.2.38.3a.07.07 0 0 1-.01.12c-.6.37-1.23.68-1.9.94a.07.07 0 0 0-.04.09c.36.72.77 1.4 1.23 2.04a.07.07 0 0 0 .08.02c1.99-.61 4.01-1.55 6.11-3.09a.07.07 0 0 0 .03-.05c.82-4.43-.39-8.1-.25-11.13a.067.067 0 0 0-.03-.03zM8.19 13.08c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.09 2.16 2.42 0 1.34-.95 2.42-2.16 2.42zm7.65 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.09 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/>
-  </svg>
-);
-
-const WhatsAppIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
-  </svg>
-);
-
-const LED_BITMAPS: Record<string, number[][]> = {
-  'V': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,0,1,0],[0,1,0,1,0],[0,0,1,0,0]],
-  'E': [[1,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,0,0,0,0],[1,1,1,1,1]],
-  'R': [[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,0,1,0],[1,0,0,0,1],[1,0,0,0,1]],
-  'O': [[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
-  'N': [[1,0,0,0,1],[1,1,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1]],
-  'A': [[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
-  'S': [[0,1,1,1,1],[1,0,0,0,0],[1,0,0,0,0],[0,1,1,1,0],[0,0,0,0,1],[0,0,0,0,1],[1,1,1,1,0]],
-  'T': [[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
-  'U': [[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[0,1,1,1,0]],
-  'D': [[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0]],
-  'I': [[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1]],
-  ' ': [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]],
-};
-
-function DigitalClock() {
-  const [time, setTime] = useState('');
-  
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: 'America/Sao_Paulo',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      };
-      setTime(new Intl.DateTimeFormat('en-US', options).format(now));
-    };
-    
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="flex flex-col items-center md:items-start gap-1">
-      <CyberText 
-        text="[ BRAZIL_TIME ]" 
-        variant="decrypt" 
-        delay={500} 
-        corrupt 
-        className="font-mono text-[8px] uppercase tracking-[0.4em] text-primary/60" 
-      />
-      <span className="font-mono text-[11px] tracking-[0.2em] text-foreground/80 tabular-nums">
-        {time || '00:00:00'}
-      </span>
-    </div>
-  );
-}
-
-function MagneticCTA({ children, className }: { children: React.ReactNode, className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useGSAP(() => {
-    if (typeof window === 'undefined' || !ref.current) return;
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isTouch = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    
-    if (isReduced || isTouch) return;
-
-    const el = ref.current;
-    const xTo = gsap.quickTo(el, "x", { duration: 0.8, ease: "elastic.out(1, 0.3)" });
-    const yTo = gsap.quickTo(el, "y", { duration: 0.8, ease: "elastic.out(1, 0.3)" });
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { left, top, width, height } = el.getBoundingClientRect();
-      const centerX = left + width / 2;
-      const centerY = top + height / 2;
-      const distanceX = clientX - centerX;
-      const distanceY = clientY - centerY;
-      
-      const distance = Math.hypot(distanceX, distanceY);
-      const threshold = 120;
-
-      if (distance < threshold) {
-        xTo(distanceX * 0.35);
-        yTo(distanceY * 0.35);
-      } else {
-        xTo(0);
-        yTo(0);
-      }
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, { scope: ref });
-
-  return (
-    <div ref={ref} className={cn("inline-block", className)}>
-      {children}
-    </div>
-  );
-}
-
-function LEDTicker({ text }: { text: string }) {
-  const characters = (text.toUpperCase() + " ").split('');
-  
-  return (
-    <div className="w-full bg-background py-2 overflow-hidden flex items-center border-t border-foreground/5 shadow-2xl" aria-hidden="true">
-      <div className="animate-marquee whitespace-nowrap flex w-max shrink-0">
-        {[0, 1].map((setIndex) => (
-          <div key={setIndex} className="flex gap-4 md:gap-8 px-2 md:px-4 items-center shrink-0">
-            {characters.map((char, charIndex) => (
-              <div key={`${setIndex}-${charIndex}`} className="grid grid-cols-5 gap-[2px] md:gap-[4px] shrink-0">
-                {(LED_BITMAPS[char] || LED_BITMAPS[' ']).map((row, rowIndex) => (
-                  row.map((cell, colIndex) => (
-                    <div
-                      key={`${rowIndex}-${colIndex}`}
-                      className={cn(
-                        "w-[4px] h-[8px] md:w-[6px] md:h-[12px] rounded-full transition-all duration-300",
-                        cell 
-                          ? "bg-foreground shadow-[0_0_12px_rgba(var(--foreground),0.4)]" 
-                          : "bg-foreground/5"
-                      )}
-                    />
-                  ))
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FloatingVideoCluster({ videos }: { videos: any[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const timeRef = useRef(0);
-  const requestRef = useRef<number>(0);
-  const [containerWidth, setContainerWidth] = useState(600);
-  
-  const expansionRef = useRef(0);
-  const hoverFactorRef = useRef(1);
-  const isHoveredRef = useRef(false);
-  const currentFocusedIndexRef = useRef(0);
-  const currentOffsetsRef = useRef(videos.map((_, i) => (i * 2 * Math.PI) / videos.length));
-  const focalFactorsRef = useRef(videos.map((_, i) => ({ val: i === 0 ? 1 : 0 })));
-
-  useEffect(() => {
-    gsap.to(expansionRef, { current: 1, duration: 1.5, ease: "power2.out" });
-  }, []);
-
-  const orbitParams = useMemo(() => {
-    const factor = containerWidth / 600;
-    return {
-      rx: Math.max(180, 280 * factor),
-      ry: Math.max(100, 160 * factor)
-    };
-  }, [containerWidth]);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setContainerWidth(entry.contentRect.width);
-      }
-    });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const rotateFocus = () => {
-      const prev = currentFocusedIndexRef.current;
-      const next = (prev + 1) % videos.length;
-      currentFocusedIndexRef.current = next;
-
-      gsap.to(focalFactorsRef.current[prev], { val: 0, duration: 1.2, ease: "power2.inOut" });
-      gsap.to(focalFactorsRef.current[next], { val: 1, duration: 1.2, ease: "power2.inOut" });
-    };
-
-    const interval = setInterval(rotateFocus, 6000);
-    return () => clearInterval(interval);
-  }, [videos.length]);
-
-  useEffect(() => {
-    const TILT = 12 * (Math.PI / 180); 
-    const cosT = Math.cos(TILT);
-    const sinT = Math.sin(TILT);
-    const PARALLAX_INTENSITY = 0.45; 
-    
-    const animate = () => {
-      const focusIdx = currentFocusedIndexRef.current;
-      const targetHover = isHoveredRef.current ? 1.3 : 1;
-      hoverFactorRef.current += (targetHover - hoverFactorRef.current) * 0.1;
-
-      const breathing = Math.sin(timeRef.current * 0.1) * 0.0015;
-      const step = (0.005 + breathing) * hoverFactorRef.current;
-      timeRef.current += step;
-
-      videoRefs.current.forEach((el, i) => {
-        if (!el) return;
-        
-        const { rx: baseRx, ry: baseRy } = orbitParams;
-        const ff = focalFactorsRef.current[i].val; 
-        
-        let targetOffset;
-        if (i === focusIdx) {
-          targetOffset = i * (2 * Math.PI / videos.length);
-        } else {
-          const rank = i < focusIdx ? i : i - 1;
-          targetOffset = rank * (2 * Math.PI / (videos.length - 1));
-        }
-        
-        currentOffsetsRef.current[i] += (targetOffset - currentOffsetsRef.current[i]) * 0.05;
-        
-        const baseAngle = timeRef.current + currentOffsetsRef.current[i];
-        const effectiveAngle = baseAngle + Math.sin(baseAngle) * PARALLAX_INTENSITY;
-        const visualDepth = Math.sin(effectiveAngle); 
-        
-        const rx = baseRx * (0.85 + (i % 3) * 0.1);
-        const ry = baseRy * (0.85 + (i % 2) * 0.15);
-        
-        const rawX = Math.cos(effectiveAngle) * rx;
-        const rawY = Math.sin(effectiveAngle) * ry;
-        
-        const orbitalX = (rawX * cosT - rawY * sinT) * expansionRef.current;
-        const orbitalY = (rawX * sinT + rawY * cosT) * expansionRef.current;
-
-        const x = orbitalX * (1 - ff);
-        const y = orbitalY * (1 - ff);
-
-        const baseScale = 0.9 + ((visualDepth + 1) / 2) * 0.25;
-        const scale = baseScale * (1 - ff) + (1.25 * ff);
-        
-        const baseBlur = (1 - (visualDepth + 1) / 2) * 4;
-        const blur = baseBlur * (1 - ff);
-        
-        const baseZIndex = 50 + Math.round(visualDepth * 50);
-        const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
-
-        el.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`;
-        el.style.zIndex = zIndex.toString();
-        el.style.filter = blur > 0.5 ? `blur(${blur}px)` : 'none';
-        
-        const shadowOp = (Math.max(0, visualDepth + 0.5) * 0.4) * (1 - ff) + 0.6 * ff;
-        el.style.boxShadow = `0 ${20 * shadowOp}px ${40 * shadowOp}px -10px rgba(0,0,0,${0.5 * shadowOp})`;
-      });
-      
-      requestRef.current = requestAnimationFrame(animate);
-    };
-
-    requestRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(requestRef.current);
-  }, [orbitParams, videos.length]);
-
-  return (
-    <div 
-      ref={containerRef} 
-      className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] overflow-visible"
-      onMouseEnter={() => { isHoveredRef.current = true; }}
-      onMouseLeave={() => { isHoveredRef.current = false; }}
-    >
-      <div className="absolute inset-0 pointer-events-auto" />
-      
-      <div className="absolute top-1/2 left-1/2 w-0 h-0">
-        {videos.map((vid, i) => (
-          <div 
-            key={vid.id}
-            ref={(el) => { videoRefs.current[i] = el; }}
-            className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-auto transition-shadow duration-300"
-            style={{ 
-              transform: 'translate(-50%, -50%)',
-              opacity: 1,
-              willChange: 'transform, filter'
-            }}
-          >
-            <EditableVideo 
-              src={vid.videoUrl} 
-              storageKey={vid.id}
-              fill
-              className="object-cover"
-              autoPlay
-              muted
-              loop
-              playsInline
-              hideControls
-              startTime={vid.startTime}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 const FAQ_DATA = [
@@ -654,7 +252,6 @@ export default function Home() {
   }, []);
 
   useGSAP(() => {
-    // Hero Elements
     gsap.to(".hero-line", {
       y: 0,
       opacity: 1,
@@ -665,7 +262,6 @@ export default function Home() {
     gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
 
-    // Stacking Layers Effect
     const sections = gsap.utils.toArray<HTMLElement>('.stack-section');
     sections.forEach((section, i) => {
       const isLast = i === sections.length - 1;
@@ -687,7 +283,6 @@ export default function Home() {
       }
     });
 
-    // Testimonial Word Animation
     gsap.to(".testimonial-word", {
       y: 0,
       opacity: 1,
@@ -749,11 +344,6 @@ export default function Home() {
     { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 }
   ];
 
-  const starClass = cn(
-    "transition-opacity duration-300 opacity-0",
-    !isRolling && "group-hover:opacity-100"
-  );
-
   return (
     <div className="min-h-screen text-foreground transition-colors duration-500 bg-background relative overflow-x-clip">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
@@ -782,7 +372,6 @@ export default function Home() {
       </header>
 
       <main ref={mainRef} className="relative">
-        {/* HERO LAYER (Z-10) */}
         <section className="stack-section sticky top-0 z-[10] h-screen w-full flex items-center justify-center bg-background overflow-hidden will-change-transform">
           <div className="w-full px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
             <div className="lg:col-span-7 flex flex-col items-start text-left">
@@ -833,7 +422,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* WORKS & FEED LAYER (Z-20) */}
         <section id="works-section" className="stack-section sticky top-0 z-[20] min-h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
           <div className="sticky top-20 w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90]">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
@@ -869,11 +457,8 @@ export default function Home() {
           <CategoryFeed category={activeCategory} onClose={handleCloseFeed} />
         </section>
 
-        {/* ARCHIVE & TESTIMONIALS LAYER (Z-30) */}
         <section id="archive-section" className="stack-section sticky top-0 z-[30] h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="w-full h-full pt-20 px-6 md:px-12 lg:px-24 flex flex-col items-center pb-8">
-            
-            {/* Stats Bar - Centralized at the top of the content area */}
             <div className="flex flex-col items-center gap-4 mb-6 shrink-0 w-full animate-in fade-in slide-in-from-top-4 duration-1000">
               <div className="flex flex-wrap justify-center gap-12 md:gap-32 items-center">
                 <div className="flex flex-col items-center">
@@ -893,7 +478,6 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-start flex-1">
-              {/* Left Side: James Huang Testimonial */}
               <div className="lg:col-span-7 flex flex-col justify-center h-full">
                 <div className="relative testimonial-trigger-ref max-w-4xl">
                   <Quote className="absolute -top-10 -left-6 w-16 h-12 text-foreground/5 pointer-events-none -z-10" />
@@ -927,7 +511,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Right Side: Interaction Block (Powered By + Compact Terminal) */}
               <div className="lg:col-span-5 flex flex-col gap-4 h-full items-center">
                 <div className="flex flex-col gap-4 items-center text-center w-full max-w-[350px]">
                   <div className="flex flex-col gap-1 items-center">
@@ -965,17 +548,12 @@ export default function Home() {
                   <div>
                     <button className={cn("sparkle-button scale-90 group", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>
                       <span className="text-[11px]">{isRolling ? "Syncing..." : "roll"}</span>
-                      <svg className={cn("star-1", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className={cn("star-2", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className={cn("star-3", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className={cn("star-4", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className={cn("star-5", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
-                      <svg className={cn("star-6", starClass)} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-1 transition-opacity duration-300 opacity-0", !isRolling && "group-hover:opacity-100")} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
+                      <svg className={cn("star-2 transition-opacity duration-300 opacity-0", !isRolling && "group-hover:opacity-100")} viewBox="0 0 24 24" fill="none"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" fill="currentColor"/></svg>
                     </button>
                   </div>
                 </div>
 
-                {/* Compact Terminal Console */}
                 {!isTerminalClosed && (
                   <div className={cn("w-full transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "opacity-100")}>
                     <div ref={terminalRef} className={cn("bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-2xl w-full h-[220px] flex flex-col", isDragging && "transition-none")} style={{ transform: `translate(${faqPos.x}px, ${faqPos.y}px)` }}>
@@ -1032,9 +610,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* CONTACT & FOOTER LAYER (Z-40) */}
-        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform">
-          <div className="flex-1 flex flex-col justify-end items-center text-center px-6 pt-20 pb-12">
+        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-end border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform pb-0">
+          <div className="flex-1 flex flex-col justify-end items-center text-center px-6 pt-20 pb-20">
             <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com">
               <MagneticCTA>
@@ -1045,35 +622,13 @@ export default function Home() {
             </Link>
           </div>
           
-          <div className="relative overflow-hidden shrink-0">
+          <div className="relative overflow-hidden shrink-0 w-full">
              <div className={cn("overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
                 <LEDTicker text="VERONA STUDIO" />
               </div>
               <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5">
                 <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
-                  <ul className="flex gap-4 items-center">
-                    <li className="relative group icon-content">
-                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#7289da] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Discord</div>
-                      <Link href="https://discord.com/users/299338458231603202" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="discord">
-                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#7289da] transition-all duration-300 group-hover:h-full"></div>
-                        <DiscordIcon className="h-5 w-5 relative z-10" />
-                      </Link>
-                    </li>
-                    <li className="relative group icon-content">
-                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#25d366] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">WhatsApp</div>
-                      <Link href="#" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="whatsapp">
-                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#25d366] transition-all duration-300 group-hover:h-full"></div>
-                        <WhatsAppIcon className="h-5 w-5 relative z-10" />
-                      </Link>
-                    </li>
-                    <li className="relative group icon-content">
-                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-primary text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Email</div>
-                      <Link href="mailto:00mezzomo@gmail.com" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="email">
-                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-primary transition-all duration-300 group-hover:h-full"></div>
-                        <Mail className="h-5 w-5 relative z-10" />
-                      </Link>
-                    </li>
-                  </ul>
+                  <SocialIcons />
                   <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
                     <DigitalClock />
                     <CyberText text={`© ${year} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" />
