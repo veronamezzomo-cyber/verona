@@ -654,6 +654,8 @@ export default function Home() {
     return () => window.removeEventListener('wheel', handleScrollIntent);
   }, []);
 
+  const contactExplosionVideos = useMemo(() => VIDEOS_DATA.slice(0, 6), []);
+
   useGSAP(() => {
     // Hero Elements
     gsap.to(".hero-line", {
@@ -719,18 +721,19 @@ export default function Home() {
 
         const tl = gsap.timeline();
         
-        // Hide extra videos on mobile via GSAP logic if needed, but handled in JSX
         tl.fromTo(".contact-video-tile",
           { scale: 0, x: 0, y: 0, opacity: 0 },
           {
             scale: 1,
             x: (i) => {
               if (isMobile) return 0;
-              return i === 0 ? "-35vw" : i === 1 ? "35vw" : "0";
+              const angle = (i * 60) * (Math.PI / 180);
+              return (Math.cos(angle) * 38) + "vw";
             },
             y: (i) => {
               if (isMobile) return 0;
-              return i === 0 ? "-10vh" : i === 1 ? "10vh" : "-20vh";
+              const angle = (i * 60) * (Math.PI / 180);
+              return (Math.sin(angle) * 28) + "vh";
             },
             opacity: 0.2,
             duration: 1.5,
@@ -794,8 +797,6 @@ export default function Home() {
     { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 },
     { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 }
   ];
-
-  const contactExplosionVideos = useMemo(() => VIDEOS_DATA.slice(0, 3), []);
 
   const starClass = cn(
     "transition-opacity duration-300 opacity-0",
@@ -1115,7 +1116,7 @@ export default function Home() {
 
             {/* Title and CTA Content */}
             <div className="contact-content-reveal relative z-10 flex flex-col items-center text-center opacity-0">
-              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref drop-shadow-2xl">
+              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold mb-32 skew-text-ref drop-shadow-2xl">
                 Ready to tell<br />your story?
               </h2>
               <Link href="mailto:00mezzomo@gmail.com">
@@ -1183,3 +1184,4 @@ export default function Home() {
     </div>
   );
 }
+
