@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -527,6 +526,7 @@ export default function Home() {
   const [year, setYear] = useState<number>(2024);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const mainRef = useRef<HTMLDivElement>(null);
+  const categoryBarRef = useRef<HTMLDivElement>(null);
   
   const [faqHistory, setFaqHistory] = useState<{q: string, a: string}[]>([]);
   const [faqAvailableIndices, setFaqAvailableIndices] = useState<number[]>(FAQ_DATA.map((_, i) => i));
@@ -668,6 +668,47 @@ export default function Home() {
     });
     gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
+
+    // Category Bar Compression (Desktop Only)
+    const mm = gsap.matchMedia();
+    mm.add("(min-width: 768px)", () => {
+      const bar = categoryBarRef.current;
+      if (!bar) return;
+
+      const targetHeight = 54; // Roughly 2/3 of 80px
+      const originalHeight = 80;
+
+      gsap.to(bar, {
+        height: targetHeight,
+        scrollTrigger: {
+          trigger: "#works-section",
+          start: "top 80px",
+          end: "top top",
+          scrub: true,
+        }
+      });
+
+      gsap.to(".category-card", {
+        height: targetHeight,
+        scrollTrigger: {
+          trigger: "#works-section",
+          start: "top 80px",
+          end: "top top",
+          scrub: true,
+        }
+      });
+
+      // Roll effect: shift image to keep center visual alignment
+      gsap.to(".category-card img", {
+        yPercent: 12,
+        scrollTrigger: {
+          trigger: "#works-section",
+          start: "top 80px",
+          end: "top top",
+          scrub: true,
+        }
+      });
+    });
 
     // Stacking Layers Effect
     const sections = gsap.utils.toArray<HTMLElement>('.stack-section');
@@ -885,7 +926,7 @@ export default function Home() {
 
         {/* WORKS & FEED LAYER (Z-20) */}
         <section id="works-section" className="stack-section sticky top-0 z-[20] min-h-screen w-full bg-background border-t border-foreground/5 will-change-transform shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
-          <div className="sticky top-20 w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90]">
+          <div ref={categoryBarRef} className="sticky top-20 w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90] h-20 overflow-hidden flex items-center">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
               {categories.map((cat) => {
                 const img = catImages.find(i => i.id === cat.id);
@@ -1083,7 +1124,7 @@ export default function Home() {
         </section>
 
         {/* CONTACT & FOOTER LAYER (Z-40) */}
-        <section id="contact-section" className="stack-section sticky top-0 z-[40] h-screen flex flex-col items-center justify-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform overflow-hidden">
+        <section id="contact-section" className="stack-section sticky top-0 z-[40] h-screen flex flex-col items-center justify-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           {/* Background Explosion Videos */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             {contactExplosionVideos.map((vid, i) => (
