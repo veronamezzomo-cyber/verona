@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -1082,90 +1083,88 @@ export default function Home() {
         </section>
 
         {/* CONTACT & FOOTER LAYER (Z-40) */}
-        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform overflow-hidden">
-          {/* Centered Content Area between Header and Footer */}
-          <div className="flex-1 flex items-center justify-center relative px-6 py-20 overflow-hidden">
-            {/* Background Explosion Videos */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-              {contactExplosionVideos.map((vid, i) => (
-                <div 
-                  key={`explosion-${vid.id}`}
-                  className={cn(
-                    "contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/20 bg-black opacity-0 will-change-transform",
-                    i > 0 && "hidden md:block" // Only show 1 video on mobile
-                  )}
-                  style={{ transform: 'scale(0)' }}
-                >
-                  <EditableVideo 
-                    src={vid.videoUrl} 
-                    storageKey={`contact-explosion-${vid.id}`}
-                    fill
-                    className="object-cover grayscale brightness-50 contrast-125"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    hideControls
-                  />
-                  <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
-                </div>
-              ))}
-              {/* Legibility Overlay */}
-              <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
-            </div>
-
-            {/* Title and CTA Content */}
-            <div className="contact-content-reveal relative z-10 flex flex-col items-center text-center opacity-0">
-              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold mb-32 skew-text-ref drop-shadow-2xl">
-                Ready to tell<br />your story?
-              </h2>
-              <Link href="mailto:00mezzomo@gmail.com">
-                <MagneticCTA>
-                  <Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_40px_rgba(var(--primary),0.6)] transition-all duration-300 border-2 border-primary hover:bg-transparent hover:text-primary">
-                    Let's Talk
-                  </Button>
-                </MagneticCTA>
-              </Link>
-            </div>
-          </div>
-          
-          <div className="relative overflow-hidden shrink-0 z-20">
-             <div className={cn("overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
-                <LEDTicker text="VERONA STUDIO" />
+        <section id="contact-section" className="stack-section sticky top-0 z-[40] h-screen flex flex-col items-center justify-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform overflow-hidden">
+          {/* Background Explosion Videos */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            {contactExplosionVideos.map((vid, i) => (
+              <div 
+                key={`explosion-${vid.id}`}
+                className={cn(
+                  "contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/20 bg-black opacity-0 will-change-transform",
+                  i > 0 && "hidden md:block" // Only show 1 video on mobile
+                )}
+                style={{ transform: 'scale(0)' }}
+              >
+                <EditableVideo 
+                  src={vid.videoUrl} 
+                  storageKey={`contact-explosion-${vid.id}`}
+                  fill
+                  className="object-cover grayscale brightness-50 contrast-125"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  hideControls
+                />
+                <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
               </div>
-              <footer className="py-8 md:py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5">
-                <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
-                  <ul className="flex gap-4 items-center">
-                    <li className="relative group icon-content">
-                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#7289da] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Discord</div>
-                      <Link href="https://discord.com/users/299338458231603202" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="discord">
-                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#7289da] transition-all duration-300 group-hover:h-full"></div>
-                        <DiscordIcon className="h-5 w-5 relative z-10" />
-                      </Link>
-                    </li>
-                    <li className="relative group icon-content">
-                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#25d366] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">WhatsApp</div>
-                      <Link href="#" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="whatsapp">
-                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#25d366] transition-all duration-300 group-hover:h-full"></div>
-                        <WhatsAppIcon className="h-5 w-5 relative z-10" />
-                      </Link>
-                    </li>
-                    <li className="relative group icon-content">
-                      <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-primary text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Email</div>
-                      <Link href="mailto:00mezzomo@gmail.com" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="email">
-                        <div className="filled absolute bottom-0 left-0 w-full h-0 bg-primary transition-all duration-300 group-hover:h-full"></div>
-                        <Mail className="h-5 w-5 relative z-10" />
-                      </Link>
-                    </li>
-                  </ul>
-                  <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
-                    <DigitalClock />
-                    <CyberText text={`© ${year} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" />
-                  </div>
-                </div>
-              </footer>
+            ))}
+            {/* Legibility Overlay */}
+            <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
+          </div>
+
+          {/* Title and CTA Content - Centered using Flexbox with Gap */}
+          <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0">
+            <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold skew-text-ref drop-shadow-2xl leading-[1.1]">
+              Ready to tell<br />your story?
+            </h2>
+            <Link href="mailto:00mezzomo@gmail.com">
+              <MagneticCTA>
+                <Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_40px_rgba(var(--primary),0.6)] transition-all duration-300 border-2 border-primary hover:bg-transparent hover:text-primary">
+                  Let's Talk
+                </Button>
+              </MagneticCTA>
+            </Link>
           </div>
         </section>
+
+        {/* Footer wrapper - next in document flow */}
+        <div className="relative overflow-hidden shrink-0 z-50 bg-background">
+           <div className={cn("overflow-hidden transition-all duration-700 ease-in-out flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
+              <LEDTicker text="VERONA STUDIO" />
+            </div>
+            <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5 bg-background">
+              <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
+                <ul className="flex gap-4 items-center">
+                  <li className="relative group icon-content">
+                    <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#7289da] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Discord</div>
+                    <Link href="https://discord.com/users/299338458231603202" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="discord">
+                      <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#7289da] transition-all duration-300 group-hover:h-full"></div>
+                      <DiscordIcon className="h-5 w-5 relative z-10" />
+                    </Link>
+                  </li>
+                  <li className="relative group icon-content">
+                    <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-[#25d366] text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">WhatsApp</div>
+                    <Link href="#" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="whatsapp">
+                      <div className="filled absolute bottom-0 left-0 w-full h-0 bg-[#25d366] transition-all duration-300 group-hover:h-full"></div>
+                      <WhatsAppIcon className="h-5 w-5 relative z-10" />
+                    </Link>
+                  </li>
+                  <li className="relative group icon-content">
+                    <div className="tooltip absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-hover:-top-12 transition-all duration-300 bg-primary text-white px-3 py-1.5 rounded-md text-[11px] font-mono uppercase tracking-widest z-20 pointer-events-none">Email</div>
+                    <Link href="mailto:00mezzomo@gmail.com" className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground transition-all duration-300 group hover:text-white" data-social="email">
+                      <div className="filled absolute bottom-0 left-0 w-full h-0 bg-primary transition-all duration-300 group-hover:h-full"></div>
+                      <Mail className="h-5 w-5 relative z-10" />
+                    </Link>
+                  </li>
+                </ul>
+                <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+                  <DigitalClock />
+                  <CyberText text={`© ${year} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" />
+                </div>
+              </div>
+            </footer>
+        </div>
       </main>
 
       <style jsx global>{`
