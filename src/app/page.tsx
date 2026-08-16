@@ -20,6 +20,7 @@ import {
   X,
   Minus
 } from 'lucide-react';
+import { VIDEOS_DATA } from '@/lib/videos-data';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
@@ -516,6 +517,121 @@ function TypewriterText({ text, onComplete, speed = 15, showCursor = true }: { t
       {displayedText}
       {showCursor && <span className="w-2 h-4 bg-white inline-block ml-0.5 align-middle animate-cursor-blink" />}
     </span>
+  );
+}
+
+function MorphTitle() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // Use only a subset of projects to keep performance high
+  const projects = useMemo(() => {
+    const subset = VIDEOS_DATA.slice(0, isMobile ? 6 : 12);
+    return subset;
+  }, [isMobile]);
+
+  useGSAP(() => {
+    if (!containerRef.current || !textRef.current || !gridRef.current) return;
+
+    const tiles = gridRef.current.children;
+    
+    if (isReduced) {
+      gsap.fromTo(textRef.current, 
+        { opacity: 0 },
+        { 
+          opacity: 1, 
+          duration: 0.4,
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+      return;
+    }
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top 70%",
+        toggleActions: "play none none none"
+      }
+    });
+
+    // Initial state: tiles scattered in a grid
+    tl.set(tiles, {
+      opacity: 0,
+      scale: 0.5,
+      x: () => (Math.random() - 0.5) * 200,
+      y: () => (Math.random() - 0.5) * 200,
+      rotation: () => (Math.random() - 0.5) * 45
+    });
+
+    // Morph animation: tiles converge to form the text
+    tl.to(tiles, {
+      opacity: 0.8,
+      scale: 1.1,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      duration: 1.5,
+      stagger: {
+        amount: 0.5,
+        from: "random"
+      },
+      ease: "expo.out"
+    });
+
+    // Reveal text and fade tiles
+    tl.to(textRef.current, {
+      opacity: 1,
+      duration: 0.8,
+      ease: "power2.out"
+    }, "-=0.8");
+
+    tl.to(tiles, {
+      opacity: 0,
+      scale: 1.5,
+      filter: "blur(20px)",
+      duration: 1,
+      stagger: 0.05,
+      ease: "power2.in"
+    }, "-=0.5");
+
+    tl.to(".contact-cta-ref", {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: "back.out(1.7)"
+    }, "-=0.2");
+
+  }, { scope: containerRef });
+
+  return (
+    <div ref={containerRef} className="relative w-full py-20 flex flex-col items-center justify-center min-h-[400px]">
+      <div ref={gridRef} className="absolute inset-0 z-0 pointer-events-none grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 px-10">
+        {projects.map((proj, i) => (
+          <div key={i} className="relative w-full aspect-video rounded-sm overflow-hidden border border-primary/20 bg-muted">
+            {proj.coverImage ? (
+              <img src={proj.coverImage} className="w-full h-full object-cover opacity-60" alt="" />
+            ) : (
+              <div className="w-full h-full bg-primary/10" />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <h2 
+        ref={textRef} 
+        className="relative z-10 text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref opacity-0 text-center leading-tight"
+      >
+        Ready to tell<br />your story?
+      </h2>
+    </div>
   );
 }
 
@@ -1033,16 +1149,18 @@ export default function Home() {
         </section>
 
         {/* CONTACT & FOOTER LAYER (Z-40) */}
-        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform">
-          <div className="flex-1 flex flex-col justify-end items-center text-center px-6 pt-20 pb-12">
-            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">Ready to tell<br />your story?</h2>
-            <Link href="mailto:00mezzomo@gmail.com">
-              <MagneticCTA>
-                <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] transition-shadow">
-                  Let's Talk
-                </Button>
-              </MagneticCTA>
-            </Link>
+        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform overflow-hidden">
+          <div className="flex-1 flex flex-col justify-center items-center text-center px-6 pt-20 pb-12">
+            <MorphTitle />
+            <div className="contact-cta-ref opacity-0 translate-y-10">
+              <Link href="mailto:00mezzomo@gmail.com">
+                <MagneticCTA>
+                  <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] transition-shadow">
+                    Let's Talk
+                  </Button>
+                </MagneticCTA>
+              </Link>
+            </div>
           </div>
           
           <div className="relative overflow-hidden shrink-0">
