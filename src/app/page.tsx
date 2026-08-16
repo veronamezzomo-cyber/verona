@@ -702,6 +702,51 @@ export default function Home() {
       }
     });
 
+    // Explosion Effect for Contact Section
+    const explosionTrigger = ScrollTrigger.create({
+      trigger: "#contact-section",
+      start: "top 20%",
+      toggleActions: "play none none none",
+      onEnter: () => {
+        const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isMobile = window.innerWidth < 768;
+
+        if (isReduced) {
+          gsap.fromTo(".contact-video-tile", { opacity: 0 }, { opacity: 0.2, duration: 1 });
+          gsap.fromTo(".contact-content-reveal", { opacity: 0 }, { opacity: 1, duration: 1 });
+          return;
+        }
+
+        const tl = gsap.timeline();
+        
+        // Hide extra videos on mobile via GSAP logic if needed, but handled in JSX
+        tl.fromTo(".contact-video-tile",
+          { scale: 0, x: 0, y: 0, opacity: 0 },
+          {
+            scale: 1,
+            x: (i) => {
+              if (isMobile) return 0;
+              return i === 0 ? "-35vw" : i === 1 ? "35vw" : "0";
+            },
+            y: (i) => {
+              if (isMobile) return 0;
+              return i === 0 ? "-10vh" : i === 1 ? "10vh" : "-20vh";
+            },
+            opacity: 0.2,
+            duration: 1.5,
+            stagger: 0.1,
+            ease: "expo.out"
+          }
+        );
+
+        tl.fromTo(".contact-content-reveal",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1, ease: "power2.out" },
+          "-=1"
+        );
+      }
+    });
+
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!isReduced) {
       const skewTargets = ".skew-text-ref";
@@ -749,6 +794,8 @@ export default function Home() {
     { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 },
     { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 }
   ];
+
+  const contactExplosionVideos = useMemo(() => VIDEOS_DATA.slice(0, 3), []);
 
   const starClass = cn(
     "transition-opacity duration-300 opacity-0",
@@ -1034,25 +1081,58 @@ export default function Home() {
         </section>
 
         {/* CONTACT & FOOTER LAYER (Z-40) */}
-        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col justify-between border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform overflow-hidden">
-          <div className="flex-1 flex flex-col justify-center items-center text-center px-6 py-20">
-            <h2 className="text-6xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref">
-              Ready to tell<br />your story?
-            </h2>
-            <Link href="mailto:00mezzomo@gmail.com">
-              <MagneticCTA>
-                <Button size="lg" className="rounded-none px-16 h-20 text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(var(--primary),0.5)] transition-shadow">
-                  Let's Talk
-                </Button>
-              </MagneticCTA>
-            </Link>
+        <section id="contact-section" className="stack-section sticky top-0 z-[40] min-h-screen flex flex-col border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] will-change-transform overflow-hidden">
+          {/* Centered Content Area between Header and Footer */}
+          <div className="flex-1 flex items-center justify-center relative px-6 py-20 overflow-hidden">
+            {/* Background Explosion Videos */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+              {contactExplosionVideos.map((vid, i) => (
+                <div 
+                  key={`explosion-${vid.id}`}
+                  className={cn(
+                    "contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/20 bg-black opacity-0 will-change-transform",
+                    i > 0 && "hidden md:block" // Only show 1 video on mobile
+                  )}
+                  style={{ transform: 'scale(0)' }}
+                >
+                  <EditableVideo 
+                    src={vid.videoUrl} 
+                    storageKey={`contact-explosion-${vid.id}`}
+                    fill
+                    className="object-cover grayscale brightness-50 contrast-125"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    hideControls
+                  />
+                  <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
+                </div>
+              ))}
+              {/* Legibility Overlay */}
+              <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
+            </div>
+
+            {/* Title and CTA Content */}
+            <div className="contact-content-reveal relative z-10 flex flex-col items-center text-center opacity-0">
+              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold mb-12 skew-text-ref drop-shadow-2xl">
+                Ready to tell<br />your story?
+              </h2>
+              <Link href="mailto:00mezzomo@gmail.com">
+                <MagneticCTA>
+                  <Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:shadow-[0_0_40px_rgba(var(--primary),0.6)] transition-all duration-300 border-2 border-primary hover:bg-transparent hover:text-primary">
+                    Let's Talk
+                  </Button>
+                </MagneticCTA>
+              </Link>
+            </div>
           </div>
           
-          <div className="relative overflow-hidden shrink-0">
+          <div className="relative overflow-hidden shrink-0 z-20">
              <div className={cn("overflow-hidden transition-all duration-700 ease-in-out bg-background flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
                 <LEDTicker text="VERONA STUDIO" />
               </div>
-              <footer className="py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5">
+              <footer className="py-8 md:py-12 w-full px-6 md:px-12 bg-background/95 border-t border-foreground/5">
                 <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
                   <ul className="flex gap-4 items-center">
                     <li className="relative group icon-content">
