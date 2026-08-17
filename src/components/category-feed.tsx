@@ -344,7 +344,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!containerRef.current || !contentRef.current) return;
 
     if (isExpanded) {
-      // Sincroniza a expansão com o ScrollTrigger do menu de filtros
       gsap_real.to(containerRef.current, {
         height: '85vh',
         opacity: 1,
@@ -357,7 +356,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         }
       });
       
-      // Revelação do conteúdo interna, disparada quando o menu atinge o topo
       gsap_real.fromTo(contentRef.current, 
         { y: 60, opacity: 0, filter: 'blur(10px)' },
         { 
@@ -374,7 +372,6 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         }
       );
     } else {
-      // Recolhimento normal
       gsap_real.to(containerRef.current, {
         height: '120px',
         opacity: 0,
@@ -410,7 +407,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '120px' }}
       >
-        <div className={cn("absolute left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none transition-all duration-700", isExpanded ? "top-[138px]" : "top-6")}>
+        <div className={cn("absolute left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none transition-all duration-700", isExpanded ? "top-[134px]" : "top-6")}>
           <div className="flex flex-col gap-1">
             <CyberText 
               text="Active Layer" 
@@ -471,7 +468,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-3 pt-[138px] px-12 border-b border-foreground/5 shrink-0 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-3 pt-[134px] px-12 border-b border-foreground/5 shrink-0 gap-6">
             <div className="hidden md:block" />
 
             <div className="flex flex-col gap-1.5 items-center text-center">
@@ -498,9 +495,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 "transition-all duration-700",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
                 category === 'shorts' 
-                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-6 px-4 scroll-smooth" 
+                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-12 px-4 scroll-smooth" 
                   : cn(
-                      "grid max-w-[1600px] mx-auto pt-6",
+                      "grid max-w-[1600px] mx-auto pt-12",
                       category === 'all'
                         ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                         : cn(
