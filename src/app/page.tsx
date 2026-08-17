@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -66,6 +67,13 @@ const ALL_TECH = [
   { id: 'ae', name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
   { id: 'ps', name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
   { id: 'ai', name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
+];
+
+const BOOT_LINES = [ 
+  "[BOOT]: INITIALIZING VERONA_ENGINE...", 
+  "[INFO]: LOADING_CORE_MODULES [OK]", 
+  "[INFO]: SYNCING_ARCHIVE_DATA [OK]", 
+  "[INFO]: ESTABLISHING_SECURE_CONN [OK]" 
 ];
 
 export default function Home() {
@@ -218,13 +226,7 @@ export default function Home() {
       }
     });
 
-    // Motor de Inércia Global Resiliente
-    const scrollTracker = ScrollTrigger.create({
-      trigger: "body",
-      start: "top top",
-      end: "bottom bottom"
-    });
-
+    // Motor de Física Orbital Reativa (Hybrid Orbit)
     ScrollTrigger.create({
       trigger: "#contact-section", 
       start: "top bottom", 
@@ -258,12 +260,17 @@ export default function Home() {
 
         gsap.to(".contact-video-tile", {
           opacity: 1,
-          duration: 7,
-          ease: "power1.inOut"
+          duration: 2,
+          ease: "power1.out"
         });
 
         const tiles = document.querySelectorAll(".contact-video-tile");
         const cta = document.querySelector(".contact-content-reveal");
+        const scrollTracker = ScrollTrigger.create({
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom"
+        });
 
         gsap.to({}, {
           duration: 1,
@@ -274,9 +281,10 @@ export default function Home() {
             const progress = self.progress;
             
             // Lógica de Seguimento Magnético (Positional Following)
+            // driftY faz com que a órbita "suba" conforme o scroll avança
             const driftY = (1 - progress) * 15; 
             
-            // Junção dos 3 Efeitos Reativos
+            // Junção dos Efeitos Reativos: Inércia + Stretch + Seguimento
             reactiveOffset.y += (velocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
             reactiveOffset.tilt += (velocity * 0.006 - reactiveOffset.tilt) * 0.07;
             reactiveOffset.stretch += (1 + Math.abs(velocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
@@ -335,6 +343,10 @@ export default function Home() {
       y: e.clientY - terminalOffset.y
     };
   };
+
+  const categories = [ { id: 'all', label: 'All' }, { id: 'shorts', label: 'Shorts' }, { id: 'long', label: 'Long-Form' }, { id: 'motion', label: 'Motion' }, { id: 'talking', label: 'Talking Heads' }, { id: 'vlogs', label: 'Vlogs' } ];
+  const catImages = [ { id: 'all', imageUrl: 'https://i.imgur.com/lj2mU6F.png' }, { id: 'shorts', imageUrl: 'https://i.imgur.com/ehRTGR0.png' }, { id: 'long', imageUrl: 'https://i.imgur.com/jAja7gP.png' }, { id: 'motion', imageUrl: 'https://i.imgur.com/leLxq09.png' }, { id: 'talking', imageUrl: 'https://i.imgur.com/2u5rbjn.png' }, { id: 'vlogs', imageUrl: 'https://i.imgur.com/85wpzam.png' } ];
+  const clusterVideos = [ { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 }, { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 0 }, { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 }, { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 }, { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 } ];
 
   return (
     <div className="min-h-screen text-foreground bg-background relative overflow-x-clip">
@@ -445,11 +457,13 @@ export default function Home() {
                   </div>
                   <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>roll</button>
                 </div>
+
+                {/* archive_console.exe (Draggable & Fluid) */}
                 {!isTerminalClosed && (
                   <div 
                     className={cn(
-                      "w-full relative z-50", 
-                      !isDraggingTerminal && "transition-all duration-500",
+                      "w-full relative z-[60]", 
+                      !isDraggingTerminal && "transition-transform duration-500",
                       isTerminalMinimized ? "h-10 opacity-60" : "h-[220px]"
                     )}
                     style={{ transform: `translate(${terminalOffset.x}px, ${terminalOffset.y}px)` }}
@@ -467,7 +481,7 @@ export default function Home() {
                       </div>
                       {!isTerminalMinimized && (
                         <div 
-                          onWheel={(e) => e.stopPropagation()}
+                          onWheel={(e) => e.stopPropagation()} // Isolamento de Scroll
                           className="p-4 font-mono text-[11px] bg-black text-white overflow-y-auto flex-1 cyber-scrollbar cursor-text"
                         >
                           {isBooting ? BOOT_LINES.slice(0, bootStep).map((l, i) => <div key={i} className="opacity-80">{l}</div>) : (
@@ -529,7 +543,11 @@ export default function Home() {
           <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5">
             <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
               <ul className="flex gap-4 items-center">
-                {[ { id: 'discord', icon: <DiscordIcon className="h-5 w-5 relative z-10" />, color: '#7289da', link: 'https://discord.com/users/299338458231603202' }, { id: 'whatsapp', icon: <WhatsAppIcon className="h-5 w-5 relative z-10" />, color: '#25d366', link: '#' }, { id: 'email', icon: <Mail className="h-5 w-5 relative z-10" />, color: 'hsl(var(--primary))', link: 'mailto:00mezzomo@gmail.com' } ].map(s => (
+                {[ 
+                  { id: 'discord', icon: <DiscordIcon className="h-5 w-5 relative z-10" />, color: '#7289da', link: 'https://discord.com/users/299338458231603202' }, 
+                  { id: 'whatsapp', icon: <WhatsAppIcon className="h-5 w-5 relative z-10" />, color: '#25d366', link: '#' }, 
+                  { id: 'email', icon: <Mail className="h-5 w-5 relative z-10" />, color: 'hsl(var(--primary))', link: 'mailto:00mezzomo@gmail.com' } 
+                ].map(s => (
                   <li key={s.id} className="relative group">
                     <Link href={s.link} className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all duration-300">
                       <div className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 group-hover:h-full" style={{ backgroundColor: s.color }} />
@@ -563,8 +581,4 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
   </svg>
 );
-
-const categories = [ { id: 'all', label: 'All' }, { id: 'shorts', label: 'Shorts' }, { id: 'long', label: 'Long-Form' }, { id: 'motion', label: 'Motion' }, { id: 'talking', label: 'Talking Heads' }, { id: 'vlogs', label: 'Vlogs' } ];
-const catImages = [ { id: 'all', imageUrl: 'https://i.imgur.com/lj2mU6F.png' }, { id: 'shorts', imageUrl: 'https://i.imgur.com/ehRTGR0.png' }, { id: 'long', imageUrl: 'https://i.imgur.com/jAja7gP.png' }, { id: 'motion', imageUrl: 'https://i.imgur.com/leLxq09.png' }, { id: 'talking', imageUrl: 'https://i.imgur.com/2u5rbjn.png' }, { id: 'vlogs', imageUrl: 'https://i.imgur.com/85wpzam.png' } ];
-const clusterVideos = [ { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 }, { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 0 }, { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 }, { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 }, { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 } ];
-const BOOT_LINES = [ "[BOOT]: INITIALIZING VERONA_ENGINE...", "[INFO]: LOADING_CORE_MODULES [OK]", "[INFO]: SYNCING_ARCHIVE_DATA [OK]", "[INFO]: ESTABLISHING_SECURE_CONN [OK]" ];
+    
