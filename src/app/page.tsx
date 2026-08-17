@@ -88,8 +88,21 @@ export default function Home() {
   const contactVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
-    const handleScroll = () => setIsSecretVisible(window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 30);
-    window.addEventListener('wheel', handleScroll, { passive: true });
+    let scrollCount = 0;
+    const handleWheel = (e: WheelEvent) => {
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
+      if (atBottom && e.deltaY > 0) {
+        scrollCount++;
+        if (scrollCount >= 3) {
+          setIsSecretVisible(true);
+        }
+      } else if (window.scrollY < document.documentElement.scrollHeight - 200) {
+        scrollCount = 0;
+        setIsSecretVisible(false);
+      }
+    };
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    
     setTimeout(() => {
       const boot = setInterval(() => {
         setBootStep(s => {
@@ -98,7 +111,7 @@ export default function Home() {
         });
       }, 800);
     }, 1000);
-    return () => window.removeEventListener('wheel', handleScroll);
+    return () => window.removeEventListener('wheel', handleWheel);
   }, []);
 
   useGSAP(() => {
@@ -262,7 +275,7 @@ export default function Home() {
           <CategoryFeed category={activeCategory} onClose={() => setActiveCategory(null)} />
         </section>
 
-        <section id="archive-section" className="stack-section sticky top-0 z-[30] h-screen w-full bg-background border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+        <section id="archive-section" className="relative z-[30] min-h-screen w-full bg-background border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="w-full h-full pt-20 px-6 md:px-12 lg:px-24 flex flex-col items-center">
             <div className="flex flex-wrap justify-center gap-12 md:gap-32 items-center mb-6">
               {[ { l: 'Years', v: 6 }, { l: 'Clients', v: 12 }, { l: 'Projects', v: 80 } ].map(s => (
@@ -322,41 +335,45 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact-section" className="stack-section sticky top-0 z-[40] h-screen flex flex-col items-center justify-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-            {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
-              <div 
-                key={i} 
-                className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black opacity-0 shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)]"
-                style={{ willChange: 'transform, opacity' }}
-              >
-                <EditableVideo 
-                  ref={el => { contactVideoRefs.current[i] = el; }}
-                  src={vid.videoUrl} 
-                  storageKey={`contact-${vid.id}`} 
-                  fill 
-                  className="object-cover" 
-                  autoPlay={false}
-                  muted 
-                  loop 
-                  playsInline 
-                  hideControls 
-                  preload="metadata"
-                />
-                <div className="absolute inset-0 bg-black/60" />
-                <div className="absolute inset-0 bg-primary/5 mix-blend-overlay" />
-              </div>
-            ))}
-            <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
+        <section id="contact-section" className="relative z-[40] min-h-[120vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+          <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-none z-0">
+            <div className="absolute inset-0 flex items-center justify-center">
+              {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
+                <div 
+                  key={i} 
+                  className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black opacity-0 shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)]"
+                  style={{ willChange: 'transform, opacity' }}
+                >
+                  <EditableVideo 
+                    ref={el => { contactVideoRefs.current[i] = el; }}
+                    src={vid.videoUrl} 
+                    storageKey={`contact-${vid.id}`} 
+                    fill 
+                    className="object-cover" 
+                    autoPlay={false}
+                    muted 
+                    loop 
+                    playsInline 
+                    hideControls 
+                    preload="metadata"
+                  />
+                  <div className="absolute inset-0 bg-black/60" />
+                  <div className="absolute inset-0 bg-primary/5 mix-blend-overlay" />
+                </div>
+              ))}
+              <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
+            </div>
           </div>
-          <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0">
+          <div className="contact-content-reveal relative z-10 -mt-[100vh] min-h-screen flex flex-col items-center justify-center text-center gap-14 opacity-0 pointer-events-auto">
             <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
           </div>
         </section>
 
         <div className="relative z-50 bg-background">
-          <div className={cn("overflow-hidden transition-all duration-700 flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}><LEDTicker text="VERONA STUDIO" /></div>
+          <div className={cn("overflow-hidden transition-all duration-700 flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
+            <LEDTicker text="VERONA STUDIO" />
+          </div>
           <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5">
             <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
               <ul className="flex gap-4 items-center">
