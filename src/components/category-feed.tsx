@@ -6,9 +6,14 @@ import { EditableVideo } from '@/components/editable-video';
 import { EditableImage } from '@/components/editable-image';
 import { cn } from '@/lib/utils';
 import gsap_real from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { useToast } from '@/hooks/use-toast';
 import { VIDEOS_DATA, ProjectVideo } from '@/lib/videos-data';
+
+if (typeof window !== 'undefined') {
+  gsap_real.registerPlugin(ScrollTrigger);
+}
 
 interface CategoryFeedProps {
   category: string | null;
@@ -339,28 +344,47 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     if (!containerRef.current || !contentRef.current) return;
 
     if (isExpanded) {
+      // Sincroniza a expansão com o ScrollTrigger do menu de filtros
       gsap_real.to(containerRef.current, {
         height: '85vh',
         opacity: 1,
-        duration: 1.2,
-        ease: 'expo.inOut',
-        overwrite: 'auto'
+        scrollTrigger: {
+          trigger: "#works-section",
+          start: "top 80px",
+          end: "top top",
+          scrub: true,
+          invalidateOnRefresh: true,
+        }
       });
       
+      // Revelação do conteúdo interna, disparada quando o menu atinge o topo
       gsap_real.fromTo(contentRef.current, 
         { y: 60, opacity: 0, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1, delay: 0.5, ease: 'power4.out' }
+        { 
+          y: 0, 
+          opacity: 1, 
+          filter: 'blur(0px)', 
+          duration: 1, 
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: "#works-section",
+            start: "top 80px",
+            toggleActions: "play none none reverse"
+          }
+        }
       );
     } else {
+      // Recolhimento normal
       gsap_real.to(containerRef.current, {
         height: '120px',
+        opacity: 0,
         duration: 0.8,
         ease: 'power3.inOut',
         overwrite: 'auto'
       });
       setSelectedProject(null);
     }
-  }, [isExpanded, category]);
+  }, { dependencies: [isExpanded, category], scope: containerRef });
 
   const handleInteraction = (item: ProjectVideo) => {
     if (clickCount >= 8) {
@@ -566,7 +590,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               })}
             </div>
 
-            <div className="mt-12 py-3 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6 h-10 shrink-0 overflow-hidden">
+            <div className="mt-12 h-10 shrink-0 py-3 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6 overflow-hidden">
               <div className="flex gap-8 flex-wrap justify-center">
                 <span className="flex items-center gap-2">
                   Status: <CyberText text="Simultaneous Processing" variant="decrypt" delay={500} />
@@ -680,4 +704,3 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     </div>
   );
 }
-
