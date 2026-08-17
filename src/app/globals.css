@@ -289,6 +289,29 @@
   .dark .sparkle-button svg {
     fill: hsl(var(--accent));
   }
+
+  /* Luxury Neon Sweep */
+  @keyframes luxury-scan {
+    from { background-position: 200% center; }
+    to { background-position: -200% center; }
+  }
+
+  .luxury-neon-text {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--primary)) 45%,
+      #ffffff 50%,
+      hsl(var(--primary)) 55%,
+      hsl(var(--primary)) 100%
+    );
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: luxury-scan 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    filter: drop-shadow(0 0 8px hsla(var(--primary), 0.3));
+    display: inline-block;
+  }
 }
 
 ::view-transition-old(root),
