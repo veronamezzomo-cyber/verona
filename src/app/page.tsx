@@ -223,14 +223,14 @@ export default function Home() {
     })
     .to(".glow-line-1", {
       maskPosition: "-50% 0",
-      duration: 1.0,
+      duration: 2.2,
       ease: "power2.inOut"
     }, "+=0.1")
     .to(".glow-line-2", {
       maskPosition: "-50% 0",
-      duration: 0.9,
+      duration: 2.0,
       ease: "power2.inOut"
-    }, "+=0.2"); // Sacada ocular sequencial
+    }, "+=0.4"); // Sacada ocular sequencial
     
     ScrollTrigger.create({
       trigger: "#contact-section",
