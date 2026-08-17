@@ -396,7 +396,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact-section" className="relative z-[40] min-h-[140vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+        <section id="contact-section" className="relative z-[40] min-h-[110vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="sticky top-0 h-screen w-full flex items-center justify-center z-0">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
               {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
