@@ -121,7 +121,6 @@ export default function Home() {
     });
     gsap.to(".testimonial-word", { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out", scrollTrigger: { trigger: ".testimonial-trigger-ref", start: "top 80%", toggleActions: "play none none reverse" } });
     
-    // Pre-warm contact videos
     ScrollTrigger.create({
       trigger: "#contact-section",
       start: "top 150%",
@@ -134,10 +133,9 @@ export default function Home() {
 
     ScrollTrigger.create({
       trigger: "#contact-section", 
-      start: "top 20%", 
+      start: "top bottom", 
       toggleActions: "play none none none",
       onEnter: () => {
-        // Start playing videos staggered during the explosion
         contactVideoRefs.current.forEach((v, i) => {
           if (v) {
             setTimeout(() => {
@@ -146,43 +144,33 @@ export default function Home() {
           }
         });
 
-        const tl = gsap.timeline();
-        // Initial Explosion
-        tl.fromTo(".contact-video-tile", 
-          { scale: 0, x: 0, y: 0, opacity: 0 }, 
-          { 
-            scale: 1, 
-            x: i => window.innerWidth < 768 ? 0 : Math.cos(i*60*Math.PI/180)*38+"vw", 
-            y: i => window.innerWidth < 768 ? 0 : Math.sin(i*60*Math.PI/180)*28+"vh", 
-            opacity: 0.2, 
-            duration: 1.5, 
-            stagger: 0.1, 
-            ease: "expo.out",
-            onComplete: () => {
-              // Start Continuous Orbiting
-              gsap.to(".contact-video-tile", {
-                duration: 20,
-                repeat: -1,
-                ease: "none",
-                onUpdate: function() {
-                  const time = Date.now() * 0.0005;
-                  const tiles = document.querySelectorAll(".contact-video-tile");
-                  tiles.forEach((tile, i) => {
-                    const angle = time + (i * Math.PI * 2 / 6);
-                    const rx = window.innerWidth < 768 ? 20 : 38;
-                    const ry = window.innerWidth < 768 ? 15 : 28;
-                    gsap.set(tile, {
-                      x: Math.cos(angle) * rx + "vw",
-                      y: Math.sin(angle) * ry + "vh",
-                      rotation: Math.sin(angle * 0.5) * 5 // Subtle drift
-                    });
-                  });
-                }
+        gsap.to(".contact-video-tile", {
+          opacity: 1,
+          duration: 7,
+          ease: "power2.inOut"
+        });
+
+        gsap.to(".contact-video-tile", {
+          duration: 20,
+          repeat: -1,
+          ease: "none",
+          onUpdate: function() {
+            const time = Date.now() * 0.0005;
+            const tiles = document.querySelectorAll(".contact-video-tile");
+            tiles.forEach((tile, i) => {
+              const angle = time + (i * Math.PI * 2 / 6);
+              const rx = window.innerWidth < 768 ? 20 : 38;
+              const ry = window.innerWidth < 768 ? 15 : 28;
+              gsap.set(tile, {
+                x: Math.cos(angle) * rx + "vw",
+                y: Math.sin(angle) * ry + "vh",
+                rotation: Math.sin(angle * 0.5) * 5
               });
-            }
+            });
           }
-        );
-        tl.fromTo(".contact-content-reveal", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, "-=1");
+        });
+
+        gsap.fromTo(".contact-content-reveal", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1.5, delay: 0.5, ease: "power2.out" });
       }
     });
   }, { scope: mainRef });
