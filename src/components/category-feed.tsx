@@ -492,20 +492,15 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
           <div className="flex-1 relative overflow-y-auto pointer-events-auto pb-10 px-6 md:px-12 lg:px-24 cyber-scrollbar">
             <div 
               className={cn(
-                "transition-all duration-700",
+                "transition-all duration-700 grid max-w-[1600px] mx-auto pt-[92px]",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
-                category === 'shorts' 
-                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-[92px] px-4 scroll-smooth" 
+                category === 'all'
+                  ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                   : cn(
-                      "grid max-w-[1600px] mx-auto pt-[92px]",
-                      category === 'all'
-                        ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
-                        : cn(
-                            "gap-10 md:gap-12 lg:gap-16",
-                            category && verticalCategories.includes(category)
-                              ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5" 
-                              : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                          )
+                      "gap-10 md:gap-12 lg:gap-16",
+                      category && verticalCategories.includes(category)
+                        ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5" 
+                        : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                     )
               )}
             >
@@ -518,8 +513,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                     key={item.id} 
                     className={cn(
                       "flex flex-col gap-4 group transform transition-all duration-700",
-                      isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10",
-                      category === 'shorts' && "flex-shrink-0 w-[180px] sm:w-[200px] md:w-[240px]"
+                      isExpanded ? "animate-slide-up opacity-100 translate-y-0" : "opacity-0 translate-y-10"
                     )}
                     style={{ transitionDelay: `${index * 150}ms` }}
                   >
