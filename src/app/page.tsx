@@ -75,6 +75,10 @@ const BOOT_LINES = [
   "[INFO]: ESTABLISHING_SECURE_CONN [OK]" 
 ];
 
+const HIGHLIGHT_WORDS = ["edits", "people", "watching", "longer"];
+const TESTIMONIAL_L1 = "Leonardo's edits kept people";
+const TESTIMONIAL_L2 = "watching longer.";
+
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<string | null>('all');
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -202,18 +206,31 @@ export default function Home() {
       }
     });
 
-    gsap.to(".testimonial-word", { 
+    // Sequential Luxury Neon Sweep Timeline
+    gsap.timeline({
+      scrollTrigger: {
+        trigger: ".testimonial-trigger-ref",
+        start: "top 75%",
+        toggleActions: "play none none none"
+      }
+    })
+    .to(".testimonial-word", { 
       y: 0, 
       opacity: 1, 
-      duration: 0.5, 
-      stagger: 0.05, 
-      ease: "power2.out", 
-      scrollTrigger: { 
-        trigger: ".testimonial-trigger-ref", 
-        start: "top 80%", 
-        toggleActions: "play none none reverse" 
-      } 
-    });
+      duration: 0.8, 
+      stagger: 0.03, 
+      ease: "power3.out"
+    })
+    .to(".glow-line-1", {
+      maskPosition: "150% 0",
+      duration: 2.8,
+      ease: "power2.inOut"
+    }, "-=0.2")
+    .to(".glow-line-2", {
+      maskPosition: "150% 0",
+      duration: 2.2,
+      ease: "power2.inOut"
+    }, "-=0.8");
     
     ScrollTrigger.create({
       trigger: "#contact-section",
@@ -346,8 +363,37 @@ export default function Home() {
   const catImages = [ { id: 'all', imageUrl: 'https://i.imgur.com/lj2mU6F.png' }, { id: 'shorts', imageUrl: 'https://i.imgur.com/ehRTGR0.png' }, { id: 'long', imageUrl: 'https://i.imgur.com/jAja7gP.png' }, { id: 'motion', imageUrl: 'https://i.imgur.com/leLxq09.png' }, { id: 'talking', imageUrl: 'https://i.imgur.com/2u5rbjn.png' }, { id: 'vlogs', imageUrl: 'https://i.imgur.com/85wpzam.png' } ];
   const clusterVideos = [ { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 }, { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 0 }, { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 }, { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 }, { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 } ];
 
-  const testimonialText = "Leonardo's edits kept people watching longer.";
-  const highlightWords = ["edits", "people", "watching", "longer"];
+  const renderNeonLine = (text: string, glowClass: string) => {
+    const words = text.split(' ');
+    return (
+      <div className="neon-line-wrapper">
+        <div className="neon-base-text">
+          {words.map((word, i) => {
+            const clean = word.replace(/[^a-zA-Z]/g, '');
+            const isH = HIGHLIGHT_WORDS.includes(clean);
+            return (
+              <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
+                <span className={cn("testimonial-word inline-block translate-y-full opacity-0", isH && "highlight")}>
+                  {word}
+                </span>
+              </span>
+            );
+          })}
+        </div>
+        <div className={cn("neon-glow-layer aria-hidden", glowClass)}>
+          {words.map((word, i) => {
+            const clean = word.replace(/[^a-zA-Z]/g, '');
+            const isH = HIGHLIGHT_WORDS.includes(clean);
+            return (
+              <span key={i} className={cn("inline-block mr-[0.25em]", isH ? "highlight" : "opacity-0")}>
+                {word}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen text-foreground bg-background relative overflow-x-clip">
@@ -435,32 +481,10 @@ export default function Home() {
               <div className="lg:col-span-7 testimonial-trigger-ref max-w-4xl relative">
                 <Quote className="absolute -top-10 -left-6 w-16 h-12 text-foreground/5 -z-10" />
                 
-                {/* Mastered Testimonial with Single Sweep Glow Layer */}
-                <div className="luxury-sweep-container text-3xl md:text-5xl font-serif italic leading-[1.1] mb-6">
-                  {/* Base Layer: Plain text with highlighted words in red */}
-                  <div className="testimonial-base">
-                    {testimonialText.split(' ').map((word, i) => (
-                      <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
-                        <span className={cn(
-                          "testimonial-word inline-block translate-y-full opacity-0",
-                          highlightWords.includes(word.replace(/[^a-zA-Z]/g, '')) ? "text-primary" : "text-foreground"
-                        )}>
-                          {word}
-                        </span>
-                      </span>
-                    ))}
-                  </div>
-                  
-                  {/* Glow Layer: Absolutely positioned overlay that runs the single mask sweep */}
-                  <div className="glow-layer aria-hidden select-none pointer-events-none">
-                    {testimonialText.split(' ').map((word, i) => (
-                      <span key={i} className="inline-block mr-[0.25em]">
-                        <span className={highlightWords.includes(word.replace(/[^a-zA-Z]/g, '')) ? "highlight" : ""}>
-                          {word}
-                        </span>
-                      </span>
-                    ))}
-                  </div>
+                {/* Sequential Luxury Neon Testimonial */}
+                <div className="luxury-neon-container text-3xl md:text-5xl font-serif italic leading-[1.2] mb-6">
+                  {renderNeonLine(TESTIMONIAL_L1, "glow-line-1")}
+                  {renderNeonLine(TESTIMONIAL_L2, "glow-line-2")}
                 </div>
 
                 <div className="flex items-center gap-4">
