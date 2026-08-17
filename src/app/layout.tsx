@@ -30,11 +30,11 @@ export const metadata: Metadata = {
   authors: [{ name: 'Leonardo Verona' }],
   icons: {
     icon: [
-      { url: 'https://i.imgur.com/dbHLAzR.png', sizes: '32x32', type: 'image/png' },
-      { url: 'https://i.imgur.com/dbHLAzR.png', sizes: '16x16', type: 'image/png' },
+      { url: 'https://i.imgur.com/WjYCpJL.png', sizes: '32x32', type: 'image/png' },
+      { url: 'https://i.imgur.com/WjYCpJL.png', sizes: '16x16', type: 'image/png' },
     ],
     apple: [
-      { url: 'https://i.imgur.com/dbHLAzR.png', sizes: '180x180', type: 'image/png' },
+      { url: 'https://i.imgur.com/WjYCpJL.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
