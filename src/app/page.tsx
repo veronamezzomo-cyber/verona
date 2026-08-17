@@ -12,7 +12,6 @@ import { DigitalClock } from '@/components/digital-clock';
 import { LEDTicker } from '@/components/led-ticker';
 import { FloatingVideoCluster } from '@/components/floating-video-cluster';
 import { MagneticCTA } from '@/components/magnetic-cta';
-import { SocialIcons } from '@/components/social-icons';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -148,7 +147,41 @@ export default function Home() {
         });
 
         const tl = gsap.timeline();
-        tl.fromTo(".contact-video-tile", { scale: 0, x: 0, y: 0, opacity: 0 }, { scale: 1, x: i => window.innerWidth < 768 ? 0 : Math.cos(i*60*Math.PI/180)*38+"vw", y: i => window.innerWidth < 768 ? 0 : Math.sin(i*60*Math.PI/180)*28+"vh", opacity: 0.2, duration: 1.5, stagger: 0.1, ease: "expo.out" });
+        // Initial Explosion
+        tl.fromTo(".contact-video-tile", 
+          { scale: 0, x: 0, y: 0, opacity: 0 }, 
+          { 
+            scale: 1, 
+            x: i => window.innerWidth < 768 ? 0 : Math.cos(i*60*Math.PI/180)*38+"vw", 
+            y: i => window.innerWidth < 768 ? 0 : Math.sin(i*60*Math.PI/180)*28+"vh", 
+            opacity: 0.2, 
+            duration: 1.5, 
+            stagger: 0.1, 
+            ease: "expo.out",
+            onComplete: () => {
+              // Start Continuous Orbiting
+              gsap.to(".contact-video-tile", {
+                duration: 20,
+                repeat: -1,
+                ease: "none",
+                onUpdate: function() {
+                  const time = Date.now() * 0.0005;
+                  const tiles = document.querySelectorAll(".contact-video-tile");
+                  tiles.forEach((tile, i) => {
+                    const angle = time + (i * Math.PI * 2 / 6);
+                    const rx = window.innerWidth < 768 ? 20 : 38;
+                    const ry = window.innerWidth < 768 ? 15 : 28;
+                    gsap.set(tile, {
+                      x: Math.cos(angle) * rx + "vw",
+                      y: Math.sin(angle) * ry + "vh",
+                      rotation: Math.sin(angle * 0.5) * 5 // Subtle drift
+                    });
+                  });
+                }
+              });
+            }
+          }
+        );
         tl.fromTo(".contact-content-reveal", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, "-=1");
       }
     });
@@ -304,7 +337,11 @@ export default function Home() {
         <section id="contact-section" className="stack-section sticky top-0 z-[40] h-screen flex flex-col items-center justify-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
-              <div key={i} className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/20 bg-black opacity-0">
+              <div 
+                key={i} 
+                className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black opacity-0 shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)]"
+                style={{ willChange: 'transform, opacity' }}
+              >
                 <EditableVideo 
                   ref={el => { contactVideoRefs.current[i] = el; }}
                   src={vid.videoUrl} 
@@ -318,14 +355,14 @@ export default function Home() {
                   hideControls 
                   preload="metadata"
                 />
-                <div className="absolute inset-0 bg-black/50" />
-                <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
+                <div className="absolute inset-0 bg-black/60" />
+                <div className="absolute inset-0 bg-primary/5 mix-blend-overlay" />
               </div>
             ))}
             <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
           </div>
           <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0">
-            <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1]">Ready to tell<br />your story?</h2>
+            <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
           </div>
         </section>
