@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
@@ -567,7 +566,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               })}
             </div>
 
-            <div className="mt-12 py-8 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6">
+            <div className="mt-12 py-3 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6 h-10 shrink-0 overflow-hidden">
               <div className="flex gap-8 flex-wrap justify-center">
                 <span className="flex items-center gap-2">
                   Status: <CyberText text="Simultaneous Processing" variant="decrypt" delay={500} />
@@ -681,3 +680,4 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     </div>
   );
 }
+
