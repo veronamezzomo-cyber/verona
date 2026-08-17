@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -200,33 +201,41 @@ export default function Home() {
           }
         });
 
-        gsap.to(".contact-video-tile", {
-          opacity: 1,
-          duration: 7,
-          ease: "power2.inOut"
+        const orbitCenter = { y: -120 };
+        gsap.to(orbitCenter, { 
+          y: 0, 
+          duration: 3, 
+          ease: "power2.out",
+          delay: 0.2
+        });
+
+        gsap.to(".contact-content-reveal", { 
+          opacity: 1, 
+          y: 0, 
+          duration: 1.5, 
+          delay: 1.2, 
+          ease: "power2.out" 
         });
 
         gsap.to(".contact-video-tile", {
-          duration: 20,
+          duration: 25,
           repeat: -1,
           ease: "none",
           onUpdate: function() {
-            const time = Date.now() * 0.0005;
+            const time = Date.now() * 0.0004;
             const tiles = document.querySelectorAll(".contact-video-tile");
             tiles.forEach((tile, i) => {
               const angle = time + (i * Math.PI * 2 / 6);
-              const rx = window.innerWidth < 768 ? 20 : 38;
-              const ry = window.innerWidth < 768 ? 15 : 28;
+              const rx = window.innerWidth < 768 ? 16 : 28;
+              const ry = window.innerWidth < 768 ? 12 : 20;
               gsap.set(tile, {
                 x: Math.cos(angle) * rx + "vw",
-                y: Math.sin(angle) * ry + "vh",
+                y: (Math.sin(angle) * ry + orbitCenter.y) + "vh",
                 rotation: Math.sin(angle * 0.5) * 5
               });
             });
           }
         });
-
-        gsap.fromTo(".contact-content-reveal", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1.5, delay: 0.5, ease: "power2.out" });
       }
     });
   }, { scope: mainRef });
@@ -388,12 +397,12 @@ export default function Home() {
         </section>
 
         <section id="contact-section" className="relative z-[40] min-h-[140vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-          <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-none z-0">
-            <div className="absolute inset-0 flex items-center justify-center">
+          <div className="sticky top-0 h-screen w-full flex items-center justify-center z-0">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
               {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
                 <div 
                   key={i} 
-                  className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black opacity-0 shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)]"
+                  className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)]"
                   style={{ willChange: 'transform, opacity' }}
                 >
                   <EditableVideo 
@@ -415,10 +424,11 @@ export default function Home() {
               ))}
               <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
             </div>
-          </div>
-          <div className="contact-content-reveal relative z-10 -mt-[100vh] min-h-screen flex flex-col items-center justify-center text-center gap-14 opacity-0 pointer-events-auto pb-32">
-            <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
-            <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
+
+            <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0 pointer-events-auto pb-32">
+              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
+              <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
+            </div>
           </div>
         </section>
 
