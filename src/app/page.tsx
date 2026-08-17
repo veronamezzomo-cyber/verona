@@ -203,7 +203,7 @@ export default function Home() {
 
         const orbitCenter = { y: -120 };
         gsap.to(orbitCenter, { 
-          y: 0, 
+          y: 25, 
           duration: 3, 
           ease: "power2.out",
           delay: 0.2
@@ -425,7 +425,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
             </div>
 
-            <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0 pointer-events-auto pb-32">
+            <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-end h-full text-center gap-14 opacity-0 pointer-events-auto pb-32">
               <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
               <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
             </div>
