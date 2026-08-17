@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -188,9 +189,17 @@ export default function Home() {
       }
     });
 
+    // Motor de Inércia Global para rastrear velocidade de scroll
+    const scrollTracker = ScrollTrigger.create({
+      trigger: "body",
+      start: "top top",
+      end: "bottom bottom"
+    });
+
     ScrollTrigger.create({
       trigger: "#contact-section", 
       start: "top bottom", 
+      once: true,
       onEnter: () => {
         contactVideoRefs.current.forEach((v, i) => {
           if (v) {
@@ -218,28 +227,29 @@ export default function Home() {
           ease: "power2.out" 
         });
 
-        // Transição de opacidade de 7 segundos
         gsap.to(".contact-video-tile", {
           opacity: 1,
           duration: 7,
           ease: "power1.inOut"
         });
 
-        gsap.to(".contact-video-tile", {
-          duration: 25,
+        const tiles = document.querySelectorAll(".contact-video-tile");
+        const cta = document.querySelector(".contact-content-reveal");
+
+        gsap.to({}, {
+          duration: 1,
           repeat: -1,
-          ease: "none",
-          onUpdate: function() {
+          onUpdate: () => {
             const time = Date.now() * 0.0004;
-            // Correção defensiva para o método getVelocity do ScrollTrigger
-            const velocity = typeof ScrollTrigger.getVelocity === 'function' ? ScrollTrigger.getVelocity() : 0;
+            // Acesso seguro à velocidade através do rastreador ou global
+            const velocity = scrollTracker ? scrollTracker.getVelocity() : 0;
             
             // Suavização da reação ao scroll (Hybrid Orbit Engine)
-            reactiveOffset.y += (velocity * 0.02 - reactiveOffset.y) * 0.08;
-            reactiveOffset.tilt += (velocity * 0.008 - reactiveOffset.tilt) * 0.08;
-            reactiveOffset.stretch += (1 + Math.abs(velocity) * 0.0002 - reactiveOffset.stretch) * 0.1;
+            // Aumentamos o multiplicador para 0.025 para inércia mais visível
+            reactiveOffset.y += (velocity * 0.025 - reactiveOffset.y) * 0.07;
+            reactiveOffset.tilt += (velocity * 0.006 - reactiveOffset.tilt) * 0.07;
+            reactiveOffset.stretch += (1 + Math.abs(velocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
 
-            const tiles = document.querySelectorAll(".contact-video-tile");
             tiles.forEach((tile, i) => {
               const angle = time + (i * Math.PI * 2 / 6);
               const rx = window.innerWidth < 768 ? 16 : 28;
@@ -252,6 +262,14 @@ export default function Home() {
                 skewX: reactiveOffset.tilt * 0.5
               });
             });
+
+            // Aplica a inércia do scroll também ao texto e botão para unidade visual
+            if (cta) {
+              gsap.set(cta, {
+                y: reactiveOffset.y * 0.25,
+                rotationX: reactiveOffset.tilt * 0.3
+              });
+            }
           }
         });
       }
