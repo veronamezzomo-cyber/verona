@@ -206,7 +206,7 @@ export default function Home() {
       }
     });
 
-    // Sequential Luxury Neon Sweep Timeline
+    // Sequential Luxury Neon Sweep Timeline (AE Style)
     gsap.timeline({
       scrollTrigger: {
         trigger: ".testimonial-trigger-ref",
@@ -222,15 +222,15 @@ export default function Home() {
       ease: "power3.out"
     })
     .to(".glow-line-1", {
-      maskPosition: "150% 0",
-      duration: 2.8,
+      maskPosition: "150% 0", // Sweep E -> D
+      duration: 1.0,
       ease: "power2.inOut"
-    }, "-=0.2")
+    }, "+=0.1")
     .to(".glow-line-2", {
-      maskPosition: "150% 0",
-      duration: 2.2,
+      maskPosition: "150% 0", // Sweep E -> D (Inicia após a linha 1)
+      duration: 0.9,
       ease: "power2.inOut"
-    }, "-=0.8");
+    }, "+=0.2"); // Sacada ocular (delay entre linhas)
     
     ScrollTrigger.create({
       trigger: "#contact-section",
