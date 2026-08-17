@@ -544,7 +544,19 @@ export default function Home() {
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
               <div key={i} className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/20 bg-black opacity-0">
-                <EditableVideo src={vid.videoUrl} storageKey={`contact-${vid.id}`} fill className="object-cover grayscale brightness-50 contrast-125" autoPlay muted loop playsInline hideControls />
+                <EditableVideo 
+                  src={vid.videoUrl} 
+                  storageKey={`contact-${vid.id}`} 
+                  fill 
+                  className="object-cover grayscale" 
+                  autoPlay 
+                  muted 
+                  loop 
+                  playsInline 
+                  hideControls 
+                  preload="none"
+                />
+                <div className="absolute inset-0 bg-black/50" />
                 <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
               </div>
             ))}

@@ -22,7 +22,8 @@ export function EditableVideo({
   className,
   hideControls = false,
   startTime,
-  autoPlay: autoPlayProp,
+  autoPlay: autoPlayProp = true,
+  preload = "metadata",
   ...props 
 }: EditableVideoProps) {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
@@ -119,9 +120,9 @@ export function EditableVideo({
         )}
         muted={isMuted}
         playsInline
-        autoPlay={true}
+        autoPlay={autoPlayProp}
         loop={props.loop}
-        preload="auto"
+        preload={preload}
         aria-hidden="true"
         controls={props.controls}
       />
