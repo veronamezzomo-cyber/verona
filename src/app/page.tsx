@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -448,7 +447,11 @@ export default function Home() {
                 </div>
                 {!isTerminalClosed && (
                   <div 
-                    className={cn("w-full transition-all duration-500 relative z-50", isTerminalMinimized ? "h-10 opacity-60" : "h-[220px]")}
+                    className={cn(
+                      "w-full relative z-50", 
+                      !isDraggingTerminal && "transition-all duration-500",
+                      isTerminalMinimized ? "h-10 opacity-60" : "h-[220px]"
+                    )}
                     style={{ transform: `translate(${terminalOffset.x}px, ${terminalOffset.y}px)` }}
                   >
                     <div className="bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-2xl h-full flex flex-col">
