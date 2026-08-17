@@ -88,6 +88,11 @@ export default function Home() {
   const techIconsRef = useRef<HTMLDivElement>(null);
   const contactVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
+  // Console Drag State
+  const [terminalOffset, setTerminalOffset] = useState({ x: 0, y: 0 });
+  const [isDraggingTerminal, setIsDraggingTerminal] = useState(false);
+  const dragStartPos = useRef({ x: 0, y: 0 });
+
   useEffect(() => {
     let scrollCount = 0;
     const handleWheel = (e: WheelEvent) => {
@@ -114,6 +119,31 @@ export default function Home() {
     }, 1000);
     return () => window.removeEventListener('wheel', handleWheel);
   }, []);
+
+  // Console Drag Handlers
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDraggingTerminal) return;
+      setTerminalOffset({
+        x: e.clientX - dragStartPos.current.x,
+        y: e.clientY - dragStartPos.current.y
+      });
+    };
+
+    const handleGlobalMouseUp = () => {
+      setIsDraggingTerminal(false);
+    };
+
+    if (isDraggingTerminal) {
+      window.addEventListener('mousemove', handleGlobalMouseMove);
+      window.addEventListener('mouseup', handleGlobalMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [isDraggingTerminal]);
 
   useGSAP(() => {
     gsap.to(".hero-line", { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power4.out" });
@@ -189,7 +219,7 @@ export default function Home() {
       }
     });
 
-    // Motor de Inércia Global
+    // Motor de Inércia Global Resiliente
     const scrollTracker = ScrollTrigger.create({
       trigger: "body",
       start: "top top",
@@ -245,8 +275,7 @@ export default function Home() {
             const progress = self.progress;
             
             // Lógica de Seguimento Magnético (Positional Following)
-            // O targetY desloca o centro dependendo de onde o scroll está na seção
-            const driftY = (1 - progress) * 15; // Ajuste para subir/descer com o scroll
+            const driftY = (1 - progress) * 15; 
             
             // Junção dos 3 Efeitos Reativos
             reactiveOffset.y += (velocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
@@ -268,7 +297,7 @@ export default function Home() {
 
             if (cta) {
               gsap.set(cta, {
-                y: reactiveOffset.y * 0.4, // Segue o scroll com inércia
+                y: reactiveOffset.y * 0.4, 
                 rotationX: reactiveOffset.tilt * 0.3
               });
             }
@@ -298,6 +327,14 @@ export default function Home() {
         } 
       });
     }
+  };
+
+  const handleTerminalMouseDown = (e: React.MouseEvent) => {
+    setIsDraggingTerminal(true);
+    dragStartPos.current = {
+      x: e.clientX - terminalOffset.x,
+      y: e.clientY - terminalOffset.y
+    };
   };
 
   return (
@@ -410,14 +447,26 @@ export default function Home() {
                   <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>roll</button>
                 </div>
                 {!isTerminalClosed && (
-                  <div className={cn("w-full transition-all duration-500", isTerminalMinimized ? "h-10 opacity-60" : "h-[220px]")}>
+                  <div 
+                    className={cn("w-full transition-all duration-500 relative z-50", isTerminalMinimized ? "h-10 opacity-60" : "h-[220px]")}
+                    style={{ transform: `translate(${terminalOffset.x}px, ${terminalOffset.y}px)` }}
+                  >
                     <div className="bg-[#0a0a0a] border border-white/10 rounded-sm overflow-hidden shadow-2xl h-full flex flex-col">
-                      <div className="bg-[#1a1a1a] h-8 px-4 flex items-center justify-between border-b border-white/10 cursor-move">
-                        <div className="flex items-center gap-2"><TerminalIcon className="w-3 h-3 text-white/60" /><span className="font-mono text-[10px] text-white/80">archive_console.exe</span></div>
-                        <div className="flex"><button onClick={() => setIsTerminalMinimized(!isTerminalMinimized)} className="w-8 h-8 flex items-center justify-center hover:bg-white/10"><Minus className="w-3 h-3 text-white" /></button><button onClick={() => setIsTerminalClosed(true)} className="w-8 h-8 flex items-center justify-center hover:bg-[#e81123]"><X className="w-3 h-3 text-white" /></button></div>
+                      <div 
+                        onMouseDown={handleTerminalMouseDown}
+                        className={cn(
+                          "bg-[#1a1a1a] h-8 px-4 flex items-center justify-between border-b border-white/10 select-none",
+                          isDraggingTerminal ? "cursor-grabbing" : "cursor-grab"
+                        )}
+                      >
+                        <div className="flex items-center gap-2 pointer-events-none"><TerminalIcon className="w-3 h-3 text-white/60" /><span className="font-mono text-[10px] text-white/80">archive_console.exe</span></div>
+                        <div className="flex"><button onClick={(e) => { e.stopPropagation(); setIsTerminalMinimized(!isTerminalMinimized); }} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 relative z-10"><Minus className="w-3 h-3 text-white" /></button><button onClick={(e) => { e.stopPropagation(); setIsTerminalClosed(true); }} className="w-8 h-8 flex items-center justify-center hover:bg-[#e81123] relative z-10"><X className="w-3 h-3 text-white" /></button></div>
                       </div>
                       {!isTerminalMinimized && (
-                        <div className="p-4 font-mono text-[11px] bg-black text-white overflow-y-auto flex-1 cyber-scrollbar">
+                        <div 
+                          onWheel={(e) => e.stopPropagation()}
+                          className="p-4 font-mono text-[11px] bg-black text-white overflow-y-auto flex-1 cyber-scrollbar cursor-text"
+                        >
                           {isBooting ? BOOT_LINES.slice(0, bootStep).map((l, i) => <div key={i} className="opacity-80">{l}</div>) : (
                             <div className="space-y-4">
                               {faqHistory.map((h, i) => <div key={i} className="animate-in fade-in slide-in-from-left-2"><div className="text-white/40"><span className="text-white/80">C:\VERONA\ARCHIVE&gt;</span> {h.q}</div><div className="text-white pl-4 border-l border-white/20 font-light">{h.a}</div></div>)}
