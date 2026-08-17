@@ -243,6 +243,56 @@
     100% { transform: scaleY(0); transform-origin: top; }
   }
 
+  /* Luxury Neon Sweep - Single Wave Implementation */
+  @keyframes luxury-neon-sweep {
+    0% { mask-position: -200% 0; }
+    100% { mask-position: 200% 0; }
+  }
+
+  .luxury-sweep-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+
+  .glow-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    user-select: none;
+    color: transparent; /* Keep plain text invisible in this layer */
+    
+    /* The Sweep Mask */
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      transparent 35%,
+      white 50%,
+      transparent 65%,
+      transparent 100%
+    );
+    mask-size: 200% 100%;
+    mask-repeat: no-repeat;
+    animation: luxury-neon-sweep 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  /* The actual visible glowing text inside the glow-layer */
+  .glow-layer .highlight {
+    color: #ffffff; /* Bright white core for the sweep */
+    filter: drop-shadow(0 0 10px hsla(var(--primary), 0.8)) 
+            drop-shadow(0 0 25px hsla(var(--primary), 0.4));
+    display: inline-block;
+  }
+
+  .dark .glow-layer .highlight {
+    filter: drop-shadow(0 0 15px hsla(var(--primary), 0.95)) 
+            drop-shadow(0 0 40px hsla(var(--primary), 0.6));
+  }
+
   /* Sparkle Button Styles */
   .sparkle-button {
     position: relative;
@@ -288,40 +338,6 @@
   
   .dark .sparkle-button svg {
     fill: hsl(var(--accent));
-  }
-
-  /* Luxury Neon Sweep - Viewport Anchored Implementation */
-  @keyframes luxury-scan-global {
-    from { background-position: 250% center; }
-    to { background-position: -250% center; }
-  }
-
-  .luxury-neon-text {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--primary)) 0%,
-      hsl(var(--primary)) 46%,
-      #ffffff 50%,
-      hsl(var(--primary)) 54%,
-      hsl(var(--primary)) 100%
-    );
-    background-size: 400% 100%;
-    background-attachment: fixed; /* SYNC across multiple spans for 1-wave-per-phrase effect */
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: luxury-scan-global 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    
-    /* Neon glow - highly visible in dark mode (Glow2 style) */
-    filter: drop-shadow(0 0 10px hsla(var(--primary), 0.8)) 
-            drop-shadow(0 0 25px hsla(var(--primary), 0.3));
-    
-    display: inline-block;
-  }
-
-  /* Dark mode specific enhancement to avoid "dull" reds */
-  .dark .luxury-neon-text {
-    filter: drop-shadow(0 0 12px hsla(var(--primary), 0.95)) 
-            drop-shadow(0 0 35px hsla(var(--primary), 0.5));
   }
 }
 

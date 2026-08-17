@@ -346,6 +346,9 @@ export default function Home() {
   const catImages = [ { id: 'all', imageUrl: 'https://i.imgur.com/lj2mU6F.png' }, { id: 'shorts', imageUrl: 'https://i.imgur.com/ehRTGR0.png' }, { id: 'long', imageUrl: 'https://i.imgur.com/jAja7gP.png' }, { id: 'motion', imageUrl: 'https://i.imgur.com/leLxq09.png' }, { id: 'talking', imageUrl: 'https://i.imgur.com/2u5rbjn.png' }, { id: 'vlogs', imageUrl: 'https://i.imgur.com/85wpzam.png' } ];
   const clusterVideos = [ { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 }, { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 0 }, { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 }, { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 }, { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 } ];
 
+  const testimonialText = "Leonardo's edits kept people watching longer.";
+  const highlightWords = ["edits", "people", "watching", "longer"];
+
   return (
     <div className="min-h-screen text-foreground bg-background relative overflow-x-clip">
       <header className="fixed top-0 w-full z-[100] border-b border-foreground/5 bg-background/80 backdrop-blur-md h-20">
@@ -429,20 +432,37 @@ export default function Home() {
               ))}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 w-full items-start flex-1 mt-12">
-              <div className="lg:col-span-7 testimonial-trigger-ref max-w-4xl">
+              <div className="lg:col-span-7 testimonial-trigger-ref max-w-4xl relative">
                 <Quote className="absolute -top-10 -left-6 w-16 h-12 text-foreground/5 -z-10" />
-                <div className="text-3xl md:text-5xl font-serif italic leading-[1.1] mb-6">
-                  {"Leonardo's edits kept people watching longer.".split(' ').map((w, i) => (
-                    <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
-                      <span className={cn(
-                        "testimonial-word inline-block translate-y-full opacity-0",
-                        w.match(/edits|people|watching|longer/) && "luxury-neon-text"
-                      )}>
-                        {w}
+                
+                {/* Mastered Testimonial with Single Sweep Glow Layer */}
+                <div className="luxury-sweep-container text-3xl md:text-5xl font-serif italic leading-[1.1] mb-6">
+                  {/* Base Layer: Plain text with highlighted words in red */}
+                  <div className="testimonial-base">
+                    {testimonialText.split(' ').map((word, i) => (
+                      <span key={i} className="overflow-hidden inline-block mr-[0.25em]">
+                        <span className={cn(
+                          "testimonial-word inline-block translate-y-full opacity-0",
+                          highlightWords.includes(word.replace(/[^a-zA-Z]/g, '')) ? "text-primary" : "text-foreground"
+                        )}>
+                          {word}
+                        </span>
                       </span>
-                    </span>
-                  ))}
+                    ))}
+                  </div>
+                  
+                  {/* Glow Layer: Absolutely positioned overlay that runs the single mask sweep */}
+                  <div className="glow-layer aria-hidden select-none pointer-events-none">
+                    {testimonialText.split(' ').map((word, i) => (
+                      <span key={i} className="inline-block mr-[0.25em]">
+                        <span className={highlightWords.includes(word.replace(/[^a-zA-Z]/g, '')) ? "highlight" : ""}>
+                          {word}
+                        </span>
+                      </span>
+                    ))}
+                  </div>
                 </div>
+
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-px bg-primary" /><div className="flex flex-col"><CyberText text="JAMES HUANG" variant="decrypt" delay={800} className="font-mono text-[11px] uppercase tracking-widest font-bold" /><CyberText text="CREATIVE DIRECTOR @ VOID STUDIO" variant="decrypt" delay={1000} className="font-mono text-[8px] uppercase tracking-widest text-muted-foreground/60" /></div>
                 </div>
