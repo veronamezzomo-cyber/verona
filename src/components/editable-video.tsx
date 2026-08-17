@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,7 @@ interface EditableVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement>
   startTime?: number;
 }
 
-export function EditableVideo({ 
+export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({ 
   src: defaultSrc, 
   storageKey, 
   containerClassName, 
@@ -25,13 +25,15 @@ export function EditableVideo({
   autoPlay: autoPlayProp = true,
   preload = "metadata",
   ...props 
-}: EditableVideoProps) {
+}, ref) => {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasSeekedRef = useRef(false);
 
-  // Check if this is the theater mode instance
+  // Expose the internal video ref to the parent
+  useImperativeHandle(ref, () => videoRef.current!);
+
   const isTheaterMode = storageKey.startsWith('theater-');
 
   useEffect(() => {
@@ -78,7 +80,8 @@ export function EditableVideo({
         video.currentTime = finalStart;
         hasSeekedRef.current = true;
         
-        if (video.paused && (video.muted || autoPlayProp)) {
+        // Only autoplay if explicitly requested
+        if (video.paused && autoPlayProp) {
           await video.play().catch(() => {});
         }
       } catch (e) {}
@@ -145,4 +148,6 @@ export function EditableVideo({
       )}
     </div>
   );
-}
+});
+
+EditableVideo.displayName = 'EditableVideo';

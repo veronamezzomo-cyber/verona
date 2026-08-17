@@ -349,6 +349,7 @@ export default function Home() {
   const mainRef = useRef<HTMLDivElement>(null);
   const categoryBarRef = useRef<HTMLDivElement>(null);
   const techIconsRef = useRef<HTMLDivElement>(null);
+  const contactVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
     const handleScroll = () => setIsSecretVisible(window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 30);
@@ -383,9 +384,32 @@ export default function Home() {
       }
     });
     gsap.to(".testimonial-word", { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out", scrollTrigger: { trigger: ".testimonial-trigger-ref", start: "top 80%", toggleActions: "play none none reverse" } });
+    
+    // Pre-warm contact videos
     ScrollTrigger.create({
-      trigger: "#contact-section", start: "top 20%", toggleActions: "play none none none",
+      trigger: "#contact-section",
+      start: "top 150%",
       onEnter: () => {
+        contactVideoRefs.current.forEach(v => {
+          if (v) v.load();
+        });
+      }
+    });
+
+    ScrollTrigger.create({
+      trigger: "#contact-section", 
+      start: "top 20%", 
+      toggleActions: "play none none none",
+      onEnter: () => {
+        // Start playing videos staggered during the explosion
+        contactVideoRefs.current.forEach((v, i) => {
+          if (v) {
+            setTimeout(() => {
+              v.play().catch(() => {});
+            }, i * 100);
+          }
+        });
+
         const tl = gsap.timeline();
         tl.fromTo(".contact-video-tile", { scale: 0, x: 0, y: 0, opacity: 0 }, { scale: 1, x: i => window.innerWidth < 768 ? 0 : Math.cos(i*60*Math.PI/180)*38+"vw", y: i => window.innerWidth < 768 ? 0 : Math.sin(i*60*Math.PI/180)*28+"vh", opacity: 0.2, duration: 1.5, stagger: 0.1, ease: "expo.out" });
         tl.fromTo(".contact-content-reveal", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1, ease: "power2.out" }, "-=1");
@@ -545,16 +569,17 @@ export default function Home() {
             {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
               <div key={i} className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/20 bg-black opacity-0">
                 <EditableVideo 
+                  ref={el => { contactVideoRefs.current[i] = el; }}
                   src={vid.videoUrl} 
                   storageKey={`contact-${vid.id}`} 
                   fill 
-                  className="object-cover grayscale" 
-                  autoPlay 
+                  className="object-cover" 
+                  autoPlay={false}
                   muted 
                   loop 
                   playsInline 
                   hideControls 
-                  preload="none"
+                  preload="metadata"
                 />
                 <div className="absolute inset-0 bg-black/50" />
                 <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
