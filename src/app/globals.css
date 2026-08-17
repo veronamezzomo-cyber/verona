@@ -262,9 +262,8 @@
 
   .neon-base-text .highlight {
     color: hsl(var(--primary));
-    /* Constant, subtle neon repouso (vibrante mas calmo) */
+    /* Constant, sutil neon repouso */
     text-shadow: 0 0 10px hsla(var(--primary), 0.3);
-    transition: text-shadow 0.3s ease;
   }
 
   .neon-glow-layer {
@@ -279,14 +278,13 @@
     mix-blend-mode: plus-lighter; /* Efeito aditivo real */
     white-space: nowrap;
     
-    /* Multilayered Stacked Glow (AE Glow2 Style) */
-    /* Garante visibilidade extrema no modo escuro */
+    /* AE Glow2 Style - Stacked Drop-Shadow */
     filter: drop-shadow(0 0 5px #fff) 
             drop-shadow(0 0 12px hsla(var(--primary), 0.95)) 
             drop-shadow(0 0 30px hsla(var(--primary), 0.7)) 
             drop-shadow(0 0 60px hsla(var(--primary), 0.4));
     
-    /* Sweep Mask */
+    /* Sweep Mask - ESQUERDA PARA DIREITA */
     mask-image: linear-gradient(
       to right,
       transparent 0%,
@@ -295,9 +293,9 @@
       transparent 85%,
       transparent 100%
     );
-    mask-size: 200% 100%;
+    mask-size: 300% 100%;
     mask-repeat: no-repeat;
-    mask-position: -150% 0; /* Começa à esquerda (invisível) */
+    mask-position: -200% 0; /* Começa escondido à esquerda */
     will-change: mask-position;
   }
 

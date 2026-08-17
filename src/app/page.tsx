@@ -75,7 +75,7 @@ const BOOT_LINES = [
   "[INFO]: ESTABLISHING_SECURE_CONN [OK]" 
 ];
 
-const HIGHLIGHT_WORDS = ["edits", "people", "watching", "longer"];
+const HIGHLIGHT_WORDS = ["edits", "people", "watching", "longer."];
 const TESTIMONIAL_L1 = "Leonardo's edits kept people";
 const TESTIMONIAL_L2 = "watching longer.";
 
@@ -206,7 +206,7 @@ export default function Home() {
       }
     });
 
-    // Sequential Luxury Neon Sweep Timeline (AE Style)
+    // Sequential Luxury Neon Sweep Timeline (E -> D)
     gsap.timeline({
       scrollTrigger: {
         trigger: ".testimonial-trigger-ref",
@@ -222,15 +222,15 @@ export default function Home() {
       ease: "power3.out"
     })
     .to(".glow-line-1", {
-      maskPosition: "150% 0", // Sweep E -> D
+      maskPosition: "200% 0", // Varre para a direita
       duration: 1.0,
       ease: "power2.inOut"
     }, "+=0.1")
     .to(".glow-line-2", {
-      maskPosition: "150% 0", // Sweep E -> D (Inicia após a linha 1)
+      maskPosition: "200% 0", // Varre para a direita após a linha 1
       duration: 0.9,
       ease: "power2.inOut"
-    }, "+=0.2"); // Sacada ocular (delay entre linhas)
+    }, "+=0.2"); // Sacada ocular (atraso sequencial)
     
     ScrollTrigger.create({
       trigger: "#contact-section",
@@ -242,7 +242,7 @@ export default function Home() {
       }
     });
 
-    // Motor de Física Orbital Reativa (Hybrid Orbit)
+    // Motor de Física Orbital Reativa com Magnetic Follow
     ScrollTrigger.create({
       trigger: "#contact-section", 
       start: "top bottom", 
@@ -282,30 +282,40 @@ export default function Home() {
 
         const tiles = document.querySelectorAll(".contact-video-tile");
         const cta = document.querySelector(".contact-content-reveal");
-        const scrollTracker = ScrollTrigger.create({
-          trigger: "body",
-          start: "top top",
-          end: "bottom bottom"
-        });
+
+        // Rastreamento resiliente de velocidade
+        let lastScrollY = window.scrollY;
+        let lastTime = Date.now();
+        let currentVelocity = 0;
 
         gsap.to({}, {
           duration: 1,
           repeat: -1,
           onUpdate: () => {
-            const time = Date.now() * 0.0004;
-            const velocity = scrollTracker ? scrollTracker.getVelocity() : 0;
+            const time = Date.now();
+            const elapsed = (time - lastTime) / 1000;
+            const scrollY = window.scrollY;
+            
+            if (elapsed > 0) {
+              const delta = scrollY - lastScrollY;
+              currentVelocity = delta / elapsed;
+              lastScrollY = scrollY;
+              lastTime = time;
+            }
+
+            const frameTime = time * 0.0004;
             const progress = self.progress;
             
             // Lógica de Seguimento Magnético (Positional Following)
             const driftY = (1 - progress) * 15; 
             
             // Junção dos Efeitos Reativos: Inércia + Stretch + Seguimento
-            reactiveOffset.y += (velocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
-            reactiveOffset.tilt += (velocity * 0.006 - reactiveOffset.tilt) * 0.07;
-            reactiveOffset.stretch += (1 + Math.abs(velocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
+            reactiveOffset.y += (currentVelocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
+            reactiveOffset.tilt += (currentVelocity * 0.006 - reactiveOffset.tilt) * 0.07;
+            reactiveOffset.stretch += (1 + Math.abs(currentVelocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
 
             tiles.forEach((tile, i) => {
-              const angle = time + (i * Math.PI * 2 / 6);
+              const angle = frameTime + (i * Math.PI * 2 / 6);
               const rx = window.innerWidth < 768 ? 16 : 28;
               const ry = (window.innerWidth < 768 ? 12 : 20) * reactiveOffset.stretch;
               
@@ -507,12 +517,11 @@ export default function Home() {
                   <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>roll</button>
                 </div>
 
-                {/* archive_console.exe (Draggable & Fluid) */}
+                {/* archive_console.exe (Draggable & Dry Movement) */}
                 {!isTerminalClosed && (
                   <div 
                     className={cn(
                       "w-full relative z-[60]", 
-                      !isDraggingTerminal && "transition-transform duration-500",
                       isTerminalMinimized ? "h-10 opacity-60" : "h-[220px]"
                     )}
                     style={{ transform: `translate(${terminalOffset.x}px, ${terminalOffset.y}px)` }}
