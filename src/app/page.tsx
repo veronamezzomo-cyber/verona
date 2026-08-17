@@ -201,6 +201,8 @@ export default function Home() {
         });
 
         const orbitCenter = { y: -120 };
+        const reactiveOffset = { y: 0, tilt: 0, stretch: 1 };
+        
         gsap.to(orbitCenter, { 
           y: 32, 
           duration: 3, 
@@ -222,15 +224,24 @@ export default function Home() {
           ease: "none",
           onUpdate: function() {
             const time = Date.now() * 0.0004;
+            const velocity = ScrollTrigger.getVelocity();
+            
+            // Suavização da reação ao scroll (Hybrid Orbit Engine)
+            reactiveOffset.y += (velocity * 0.02 - reactiveOffset.y) * 0.08;
+            reactiveOffset.tilt += (velocity * 0.008 - reactiveOffset.tilt) * 0.08;
+            reactiveOffset.stretch += (1 + Math.abs(velocity) * 0.0002 - reactiveOffset.stretch) * 0.1;
+
             const tiles = document.querySelectorAll(".contact-video-tile");
             tiles.forEach((tile, i) => {
               const angle = time + (i * Math.PI * 2 / 6);
               const rx = window.innerWidth < 768 ? 16 : 28;
-              const ry = window.innerWidth < 768 ? 12 : 20;
+              const ry = (window.innerWidth < 768 ? 12 : 20) * reactiveOffset.stretch;
+              
               gsap.set(tile, {
                 x: Math.cos(angle) * rx + "vw",
-                y: (Math.sin(angle) * ry + orbitCenter.y) + "vh",
-                rotation: Math.sin(angle * 0.5) * 5
+                y: (Math.sin(angle) * ry + orbitCenter.y + reactiveOffset.y) + "vh",
+                rotation: (Math.sin(angle * 0.5) * 5) + reactiveOffset.tilt,
+                skewX: reactiveOffset.tilt * 0.5
               });
             });
           }
@@ -402,7 +413,7 @@ export default function Home() {
                 <div 
                   key={i} 
                   className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)]"
-                  style={{ willChange: 'transform, opacity' }}
+                  style={{ willChange: 'transform' }}
                 >
                   <EditableVideo 
                     ref={el => { contactVideoRefs.current[i] = el; }}
