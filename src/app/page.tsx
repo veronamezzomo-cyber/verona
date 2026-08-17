@@ -32,13 +32,6 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 }
 
-const ALL_TECH = [
-  { id: 'pr', name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
-  { id: 'ae', name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
-  { id: 'ps', name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
-  { id: 'ai', name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
-];
-
 function Counter({ value, duration = 2 }: { value: number, duration?: number }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -67,6 +60,13 @@ const FAQ_DATA = [
   { q: "Which tech stack do you use?", a: "Premiere Pro & After Effects are my core tools, that's where 90% of the work happens." },
   { q: "Do you offer professional color grading?", a: "Yes, every project goes through a color grading pass to match the tone and mood you're going for." },
   { q: "Do you accept international payments?", a: "Yes, I work with clients worldwide. Payments are handled through Wise for international transfers." }
+];
+
+const ALL_TECH = [
+  { id: 'pr', name: 'Premiere Pro', label: 'Pr', bg: '#00005B', text: '#9999FF' },
+  { id: 'ae', name: 'After Effects', label: 'Ae', bg: '#2C005E', text: '#D191FF' },
+  { id: 'ps', name: 'Photoshop', label: 'Ps', bg: '#001E36', text: '#31A8FF' },
+  { id: 'ai', name: 'Illustrator', label: 'Ai', bg: '#330000', text: '#FF9A00' }
 ];
 
 export default function Home() {
@@ -189,7 +189,7 @@ export default function Home() {
       }
     });
 
-    // Motor de Inércia Global para rastrear velocidade de scroll
+    // Motor de Inércia Global
     const scrollTracker = ScrollTrigger.create({
       trigger: "body",
       start: "top top",
@@ -200,7 +200,7 @@ export default function Home() {
       trigger: "#contact-section", 
       start: "top bottom", 
       once: true,
-      onEnter: () => {
+      onEnter: (self) => {
         contactVideoRefs.current.forEach((v, i) => {
           if (v) {
             setTimeout(() => {
@@ -241,12 +241,15 @@ export default function Home() {
           repeat: -1,
           onUpdate: () => {
             const time = Date.now() * 0.0004;
-            // Acesso seguro à velocidade através do rastreador ou global
             const velocity = scrollTracker ? scrollTracker.getVelocity() : 0;
+            const progress = self.progress;
             
-            // Suavização da reação ao scroll (Hybrid Orbit Engine)
-            // Aumentamos o multiplicador para 0.025 para inércia mais visível
-            reactiveOffset.y += (velocity * 0.025 - reactiveOffset.y) * 0.07;
+            // Lógica de Seguimento Magnético (Positional Following)
+            // O targetY desloca o centro dependendo de onde o scroll está na seção
+            const driftY = (1 - progress) * 15; // Ajuste para subir/descer com o scroll
+            
+            // Junção dos 3 Efeitos Reativos
+            reactiveOffset.y += (velocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
             reactiveOffset.tilt += (velocity * 0.006 - reactiveOffset.tilt) * 0.07;
             reactiveOffset.stretch += (1 + Math.abs(velocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
 
@@ -263,10 +266,9 @@ export default function Home() {
               });
             });
 
-            // Aplica a inércia do scroll também ao texto e botão para unidade visual
             if (cta) {
               gsap.set(cta, {
-                y: reactiveOffset.y * 0.25,
+                y: reactiveOffset.y * 0.4, // Segue o scroll com inércia
                 rotationX: reactiveOffset.tilt * 0.3
               });
             }
