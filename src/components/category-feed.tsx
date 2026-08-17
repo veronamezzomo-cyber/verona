@@ -410,7 +410,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '120px' }}
       >
-        <div className="absolute top-6 left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none">
+        <div className={cn("absolute left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none transition-all duration-700", isExpanded ? "top-24" : "top-6")}>
           <div className="flex flex-col gap-1">
             <CyberText 
               text="Active Layer" 
@@ -471,7 +471,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-6 pt-6 px-12 border-b border-foreground/5 shrink-0 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-6 pt-24 px-12 border-b border-foreground/5 shrink-0 gap-6">
             <div className="hidden md:block" />
 
             <div className="flex flex-col gap-2 items-center text-center">
@@ -590,7 +590,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
               })}
             </div>
 
-            <div className="mt-12 h-10 shrink-0 py-3 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6 overflow-hidden">
+            <div className="h-7 shrink-0 py-1 px-6 border-t border-foreground/5 flex flex-col md:flex-row items-center justify-between font-mono text-[8px] uppercase tracking-[0.3em] text-muted-foreground/40 gap-6 overflow-hidden">
               <div className="flex gap-8 flex-wrap justify-center">
                 <span className="flex items-center gap-2">
                   Status: <CyberText text="Simultaneous Processing" variant="decrypt" delay={500} />
