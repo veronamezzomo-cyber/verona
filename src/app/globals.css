@@ -295,7 +295,7 @@
     );
     mask-size: 300% 100%;
     mask-repeat: no-repeat;
-    mask-position: -200% 0; /* Começa à esquerda */
+    mask-position: 150% 0; /* Começa oculto à direita */
     will-change: mask-position;
   }
 
