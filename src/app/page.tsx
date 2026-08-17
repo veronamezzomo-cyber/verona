@@ -312,7 +312,7 @@ function FloatingVideoCluster({ videos }: { videos: any[] }) {
   }, [containerWidth, videos.length]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] overflow-visible" onMouseEnter={() => isHoveredRef.current = true} onMouseLeave={() => isHoveredRef.current = false}>
+    <div containerRef={containerRef} className="relative w-full h-[380px] sm:h-[450px] md:h-[550px] lg:h-[650px] overflow-visible" onMouseEnter={() => isHoveredRef.current = true} onMouseLeave={() => isHoveredRef.current = false}>
       <div className="absolute top-1/2 left-1/2 w-0 h-0">
         {videos.map((vid, i) => (
           <div key={vid.id} ref={el => { videoRefs.current[i] = el; }} className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 lg:w-52 lg:h-52 rounded-2xl overflow-hidden border border-foreground/10 bg-black shadow-2xl pointer-events-auto" style={{ transform: 'translate(-50%, -50%)' }}>
@@ -454,7 +454,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="works-section" className="stack-section sticky top-0 z-[20] min-h-screen w-full bg-background border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] isolate">
+        <section id="works-section" className="stack-section sticky top-0 z-[20] min-h-screen w-full bg-background border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
           <div ref={categoryBarRef} className="sticky top-20 w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90] h-20 overflow-hidden flex items-center">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-8">
               {categories.map(cat => (
