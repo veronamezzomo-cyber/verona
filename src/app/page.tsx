@@ -218,13 +218,21 @@ export default function Home() {
           ease: "power2.out" 
         });
 
+        // Transição de opacidade de 7 segundos
+        gsap.to(".contact-video-tile", {
+          opacity: 1,
+          duration: 7,
+          ease: "power1.inOut"
+        });
+
         gsap.to(".contact-video-tile", {
           duration: 25,
           repeat: -1,
           ease: "none",
           onUpdate: function() {
             const time = Date.now() * 0.0004;
-            const velocity = ScrollTrigger.getVelocity();
+            // Correção defensiva para o método getVelocity do ScrollTrigger
+            const velocity = typeof ScrollTrigger.getVelocity === 'function' ? ScrollTrigger.getVelocity() : 0;
             
             // Suavização da reação ao scroll (Hybrid Orbit Engine)
             reactiveOffset.y += (velocity * 0.02 - reactiveOffset.y) * 0.08;
@@ -320,7 +328,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="works-section" className="stack-section sticky top-0 z-[20] min-h-screen w-full bg-background border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] isolate">
+        <section id="works-section" className="relative z-[20] min-h-screen w-full bg-background border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] isolate">
           <div ref={categoryBarRef} className="sticky top-20 w-full py-[10px] bg-background border-b border-foreground/5 shadow-sm z-[90] h-20 overflow-hidden flex items-center">
             <div className="w-full px-6 md:px-12 flex flex-wrap justify-center gap-4 md:gap-8">
               {categories.map(cat => (
@@ -406,14 +414,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact-section" className="relative z-[40] min-h-[102.5vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+        <section id="contact-section" className="relative z-[40] min-h-[102.5vh] flex flex-col items-center border-t border-foreground/5 bg-background overflow-hidden">
           <div className="sticky top-0 h-screen w-full flex items-center justify-center z-0">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
               {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
                 <div 
                   key={i} 
-                  className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)]"
-                  style={{ willChange: 'transform' }}
+                  className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)] opacity-0"
+                  style={{ willChange: 'transform, opacity' }}
                 >
                   <EditableVideo 
                     ref={el => { contactVideoRefs.current[i] = el; }}
@@ -442,7 +450,7 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="relative z-50 bg-background">
+        <div className="relative z-[50] bg-background">
           <div className={cn("overflow-hidden transition-all duration-700 flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
             <LEDTicker text="VERONA STUDIO" />
           </div>
