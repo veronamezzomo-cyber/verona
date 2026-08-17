@@ -118,21 +118,65 @@ export default function Home() {
     gsap.to(".hero-line", { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power4.out" });
     gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
+    
     const bar = categoryBarRef.current;
     if (bar) {
-      gsap.to(bar, { height: 54, scrollTrigger: { trigger: "#works-section", start: "top 80px", end: "top top", scrub: true } });
-      gsap.to(".category-card", { height: 54, scrollTrigger: { trigger: "#works-section", start: "top 80px", end: "top top", scrub: true } });
-      gsap.to(".category-card img", { yPercent: 12, scrollTrigger: { trigger: "#works-section", start: "top 80px", end: "top top", scrub: true } });
+      gsap.to(bar, { 
+        height: 54, 
+        scrollTrigger: { 
+          trigger: "#works-section", 
+          start: "top 80px", 
+          end: "top top", 
+          scrub: true 
+        } 
+      });
+      gsap.to(".category-card", { 
+        height: 54, 
+        scrollTrigger: { 
+          trigger: "#works-section", 
+          start: "top 80px", 
+          end: "top top", 
+          scrub: true 
+        } 
+      });
+      gsap.to(".category-card img", { 
+        yPercent: 12, 
+        scrollTrigger: { 
+          trigger: "#works-section", 
+          start: "top 80px", 
+          end: "top top", 
+          scrub: true 
+        } 
+      });
     }
+
     gsap.utils.toArray<HTMLElement>('.stack-section').forEach((section, i, arr) => {
       if (i < arr.length - 1) {
         ScrollTrigger.create({
-          trigger: section, start: 'top top', end: 'bottom top', scrub: true,
-          onUpdate: self => gsap.set(section, { scale: 1 - self.progress * 0.05, filter: `brightness(${1 - self.progress * 0.4})` })
+          trigger: section, 
+          start: 'top top', 
+          end: 'bottom top', 
+          scrub: true,
+          onUpdate: self => gsap.set(section, { 
+            scale: 1 - self.progress * 0.05, 
+            filter: `brightness(${1 - self.progress * 0.4})` 
+          })
         });
       }
     });
-    gsap.to(".testimonial-word", { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out", scrollTrigger: { trigger: ".testimonial-trigger-ref", start: "top 80%", toggleActions: "play none none reverse" } });
+
+    gsap.to(".testimonial-word", { 
+      y: 0, 
+      opacity: 1, 
+      duration: 0.5, 
+      stagger: 0.05, 
+      ease: "power2.out", 
+      scrollTrigger: { 
+        trigger: ".testimonial-trigger-ref", 
+        start: "top 80%", 
+        toggleActions: "play none none reverse" 
+      } 
+    });
     
     ScrollTrigger.create({
       trigger: "#contact-section",
@@ -147,7 +191,6 @@ export default function Home() {
     ScrollTrigger.create({
       trigger: "#contact-section", 
       start: "top bottom", 
-      toggleActions: "play none none none",
       onEnter: () => {
         contactVideoRefs.current.forEach((v, i) => {
           if (v) {
@@ -190,13 +233,23 @@ export default function Home() {
 
   const handleRoll = () => {
     if (isRolling) return;
-    setIsRolling(true); setWinnerName(null);
+    setIsRolling(true); 
+    setWinnerName(null);
     const winner = ALL_TECH[Math.floor(Math.random() * ALL_TECH.length)];
     const sequence = Array.from({ length: 60 }, () => ALL_TECH[Math.floor(Math.random() * ALL_TECH.length)]);
     sequence[55] = winner;
-    setPoweredIcons(sequence); setWinnerIndex(55);
+    setPoweredIcons(sequence); 
+    setWinnerIndex(55);
     if (techIconsRef.current) {
-      gsap.fromTo(techIconsRef.current, { x: 0 }, { x: 320/2 - (55*88+32), duration: 5, ease: "power4.out", onComplete: () => { setWinnerName(winner.name); setIsRolling(false); } });
+      gsap.fromTo(techIconsRef.current, { x: 0 }, { 
+        x: 320/2 - (55*88+32), 
+        duration: 5, 
+        ease: "power4.out", 
+        onComplete: () => { 
+          setWinnerName(winner.name); 
+          setIsRolling(false); 
+        } 
+      });
     }
   };
 
@@ -331,11 +384,10 @@ export default function Home() {
                 )}
               </div>
             </div>
-            <div className="flex flex-col items-center gap-1 opacity-40 mt-auto pb-4"><CyberText text="[ ARCHIVE_STATS ]" variant="decrypt" delay={500} className="font-mono text-[9px] uppercase tracking-widest text-primary font-bold" /><div className="text-[8px] font-mono uppercase tracking-[0.2em]">VERONA_V3 // VIEWPORT_MODE</div></div>
           </div>
         </section>
 
-        <section id="contact-section" className="relative z-[40] min-h-[120vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+        <section id="contact-section" className="relative z-[40] min-h-[140vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="sticky top-0 h-screen w-full flex items-center justify-center pointer-events-none z-0">
             <div className="absolute inset-0 flex items-center justify-center">
               {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
@@ -364,7 +416,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
             </div>
           </div>
-          <div className="contact-content-reveal relative z-10 -mt-[100vh] min-h-screen flex flex-col items-center justify-center text-center gap-14 opacity-0 pointer-events-auto">
+          <div className="contact-content-reveal relative z-10 -mt-[100vh] min-h-screen flex flex-col items-center justify-center text-center gap-14 opacity-0 pointer-events-auto pb-32">
             <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
           </div>
