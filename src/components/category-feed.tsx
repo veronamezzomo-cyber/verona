@@ -410,7 +410,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '120px' }}
       >
-        <div className={cn("absolute left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none transition-all duration-700", isExpanded ? "top-36" : "top-6")}>
+        <div className={cn("absolute left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none transition-all duration-700", isExpanded ? "top-[138px]" : "top-6")}>
           <div className="flex flex-col gap-1">
             <CyberText 
               text="Active Layer" 
@@ -471,10 +471,10 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-6 pt-36 px-12 border-b border-foreground/5 shrink-0 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-3 pt-[138px] px-12 border-b border-foreground/5 shrink-0 gap-6">
             <div className="hidden md:block" />
 
-            <div className="flex flex-col gap-2 items-center text-center">
+            <div className="flex flex-col gap-1.5 items-center text-center">
                <CyberText text="[ PORTFOLIO_LOAD: 22% ]" variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-[0.4em] text-primary font-bold" />
                <div className="w-full max-w-[300px] h-1.5 bg-foreground/5 relative overflow-hidden">
                   <div className="absolute inset-0 bg-primary/20" />
@@ -498,9 +498,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 "transition-all duration-700",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
                 category === 'shorts' 
-                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-12 px-4 scroll-smooth" 
+                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-6 px-4 scroll-smooth" 
                   : cn(
-                      "grid max-w-[1600px] mx-auto pt-12",
+                      "grid max-w-[1600px] mx-auto pt-6",
                       category === 'all'
                         ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                         : cn(
