@@ -243,7 +243,7 @@
     100% { transform: scaleY(0); transform-origin: top; }
   }
 
-  /* Luxury Neon Sequential Sweep */
+  /* Luxury Neon Sequential Sweep - Master Implementation */
   .luxury-neon-container {
     display: flex;
     flex-direction: column;
@@ -262,7 +262,7 @@
 
   .neon-base-text .highlight {
     color: hsl(var(--primary));
-    /* Constant, sutil neon repouso */
+    /* Sutil aura constante */
     text-shadow: 0 0 10px hsla(var(--primary), 0.3);
   }
 
@@ -275,10 +275,10 @@
     z-index: 20;
     pointer-events: none;
     user-select: none;
-    mix-blend-mode: plus-lighter; /* Efeito aditivo real */
+    mix-blend-mode: plus-lighter; /* Brilho aditivo real */
     white-space: nowrap;
     
-    /* AE Glow2 Style - Stacked Drop-Shadow */
+    /* AE Glow2 - Stacked Drop-Shadow */
     filter: drop-shadow(0 0 5px #fff) 
             drop-shadow(0 0 12px hsla(var(--primary), 0.95)) 
             drop-shadow(0 0 30px hsla(var(--primary), 0.7)) 
@@ -295,17 +295,25 @@
     );
     mask-size: 300% 100%;
     mask-repeat: no-repeat;
-    mask-position: -200% 0; /* Começa escondido à esquerda */
+    mask-position: -200% 0; /* Começa à esquerda */
     will-change: mask-position;
   }
 
   .neon-glow-layer .highlight {
-    color: #fff; /* O núcleo do brilho intenso */
+    color: #fff; /* Núcleo intenso */
     opacity: 1;
   }
 
   .neon-glow-layer span:not(.highlight) {
-    opacity: 0; /* Garante que palavras normais não brilhem */
+    opacity: 0; /* Garante que apenas as palavras vermelhas brilhem */
+  }
+
+  /* Night Mode Glow Reinforcement */
+  .dark .neon-glow-layer {
+    filter: drop-shadow(0 0 8px #fff) 
+            drop-shadow(0 0 18px hsla(var(--primary), 1)) 
+            drop-shadow(0 0 45px hsla(var(--primary), 0.85)) 
+            drop-shadow(0 0 80px hsla(var(--primary), 0.5));
   }
 
   /* Sparkle Button Styles */

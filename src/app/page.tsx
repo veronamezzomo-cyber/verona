@@ -206,7 +206,7 @@ export default function Home() {
       }
     });
 
-    // Sequential Luxury Neon Sweep Timeline (E -> D)
+    // Master Sequential Neon Sweep Timeline (E -> D)
     gsap.timeline({
       scrollTrigger: {
         trigger: ".testimonial-trigger-ref",
@@ -222,7 +222,7 @@ export default function Home() {
       ease: "power3.out"
     })
     .to(".glow-line-1", {
-      maskPosition: "200% 0", // Varre para a direita
+      maskPosition: "200% 0", // Varre para a direita (termina em 200%)
       duration: 1.0,
       ease: "power2.inOut"
     }, "+=0.1")
@@ -230,7 +230,7 @@ export default function Home() {
       maskPosition: "200% 0", // Varre para a direita após a linha 1
       duration: 0.9,
       ease: "power2.inOut"
-    }, "+=0.2"); // Sacada ocular (atraso sequencial)
+    }, "+=0.2"); // Sacada ocular sequencial
     
     ScrollTrigger.create({
       trigger: "#contact-section",
@@ -306,7 +306,7 @@ export default function Home() {
             const frameTime = time * 0.0004;
             const progress = self.progress;
             
-            // Lógica de Seguimento Magnético (Positional Following)
+            // Lógica de Seguimento Magnético
             const driftY = (1 - progress) * 15; 
             
             // Junção dos Efeitos Reativos: Inércia + Stretch + Seguimento
@@ -517,7 +517,7 @@ export default function Home() {
                   <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>roll</button>
                 </div>
 
-                {/* archive_console.exe (Draggable & Dry Movement) */}
+                {/* archive_console.exe (Draggable) */}
                 {!isTerminalClosed && (
                   <div 
                     className={cn(
