@@ -407,7 +407,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
         )}
         style={{ height: '120px' }}
       >
-        <div className={cn("absolute left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none transition-all duration-700", isExpanded ? "top-[78px]" : "top-6")}>
+        <div className={cn("absolute left-6 md:left-12 flex flex-col gap-2 z-20 pointer-events-none transition-all duration-700", isExpanded ? "top-[84px]" : "top-6")}>
           <div className="flex flex-col gap-1">
             <CyberText 
               text="Active Layer" 
@@ -468,7 +468,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
             isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-3 pt-[78px] px-12 border-b border-foreground/5 shrink-0 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 w-full items-center py-3 pt-[84px] px-12 border-b border-foreground/5 shrink-0 gap-6">
             <div className="hidden md:block" />
 
             <div className="flex flex-col gap-1.5 items-center text-center">
@@ -495,9 +495,9 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                 "transition-all duration-700",
                 selectedProject ? "opacity-10 blur-xl scale-95" : "opacity-100 blur-0 scale-100",
                 category === 'shorts' 
-                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-[86px] px-4 scroll-smooth" 
+                  ? "flex flex-nowrap overflow-x-auto gap-4 pb-6 pt-[92px] px-4 scroll-smooth" 
                   : cn(
-                      "grid max-w-[1600px] mx-auto pt-[86px]",
+                      "grid max-w-[1600px] mx-auto pt-[92px]",
                       category === 'all'
                         ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"
                         : cn(
