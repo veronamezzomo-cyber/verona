@@ -395,7 +395,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact-section" className="relative z-[40] min-h-[105vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+        <section id="contact-section" className="relative z-[40] min-h-[102.5vh] flex flex-col items-center border-t border-foreground/5 bg-background shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           <div className="sticky top-0 h-screen w-full flex items-center justify-center z-0">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
               {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
@@ -424,7 +424,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
             </div>
 
-            <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-end h-full text-center gap-14 opacity-0 pointer-events-auto pb-20">
+            <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-end h-full text-center gap-14 opacity-0 pointer-events-auto pb-10">
               <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
               <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
             </div>
