@@ -112,17 +112,21 @@ export default function Home() {
   useEffect(() => {
     let scrollCount = 0;
     const handleWheel = (e: WheelEvent) => {
-      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
-      if (atBottom && e.deltaY > 0) {
+      // Improved bottom detection for better overscroll trigger
+      const scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+      const isAtBottom = window.innerHeight + window.scrollY >= scrollHeight - 30;
+      
+      if (isAtBottom && e.deltaY > 0) {
         scrollCount++;
         if (scrollCount >= 3) {
           setIsSecretVisible(true);
         }
-      } else if (window.scrollY < document.documentElement.scrollHeight - 200) {
+      } else if (window.scrollY < scrollHeight - 200) {
         scrollCount = 0;
         setIsSecretVisible(false);
       }
     };
+    
     window.addEventListener('wheel', handleWheel, { passive: true });
     
     setTimeout(() => {
@@ -133,6 +137,7 @@ export default function Home() {
         });
       }, 800);
     }, 1000);
+    
     return () => window.removeEventListener('wheel', handleWheel);
   }, []);
 
@@ -212,7 +217,6 @@ export default function Home() {
       }
     });
 
-    // Master Sequential Neon Sweep Timeline (E -> D)
     gsap.timeline({
       scrollTrigger: {
         trigger: ".testimonial-trigger-ref",
@@ -238,13 +242,12 @@ export default function Home() {
       ease: "power2.inOut"
     }, "+=0.4"); 
     
-    // Master "Orbital Vortex" Continuous Physics Engine for Contact Section
     const tiles = document.querySelectorAll(".contact-video-tile");
     const cta = document.querySelector(".contact-content-reveal");
 
     const animateContactOrbit = () => {
       const progress = contactProgressRef.current;
-      const step = 0.004; // Slow, elegant constant rotation
+      const step = 0.004; 
       contactTimeRef.current += step;
 
       const orbitCenter = { y: 32 };
@@ -266,7 +269,6 @@ export default function Home() {
         const rawX = Math.cos(currentAngle) * rx;
         const rawY = Math.sin(currentAngle) * ry;
 
-        // Apply plane tilt
         const x = (rawX * cosT - rawY * sinT);
         const y = (rawX * sinT + rawY * cosT);
 
@@ -482,7 +484,6 @@ export default function Home() {
               <div className="lg:col-span-7 testimonial-trigger-ref max-w-4xl relative">
                 <Quote className="absolute -top-10 -left-6 w-16 h-12 text-foreground/5 -z-10" />
                 
-                {/* Sequential Luxury Neon Testimonial */}
                 <div className="luxury-neon-container text-3xl md:text-5xl font-serif italic leading-[1.2] mb-6">
                   {renderNeonLine(TESTIMONIAL_L1, "glow-line-1")}
                   {renderNeonLine(TESTIMONIAL_L2, "glow-line-2")}
@@ -508,7 +509,6 @@ export default function Home() {
                   <button className={cn("sparkle-button scale-90", isRolling && "opacity-50 pointer-events-none")} onClick={handleRoll} disabled={isRolling}>roll</button>
                 </div>
 
-                {/* archive_console.exe (Draggable) */}
                 {!isTerminalClosed && (
                   <div 
                     className={cn(
