@@ -230,113 +230,88 @@ export default function Home() {
       maskPosition: "-50% 0",
       duration: 2.0,
       ease: "power2.inOut"
-    }, "+=0.4"); // Sacada ocular sequencial
+    }, "+=0.4"); 
     
+    // Motor de Física Orbital Reativa com Centripetal Magnetic Entry
     ScrollTrigger.create({
       trigger: "#contact-section",
-      start: "top 150%",
+      start: "top bottom",
+      end: "bottom bottom",
+      scrub: 1,
       onEnter: () => {
-        contactVideoRefs.current.forEach(v => {
-          if (v) v.load();
-        });
-      }
-    });
-
-    // Motor de Física Orbital Reativa com Magnetic Follow
-    ScrollTrigger.create({
-      trigger: "#contact-section", 
-      start: "top bottom", 
-      once: true,
-      onEnter: (self) => {
         contactVideoRefs.current.forEach((v, i) => {
           if (v) {
+            v.load();
             setTimeout(() => {
               v.play().catch(() => {});
             }, i * 100);
           }
         });
-
-        const orbitCenter = { y: -120 };
-        const reactiveOffset = { y: 0, tilt: 0, stretch: 1 };
-        
-        gsap.to(orbitCenter, { 
-          y: 32, 
-          duration: 3, 
-          ease: "power2.out",
-          delay: 0.2
-        });
-
-        gsap.to(".contact-content-reveal", { 
-          opacity: 1, 
-          y: 0, 
-          duration: 1.5, 
-          delay: 1.2, 
-          ease: "power2.out" 
-        });
-
-        gsap.to(".contact-video-tile", {
-          opacity: 1,
-          duration: 2,
-          ease: "power1.out"
-        });
-
+      },
+      onUpdate: (self) => {
+        const progress = self.progress;
         const tiles = document.querySelectorAll(".contact-video-tile");
         const cta = document.querySelector(".contact-content-reveal");
-
-        // Rastreamento resiliente de velocidade
+        
+        const orbitCenter = { y: 32 };
+        const reactiveOffset = { y: 0, tilt: 0, stretch: 1 };
+        
+        // Rastreamento resiliente de velocidade para física orbital
         let lastScrollY = window.scrollY;
         let lastTime = Date.now();
         let currentVelocity = 0;
 
-        gsap.to({}, {
-          duration: 1,
-          repeat: -1,
-          onUpdate: () => {
-            const time = Date.now();
-            const elapsed = (time - lastTime) / 1000;
-            const scrollY = window.scrollY;
-            
-            if (elapsed > 0) {
-              const delta = scrollY - lastScrollY;
-              currentVelocity = delta / elapsed;
-              lastScrollY = scrollY;
-              lastTime = time;
-            }
+        const time = Date.now();
+        const elapsed = (time - lastTime) / 1000;
+        const scrollY = window.scrollY;
+        
+        if (elapsed > 0) {
+          const delta = scrollY - lastScrollY;
+          currentVelocity = delta / elapsed;
+        }
 
-            const frameTime = time * 0.0004;
-            const progress = self.progress;
-            
-            // Lógica de Seguimento Magnético
-            const driftY = (1 - progress) * 15; 
-            
-            // Junção dos Efeitos Reativos: Inércia + Stretch + Seguimento
-            reactiveOffset.y += (currentVelocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
-            reactiveOffset.tilt += (currentVelocity * 0.006 - reactiveOffset.tilt) * 0.07;
-            reactiveOffset.stretch += (1 + Math.abs(currentVelocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
+        const frameTime = time * 0.0004;
+        
+        // Centripetal Convergence: vêm de y: -120vh para orbitCenter.y
+        // progresso 0: y: -120vh, progresso 1: y: orbitCenter.y
+        const convergenceY = gsap.utils.interpolate(-120, orbitCenter.y, progress);
+        const convergenceScale = gsap.utils.interpolate(0.5, 1, progress);
+        const convergenceOpacity = gsap.utils.interpolate(0, 1, progress);
 
-            tiles.forEach((tile, i) => {
-              const angle = frameTime + (i * Math.PI * 2 / 6);
-              const rx = window.innerWidth < 768 ? 16 : 28;
-              const ry = (window.innerWidth < 768 ? 12 : 20) * reactiveOffset.stretch;
-              
-              gsap.set(tile, {
-                x: Math.cos(angle) * rx + "vw",
-                y: (Math.sin(angle) * ry + orbitCenter.y + reactiveOffset.y) + "vh",
-                rotation: (Math.sin(angle * 0.5) * 5) + reactiveOffset.tilt,
-                skewX: reactiveOffset.tilt * 0.5
-              });
-            });
+        // Lógica de Seguimento Magnético e Inércia
+        const driftY = (1 - progress) * 15; 
+        reactiveOffset.y += (currentVelocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
+        reactiveOffset.tilt += (currentVelocity * 0.006 - reactiveOffset.tilt) * 0.07;
+        reactiveOffset.stretch += (1 + Math.abs(currentVelocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
 
-            if (cta) {
-              gsap.set(cta, {
-                y: reactiveOffset.y * 0.4, 
-                rotationX: reactiveOffset.tilt * 0.3
-              });
-            }
-          }
+        tiles.forEach((tile, i) => {
+          const angle = frameTime + (i * Math.PI * 2 / 6);
+          const rx = window.innerWidth < 768 ? 16 : 28;
+          const ry = (window.innerWidth < 768 ? 12 : 20) * reactiveOffset.stretch;
+          
+          // Spread inicial (dispersão centripetal)
+          const spreadFactor = (1 - progress) * 20;
+
+          gsap.set(tile, {
+            x: (Math.cos(angle) * (rx + spreadFactor)) + "vw",
+            y: (Math.sin(angle) * ry + convergenceY + reactiveOffset.y) + "vh",
+            rotation: (Math.sin(angle * 0.5) * 5) + reactiveOffset.tilt,
+            skewX: reactiveOffset.tilt * 0.5,
+            scale: convergenceScale,
+            opacity: convergenceOpacity
+          });
         });
+
+        if (cta) {
+          gsap.set(cta, {
+            y: (1 - progress) * 100 + reactiveOffset.y * 0.4, 
+            rotationX: reactiveOffset.tilt * 0.3,
+            opacity: progress
+          });
+        }
       }
     });
+
   }, { scope: mainRef });
 
   const handleRoll = () => {
@@ -588,7 +563,7 @@ export default function Home() {
             </div>
 
             <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-end h-full text-center gap-14 opacity-0 pointer-events-auto pb-10">
-              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">Ready to tell<br />your story?</h2>
+              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-white mix-blend-difference">Ready to tell<br />your story?</h2>
               <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
             </div>
           </div>
