@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -96,7 +97,12 @@ export default function Home() {
   const mainRef = useRef<HTMLDivElement>(null);
   const categoryBarRef = useRef<HTMLDivElement>(null);
   const techIconsRef = useRef<HTMLDivElement>(null);
+  
+  // Contact Orbit Refs
   const contactVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const contactProgressRef = useRef(0);
+  const contactTimeRef = useRef(0);
+  const contactRequestRef = useRef<number>(0);
 
   // Console Drag State
   const [terminalOffset, setTerminalOffset] = useState({ x: 0, y: 0 });
@@ -232,7 +238,65 @@ export default function Home() {
       ease: "power2.inOut"
     }, "+=0.4"); 
     
-    // Master "Orbital Vortex" Physics Engine
+    // Master "Orbital Vortex" Continuous Physics Engine for Contact Section
+    const tiles = document.querySelectorAll(".contact-video-tile");
+    const cta = document.querySelector(".contact-content-reveal");
+
+    const animateContactOrbit = () => {
+      const progress = contactProgressRef.current;
+      const step = 0.004; // Slow, elegant constant rotation
+      contactTimeRef.current += step;
+
+      const orbitCenter = { y: 32 };
+      const convergenceY = gsap.utils.interpolate(-120, orbitCenter.y, progress);
+      const radiusFactor = gsap.utils.interpolate(3, 1, progress); 
+      
+      const TILT = 12 * (Math.PI / 180); 
+      const cosT = Math.cos(TILT);
+      const sinT = Math.sin(TILT);
+
+      tiles.forEach((tile, i) => {
+        const baseAngle = (i * Math.PI * 2 / 6);
+        const currentAngle = contactTimeRef.current + baseAngle;
+        const visualDepth = Math.sin(currentAngle); 
+
+        const rx = (window.innerWidth < 768 ? 16 : 28) * radiusFactor;
+        const ry = (window.innerWidth < 768 ? 12 : 20) * radiusFactor;
+        
+        const rawX = Math.cos(currentAngle) * rx;
+        const rawY = Math.sin(currentAngle) * ry;
+
+        // Apply plane tilt
+        const x = (rawX * cosT - rawY * sinT);
+        const y = (rawX * sinT + rawY * cosT);
+
+        const scale = gsap.utils.interpolate(0.6, 1, progress) * (0.85 + ((visualDepth + 1) / 2) * 0.3);
+        const opacity = gsap.utils.interpolate(0, 1, progress);
+        const blur = gsap.utils.interpolate(10, 0, progress) + (1 - (visualDepth + 1) / 2) * 5;
+        const zIndex = 50 + Math.round(visualDepth * 50);
+
+        gsap.set(tile, {
+          x: x + "vw",
+          y: (y + convergenceY) + "vh",
+          rotation: (Math.sin(currentAngle * 0.5) * 8),
+          scale: scale,
+          opacity: opacity,
+          filter: `blur(${blur}px)`,
+          zIndex: zIndex
+        });
+      });
+
+      if (cta) {
+        gsap.set(cta, {
+          y: (1 - progress) * 120, 
+          opacity: progress,
+          scale: gsap.utils.interpolate(0.9, 1, progress)
+        });
+      }
+
+      contactRequestRef.current = requestAnimationFrame(animateContactOrbit);
+    };
+
     ScrollTrigger.create({
       trigger: "#contact-section",
       start: "top bottom",
@@ -247,50 +311,22 @@ export default function Home() {
             }, i * 100);
           }
         });
+        if (!contactRequestRef.current) animateContactOrbit();
       },
       onUpdate: (self) => {
-        const progress = self.progress;
-        const tiles = document.querySelectorAll(".contact-video-tile");
-        const cta = document.querySelector(".contact-content-reveal");
-        
-        const orbitCenter = { y: 32 };
-        const reactiveOffset = { y: 0, tilt: 0, stretch: 1 };
-        
-        // Dynamic speed tracking for stretch & inertia
-        const time = Date.now();
-        const frameTime = time * 0.0003; // Slow, elegant rotation base
-        
-        // VORTEX PHYSICS: Wide entry at top (-120vh) -> Tight orbit at center (32vh)
-        const convergenceY = gsap.utils.interpolate(-120, orbitCenter.y, progress);
-        const radiusFactor = gsap.utils.interpolate(3, 1, progress); // Start with 3x radius
-        const windingFactor = progress * Math.PI; // Spiral rotation based on depth
-        
-        tiles.forEach((tile, i) => {
-          const baseAngle = (i * Math.PI * 2 / 6);
-          const currentAngle = frameTime + baseAngle + windingFactor;
-          
-          const rx = (window.innerWidth < 768 ? 16 : 28) * radiusFactor;
-          const ry = (window.innerWidth < 768 ? 12 : 20) * radiusFactor;
-          
-          gsap.set(tile, {
-            x: (Math.cos(currentAngle) * rx) + "vw",
-            y: (Math.sin(currentAngle) * ry + convergenceY) + "vh",
-            rotation: (Math.sin(currentAngle * 0.5) * 8),
-            scale: gsap.utils.interpolate(0.6, 1, progress),
-            opacity: gsap.utils.interpolate(0, 1, progress),
-            filter: `blur(${gsap.utils.interpolate(10, 0, progress)}px)`
-          });
-        });
-
-        if (cta) {
-          gsap.set(cta, {
-            y: (1 - progress) * 120, 
-            opacity: progress,
-            scale: gsap.utils.interpolate(0.9, 1, progress)
-          });
+        contactProgressRef.current = self.progress;
+      },
+      onLeaveBack: () => {
+        if (contactRequestRef.current) {
+          cancelAnimationFrame(contactRequestRef.current);
+          contactRequestRef.current = 0;
         }
       }
     });
+
+    return () => {
+      if (contactRequestRef.current) cancelAnimationFrame(contactRequestRef.current);
+    };
 
   }, { scope: mainRef });
 
