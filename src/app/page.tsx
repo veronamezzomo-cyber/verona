@@ -232,12 +232,12 @@ export default function Home() {
       ease: "power2.inOut"
     }, "+=0.4"); 
     
-    // Motor de Física Orbital Reativa com Centripetal Magnetic Entry
+    // Master "Orbital Vortex" Physics Engine
     ScrollTrigger.create({
       trigger: "#contact-section",
       start: "top bottom",
       end: "bottom bottom",
-      scrub: 1,
+      scrub: 1.5,
       onEnter: () => {
         contactVideoRefs.current.forEach((v, i) => {
           if (v) {
@@ -256,57 +256,37 @@ export default function Home() {
         const orbitCenter = { y: 32 };
         const reactiveOffset = { y: 0, tilt: 0, stretch: 1 };
         
-        // Rastreamento resiliente de velocidade para física orbital
-        let lastScrollY = window.scrollY;
-        let lastTime = Date.now();
-        let currentVelocity = 0;
-
+        // Dynamic speed tracking for stretch & inertia
         const time = Date.now();
-        const elapsed = (time - lastTime) / 1000;
-        const scrollY = window.scrollY;
+        const frameTime = time * 0.0003; // Slow, elegant rotation base
         
-        if (elapsed > 0) {
-          const delta = scrollY - lastScrollY;
-          currentVelocity = delta / elapsed;
-        }
-
-        const frameTime = time * 0.0004;
-        
-        // Centripetal Convergence: vêm de y: -120vh para orbitCenter.y
-        // progresso 0: y: -120vh, progresso 1: y: orbitCenter.y
+        // VORTEX PHYSICS: Wide entry at top (-120vh) -> Tight orbit at center (32vh)
         const convergenceY = gsap.utils.interpolate(-120, orbitCenter.y, progress);
-        const convergenceScale = gsap.utils.interpolate(0.5, 1, progress);
-        const convergenceOpacity = gsap.utils.interpolate(0, 1, progress);
-
-        // Lógica de Seguimento Magnético e Inércia
-        const driftY = (1 - progress) * 15; 
-        reactiveOffset.y += (currentVelocity * 0.025 + driftY - reactiveOffset.y) * 0.07;
-        reactiveOffset.tilt += (currentVelocity * 0.006 - reactiveOffset.tilt) * 0.07;
-        reactiveOffset.stretch += (1 + Math.abs(currentVelocity) * 0.0003 - reactiveOffset.stretch) * 0.09;
-
+        const radiusFactor = gsap.utils.interpolate(3, 1, progress); // Start with 3x radius
+        const windingFactor = progress * Math.PI; // Spiral rotation based on depth
+        
         tiles.forEach((tile, i) => {
-          const angle = frameTime + (i * Math.PI * 2 / 6);
-          const rx = window.innerWidth < 768 ? 16 : 28;
-          const ry = (window.innerWidth < 768 ? 12 : 20) * reactiveOffset.stretch;
+          const baseAngle = (i * Math.PI * 2 / 6);
+          const currentAngle = frameTime + baseAngle + windingFactor;
           
-          // Spread inicial (dispersão centripetal)
-          const spreadFactor = (1 - progress) * 20;
-
+          const rx = (window.innerWidth < 768 ? 16 : 28) * radiusFactor;
+          const ry = (window.innerWidth < 768 ? 12 : 20) * radiusFactor;
+          
           gsap.set(tile, {
-            x: (Math.cos(angle) * (rx + spreadFactor)) + "vw",
-            y: (Math.sin(angle) * ry + convergenceY + reactiveOffset.y) + "vh",
-            rotation: (Math.sin(angle * 0.5) * 5) + reactiveOffset.tilt,
-            skewX: reactiveOffset.tilt * 0.5,
-            scale: convergenceScale,
-            opacity: convergenceOpacity
+            x: (Math.cos(currentAngle) * rx) + "vw",
+            y: (Math.sin(currentAngle) * ry + convergenceY) + "vh",
+            rotation: (Math.sin(currentAngle * 0.5) * 8),
+            scale: gsap.utils.interpolate(0.6, 1, progress),
+            opacity: gsap.utils.interpolate(0, 1, progress),
+            filter: `blur(${gsap.utils.interpolate(10, 0, progress)}px)`
           });
         });
 
         if (cta) {
           gsap.set(cta, {
-            y: (1 - progress) * 100 + reactiveOffset.y * 0.4, 
-            rotationX: reactiveOffset.tilt * 0.3,
-            opacity: progress
+            y: (1 - progress) * 120, 
+            opacity: progress,
+            scale: gsap.utils.interpolate(0.9, 1, progress)
           });
         }
       }
@@ -540,7 +520,7 @@ export default function Home() {
                 <div 
                   key={i} 
                   className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)] opacity-0"
-                  style={{ willChange: 'transform, opacity' }}
+                  style={{ willChange: 'transform, opacity, filter' }}
                 >
                   <EditableVideo 
                     ref={el => { contactVideoRefs.current[i] = el; }}
