@@ -585,10 +585,15 @@ export default function Home() {
           </div>
         </section>
 
-        <div className="relative z-[50] bg-background">
-          <div className={cn("overflow-hidden transition-all duration-700 flex flex-col items-center justify-center", isSecretVisible ? "h-[140px] opacity-100" : "h-0 opacity-0")}>
+        <div 
+          className="relative z-[50] bg-background transition-transform duration-700 ease-out"
+          style={{ transform: isSecretVisible ? 'translateY(-140px)' : 'translateY(0)' }}
+        >
+          {/* Easter Egg Hidden Section (Drawer) */}
+          <div className="absolute top-full left-0 w-full overflow-hidden flex flex-col items-center justify-center h-[140px] bg-background border-t border-foreground/5">
             <LEDTicker text="VERONA STUDIO" />
           </div>
+          
           <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5">
             <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
               <ul className="flex gap-4 items-center">
