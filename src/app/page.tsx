@@ -112,34 +112,45 @@ export default function Home() {
   useEffect(() => {
     let scrollCount = 0;
     const handleWheel = (e: WheelEvent) => {
-      // Improved bottom detection for better overscroll trigger
-      const scrollHeight = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-      const isAtBottom = window.innerHeight + window.scrollY >= scrollHeight - 30;
+      // Calculate scroll position precisely
+      const docHeight = document.documentElement.scrollHeight;
+      const winHeight = window.innerHeight;
+      const scrollPos = window.scrollY;
+      
+      // If secret is visible, the height increases, so we offset the calculation
+      const currentDocHeight = isSecretVisible ? docHeight - 140 : docHeight;
+      const isAtBottom = scrollPos + winHeight >= currentDocHeight - 5;
       
       if (isAtBottom && e.deltaY > 0) {
         scrollCount++;
         if (scrollCount >= 3) {
           setIsSecretVisible(true);
+          scrollCount = 0;
         }
-      } else if (window.scrollY < scrollHeight - 200) {
-        scrollCount = 0;
+      } else if (e.deltaY < -20) {
+        // Hide secret when scrolling up significantly
         setIsSecretVisible(false);
+        scrollCount = 0;
       }
     };
     
     window.addEventListener('wheel', handleWheel, { passive: true });
-    
-    setTimeout(() => {
-      const boot = setInterval(() => {
-        setBootStep(s => {
-          if (s >= 3) { clearInterval(boot); setIsBooting(false); return 4; }
-          return s + 1;
-        });
-      }, 800);
-    }, 1000);
-    
     return () => window.removeEventListener('wheel', handleWheel);
-  }, []);
+  }, [isSecretVisible]);
+
+  useEffect(() => {
+    if (isBooting) {
+      const timer = setTimeout(() => {
+        const boot = setInterval(() => {
+          setBootStep(s => {
+            if (s >= 3) { clearInterval(boot); setIsBooting(false); return 4; }
+            return s + 1;
+          });
+        }, 800);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isBooting]);
 
   // Console Drag Handlers
   useEffect(() => {
@@ -585,34 +596,37 @@ export default function Home() {
           </div>
         </section>
 
-        <div 
-          className="relative z-[50] bg-background transition-transform duration-700 ease-out"
-          style={{ transform: isSecretVisible ? 'translateY(-140px)' : 'translateY(0)' }}
-        >
-          {/* Easter Egg Hidden Section (Drawer) */}
-          <div className="absolute top-full left-0 w-full overflow-hidden flex flex-col items-center justify-center h-[140px] bg-background border-t border-foreground/5">
-            <LEDTicker text="VERONA STUDIO" />
-          </div>
-          
-          <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5">
-            <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
-              <ul className="flex gap-4 items-center">
-                {[ 
-                  { id: 'discord', icon: <DiscordIcon className="h-5 w-5 relative z-10" />, color: '#7289da', link: 'https://discord.com/users/299338458231603202' }, 
-                  { id: 'whatsapp', icon: <WhatsAppIcon className="h-5 w-5 relative z-10" />, color: '#25d366', link: '#' }, 
-                  { id: 'email', icon: <Mail className="h-5 w-5 relative z-10" />, color: 'hsl(var(--primary))', link: 'mailto:00mezzomo@gmail.com' } 
-                ].map(s => (
-                  <li key={s.id} className="relative group">
-                    <Link href={s.link} className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all duration-300">
-                      <div className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 group-hover:h-full" style={{ backgroundColor: s.color }} />
-                      {s.icon}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16"><DigitalClock /><CyberText text={`© ${new Date().getFullYear()} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" /></div>
+        {/* Secret Drawer Wrapper */}
+        <div className="relative overflow-hidden">
+          <div 
+            className="relative z-[50] bg-background transition-transform duration-700 cubic-bezier(0.16, 1, 0.3, 1)"
+            style={{ transform: isSecretVisible ? 'translateY(-140px)' : 'translateY(0)' }}
+          >
+            <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5 bg-background">
+              <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
+                <ul className="flex gap-4 items-center">
+                  {[ 
+                    { id: 'discord', icon: <DiscordIcon className="h-5 w-5 relative z-10" />, color: '#7289da', link: 'https://discord.com/users/299338458231603202' }, 
+                    { id: 'whatsapp', icon: <WhatsAppIcon className="h-5 w-5 relative z-10" />, color: '#25d366', link: '#' }, 
+                    { id: 'email', icon: <Mail className="h-5 w-5 relative z-10" />, color: 'hsl(var(--primary))', link: 'mailto:00mezzomo@gmail.com' } 
+                  ].map(s => (
+                    <li key={s.id} className="relative group">
+                      <Link href={s.link} className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all duration-300">
+                        <div className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 group-hover:h-full" style={{ backgroundColor: s.color }} />
+                        {s.icon}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16"><DigitalClock /><CyberText text={`© ${new Date().getFullYear()} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" /></div>
+              </div>
+            </footer>
+            
+            {/* Easter Egg Hidden Section (Drawer) */}
+            <div className="absolute top-full left-0 w-full h-[140px] bg-background border-t border-foreground/5 flex flex-col items-center justify-center overflow-hidden">
+              <LEDTicker text="VERONA STUDIO" />
             </div>
-          </footer>
+          </div>
         </div>
       </main>
       <style jsx global>{`
