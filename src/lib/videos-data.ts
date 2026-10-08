@@ -71,5 +71,13 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     date: '2026',
     videoUrl: 'https://i.imgur.com/HMSGIZG.mp4',
     category: ['shorts']
+  },
+  {
+    id: 'vector-sync-edit-01',
+    title: 'Vector Motion & Sync Edit',
+    description: 'Editing built on sync and cuts, with selective vector motion graphics and expressions in After Effects. The piece communicates subtly: seemingly scattered ideas connect throughout the video and converge into a central message. That message is neither explicit nor fixed, and each viewer can reach their own interpretation.',
+    date: '2026',
+    videoUrl: 'https://i.imgur.com/B5dsEwS.mp4',
+    category: ['shorts']
   }
 ];
