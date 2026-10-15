@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -12,6 +13,7 @@ import { DigitalClock } from '@/components/digital-clock';
 import { LEDTicker } from '@/components/led-ticker';
 import { FloatingVideoCluster } from '@/components/floating-video-cluster';
 import { MagneticCTA } from '@/components/magnetic-cta';
+import { LiquidMetal, liquidMetalPresets } from '@paper-design/shaders-react';
 import { cn } from '@/lib/utils';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
@@ -496,9 +498,15 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact-section" className="relative z-[40] min-h-[82vh] flex flex-col items-center justify-center border-t border-foreground/5 bg-background overflow-hidden py-24">
+        <section id="contact-section" className="relative min-h-[82vh] flex flex-col items-center justify-center border-t border-foreground/5 bg-background overflow-hidden py-24">
+          {/* Liquid Metal Background Effect */}
+          <LiquidMetal
+            {...liquidMetalPresets[2]}
+            style={{ position: "absolute", inset: 0, zIndex: 0 }}
+          />
+          
           {/* Background Overlay */}
-          <div className="absolute inset-0 opacity-60 z-0 pointer-events-none" style={{ background: 'radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%)' }} />
+          <div className="absolute inset-0 opacity-40 z-[1] pointer-events-none" style={{ background: 'radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%)' }} />
 
           <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto mt-32">
             <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-foreground mix-blend-difference">Ready to tell<br />your story?</h2>
