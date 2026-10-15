@@ -500,7 +500,7 @@ export default function Home() {
           {/* Background Overlay */}
           <div className="absolute inset-0 opacity-60 z-0 pointer-events-none" style={{ background: 'radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%)' }} />
 
-          <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto">
+          <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto mt-32">
             <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-foreground mix-blend-difference">Ready to tell<br />your story?</h2>
             <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
           </div>
