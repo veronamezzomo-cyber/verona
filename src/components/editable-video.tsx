@@ -44,10 +44,14 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     if (saved) {
       setCurrentSrc(saved);
       hasSeekedRef.current = false;
+    } else if (defaultSrc !== currentSrc) {
+      setCurrentSrc(defaultSrc);
+      hasSeekedRef.current = false;
     }
-  }, [storageKey]);
+  }, [storageKey, defaultSrc]);
 
   // Handle intersection for automatic pausing when off-screen
+  // We use a rootMargin to keep videos "active" slightly before they enter the viewport
   useEffect(() => {
     if (!videoRef.current) return;
 
@@ -55,7 +59,10 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.1 }
+      { 
+        threshold: 0.01,
+        rootMargin: '200px 0px 200px 0px' // Keep active slightly off-screen for smoother transitions
+      }
     );
 
     observer.observe(videoRef.current);
@@ -85,19 +92,25 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     if (forcePause || !isVisible) {
       video.pause();
     } else if (isVisible && autoPlayProp) {
-      video.play().catch(() => {});
+      // Use a small delay to ensure the browser is ready to play after a potential state change
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Ignore play-interrupt errors which are common during rapid UI changes
+        });
+      }
     }
   }, [isVisible, forcePause, autoPlayProp, currentSrc]);
 
-  // Handle StartTime and initial seek
+  // Handle StartTime and initial seek (Fixes the "jump/reload" bug)
   useEffect(() => {
     const video = videoRef.current;
     if (!video || startTime === undefined || isNaN(startTime) || hasSeekedRef.current) return;
 
-    const seekAndPlay = async () => {
-      try {
-        if (!video.duration || isNaN(video.duration) || hasSeekedRef.current) return;
+    const seekAndPlay = () => {
+      if (!video.duration || isNaN(video.duration) || hasSeekedRef.current) return;
 
+      try {
         let finalStart = startTime;
         const duration = video.duration;
         
@@ -107,9 +120,12 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
           finalStart = finalStart % duration;
         }
 
+        // Only seek once per source change to prevent flickering on re-renders
         video.currentTime = finalStart;
         hasSeekedRef.current = true;
-      } catch (e) {}
+      } catch (e) {
+        console.warn("Seeking failed:", e);
+      }
     };
 
     if (video.readyState >= 1) {
