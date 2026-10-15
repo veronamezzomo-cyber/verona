@@ -20,7 +20,7 @@ export const VIDEOS_DATA: ProjectVideo[] = [
     title: 'Viral Short-Form / IShowSpeed Style',
     description: 'Video made in IShowSpeed\'s viral style. Dynamic cuts, constant captions, sound effects, transitions, color grading… This one actually blew up. And yeah, I got scammed making it. So kids, stay away from "easy money" gigs on Discord.',
     date: '2026',
-    videoUrl: 'https://i.imgur.com/aYp6QMo.mp4',
+    videoUrl: 'https://res.cloudinary.com/bacabtph/video/upload/f_auto,q_auto/undefined_-_Imgur.mp4',
     category: ['shorts']
   },
   {

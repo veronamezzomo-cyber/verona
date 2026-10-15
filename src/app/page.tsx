@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -375,7 +374,13 @@ export default function Home() {
 
   const categories = [ { id: 'all', label: 'All' }, { id: 'shorts', label: 'Shorts' }, { id: 'long', label: 'Long-Form' }, { id: 'motion', label: 'Motion' }, { id: 'talking', label: 'Talking Heads' }, { id: 'vlogs', label: 'Vlogs' } ];
   const catImages = [ { id: 'all', imageUrl: 'https://i.imgur.com/lj2mU6F.png' }, { id: 'shorts', imageUrl: 'https://i.imgur.com/ehRTGR0.png' }, { id: 'long', imageUrl: 'https://i.imgur.com/jAja7gP.png' }, { id: 'motion', imageUrl: 'https://i.imgur.com/leLxq09.png' }, { id: 'talking', imageUrl: 'https://i.imgur.com/2u5rbjn.png' }, { id: 'vlogs', imageUrl: 'https://i.imgur.com/85wpzam.png' } ];
-  const clusterVideos = [ { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 }, { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 0 }, { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 }, { id: 'speed', videoUrl: 'https://i.imgur.com/aYp6QMo.mp4', startTime: 0 }, { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 } ];
+  const clusterVideos = [ 
+    { id: 'grok', videoUrl: 'https://i.imgur.com/SRki5JL.mp4', startTime: 0 }, 
+    { id: 'intro', videoUrl: 'https://i.imgur.com/ND3kmsW.mp4', startTime: 0 }, 
+    { id: 'cook', videoUrl: 'https://i.imgur.com/cyxF01x.mp4', startTime: 0 }, 
+    { id: 'speed', videoUrl: 'https://res.cloudinary.com/bacabtph/video/upload/f_auto,q_auto/undefined_-_Imgur.mp4', startTime: 0 }, 
+    { id: 'pensen', videoUrl: 'https://i.imgur.com/2ss69QQ.mp4', startTime: 0 } 
+  ];
 
   const renderNeonLine = (text: string, glowClass: string) => {
     const words = text.split(' ');
