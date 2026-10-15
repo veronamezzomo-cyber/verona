@@ -99,12 +99,6 @@ export default function Home() {
   const mainRef = useRef<HTMLDivElement>(null);
   const categoryBarRef = useRef<HTMLDivElement>(null);
   const techIconsRef = useRef<HTMLDivElement>(null);
-  
-  // Contact Orbit Refs
-  const contactVideoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const contactProgressRef = useRef(0);
-  const contactTimeRef = useRef(0);
-  const contactRequestRef = useRef<number>(0);
 
   // Console Drag State
   const [terminalOffset, setTerminalOffset] = useState({ x: 0, y: 0 });
@@ -259,85 +253,19 @@ export default function Home() {
       ease: "power2.inOut"
     }, "+=0.4"); 
     
-    const tiles = document.querySelectorAll(".contact-video-tile");
-    const cta = document.querySelector(".contact-content-reveal");
-
-    const animateContactOrbit = () => {
-      const progress = contactProgressRef.current;
-      const step = 0.004; 
-      contactTimeRef.current += step;
-
-      const orbitCenter = { y: 32 };
-      const convergenceY = gsap.utils.interpolate(-120, orbitCenter.y, progress);
-      const radiusFactor = gsap.utils.interpolate(3, 1, progress); 
-      
-      const TILT = 12 * (Math.PI / 180); 
-      const cosT = Math.cos(TILT);
-      const sinT = Math.sin(TILT);
-
-      tiles.forEach((tile, i) => {
-        const baseAngle = (i * Math.PI * 2 / 6);
-        const currentAngle = contactTimeRef.current + baseAngle;
-        const visualDepth = Math.sin(currentAngle); 
-
-        const rx = (window.innerWidth < 768 ? 16 : 28) * radiusFactor;
-        const ry = (window.innerWidth < 768 ? 12 : 20) * radiusFactor;
-        
-        const rawX = Math.cos(currentAngle) * rx;
-        const rawY = Math.sin(currentAngle) * ry;
-
-        const x = (rawX * cosT - rawY * sinT);
-        const y = (rawX * sinT + rawY * cosT);
-
-        const scale = gsap.utils.interpolate(0.6, 1, progress) * (0.85 + ((visualDepth + 1) / 2) * 0.3);
-        const opacity = gsap.utils.interpolate(0, 1, progress);
-        const blur = gsap.utils.interpolate(10, 0, progress) + (1 - (visualDepth + 1) / 2) * 5;
-        const zIndex = 50 + Math.round(visualDepth * 50);
-
-        gsap.set(tile, {
-          x: x + "vw",
-          y: (y + convergenceY) + "vh",
-          rotation: (Math.sin(currentAngle * 0.5) * 8),
-          scale: scale,
-          opacity: opacity,
-          filter: `blur(${blur}px)`,
-          zIndex: zIndex
-        });
-      });
-
-      if (cta) {
-        gsap.set(cta, {
-          y: (1 - progress) * 120, 
-          opacity: progress,
-          scale: gsap.utils.interpolate(0.9, 1, progress)
-        });
-      }
-
-      contactRequestRef.current = requestAnimationFrame(animateContactOrbit);
-    };
-
-    ScrollTrigger.create({
-      trigger: "#contact-section",
-      start: "top bottom",
-      end: "bottom bottom",
-      scrub: 1.5,
-      onEnter: () => {
-        if (!contactRequestRef.current) animateContactOrbit();
+    // Simplified Reveal for Contact Section
+    gsap.to(".contact-content-reveal", {
+      scrollTrigger: {
+        trigger: "#contact-section",
+        start: "top 60%",
+        toggleActions: "play none none reverse"
       },
-      onUpdate: (self) => {
-        contactProgressRef.current = self.progress;
-      },
-      onLeaveBack: () => {
-        if (contactRequestRef.current) {
-          cancelAnimationFrame(contactRequestRef.current);
-          contactRequestRef.current = 0;
-        }
-      }
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      duration: 1.2,
+      ease: "power3.out"
     });
-
-    return () => {
-      if (contactRequestRef.current) cancelAnimationFrame(contactRequestRef.current);
-    };
 
   }, { scope: mainRef });
 
@@ -568,38 +496,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact-section" className="relative z-[40] min-h-[102.5vh] flex flex-col items-center border-t border-foreground/5 bg-background overflow-hidden">
+        <section id="contact-section" className="relative z-[40] min-h-screen flex flex-col items-center border-t border-foreground/5 bg-background overflow-hidden">
           <div className="sticky top-0 h-screen w-full flex items-center justify-center z-0">
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-              {VIDEOS_DATA.slice(0, 6).map((vid, i) => (
-                <div 
-                  key={i} 
-                  className="contact-video-tile absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 rounded-2xl overflow-hidden border border-primary/40 bg-black shadow-[0_0_30px_-5px_hsla(var(--primary),0.3)] opacity-0"
-                  style={{ willChange: 'transform, opacity, filter' }}
-                >
-                  <EditableVideo 
-                    ref={el => { contactVideoRefs.current[i] = el; }}
-                    src={vid.videoUrl} 
-                    storageKey={`contact-${vid.id}`} 
-                    fill 
-                    className="object-cover" 
-                    autoPlay={false}
-                    muted 
-                    loop 
-                    playsInline 
-                    hideControls 
-                    preload="metadata"
-                    forcePause={isTheaterOpen}
-                  />
-                  <div className="absolute inset-0 bg-black/60" />
-                  <div className="absolute inset-0 bg-primary/5 mix-blend-overlay" />
-                </div>
-              ))}
-              <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60" />
-            </div>
+            {/* Background Overlay */}
+            <div className="absolute inset-0 bg-radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%) opacity-60 z-0 pointer-events-none" />
 
-            <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-end h-full text-center gap-14 opacity-0 pointer-events-auto pb-10">
-              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-white mix-blend-difference">Ready to tell<br />your story?</h2>
+            <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center h-full text-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto pb-10">
+              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-foreground mix-blend-difference">Ready to tell<br />your story?</h2>
               <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
             </div>
           </div>
