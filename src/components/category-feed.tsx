@@ -20,9 +20,10 @@ if (typeof window !== 'undefined') {
 interface CategoryFeedProps {
   category: string | null;
   onClose: () => void;
+  onTheaterToggle?: (isOpen: boolean) => void;
 }
 
-export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
+export function CategoryFeed({ category, onClose, onTheaterToggle }: CategoryFeedProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   
@@ -42,7 +43,8 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
   const closeTheater = useCallback(() => {
     setSelectedProject(null);
     setTerminalStatus('closed');
-  }, []);
+    if (onTheaterToggle) onTheaterToggle(false);
+  }, [onTheaterToggle]);
 
   useEffect(() => {
     setSelectedProject(null);
@@ -104,6 +106,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
     setClickCount(prev => prev + 1);
     setSelectedProject(item);
     setTerminalStatus('open');
+    if (onTheaterToggle) onTheaterToggle(true);
   };
 
   return (
@@ -255,6 +258,7 @@ export function CategoryFeed({ category, onClose }: CategoryFeedProps) {
                           playsInline
                           hideControls
                           startTime={item.startTime}
+                          forcePause={!!selectedProject}
                         />
                       )}
                       

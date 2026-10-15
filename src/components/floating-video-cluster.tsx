@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { EditableVideo } from './editable-video';
 import gsap from 'gsap';
 
-export function FloatingVideoCluster({ videos }: { videos: any[] }) {
+export function FloatingVideoCluster({ videos, isPaused = false }: { videos: any[], isPaused?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLDivElement | null)[]>([]);
   const timeRef = useRef(0);
@@ -43,6 +43,7 @@ export function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
   useEffect(() => {
     const rotateFocus = () => {
+      if (isPaused) return;
       const prev = currentFocusedIndexRef.current;
       const next = (prev + 1) % videos.length;
       currentFocusedIndexRef.current = next;
@@ -53,7 +54,7 @@ export function FloatingVideoCluster({ videos }: { videos: any[] }) {
 
     const interval = setInterval(rotateFocus, 6000);
     return () => clearInterval(interval);
-  }, [videos.length]);
+  }, [videos.length, isPaused]);
 
   useEffect(() => {
     const TILT = 12 * (Math.PI / 180); 
@@ -62,69 +63,71 @@ export function FloatingVideoCluster({ videos }: { videos: any[] }) {
     const PARALLAX_INTENSITY = 0.45; 
     
     const animate = () => {
-      const focusIdx = currentFocusedIndexRef.current;
-      const targetHover = isHoveredRef.current ? 1.3 : 1;
-      hoverFactorRef.current += (targetHover - hoverFactorRef.current) * 0.1;
+      if (!isPaused) {
+        const focusIdx = currentFocusedIndexRef.current;
+        const targetHover = isHoveredRef.current ? 1.3 : 1;
+        hoverFactorRef.current += (targetHover - hoverFactorRef.current) * 0.1;
 
-      const breathing = Math.sin(timeRef.current * 0.1) * 0.0015;
-      const step = (0.005 + breathing) * hoverFactorRef.current;
-      timeRef.current += step;
+        const breathing = Math.sin(timeRef.current * 0.1) * 0.0015;
+        const step = (0.005 + breathing) * hoverFactorRef.current;
+        timeRef.current += step;
 
-      videoRefs.current.forEach((el, i) => {
-        if (!el) return;
-        
-        const { rx: baseRx, ry: baseRy } = orbitParams;
-        const ff = focalFactorsRef.current[i].val; 
-        
-        let targetOffset;
-        if (i === focusIdx) {
-          targetOffset = i * (2 * Math.PI / videos.length);
-        } else {
-          const rank = i < focusIdx ? i : i - 1;
-          targetOffset = rank * (2 * Math.PI / (videos.length - 1));
-        }
-        
-        currentOffsetsRef.current[i] += (targetOffset - currentOffsetsRef.current[i]) * 0.05;
-        
-        const baseAngle = timeRef.current + currentOffsetsRef.current[i];
-        const effectiveAngle = baseAngle + Math.sin(baseAngle) * PARALLAX_INTENSITY;
-        const visualDepth = Math.sin(effectiveAngle); 
-        
-        const rx = baseRx * (0.85 + (i % 3) * 0.1);
-        const ry = baseRy * (0.85 + (i % 2) * 0.15);
-        
-        const rawX = Math.cos(effectiveAngle) * rx;
-        const rawY = Math.sin(effectiveAngle) * ry;
-        
-        const orbitalX = (rawX * cosT - rawY * sinT) * expansionRef.current;
-        const orbitalY = (rawX * sinT + rawY * cosT) * expansionRef.current;
+        videoRefs.current.forEach((el, i) => {
+          if (!el) return;
+          
+          const { rx: baseRx, ry: baseRy } = orbitParams;
+          const ff = focalFactorsRef.current[i].val; 
+          
+          let targetOffset;
+          if (i === focusIdx) {
+            targetOffset = i * (2 * Math.PI / videos.length);
+          } else {
+            const rank = i < focusIdx ? i : i - 1;
+            targetOffset = rank * (2 * Math.PI / (videos.length - 1));
+          }
+          
+          currentOffsetsRef.current[i] += (targetOffset - currentOffsetsRef.current[i]) * 0.05;
+          
+          const baseAngle = timeRef.current + currentOffsetsRef.current[i];
+          const effectiveAngle = baseAngle + Math.sin(baseAngle) * PARALLAX_INTENSITY;
+          const visualDepth = Math.sin(effectiveAngle); 
+          
+          const rx = baseRx * (0.85 + (i % 3) * 0.1);
+          const ry = baseRy * (0.85 + (i % 2) * 0.15);
+          
+          const rawX = Math.cos(effectiveAngle) * rx;
+          const rawY = Math.sin(effectiveAngle) * ry;
+          
+          const orbitalX = (rawX * cosT - rawY * sinT) * expansionRef.current;
+          const orbitalY = (rawX * sinT + rawY * cosT) * expansionRef.current;
 
-        const x = orbitalX * (1 - ff);
-        const y = orbitalY * (1 - ff);
+          const x = orbitalX * (1 - ff);
+          const y = orbitalY * (1 - ff);
 
-        const baseScale = 0.9 + ((visualDepth + 1) / 2) * 0.25;
-        const scale = baseScale * (1 - ff) + (1.25 * ff);
-        
-        const baseBlur = (1 - (visualDepth + 1) / 2) * 4;
-        const blur = baseBlur * (1 - ff);
-        
-        const baseZIndex = 50 + Math.round(visualDepth * 50);
-        const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
+          const baseScale = 0.9 + ((visualDepth + 1) / 2) * 0.25;
+          const scale = baseScale * (1 - ff) + (1.25 * ff);
+          
+          const baseBlur = (1 - (visualDepth + 1) / 2) * 4;
+          const blur = baseBlur * (1 - ff);
+          
+          const baseZIndex = 50 + Math.round(visualDepth * 50);
+          const zIndex = Math.round(baseZIndex * (1 - ff) + (200 + i) * ff);
 
-        el.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`;
-        el.style.zIndex = zIndex.toString();
-        el.style.filter = blur > 0.5 ? `blur(${blur}px)` : 'none';
-        
-        const shadowOp = (Math.max(0, visualDepth + 0.5) * 0.4) * (1 - ff) + 0.6 * ff;
-        el.style.boxShadow = `0 ${20 * shadowOp}px ${40 * shadowOp}px -10px rgba(0,0,0,${0.5 * shadowOp})`;
-      });
+          el.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`;
+          el.style.zIndex = zIndex.toString();
+          el.style.filter = blur > 0.5 ? `blur(${blur}px)` : 'none';
+          
+          const shadowOp = (Math.max(0, visualDepth + 0.5) * 0.4) * (1 - ff) + 0.6 * ff;
+          el.style.boxShadow = `0 ${20 * shadowOp}px ${40 * shadowOp}px -10px rgba(0,0,0,${0.5 * shadowOp})`;
+        });
+      }
       
       requestRef.current = requestAnimationFrame(animate);
     };
 
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
-  }, [orbitParams, videos.length]);
+  }, [orbitParams, videos.length, isPaused]);
 
   return (
     <div 
@@ -158,6 +161,7 @@ export function FloatingVideoCluster({ videos }: { videos: any[] }) {
               playsInline
               hideControls
               startTime={vid.startTime}
+              forcePause={isPaused}
             />
           </div>
         ))}

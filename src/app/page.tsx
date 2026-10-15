@@ -93,6 +93,9 @@ export default function Home() {
   const [bootStep, setBootStep] = useState(0);
   const [isTerminalClosed, setIsTerminalClosed] = useState(false);
   const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
+  const [isHeroPaused, setIsHeroPaused] = useState(false);
+  const [isTheaterOpen, setIsTheaterOpen] = useState(false);
+
   const mainRef = useRef<HTMLDivElement>(null);
   const categoryBarRef = useRef<HTMLDivElement>(null);
   const techIconsRef = useRef<HTMLDivElement>(null);
@@ -111,12 +114,10 @@ export default function Home() {
   useEffect(() => {
     let scrollCount = 0;
     const handleWheel = (e: WheelEvent) => {
-      // Calculate scroll position precisely
       const docHeight = document.documentElement.scrollHeight;
       const winHeight = window.innerHeight;
       const scrollPos = window.scrollY;
       
-      // If secret is visible, the height increases, so we offset the calculation
       const currentDocHeight = isSecretVisible ? docHeight - 140 : docHeight;
       const isAtBottom = scrollPos + winHeight >= currentDocHeight - 5;
       
@@ -127,7 +128,6 @@ export default function Home() {
           scrollCount = 0;
         }
       } else if (e.deltaY < -20) {
-        // Hide secret when scrolling up significantly
         setIsSecretVisible(false);
         scrollCount = 0;
       }
@@ -151,7 +151,6 @@ export default function Home() {
     }
   }, [isBooting]);
 
-  // Console Drag Handlers
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!isDraggingTerminal) return;
@@ -181,6 +180,14 @@ export default function Home() {
     gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
     
+    // Control Hero Pause state based on Archive Section reaching top
+    ScrollTrigger.create({
+      trigger: "#archive-section",
+      start: "top top",
+      onEnter: () => setIsHeroPaused(true),
+      onLeaveBack: () => setIsHeroPaused(false)
+    });
+
     const bar = categoryBarRef.current;
     if (bar) {
       gsap.to(bar, { 
@@ -315,14 +322,6 @@ export default function Home() {
       end: "bottom bottom",
       scrub: 1.5,
       onEnter: () => {
-        contactVideoRefs.current.forEach((v, i) => {
-          if (v) {
-            v.load();
-            setTimeout(() => {
-              v.play().catch(() => {});
-            }, i * 100);
-          }
-        });
         if (!contactRequestRef.current) animateContactOrbit();
       },
       onUpdate: (self) => {
@@ -453,7 +452,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="lg:col-span-5 flex justify-center lg:justify-end animate-image-reveal overflow-visible">
-              <FloatingVideoCluster videos={clusterVideos} />
+              <FloatingVideoCluster videos={clusterVideos} isPaused={isHeroPaused || isTheaterOpen} />
             </div>
           </div>
           <div className="scroll-indicator-ref absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-0 pointer-events-none">
@@ -486,7 +485,11 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <CategoryFeed category={activeCategory} onClose={() => setActiveCategory(null)} />
+          <CategoryFeed 
+            category={activeCategory} 
+            onClose={() => setActiveCategory(null)} 
+            onTheaterToggle={setIsTheaterOpen}
+          />
         </section>
 
         <section id="archive-section" className="relative z-[30] min-h-screen w-full bg-background border-t border-foreground/5 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
@@ -586,6 +589,7 @@ export default function Home() {
                     playsInline 
                     hideControls 
                     preload="metadata"
+                    forcePause={isTheaterOpen}
                   />
                   <div className="absolute inset-0 bg-black/60" />
                   <div className="absolute inset-0 bg-primary/5 mix-blend-overlay" />
@@ -601,7 +605,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Secret Drawer Wrapper */}
         <div className="relative overflow-hidden">
           <div 
             className="relative z-[50] bg-background transition-transform duration-700 cubic-bezier(0.16, 1, 0.3, 1)"
@@ -627,7 +630,6 @@ export default function Home() {
               </div>
             </footer>
             
-            {/* Easter Egg Hidden Section (Drawer) */}
             <div className="absolute top-full left-0 w-full h-[140px] bg-background border-t border-foreground/5 flex flex-col items-center justify-center overflow-hidden">
               <LEDTicker text="VERONA STUDIO" />
             </div>

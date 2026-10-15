@@ -12,6 +12,7 @@ interface EditableVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement>
   fill?: boolean;
   hideControls?: boolean;
   startTime?: number;
+  forcePause?: boolean;
 }
 
 export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({ 
@@ -24,18 +25,20 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
   startTime,
   autoPlay: autoPlayProp = true,
   preload = "metadata",
+  forcePause = false,
   ...props 
 }, ref) => {
   const [currentSrc, setCurrentSrc] = useState(defaultSrc);
   const [isMuted, setIsMuted] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hasSeekedRef = useRef(false);
 
-  // Expose the internal video ref to the parent
   useImperativeHandle(ref, () => videoRef.current!);
 
   const isTheaterMode = storageKey.startsWith('theater-');
 
+  // Load from session storage
   useEffect(() => {
     const saved = sessionStorage.getItem(`vid_${storageKey}`);
     if (saved) {
@@ -44,13 +47,29 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     }
   }, [storageKey]);
 
+  // Handle intersection for automatic pausing when off-screen
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(videoRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Sync mute state and theater mode volume
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     if (isTheaterMode) {
       video.muted = false;
-      video.volume = 0.3;
+      video.volume = 0.5;
       setIsMuted(false);
     } else {
       video.muted = true;
@@ -58,6 +77,19 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     }
   }, [isTheaterMode, currentSrc]);
 
+  // Master Control: Play/Pause based on Visibility and external ForcePause
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (forcePause || !isVisible) {
+      video.pause();
+    } else if (isVisible && autoPlayProp) {
+      video.play().catch(() => {});
+    }
+  }, [isVisible, forcePause, autoPlayProp, currentSrc]);
+
+  // Handle StartTime and initial seek
   useEffect(() => {
     const video = videoRef.current;
     if (!video || startTime === undefined || isNaN(startTime) || hasSeekedRef.current) return;
@@ -70,20 +102,13 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
         const duration = video.duration;
         
         if (finalStart < 0) {
-          while (finalStart < 0) {
-            finalStart += duration;
-          }
+          while (finalStart < 0) finalStart += duration;
         } else {
           finalStart = finalStart % duration;
         }
 
         video.currentTime = finalStart;
         hasSeekedRef.current = true;
-        
-        // Only autoplay if explicitly requested
-        if (video.paused && autoPlayProp) {
-          await video.play().catch(() => {});
-        }
       } catch (e) {}
     };
 
@@ -91,17 +116,9 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
       seekAndPlay();
     }
 
-    const onLoadedMetadata = () => seekAndPlay();
-    const onCanPlay = () => seekAndPlay();
-
-    video.addEventListener('loadedmetadata', onLoadedMetadata);
-    video.addEventListener('canplay', onCanPlay);
-
-    return () => {
-      video.removeEventListener('loadedmetadata', onLoadedMetadata);
-      video.removeEventListener('canplay', onCanPlay);
-    };
-  }, [currentSrc, startTime, autoPlayProp]);
+    video.addEventListener('loadedmetadata', seekAndPlay);
+    return () => video.removeEventListener('loadedmetadata', seekAndPlay);
+  }, [currentSrc, startTime]);
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
