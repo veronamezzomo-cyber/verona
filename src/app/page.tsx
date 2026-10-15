@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -498,7 +497,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="contact-section" className="relative min-h-[82vh] flex flex-col items-center justify-center border-t border-foreground/5 bg-background overflow-hidden py-24">
+        <section id="contact-section" className="relative min-h-screen flex flex-col border-t border-foreground/5 bg-background overflow-hidden">
           {/* Liquid Metal Background Effect */}
           <LiquidMetal
             {...liquidMetalPresets[2]}
@@ -508,42 +507,44 @@ export default function Home() {
           {/* Background Overlay */}
           <div className="absolute inset-0 opacity-40 z-[1] pointer-events-none" style={{ background: 'radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%)' }} />
 
-          <div className="contact-content-reveal relative z-10 flex flex-col items-center justify-center text-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto mt-32">
-            <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-foreground mix-blend-difference">Ready to tell<br />your story?</h2>
-            <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
-          </div>
-        </section>
-
-        <div className="relative overflow-hidden">
-          <div 
-            className="relative z-[50] bg-background transition-transform duration-700 cubic-bezier(0.16, 1, 0.3, 1)"
-            style={{ transform: isSecretVisible ? 'translateY(-140px)' : 'translateY(0)' }}
-          >
-            <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5 bg-background">
-              <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
-                <ul className="flex gap-4 items-center">
-                  {[ 
-                    { id: 'discord', icon: <DiscordIcon className="h-5 w-5 relative z-10" />, color: '#7289da', link: 'https://discord.com/users/299338458231603202' }, 
-                    { id: 'whatsapp', icon: <WhatsAppIcon className="h-5 w-5 relative z-10" />, color: '#25d366', link: '#' }, 
-                    { id: 'email', icon: <Mail className="h-5 w-5 relative z-10" />, color: 'hsl(var(--primary))', link: 'mailto:00mezzomo@gmail.com' } 
-                  ].map(s => (
-                    <li key={s.id} className="relative group">
-                      <Link href={s.link} className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all duration-300">
-                        <div className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 group-hover:h-full" style={{ backgroundColor: s.color }} />
-                        {s.icon}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16"><DigitalClock /><CyberText text={`© ${new Date().getFullYear()} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" /></div>
-              </div>
-            </footer>
-            
-            <div className="absolute top-full left-0 w-full h-[140px] bg-background border-t border-foreground/5 flex flex-col items-center justify-center overflow-hidden">
-              <LEDTicker text="VERONA STUDIO" />
+          <div className="flex-1 flex flex-col items-center justify-center relative z-10 text-center px-6">
+            <div className="contact-content-reveal relative flex flex-col items-center justify-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto">
+              <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-foreground mix-blend-difference">Ready to tell<br />your story?</h2>
+              <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
             </div>
           </div>
-        </div>
+
+          <div className="relative overflow-hidden z-[50] shrink-0">
+            <div 
+              className="relative bg-background transition-transform duration-700 cubic-bezier(0.16, 1, 0.3, 1)"
+              style={{ transform: isSecretVisible ? 'translateY(-140px)' : 'translateY(0)' }}
+            >
+              <footer className="py-8 md:py-12 w-full px-6 md:px-12 border-t border-foreground/5 bg-background">
+                <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6">
+                  <ul className="flex gap-4 items-center">
+                    {[ 
+                      { id: 'discord', icon: <DiscordIcon className="h-5 w-5 relative z-10" />, color: '#7289da', link: 'https://discord.com/users/299338458231603202' }, 
+                      { id: 'whatsapp', icon: <WhatsAppIcon className="h-5 w-5 relative z-10" />, color: '#25d366', link: '#' }, 
+                      { id: 'email', icon: <Mail className="h-5 w-5 relative z-10" />, color: 'hsl(var(--primary))', link: 'mailto:00mezzomo@gmail.com' } 
+                    ].map(s => (
+                      <li key={s.id} className="relative group">
+                        <Link href={s.link} className="relative overflow-hidden w-12 h-12 rounded-full bg-foreground/[0.05] border border-foreground/5 flex items-center justify-center text-muted-foreground hover:text-white transition-all duration-300">
+                          <div className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 group-hover:h-full" style={{ backgroundColor: s.color }} />
+                          {s.icon}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16"><DigitalClock /><CyberText text={`© ${new Date().getFullYear()} LEONARDO VERONA.`} variant="decrypt" delay={500} corrupt className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground" /></div>
+                </div>
+              </footer>
+              
+              <div className="absolute top-full left-0 w-full h-[140px] bg-background border-t border-foreground/5 flex flex-col items-center justify-center overflow-hidden">
+                <LEDTicker text="VERONA STUDIO" />
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <style jsx global>{`
         .cyber-scrollbar::-webkit-scrollbar { width: 4px; }
