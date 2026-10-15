@@ -28,15 +28,6 @@ export const metadata: Metadata = {
   description: 'Selected works and professional portfolio of Leonardo Verona, specialized in cinematic storytelling and motion design.',
   keywords: ['Video Editor', 'Motion Design', 'Color Grading', 'Portfolio', 'Leonardo Verona', 'Cinematic', 'Visual Storytelling'],
   authors: [{ name: 'Leonardo Verona' }],
-  icons: {
-    icon: [
-      { url: 'https://i.imgur.com/WjYCpJL.png', sizes: '32x32', type: 'image/png' },
-      { url: 'https://i.imgur.com/WjYCpJL.png', sizes: '16x16', type: 'image/png' },
-    ],
-    apple: [
-      { url: 'https://i.imgur.com/WjYCpJL.png', sizes: '180x180', type: 'image/png' },
-    ],
-  },
   openGraph: {
     title: 'Leonardo Verona | Video Editor Portfolio',
     description: 'Expert cinematic visual storytelling and video editing.',
