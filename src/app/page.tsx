@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { EditableImage } from '@/components/editable-image';
-import { EditableVideo } from '@/components/editable-video';
 import { CategoryFeed } from '@/components/category-feed';
 import { CyberText } from '@/components/cyber-text';
 import { DigitalClock } from '@/components/digital-clock';
@@ -101,7 +100,6 @@ export default function Home() {
   const categoryBarRef = useRef<HTMLDivElement>(null);
   const techIconsRef = useRef<HTMLDivElement>(null);
 
-  // Console Drag State
   const [terminalOffset, setTerminalOffset] = useState({ x: 0, y: 0 });
   const [isDraggingTerminal, setIsDraggingTerminal] = useState(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
@@ -175,7 +173,6 @@ export default function Home() {
     gsap.to(".hud-reveal", { opacity: 1, duration: 1, delay: 1 });
     gsap.to(".scroll-indicator-ref", { opacity: 1, duration: 1, delay: 1.8 });
     
-    // Control Hero Pause state based on Archive Section reaching top
     ScrollTrigger.create({
       trigger: "#archive-section",
       start: "top top",
@@ -254,7 +251,6 @@ export default function Home() {
       ease: "power2.inOut"
     }, "+=0.4"); 
     
-    // Simplified Reveal for Contact Section
     gsap.to(".contact-content-reveal", {
       scrollTrigger: {
         trigger: "#contact-section",
@@ -498,17 +494,15 @@ export default function Home() {
         </section>
 
         <section id="contact-section" className="relative min-h-screen flex flex-col border-t border-foreground/5 bg-background overflow-hidden">
-          {/* Liquid Metal Background Effect */}
           <LiquidMetal
             {...liquidMetalPresets[2]}
             style={{ position: "absolute", inset: 0, zIndex: 0 }}
           />
           
-          {/* Background Overlay */}
           <div className="absolute inset-0 opacity-40 z-[1] pointer-events-none" style={{ background: 'radial-gradient(circle, transparent 20%, hsl(var(--background)) 80%)' }} />
 
-          <div className="flex-1 flex flex-col items-center justify-center relative z-10 text-center px-6">
-            <div className="contact-content-reveal relative flex flex-col items-center justify-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto">
+          <div className="flex-1 flex flex-col items-center justify-center relative z-10 text-center px-6 pb-[140px]">
+            <div className="contact-content-reveal relative flex flex-col items-center justify-center gap-14 opacity-0 translate-y-20 scale-95 pointer-events-auto mt-[140px]">
               <h2 className="text-5xl sm:text-7xl md:text-8xl font-serif italic font-bold leading-[1.1] text-foreground mix-blend-difference">Ready to tell<br />your story?</h2>
               <Link href="mailto:00mezzomo@gmail.com"><MagneticCTA><Button size="lg" className="rounded-none px-12 sm:px-16 h-16 sm:h-20 text-lg sm:text-xl font-bold bg-primary text-primary-foreground hover:bg-transparent hover:text-primary border-2 border-primary transition-all duration-300">Let's Talk</Button></MagneticCTA></Link>
             </div>
@@ -557,7 +551,7 @@ export default function Home() {
 
 const DiscordIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19.27 4.73C17.78 4.05 16.2 3.56 14.53 3.32a.066.066 0 0 0-.07.03c-.2.36-.43.83-.58 1.18-1.77-.26-3.53-.26-5.26 0-.16-.35-.4-.82-.6-1.18a.066.066 0 0 0-.07-.03c-1.67.24-3.25.73-4.74 1.41a.067.067 0 0 0-.03-.03C.32 8.52-.45 12.22.25 15.86a.07.07 0 0 0 .03.05c2.1 1.54 4.12 2.48 6.1 3.09a.07.07 0 0 0 .08-.02c.47-.64.88-1.32 1.23-2.04a.07.07 0 0 0-.04-.09c-.67-.26-1.3-.57-1.9-.94a.07.07 0 0 1-.01-.12c.13-.1.26-.2.38-.3a.07.07 0 0 1 .07-.01c3.94 1.8 8.19 1.8 12.09 0a.07.07 0 0 1 .07.01c.12.1.25.2.38.3a.07.07 0 0 1-.01.12c-.6.37-1.23.68-1.9.94a.07.07 0 0 1 .07.01c.12.1.25.2.38.3a.07.07 0 0 1-.01.12c-.6.37-1.23.68-1.9.94a.07.07 0 0 0-.04-.09c.36.72.77 1.4 1.23 2.04a.07.07 0 0 0 .08-.02c1.99-.61 4.01-1.55 6.11-3.09a.07.07 0 0 0 .03-.05c.82-4.43-.39-8.1-.25-11.13a.067.067 0 0 0-.03-.03zM8.19 13.08c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.09 2.16 2.42 0 1.34-.95 2.42-2.16 2.42zm7.65 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.09 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/>
+    <path d="M19.27 4.73C17.78 4.05 16.2 3.56 14.53 3.32a.066.066 0 0 0-.07.03c-.2.36-.43.83-.58 1.18-1.77-.26-3.53-.26-5.26 0-.16-.35-.4-.82-.6-1.18a.066.066 0 0 0-.07-.03c-1.67.24-3.25.73-4.74 1.41a.067.067 0 0 0-.03-.03C.32 8.52-.45 12.22.25 15.86a.07.07 0 0 0 .03.05c2.1 1.54 4.12 2.48 6.1 3.09a.07.07 0 0 0 .08-.02c.47-.64.88-1.32 1.23-2.04a.07.07 0 0 0-.04-.09c-.67-.26-1.3-.57-1.9-.94a.07.07 0 0 1-.01-.12c.13-.1.26-.2.38-.3a.07.07 0 0 1 .07-.01c3.94 1.8 8.19 1.8 12.09 0a.07.07 0 0 1 .07.01c.12.1.25.2.38.3a.07.07 0 0 1-.01.12c-.6.37-1.23.68-1.9.94a.07.07 0 0 1 .07.01c.12.1.25.2.38.3a.07.07 0 0 1-.01.12c-.6.37-1.23.68-1.9.94a.07.07 0 0 1 .07.01c.12.1.25.2.38.3a.07.07 0 0 1-.01.12c-.6.37-1.23.68-1.9.94a.07.07 0 0 0-.04-.09c.36.72.77 1.4 1.23 2.04a.07.07 0 0 0 .08-.02c1.99-.61 4.01-1.55 6.11-3.09a.07.07 0 0 0 .03-.05c.82-4.43-.39-8.1-.25-11.13a.067.067 0 0 0-.03-.03zM8.19 13.08c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.09 2.16 2.42 0 1.34-.95 2.42-2.16 2.42zm7.65 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.95-2.42 2.16-2.42 1.21 0 2.18 1.09 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/>
   </svg>
 );
 

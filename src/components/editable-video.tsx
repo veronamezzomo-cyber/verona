@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Volume2, VolumeX } from 'volume-2'; // Note: corrected volume icons if needed, but keeping existing logic
 import { Volume2 as Vol2, VolumeX as VolX } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -39,7 +38,6 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
 
   const isTheaterMode = storageKey.startsWith('theater-');
 
-  // Load from session storage
   useEffect(() => {
     const saved = sessionStorage.getItem(`vid_${storageKey}`);
     if (saved) {
@@ -51,8 +49,6 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     }
   }, [storageKey, defaultSrc]);
 
-  // Handle intersection for automatic pausing when off-screen
-  // Increased rootMargin to 600px to allow earlier buffering and smoother transitions
   useEffect(() => {
     if (!videoRef.current) return;
 
@@ -70,7 +66,6 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     return () => observer.disconnect();
   }, []);
 
-  // Sync mute state and theater mode volume
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -85,8 +80,6 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     }
   }, [isTheaterMode, currentSrc]);
 
-  // Master Control: Play/Pause based on Visibility and external ForcePause
-  // Implemented staggered play with robust error handling and readyState check
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -94,18 +87,12 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     if (forcePause || !isVisible) {
       video.pause();
     } else if (isVisible && autoPlayProp) {
-      // Small staggered delay based on a random factor to prevent GPU congestion
-      // when multiple videos (like in the "All" grid) become visible at once.
       const playTimeout = setTimeout(() => {
         if (!video) return;
-        
-        // Only attempt play if metadata is loaded and video is ready
         if (video.readyState >= 2) {
           const playPromise = video.play();
           if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              // Ignore play-interrupt errors common during navigation or zoom
-            });
+            playPromise.catch(() => {});
           }
         }
       }, 50 + Math.random() * 150);
@@ -114,7 +101,6 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
     }
   }, [isVisible, forcePause, autoPlayProp, currentSrc]);
 
-  // Handle StartTime and initial seek (Fixes the "jump/reload" bug)
   useEffect(() => {
     const video = videoRef.current;
     if (!video || startTime === undefined || isNaN(startTime) || hasSeekedRef.current) return;
@@ -132,7 +118,6 @@ export const EditableVideo = forwardRef<HTMLVideoElement, EditableVideoProps>(({
           finalStart = finalStart % duration;
         }
 
-        // Only seek once per source change to prevent flickering on re-renders
         video.currentTime = finalStart;
         hasSeekedRef.current = true;
       } catch (e) {
